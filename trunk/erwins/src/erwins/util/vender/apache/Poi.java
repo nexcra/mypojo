@@ -103,15 +103,19 @@ public class Poi extends PoiRoot{
     }    
     
     /** 기생성된 row에 i번째 컬럼 부터 value를 입력한다. */
-    public void setValues(int i,String ... values){
+    public void setValues(int i,Object ... values){
         HSSFRow row = currentPoi.createNextRow(); 
-        for(String value : values){
+        for(Object each : values){
+            String value = null;
+            if(each==null) value="";
+            else if(each instanceof Number) value = Formats.DOUBLE2.get((Number)each);
+            else value = each.toString();
             row.createCell((short)i++).setCellValue(new HSSFRichTextString(value));    
         }
     }    
     
     /** sheet의 마지막에 row를 생성하고 value를 입력한다. */    
-    public void addValues(String ... values){
+    public void addValues(Object ... values){
         setValues(0,values);
     }
 

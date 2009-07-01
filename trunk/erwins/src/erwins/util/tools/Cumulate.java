@@ -18,6 +18,15 @@ public class Cumulate{
     }
     
     /**
+     * 임계치를 넘어가면 예외를 던진다.
+     * 무한루프 방지용으로 사용한다.
+     */
+    public void loop(){
+        now++;
+        if(now > threshold) throw new RuntimeException(now + " is too many loop");
+    }
+    
+    /**
      * 임계치를 넘어가면 카운트를 초기화하고 false를 리턴한다. 
      */
     public synchronized boolean next(){

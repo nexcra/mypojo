@@ -52,6 +52,9 @@ public enum Maths {
             return body;            
         }
     });
+    
+    /** 100 */
+    private static final BigDecimal HUNDRED = new BigDecimal("100");
 
     /**
      * @uml.property  name="op"
@@ -178,6 +181,24 @@ public enum Maths {
         BigDecimal interval = A.add(B.negate());
         if (isNegative(interval)) return BigDecimal.ZERO;
         else return interval;
+    }
+    
+    /**
+     * A/sum의 %를 구한다.
+     * p는 보통 8 정도?
+     */
+    public static BigDecimal getRate(BigDecimal sum, BigDecimal value,int p) {
+        if(isZero(sum,value)) return BigDecimal.ZERO;
+        return value.divide(sum,p,BigDecimal.ROUND_HALF_UP).multiply(HUNDRED);
+    }
+    
+    /**
+     * null 또는 0인지 확인한다.  나누기 등의 연산시 체크용으로 사용한다. 
+     */
+    public static boolean isZero(BigDecimal ... values){
+        if(Sets.isNull(values)) return true;
+        if(Sets.isEquals(BigDecimal.ZERO,values)) return true;
+        return false;
     }
 
     /**

@@ -99,10 +99,10 @@ public class Rq extends GetValuePolicy{
      * @throws InstantiationException 
      */
     @SuppressWarnings("unchecked")    
-    public Object getBean(Class entityType){
+    public <T> T getBean(Class<T> entityType){
         
         try {
-            Object entity = (Object)entityType.newInstance();
+            T entity = (T)entityType.newInstance();
             Method[] methods = entityType.getMethods();                
             Class setterType = null;
             

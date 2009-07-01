@@ -88,7 +88,6 @@ public abstract class Encoders extends StringEscapeUtils {
             return URLEncoder.encode(str,"EUC-KR");
         }
         catch (UnsupportedEncodingException e) {
-            Encoders.stackTrace(e);
             throw new RuntimeException(e.getMessage(),e);
         }
     }

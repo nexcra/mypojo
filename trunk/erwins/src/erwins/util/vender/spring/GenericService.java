@@ -10,6 +10,7 @@ import org.hibernate.criterion.Criterion;
 import org.springframework.transaction.annotation.Transactional;
 
 import erwins.util.lib.Clazz;
+import erwins.util.lib.Sets;
 import erwins.util.tools.SearchMap;
 import erwins.util.vender.hibernate.GenericHibernateDao;
 
@@ -52,6 +53,10 @@ public abstract class GenericService<T,ID extends Serializable>{
     public void delete(ID id){
         getDao().makeTransient(id);
     }
+    @Transactional
+    public void delete(T entity){
+        getDao().makeTransient(entity);
+    }
     
     @Transactional
     public void saveOrUpdate(T entity){
@@ -72,6 +77,14 @@ public abstract class GenericService<T,ID extends Serializable>{
     @Transactional(readOnly=true)
     public List<T> list(Criterion ... criterion){
         return getDao().findBy(criterion);
+    }
+    
+    /**
+     * 여러 객체를 읽어옴.
+     */    
+    @Transactional(readOnly=true)
+    public T unique(Criterion ... criterion){
+        return Sets.getResultUnique(getDao().findBy(criterion));
     }
     
     /**

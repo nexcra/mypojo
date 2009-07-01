@@ -80,7 +80,7 @@ public abstract class Clazz {
     }
     
     @SuppressWarnings("unchecked")
-    public static <T> T extractInstance(Class<?> clazz) {
+    public static <T> T extractInstance(Class<T> clazz) {
         try {
             return (T)extractTypeParameter(clazz).newInstance();
         }
@@ -95,7 +95,7 @@ public abstract class Clazz {
     }
     
     @SuppressWarnings("unchecked")
-    public static <T extends Enum> T getEnum(Class<?> clazz,String name){
+    public static <T extends Enum> T getEnum(Class<T> clazz,String name){
         if(!clazz.isEnum()) throw new RuntimeException(clazz + " is not Enum");
         return (T) Enum.valueOf((Class<Enum>)clazz, name);
     }
@@ -186,6 +186,21 @@ public abstract class Clazz {
      * enum의 경우 특수하게 표현
      */
     @SuppressWarnings("unchecked")
+    public static <T> T getCastedValue(Class<?> clazz,String fieldName,String value) {
+        Class<T> field;
+        try {
+            field = (Class<T>)clazz.getDeclaredField(fieldName).getType();
+        }
+        catch (NoSuchFieldException e) {
+            Encoders.stackTrace(e);
+            throw new RuntimeException(e.getMessage(),e);
+        }
+        if(field.isEnum()){
+            return (T)Enum.valueOf((Class)field, value);
+        }else
+            return field.cast(value);
+    }
+    /*
     public static Object getCastedValue(Class<?> clazz,String fieldName,String value) {
         Class<?> field;
         try {
@@ -199,7 +214,7 @@ public abstract class Clazz {
             return Enum.valueOf((Class)field, value);
         }else
             return field.cast(value);
-    }
+    }*/
     
     /**
      * Class의 패키지 이름을 가져온다.

@@ -18,8 +18,9 @@ import erwins.util.valueObject.Won;
 public enum Formats {
     
     /**
-     * 퍼센트
+     * 퍼센트??
      */
+    @Deprecated
     PERCENT(NumberFormat.getPercentInstance()),
 
     /**
@@ -55,7 +56,11 @@ public enum Formats {
     public String get(String str) {
         return format.format(Strings.getDoubleValue(str));
     }
-
+    
+    public String get(Number value) {
+        return format.format(value);
+    }
+    /*
     public String get(Double value) {
         return format.format(value);
     }
@@ -71,7 +76,7 @@ public enum Formats {
 
     public String get(int value) {
         return format.format(value);
-    }
+    }*/
 
     /**
      * 게시판의 제목 등등이 길때 ~~... 으로 줄여준다.
@@ -126,7 +131,7 @@ public enum Formats {
     public static String toSid(String str) {
         if (str.length() != 13) return str;
         String message = "{0}-{1}";
-        Object[] args = { str.substring(0, 6), str.substring(3, 13) };
+        Object[] args = { str.substring(0, 6), str.substring(6, 13) };
         return MessageFormat.format(message, args);
     }
 

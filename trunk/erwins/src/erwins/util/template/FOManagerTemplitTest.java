@@ -4,8 +4,8 @@ package erwins.util.template;
 import org.junit.AfterClass;
 import org.junit.Test;
 
-import erwins.myPage.ext.FOManager;
-import erwins.myPage.ext.FileObject;
+import erwins.root.ext.FOManager;
+import erwins.root.ext.FileObject;
 import erwins.util.exception.runtime.Val;
 
 public class FOManagerTemplitTest{

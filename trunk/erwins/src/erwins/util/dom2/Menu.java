@@ -14,7 +14,7 @@ import erwins.util.lib.Strings;
  * 메뉴를 나타낸다.
  */
 @javax.persistence.Entity
-@javax.persistence.Table(name="T_MENU")
+@javax.persistence.Table(name="MENU")
 @AttributeOverrides({
     @AttributeOverride(name="id"  , column = @Column(name="ID",length=20)), //20이면 바차40이다.
     @AttributeOverride(name="upperId", column = @Column(name="UPPER_ID",length=20,nullable=false)),

@@ -221,7 +221,7 @@ public class Mapp extends HashMap<Object,Object>  {
     }
     
     /**
-     * BigDecimal 들의 합을 리턴한다.
+     * BigDecimal 들의 합에 대한 key의 rate를 구한다.
      * 저장된 모든 객체는 Decimal이어야 한다.
      * 소수점 이하 8자리까지 구한다. ex) 0.23564875
      */

@@ -16,7 +16,7 @@ import erwins.util.vender.apache.ECS2;
  * @author  erwins(quantum.object@gmail.com)
  */
 @javax.persistence.Entity
-@javax.persistence.Table(name="T_CODE")
+@javax.persistence.Table(name="CODE")
 @AttributeOverrides({
     @AttributeOverride(name="id"  , column = @Column(name="ID",length=20)),
     @AttributeOverride(name="upperId", column = @Column(name="UPPER_ID",length=20,nullable=false)),

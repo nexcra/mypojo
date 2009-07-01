@@ -27,7 +27,7 @@ import erwins.util.morph.Mapping.MappingType;
  * !!! 사용자 정의 Code를 자동으로 받게 변경
  * @author erwins(my.pojo@gmail.com)
  */
-public class Rr<T> extends NullPolicy{
+public class Rr extends NullPolicy{
     
     private Logger log = Logger.getLogger(this.getClass());
      
@@ -99,8 +99,8 @@ public class Rr<T> extends NullPolicy{
      * ID이거나 Mapping의 FK가 붙어있다면 nullSafe를 적용하지 않는다.
      */
     @SuppressWarnings("unchecked")
-    protected T getBean(){
-        Class<?> clazz = Clazz.extractTypeParameter(this.getClass());
+    protected <T> T getBean(Class<T> clazz){
+        //Class<?> clazz = Clazz.extractTypeParameter(this.getClass());
         return (T)new Resolver().get(clazz);
     }
     
@@ -141,7 +141,7 @@ public class Rr<T> extends NullPolicy{
                     if(boo == null) continue; //yn 이외의 이상한 값이면 디폴트 값을 사용
                     method.invoke(entity, boo);
                 }else if(setterType.isEnum()){
-                    method.invoke(entity,Clazz.getEnum(setterType, fieldName));                    
+                    method.invoke(entity,Clazz.getEnum((Class<Enum>)setterType, fieldName));                    
                 }else if(setterType == Long.class || setterType == long.class){
                     if(isKey()) method.invoke(entity, getLongId(fieldName));
                     else method.invoke(entity, getLong(fieldName));

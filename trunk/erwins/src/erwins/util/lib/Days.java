@@ -36,6 +36,11 @@ public enum Days{
      * yyyy
      */
     YEAR(new SimpleDateFormat("yyyy")),
+    
+    /**
+     * yyyy
+     */
+    YY(new SimpleDateFormat("yy")),
 
     /**
      * MM
@@ -72,6 +77,10 @@ public enum Days{
     /** 현재 일자를 반환 */
     public String get() {
         return format.format(Calendar.getInstance().getTime());
+    }
+    /** 현재 일자를 int로 반환. 사용시 주의! */
+    public int getIntValue() {
+        return Integer.parseInt(get());
     }
     
     /**

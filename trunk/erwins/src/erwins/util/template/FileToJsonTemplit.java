@@ -8,9 +8,11 @@ import erwins.util.vender.etc.Flex;
 
 /**
  * File을 Menus로 변환한다.
- * 클로저와 templitMethod를 동시에 사용한다.
+ * 클로저와 templitMethod를 동시에 사용한다. 확장하거나 혹은 command를 입력하거나.
+ * visitor패터을 쓰도록 하자.
  * @author erwins(my.pojo@gmail.com)
  **/
+@Deprecated
 public abstract class FileToJsonTemplit{
     
     private JSONArray root = new JSONArray();

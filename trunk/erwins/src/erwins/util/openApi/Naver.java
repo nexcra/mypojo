@@ -11,6 +11,7 @@ import org.apache.ecs.html.Script;
 import erwins.util.dom2.Code;
 import erwins.util.tools.SystemInfo;
 import erwins.util.vender.apache.ECS2;
+import erwins.util.vender.apache.OptionBuilder;
 import erwins.util.xml.DocParser;
 
 
@@ -71,21 +72,13 @@ public abstract class Naver{
         DocParser dp = new DocParser(RestConnector.getXml(NAVER_GEOCODE_URL,query));
         List<HashMap<String,String>> results =  dp.getElementsByTagName("x","y","address") ;
         
-        List<Code> doms = new ArrayList<Code>();
-        
-        Code dom = new Code();
-        dom.setId("");
-        dom.setName("원하시는 지역을 골라주세요");
-        doms.add(dom);
-        
+        OptionBuilder o = new OptionBuilder();
+        o.addDefault("원하시는 지역을 골라주세요");
         
         for(Map<String,String> result : results){
-            dom = new Code();
-            dom.setId(result.get("x")+","+result.get("y"));
-            dom.setName(result.get("address"));
-            doms.add(dom);
+            o.add(result.get("x")+","+result.get("y"), result.get("address"));
         }
-        return ECS2.OPTION.get(doms);
+        return o.toString();
         
     }
 

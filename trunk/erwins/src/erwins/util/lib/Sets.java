@@ -102,6 +102,25 @@ public abstract class Sets {
     }
     
     /**
+     * 단일 물품의 값과 배열내의 값을. 비교한다. 
+     * 하나라도 있으면 true를 리턴한다.
+     */
+    public static <T> boolean isEquals(T bodys ,T ... items) {
+        if(bodys==null || items.length==0) return false;
+        for(T item:items) if(item.equals(bodys)) return true;
+        return false;
+    }
+    
+    /**
+     * 배열에 null이 있는지 확인한다. 
+     * 하나라도 있으면 true를 리턴한다. 배열의 size가 0이면 false이다.
+     */
+    public static <T> boolean isNull(T ... items) {
+        for(T item:items) if(item == null) return true;
+        return false;
+    }
+    
+    /**
      * 배열에 해당 물품의 클래스를 가지고 있는지 검사한다. 
      * 하나라도 있으면 true를 리턴한다.
      */

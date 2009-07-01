@@ -21,8 +21,7 @@ import com.sun.syndication.io.XmlReader;
 public enum Rss {
     
     /**
-     * @uml.property  name="dEV_OKJSP"
-     * @uml.associationEnd  
+     * OK JSP
      */
     DEV_OKJSP(new String[]{
         "http://www.okjsp.pe.kr/rss/okjsp-rss2.jsp?bbs=lifeqna",
@@ -31,18 +30,21 @@ public enum Rss {
     }),
     
     /**
-     * @uml.property  name="dEV_BLOG"
-     * @uml.associationEnd  
+     * 개발자 블로그
      */
     DEV_BLOG(new String[]{
             "http://feeds2.feedburner.com/nokarma", //nokarma 
-            "http://javacan.tistory.com/rss", //자바캔 
+            "http://javacan.tistory.com/rss", //자바캔
             "http://toby.epril.com/?feed=rss2", //토비
-            "http://rss.egloos.com/blog/sunnykwak", //써니
-            "http://rss.egloos.com/blog/kwon37xi", //권남.
-            "http://chanwook.tistory.com/rss", //정찬욱
+            "http://feeds.feedburner.com/ahnyounghoe", //안영회
+            "http://kwon37xi.springnote.com/pages.rss",
+            //"http://rss.egloos.com/blog/kwon37xi", //권남.
             "http://yunsunghan.tistory.com/rss", //윤성한(Max)
             "http://bcho.tistory.com/rss", //조대협
+            "http://rss.egloos.com/blog/aeternum", //누구?
+            "http://feeds.feedburner.com/allofsoftware", //all of 소프트웨어 저자. 개념PM?
+            "http://rss.egloos.com/blog/sunnykwak", //써니
+            "http://chanwook.tistory.com/rss", //정찬욱
             "http://whiteship.me/rss" //백선
     }),
     /**

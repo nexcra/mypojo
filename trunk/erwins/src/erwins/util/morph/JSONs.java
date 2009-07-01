@@ -87,7 +87,7 @@ public abstract class JSONs{
             for(Method method : methods){
                 String name = method.getName();
                 
-                fieldName = Strings.getFieldName(name);
+                fieldName = Strings.getterName(name);
                 if (fieldName==null) continue;
                 
                 returnType = method.getReturnType();

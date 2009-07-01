@@ -13,6 +13,7 @@ import erwins.util.dom.Dom;
  * 아파치 ECS를 래핑한다. 왜 래핑했냐문.. 사용법을 자꾸 까먹어서 ㅋㅋ enum은 HTML INPUT만 지원한다.
  * @author     erwins(my.pojo@gmail.com)
  */
+@Deprecated
 public enum ECS {
 
     /**

@@ -12,6 +12,7 @@ import org.hibernate.criterion.*;
 
 import erwins.util.lib.*;
 import erwins.util.morph.Rr;
+import erwins.util.root.ListRownumAble;
 
 
 /**
@@ -66,7 +67,7 @@ public class SearchMap extends Mapp {
     public SearchMap(HttpServletRequest req){
         String pageNo = req.getParameter(HTML_PAGE_NO);
         this.pageNo = pageNo==null || pageNo.equals("") ? null : Integer.parseInt(pageNo);
-        this.putAll(new Rr<Object>(req).getMap());
+        this.putAll(new Rr(req).getMap());
     }
     public SearchMap(int pageNo){
         this.pageNo =   pageNo==0 ? 1 : pageNo;
@@ -99,13 +100,37 @@ public class SearchMap extends Mapp {
     }
 
     /**
-     * @return
-     * @uml.property  name="result"
+     * 결과를 캐스팅 하지 않고 반환한다. 
+     * 내부 객체를 몰라도 될때 사용하자.
      */
     public List<?> getResult(){
         return result;
     }
+    /**
+     * 해당 타입으로 캐스팅 해서 리턴한다. 코드 단축용.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> List<T> getResult(Class<T> clazz){
+        return (List<T>)result;
+    }
+    /**
+     * 가장 처음 보는 건의 location이 totalSize가 되도록 넘버링 처리 한다.
+     */
+    @SuppressWarnings("unchecked")
+    public List<ListRownumAble> getResultPaging(){
+        if(!isPaging()) throw new RuntimeException("this result is not paging!");
+        List<ListRownumAble> temp = (List<ListRownumAble>)result;
+        //public void myLocation(List<ListPagingAble> list, int pagingNo, int totalSize) {
+        int start = (this.pageNo-1) * this.pagingSize; 
+        for(int i=0;i<temp.size();i++){
+            ListRownumAble each = temp.get(i);
+            int location =  this.totalCount - start - i;
+            each.setRownum(location);
+        }
+        return temp;
+    }
     
+    /*
     @SuppressWarnings("unchecked")
     public List<Mapp> getResultMapp(){
         return (List<Mapp>)result;
@@ -120,6 +145,7 @@ public class SearchMap extends Mapp {
     public List<Map<Object,Object>> getResultMap(){
         return (List<Map<Object,Object>>)result;
     }
+    */
     
     /**
      * paging을 리턴 후 삭제한다.
@@ -268,7 +294,7 @@ public class SearchMap extends Mapp {
      */
     @SuppressWarnings("unchecked")
     public void enumerated(Class ... enums){
-        for(Map<Object,Object> map : getResultMap()){
+        for(Map<Object,Object> map : getResult(Map.class)){
             for(Class clazz : enums){
                 if(!clazz.isEnum()) throw new RuntimeException("only enum plz..");
                 String key = clazz.getSimpleName().toUpperCase();
