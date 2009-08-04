@@ -110,13 +110,14 @@ public enum Maths {
     }
 
     /**
-     * value가 Zero인지? 나누기 연산에 사용 없거나 하나라도 null이면 null을 리턴한다. value들중 하나로도 zero이면
-     * true를 리턴한다.
+     * value가 Zero인지? 나누기 연산에 사용 없거나 
+     * 하나라도 null이면 false를 리턴한다.
+     * 하나로도 zero이면 true를 리턴한다.
      */
-    public static Boolean isZeroAny(BigDecimal... values) {
-        if (values.length == 0) return null;
+    public static boolean isZeroAny(BigDecimal... values) {
+        if (values.length == 0) return false;
         for (BigDecimal value : values) {
-            if (value == null) return null;
+            if (value == null) return false;
             if (BigDecimal.ZERO.compareTo(value) == 0) return true;
         }
         return false;
@@ -133,25 +134,30 @@ public enum Maths {
     }
     
     /**
-     * value가 Zero보다 큰지? zero이면 false를 리턴한다.
+     * value가 Zero보다 큰지?
+     * null이거나 zero이면 false를 리턴한다.
      */
     public static Boolean isPositive(BigDecimal value) {
-        return isPositive(value,null);
+        if (value == null) return false;
+        if (BigDecimal.ZERO.compareTo(value) < 0) return true;
+        return false;
     }
 
     /**
-     * value가 Zero보다 작은지? zero이면 false를 리턴한다.
+     * value가 Zero보다 작은지?
+     * null이거나 zero이면 false를 리턴한다.
      */
-    public static Boolean isNegative(BigDecimal value) {
-        if (value == null) return null;
+    public static boolean isNegative(BigDecimal value) {
+        if (value == null) return false;
         if (BigDecimal.ZERO.compareTo(value) > 0) return true;
         return false;
     }
     
     /**
-     * 크기를 비교한다.  같거나 null이면 false를 리턴한다.
+     * 크기를 비교한다.  
+     * 같거나 null이면 false를 리턴한다.
      */
-    public static Boolean isLarge(BigDecimal A,BigDecimal B) {
+    public static boolean isLarge(BigDecimal A,BigDecimal B) {
         return isLarge(A,B,false);
     }
     

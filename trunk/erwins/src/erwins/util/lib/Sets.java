@@ -315,8 +315,8 @@ public abstract class Sets {
      */
     public static <T> BigDecimal getSum(HashMap<T,BigDecimal> map) {
         BigDecimal sum = BigDecimal.ZERO;
-        for (T key : map.keySet())
-            sum = sum.add(map.get(key));
+        for (BigDecimal value : map.values())
+            sum = sum.add(value);
         return sum;
     }
     

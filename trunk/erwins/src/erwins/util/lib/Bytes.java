@@ -6,7 +6,7 @@ package erwins.util.lib;
  */
 public class Bytes {
 
-    public static Byte DEFAULT_BYTE = new Byte((byte) 0);
+    //public static Byte DEFAULT_BYTE = new Byte((byte) 0);
 
     /**
      * <p>문자열을 바이트로 변환한다.</p>

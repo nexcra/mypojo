@@ -119,13 +119,10 @@ public enum Days{
      * 4,2,2자리 년월일을 받아서 Carender 객체를 리턴한다. 
      */
     public static Calendar getCalendar(int year, int month, int day) {
-    	Calendar cal = null;
-    	try {
-    		cal = Calendar.getInstance();
-    		cal.setLenient(false);
-    		cal.set(year,month-1,day);
-    		cal.getTime();
-    	} catch(Exception e) {}
+    	Calendar cal = Calendar.getInstance();
+        cal.setLenient(false);
+        cal.set(year,month-1,day);
+        cal.getTime();
     	return cal;
     }
     

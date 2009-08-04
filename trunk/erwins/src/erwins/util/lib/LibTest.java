@@ -13,7 +13,7 @@ public class LibTest{
     private static List<String> list = new ArrayList<String>();
     
     @Test
-    public void Strings(){
+    public void strings(){
         String url[] = Strings.getUrlAndExtention("/D:/qwe.qwe.go");
         Val.isTrue(url[0].equals("D:/qwe.qwe"));
         Val.isTrue(url[1].equals("go"));
@@ -33,7 +33,7 @@ public class LibTest{
     }    
     
     @Test
-    public void Sets(){
+    public void sets(){
         Val.isTrue(Strings.joinTemp(list,",").equals("1,2,3,F"));
         Val.isTrue(Strings.joinTemp(Sets.inverse(list),",").equals("F,3,2,1"));
     }
