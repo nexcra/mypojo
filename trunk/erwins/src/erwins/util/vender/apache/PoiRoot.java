@@ -395,8 +395,7 @@ public abstract class PoiRoot{
             fileOut.close();
         }
         catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
     }
 

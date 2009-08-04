@@ -84,6 +84,7 @@ public enum Maths {
         Operation(String name){
             this.name = name;
         }
+        @Override
         public String toString(){
             return this.name;
         }
@@ -180,7 +181,7 @@ public enum Maths {
     public static BigDecimal getInterval(BigDecimal A, BigDecimal B) {
         BigDecimal interval = A.add(B.negate());
         if (isNegative(interval)) return BigDecimal.ZERO;
-        else return interval;
+        return interval;
     }
     
     /**
@@ -193,11 +194,18 @@ public enum Maths {
     }
     
     /**
+     * Number를 Long으로 변환해서 계산한다. 편의용 메소드. 
+     */
+    public static BigDecimal getRate(Number sum, Number value,int p) {
+        return getRate(new BigDecimal(sum.longValue()),new BigDecimal(value.longValue()),p);
+    }
+    
+    /**
      * null 또는 0인지 확인한다.  나누기 등의 연산시 체크용으로 사용한다. 
      */
     public static boolean isZero(BigDecimal ... values){
-        if(Sets.isNull(values)) return true;
-        if(Sets.isEquals(BigDecimal.ZERO,values)) return true;
+        if(Sets.isNullAny(values)) return true;
+        if(Sets.isEqualsAny(BigDecimal.ZERO,values)) return true;
         return false;
     }
 

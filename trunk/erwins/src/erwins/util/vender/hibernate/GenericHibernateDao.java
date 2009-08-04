@@ -2,38 +2,30 @@ package erwins.util.vender.hibernate;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.Criteria;
-import org.hibernate.LockMode;
+import org.hibernate.*;
 import org.hibernate.criterion.*;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import erwins.util.lib.Sets;
-import erwins.util.root.DefaultEntity;
-import erwins.util.root.UpdateAbleEntity;
+import erwins.util.root.EntityInit;
+import erwins.util.root.EntityUserValidator;
 import erwins.util.tools.SearchMap;
 
 /**
  * getOrder을 재정의 할것. <br> return 이 2개 이상일 경우 Object[]로 넘어온다. 주의!
  */
-public abstract class GenericHibernateDao<Entity, ID extends Serializable> extends HibernateDaoSupport implements GenericDao<Entity, ID>{
+@SuppressWarnings("unchecked")
+public abstract class GenericHibernateDao<Entity, ID extends Serializable> extends HibernateDaoSupport{
 
-    /**
-     * @uml.property  name="persistentClass"
-     */
     private Class<Entity> persistentClass;
 
-    @SuppressWarnings("unchecked")
+    
     public GenericHibernateDao() {
         this.persistentClass = (Class<Entity>)((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 
-    /**
-     * @return
-     * @uml.property  name="persistentClass"
-     */
     public Class<Entity> getPersistentClass() {
         return persistentClass;
     }
@@ -44,54 +36,60 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
      **/
     public void flush(){
         getSession().flush();
-        //getSession().clear(); //메모리에서 삭제한다.
-    }    
+        //getSession().clear(); //메모리(1차캐시?)에서 삭제한다.
+    }
     
-    /**
-     * 주어진 조건에 해당하는 자료가 1건 이상 있는지?
-     **/
-    public boolean isExist(Criterion... criterion) {
-        int count = findCount(criterion);
-        if(count > 0) return true;
-        else return false;
-    }  
+    public Criteria getCriteria(){
+        return getSession().createCriteria(getPersistentClass());
+    }
+    
+    // ===========================================================================================
+    //                                    save / delete
+    // ===========================================================================================
     
     /**
      * DefaultEntity의 하위노드라면 초기값을 세팅해 준다.
      * ID가 null이 아니면 update라고 판단하고 수정 가능 여부를 판별한다.
+     * 업데이트 방식중 명시적으로 makePersistent를 호출해서 전부 교체하는 방식에만 사용된다.
      */
-    @SuppressWarnings("unchecked")
     public Entity makePersistent(Entity client) {
-        if(client instanceof DefaultEntity){
-            DefaultEntity<ID> de = (DefaultEntity<ID>)client;
-            if(client instanceof UpdateAbleEntity && de.getId()!=null){
-                UpdateAbleEntity<Entity,ID> server = (UpdateAbleEntity<Entity,ID>)findById(de.getId());
-                server.validate();
-                server.makeDefaultValue();
-                server.update(client);
-                getSession().saveOrUpdate(server);
-                return (Entity)server;
+        if(client instanceof EntityInit){
+            EntityInit defaultEntity = (EntityInit)client;
+            defaultEntity.initValue();
+        }
+        if(client instanceof EntityUserValidator){ //성능 때문에 코드 증가.
+            EntityUserValidator<ID> castedClient = (EntityUserValidator)client;
+            if(castedClient.getId()!=null){
+                EntityUserValidator server = (EntityUserValidator)findById(castedClient.getId());
+                server.validateUser();
+                getSession().evict(server);  //중복객체 오류난다. 명시적으로 제거해주자.
             }
-            de.makeDefaultValue();
         }
         getSession().saveOrUpdate(client);
         return client;
     }
     
+    /**
+     *  소유주의 벨리데이션 체크를 검사한다.
+     */
+    private void validate(Entity entity) {
+        if(entity instanceof EntityUserValidator){
+            EntityUserValidator<ID> server = (EntityUserValidator)entity;
+            server.validateUser();
+        }
+    }
 
     public void makeTransient(Entity entity) {
+        validate(entity);
         getSession().delete(entity);
     }
+
     /**
-     * 소유주의 벨리데이션 체크를 거치는 삭제메소드. 
+     * 를 거치는 삭제메소드. 
      */
-    @SuppressWarnings("unchecked")
     public void makeTransient(ID id) {
         Entity entity = findById(id,false);
-        if(entity instanceof UpdateAbleEntity){
-            UpdateAbleEntity<Entity,ID> server = (UpdateAbleEntity<Entity,ID>)entity;
-            server.validate();
-        }
+        validate(entity);
         getSession().delete(entity);
     }  
     
@@ -100,34 +98,10 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     // ===========================================================================================
 
     /**
-     * 수정을 원할경우 lazy로 얻어오자.??
-     * 일반 select일 경우 lock을 얻을 필요가 없다.
-     */
-    @SuppressWarnings("unchecked")
-    public Entity findById(ID id, boolean lock) {
-        Entity entity;
-        if (lock) entity = (Entity) getSession().load(getPersistentClass(), id, LockMode.UPGRADE);
-        else entity = (Entity) getSession().get(getPersistentClass(), id);
-        return entity;
-    }
-    
-    /**
-     * 일반 select일 경우 lock을 얻을 필요가 없다.
-     */
-    public Entity findById(ID id) {
-        return findById(id,false);
-    }
-
-    public List<Entity> findAll(){
-        return findBy();
-    }
-    
-    /**
      * 페이징 등에서 사용될 전체 카운트 수
      * 복잡한 검색은 iBatis를 사용하고 아니라면 이것을 사용한다.
      **/
-    @SuppressWarnings("unchecked")
-    public int findCount(Criterion... criterion) {
+    public int count(Criterion... criterion) {
         Criteria crit = getSession().createCriteria(getPersistentClass()).setProjection(
                 Projections.projectionList().add(Projections.rowCount())
                 );
@@ -136,25 +110,38 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     }
     
     /**
-     * iBatis에서 id들을 읽어와서 하이버네이트로 객체 검색
+     * 주어진 조건에 해당하는 자료가 1건 이상 있는지?
      **/
-    @SuppressWarnings("unchecked")
-    public List<Entity> findByIds(List<Integer> idList) {
-        if(idList.size()==0) return new ArrayList();
-        return getSession().createCriteria(getPersistentClass()).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-        .addOrder(Order.desc("id")).add(Restrictions.in("id", idList)).list();
-    }   
-        
+    public boolean isExist(Criterion... criterion) {
+        int count = count(criterion);
+        if(count > 0) return true;
+        return false;
+    }
+    
     /**
-     * getOrder을 재정의 할것.
+     * 수정을 원할경우 lazy로 얻어오자.??
+     * 일반 select일 경우 lock을 얻을 필요가 없다.
      */
-    @SuppressWarnings("unchecked")
-    public List<Entity> findBy(Criterion... criterion) {
-        Criteria crit = getSession().createCriteria(getPersistentClass());
-        for (Criterion c : criterion)  crit.add(c);
-        for (Order c : getDefaultOrder()) crit.addOrder(c);
-        return crit.list();
-   }
+    public Entity findById(ID id, boolean lock) {
+        Entity entity;
+        if (lock) entity = (Entity) getSession().load(getPersistentClass(), id, LockMode.UPGRADE);
+        else entity = (Entity) getSession().get(getPersistentClass(), id);
+        return entity;
+    }
+    
+    /**
+     * id에 해당하는 객체가 없을경우 예외를 던진다.
+     */
+    public Entity findById(ID id) {
+        Entity T =  findById(id,false);
+        if(T==null) throw new RuntimeException(persistentClass.getSimpleName()+ " is not found (pk is "+id+"). you need debugging");
+        return T;
+    }
+    
+
+    public List<Entity> findAll(){
+        return findBy();
+    }
     
     /**
      * getOrder을 재정의 할것.
@@ -164,52 +151,15 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     }
     
     /**
-     * 일반 select일 경우 lock을 얻을 필요가 없다.
-     * id에 해당하는 객체가 없을경우 예외를 던진다.
+     * getOrder을 재정의 할것.
      */
-    public Entity findUnique(ID id){
-        Entity T =  findById(id,false);
-        if(T==null) throw new RuntimeException(
-                persistentClass.getSimpleName()+ " is not found (pk is "+id+"). you need debugging");
-        return T;
-    }
-
-    /**
-     * SearchMap을 통해 paging과 select를 동시에 작업한다.
-     * 추후 필요하면 count를 캐싱하자. iBatis놈이랑 같이 사용할것~
-     */
-    public void findBy(SearchMap map) {
+    public List<Entity> findBy(Criterion... criterion) {
         Criteria crit = getSession().createCriteria(getPersistentClass());
-        Criterion crits = map.getCastedJunction(getPersistentClass());        
-        crit.add(crits);
+        for (Criterion c : criterion)  crit.add(c);
         for (Order c : getDefaultOrder()) crit.addOrder(c);
-        if(map.isPaging()){
-            map.setTotalCount(findCount(crits));
-            crit.setFirstResult(map.getSkipResults());
-            crit.setMaxResults(map.getPagingSize());            
-        }
-        //crit.setResultTransformer(new AliasToEntityMapResultTransformer());
-        map.setResult(crit.list());
-    }
-    
-    @SuppressWarnings("unchecked")
-    public List<Entity> findByExample(Entity exampleInstance,String[] excludeProperty) {
-        Criteria crit = getSession().createCriteria(getPersistentClass());
-        Example example = Example.create(exampleInstance).excludeZeroes(); //excludeZeroes 요거 추가
-        
-        if(excludeProperty != null) for(String exclude:excludeProperty) example.excludeProperty(exclude); //0을 null로 간주 추가
-        
-        crit.add(example);
-        crit.addOrder(Order.desc("id"));
-        return crit.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
-    }
-    
-    /**
-     * 제외조건에 null을 입력함 , 필수 구현 항목임.
-     **/
-    public List<Entity> findByExample(Entity exampleInstance) {        
-        return findByExample(exampleInstance,null);
-    }
+        crit.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);  //Set등의 배열이 있을 경우~
+        return crit.list();
+   }
     
     /**
      * 프로시저 호출
@@ -218,6 +168,74 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     public void callSP() {        
         //"{ call PG_DBR_CONNECT.SP_RECEIPT () }"
     }
+    
+    // ===========================================================================================
+    //                                    응용
+    // ===========================================================================================
+
+    /**
+     * HQL / Native SQL 구현시 페이징 적용 
+     */
+    protected void query(SearchMap map,Query query,String countSql){
+        if(map.isPaging()){
+            if(countSql!=null){
+                Query c =  getSession().createSQLQuery(countSql);
+                Long count = (Long)c.uniqueResult();
+                map.setTotalCount(count.intValue());
+            }
+            query.setFirstResult(map.getSkipResults());
+            query.setMaxResults(map.getPagingSize());            
+        }
+        map.setResult(query.list());
+    }
+    
+    /**
+     *  HqlBuilder를 이용한 페이징 처리기.
+     */
+    protected void query(SearchMap map,HqlBuilder hql) {
+        Query query = hql.query(getSession());
+        if(map.isPaging()){
+            Long count = (Long)hql.count(getSession()).uniqueResult();
+            map.setTotalCount(count.intValue());
+            query.setFirstResult(map.getSkipResults());
+            query.setMaxResults(map.getPagingSize());            
+        }
+        map.setResult(query.list());
+    }
+    
+    /**
+     * 간단한 SQL 적용 
+     */
+    public void querySql(SearchMap map,String sql,String count) {
+        Query query =  getSession().createSQLQuery(sql);
+        query(map,query,count);
+    }
+    
+    protected void query(SearchMap map,CriteriaBuilder c) {
+        Criteria criteria = getCriteria();
+        for (Order each : getDefaultOrder()) criteria.addOrder(each);
+        criteria.add(c.get());
+        if(map.isPaging()){
+            map.setTotalCount(count(c.get()));
+            criteria.setFirstResult(map.getSkipResults());
+            criteria.setMaxResults(map.getPagingSize());            
+        }
+        map.setResult(criteria.list());
+    }
+    
+    /**
+     * 추후 where조건으로 totalCount가 되도록 수정하기. 
+     */
+    public void findBy(SearchMap map,String hql) {
+        Query query = super.getSession().createQuery(hql);
+        if(map.isPaging()){
+            //map.setTotalCount(findCount(crits));
+            query.setFirstResult(map.getSkipResults());
+            query.setMaxResults(map.getPagingSize());            
+        }
+        map.setResult(query.list());
+    }
+    
     
     // ===========================================================================================
     //                                        서브클래스에서 구현하시오.

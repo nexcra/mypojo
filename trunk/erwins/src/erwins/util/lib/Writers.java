@@ -23,8 +23,7 @@ public abstract class Writers {
             out = response.getWriter();
         }
         catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
         return out;
     }

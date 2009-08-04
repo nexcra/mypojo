@@ -7,20 +7,24 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 
+import javax.persistence.ManyToOne;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
+import org.hibernate.Hibernate;
+
 import erwins.util.lib.*;
 import erwins.util.morph.Mapping.MappingType;
 import erwins.util.morph.anno.Hidden;
+import erwins.util.root.EntityId;
 
 
 /**
- * Object로 서버사이드의 JsonObject를 생성한다.
- * FCKEditor의 경우 json으로 데이터를 박을려면 escape를 하면 안된다.
- * 그러나 다른 일반적인 HTML에 박이는 데이터의 경우 escape를 반드시 해야 한다.
- * toString옵션에 1을 주면 들여쓰기 한다. 참고.
+ * 수정 금지.
  * @author erwins(my.pojo@gmail.com)
  */
+@Deprecated
 public abstract class JSONs{
     
     public JSONs(){};
@@ -45,7 +49,7 @@ public abstract class JSONs{
         JSONArray jsonArray = new JSONArray();
         if(isAll) jsonArray.add(emptyJson());
         for (Enum<?> mode : en) {
-            if(Sets.isEquals(ingnor, mode)) continue;
+            if(Sets.isEqualsAny(ingnor, mode)) continue;
             JSONObject json = new JSONObject();
             //code.setIdByInt(mode.ordinal());
             json.put("ordinal", mode.ordinal());
@@ -69,9 +73,12 @@ public abstract class JSONs{
     @SuppressWarnings("unchecked")
     public static JSONObject get(Object entity){
         if(entity instanceof Map) return getByMap((Map<Object,Object>)entity);
-        else return getByObject(entity);
+        return getByObject(entity);
     }
     
+    /**
+     * 파라메터가 없는 getter만 가져온다. 
+     */
     @SuppressWarnings("unchecked")
     private static JSONObject getByObject(Object entity){
         
@@ -90,16 +97,20 @@ public abstract class JSONs{
                 fieldName = Strings.getterName(name);
                 if (fieldName==null) continue;
                 
+                if(method.getParameterTypes().length!=0) continue;
+                
                 returnType = method.getReturnType();
                 
-                Mapping annotation =  (Mapping)method.getAnnotation(Mapping.class);
+                Mapping annotation =  method.getAnnotation(Mapping.class);
                 
                 Annotation[] annos = method.getAnnotations();
                 
+                
+                
                 //애는 걸러준다.
-                if(Sets.isInstance(annos,Hidden.class)) continue;
+                if(Sets.isInstanceAny(annos,Hidden.class)) continue;
 
-                if(Sets.isSame(returnType,String.class,BigDecimal.class,Long.class,Integer.class,Boolean.class
+                if(Sets.isSameAny(returnType,String.class,BigDecimal.class,Long.class,Integer.class,Boolean.class
                         ,boolean.class,int.class,long.class)){
                     Object obj = method.invoke(entity);
                     if(obj!=null) json.put(fieldName,obj);
@@ -114,12 +125,24 @@ public abstract class JSONs{
                         json.put(fieldName+"Name",num.toString());
                         json.put(fieldName,num.name());
                     }
-                }else if(annotation != null && annotation.mappingType() == MappingType.ENTITY){
+                }else if(Sets.isInstanceAny(annos, ManyToOne.class)){
                     Object obj = method.invoke(entity);
-                    if(obj!=null) json.put(fieldName,get(obj));
+                    if(obj==null) continue; 
+                    //프록시 객체의 경우 id만을 로딩하자.
+                    if(Clazz.isCglibProxy(obj)){
+                        if(obj instanceof EntityId){
+                            EntityId temp = (EntityId)obj;
+                            JSONObject proxy = new JSONObject();
+                            proxy.put("id", temp.getId());
+                            json.put(fieldName,proxy);    
+                            //Flex 게시판 등의 단일 뎁스를 위해준비.
+                            json.put(fieldName+"Id",temp.getId());
+                        }
+                    }else json.put(fieldName,get(obj)); 
+                     
                 }else if(annotation != null && annotation.mappingType() == MappingType.LIST_PARTITIONED_STRING){
                     Object obj = method.invoke(entity);
-                    //json.put(fieldName, encoder.escapeJavaScript(Formats.getOracleStr((List)obj)));
+                    if(!Hibernate.isInitialized(obj)) continue;
                     json.put(fieldName, Sets.getOracleStr((List)obj));
                 }else if(annotation != null && annotation.mappingType() == MappingType.LIST_SUB_ENTITY){
                     JSONArray jsonArray = new JSONArray();
@@ -147,7 +170,7 @@ public abstract class JSONs{
         for(Object key : map.keySet()){
             obj = map.get(key);
             Class<?> clazz = obj.getClass();
-            if( Sets.isEquals(STRING_TYPE, clazz)) {
+            if( Sets.isEqualsAny(STRING_TYPE, clazz)) {
                 json.put(key, obj);
             }else if(clazz == String[].class ) {  //request에서 받아올때 주로 사용~
                 String[] temp = (String[])obj;
@@ -172,7 +195,7 @@ public abstract class JSONs{
     public static String addJsonThis(JSONObject e) {
         if(e==null) return null;
         if(e.size()==0) return e.toString();
-        else return "{obj:this,"+e.toString().substring(1);
+        return "{obj:this,"+e.toString().substring(1);
     }
     
 }

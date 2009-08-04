@@ -7,8 +7,7 @@ import java.util.*;
 import org.apache.ecs.wml.Td;
 import org.apache.ecs.wml.Tr;
 
-import erwins.util.lib.Formats;
-import erwins.util.lib.Strings;
+import erwins.util.lib.*;
 import erwins.util.valueObject.ShowTime;
 
 /**
@@ -232,7 +231,7 @@ public class StopWatch {
      * 각 태스크의 percent를 리턴한다. 간이 메소드..
      */
     public String getPercent(int i) {
-        return Formats.PERCENT.get((taskList.get(i).getNanoTime() / totalNanoTime));
+        return Maths.getRate(totalNanoTime,taskList.get(i).getNanoTime(),2) + "%";
     }
 
     @Override
@@ -272,15 +271,15 @@ public class StopWatch {
     }
     public static String getThreadTimeStr() {
         if(threadTime.get()==null || threadTime.get()==0) return "== no watch detected ==";
-        else return "== thread total time = "+StopWatch.getThreadTime().toString(60) + " ==";
+        return "== thread total time = "+StopWatch.getThreadTime().toString(60) + " ==";
     }
 
     /**
      * 현재 스래드의 StopWatch를 초기화한다.
      */
-    public static void init(String taskName) {
+    public static void initAndStamp(String taskName) {
         local.set(null);
-        checkMe(taskName);
+        stamp(taskName);
     }
     
     /**
@@ -293,7 +292,7 @@ public class StopWatch {
     /**
      * 어디에서나 StopWatch를 체크 가능
      */
-    public static void checkMe(String taskName) {
+    public static void stamp(String taskName) {
         StopWatch stopWatch = local.get();
         if (stopWatch == null) {
             stopWatch = new StopWatch("controller");

@@ -29,7 +29,7 @@ public class Runtimes{
             Runtime.getRuntime().exec(path+exec, arguments.toArray(new String[arguments.size()]));
         }
         catch (IOException e) {
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
     }
     

@@ -22,17 +22,17 @@ public class RssTest {
     
     //@Test
     public void speed() throws  Exception {
-        StopWatch.checkMe("okjsp");
+        StopWatch.stamp("okjsp");
         Rss.getFeeds("http://www.okjsp.pe.kr/rss/okjsp-rss2.jsp?bbs=lifeqna");
-        StopWatch.checkMe("okjsp2");
+        StopWatch.stamp("okjsp2");
         Rss.getFeeds("http://www.okjsp.pe.kr/rss/okjsp-rss2.jsp?bbs=howmuch");
-        StopWatch.checkMe("자바캔");
+        StopWatch.stamp("자바캔");
         Rss.getFeeds("http://javacan.tistory.com/rss");
-        StopWatch.checkMe("토비");
+        StopWatch.stamp("토비");
         Rss.getFeeds("http://toby.epril.com/?feed=rss2");
-        StopWatch.checkMe("권남");
+        StopWatch.stamp("권남");
         Rss.getFeeds("http://rss.egloos.com/blog/kwon37xi");
-        StopWatch.checkMe("권남_spring");
+        StopWatch.stamp("권남_spring");
         Rss.getFeeds("http://kwon37xi.springnote.com/pages.rss");
         System.out.println(StopWatch.stopMe());
     }

@@ -34,17 +34,15 @@ public abstract class RestConnector{
     public static String getXml(String url,List<NameValuePair> parmas){
         PostMethod method = new  PostMethod(url);
         method.setQueryString(parmas.toArray(new NameValuePair[parmas.size()]));
-        try {            
+        try {
             client.executeMethod(method);
             return method.getResponseBodyAsString();
         }
         catch (HttpException e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
         catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
     }
     
@@ -61,12 +59,10 @@ public abstract class RestConnector{
             return method.getResponseBodyAsStream();
         }
         catch (HttpException e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
         catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
     }
 

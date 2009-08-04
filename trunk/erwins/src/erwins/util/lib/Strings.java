@@ -23,6 +23,15 @@ public class Strings extends StringUtils {
             if (Strings.contains(body, str)) return true;
         return false;
     }
+    /**
+     * strs들중 일부라도 매치가 되면 true를 리턴한다.
+     */
+    public static boolean isMatchIgnoreCase(String body, String... strs) {
+        body = body.toUpperCase();
+        for (String str : strs)
+            if (Strings.contains(body, str.toUpperCase())) return true;
+        return false;
+    }
 
     /**
      * strs들중 정확히 매치가 되면 true를 리턴한다.
@@ -224,7 +233,7 @@ public class Strings extends StringUtils {
                 int value = Integer.parseInt(String.valueOf(bid.charAt(6)));
                 int age = yy - birth;
                 switch(value){
-                    case 1: case 2: age += 100;
+                    case 1: case 2: age += 100; break;
                     case 3: case 4: break;
                     default : continue;
                 }
@@ -415,8 +424,10 @@ public class Strings extends StringUtils {
      */
     public static BigDecimal getDecimal(String str) {
         if (str == null || str.equals(EMPTY)) return BigDecimal.ZERO;
+        boolean minus = str.startsWith("-");
         String temp = Strings.getNumericStr(str);
         if (temp.equals(EMPTY)) return BigDecimal.ZERO;
+        if(minus) temp = "-" + temp;
         return new BigDecimal(temp);
     }
 

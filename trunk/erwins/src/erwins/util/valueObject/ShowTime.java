@@ -36,7 +36,7 @@ public class ShowTime {
     public boolean isLarge(long nanoSecond) {
         return totalNanoSecond > nanoSecond ? true : false;
     }
-
+    @Override
     public String toString() {
         return MessageFormat.format("{0}:{1}:{2}", h, MM, ss);
     }

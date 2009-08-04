@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Entity의 interface
  * @author erwins(my.pojo@gmail.com)
  */
-public interface IdEntity<ID> extends Serializable{
+public interface EntityId<ID extends Serializable> extends Serializable{
     
     public static final String ID_NAME = "id";
 
@@ -18,6 +18,7 @@ public interface IdEntity<ID> extends Serializable{
     /**
      * entity의 작성자인 User클래스의 Key를 반환한다.
      */
-    public ID getUserId();    
+    /*
+    public ID getUserId();*/    
     
 }

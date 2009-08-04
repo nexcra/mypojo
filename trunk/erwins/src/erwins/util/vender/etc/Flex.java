@@ -10,4 +10,7 @@ public abstract class Flex{
     /** children */
     public static final String CHILDREN = "children";
     
+    public static final String LABEL = "label"; 
+    public static final String VALUE = "value";
+    
 }

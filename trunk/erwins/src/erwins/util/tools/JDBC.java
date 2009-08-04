@@ -30,7 +30,7 @@ public class JDBC{
             connection_oracle.setAutoCommit(false);
         }
         catch (SQLException e) {
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
 	}
 	
@@ -39,7 +39,7 @@ public class JDBC{
             connection_oracle.close();
         }
         catch (SQLException e) {
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }	    
 	}
 	
@@ -52,7 +52,7 @@ public class JDBC{
             connection_oracle.rollback();
         }
         catch (SQLException e) {
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
 	}
 	
@@ -74,7 +74,7 @@ public class JDBC{
             resultSet.close();
         }
         catch (SQLException e) {
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
         return results;
     }
@@ -93,7 +93,7 @@ public class JDBC{
             return result;
         }
         catch (SQLException e) {
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
     }
     

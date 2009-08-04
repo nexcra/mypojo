@@ -17,6 +17,26 @@ import org.apache.commons.lang.WordUtils;
  */
 public abstract class Clazz {
     
+    /** $$가 있으면 프록시~ */
+    public static final String CGLIB_CLASS_SEPARATOR = "$$";
+    
+    /**
+     * 프록시인지?
+     */
+    public static boolean isCglibProxy(Object object) {
+        if(object == null) return false;
+        return isCglibProxyClass(object.getClass());
+        //return (object instanceof SpringProxy && isCglibProxyClass(object.getClass()));
+    }
+
+    /**
+     * CGLIB로 생성된 프록시인지 확인한다.
+     * 로딩이 안된 프록시는 JSON등에서 제외할때 등에 제외할깨 사용된다.
+     */
+    public static boolean isCglibProxyClass(Class<?> clazz) {
+        return (clazz != null && clazz.getName().indexOf(CGLIB_CLASS_SEPARATOR) != -1);
+    }
+    
     /**
      * 빈 객체인가?
      */
@@ -74,8 +94,7 @@ public abstract class Clazz {
             return (T)cx.newInstance();
         }
         catch (Exception e) {
-            Encoders.stackTrace(e);
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
     }
     
@@ -85,12 +104,10 @@ public abstract class Clazz {
             return (T)extractTypeParameter(clazz).newInstance();
         }
         catch (InstantiationException e) {
-            Encoders.stackTrace(e);
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
         catch (IllegalAccessException e) {
-            Encoders.stackTrace(e);
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
     }
     
@@ -111,10 +128,12 @@ public abstract class Clazz {
             en = (Class<Enum<?>>) Class.forName(fullName);
         }
         catch (ClassNotFoundException e) {
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
         return en.getEnumConstants();
     }
+    
+    
     
     /**
      * 최초 1회만 실행. 
@@ -123,41 +142,35 @@ public abstract class Clazz {
     @SuppressWarnings("unchecked")
     public static List initCollection(List subBeanlist,Class subBeanClass,int size){
         if(size==0 || subBeanlist!=null) return subBeanlist;
-        else{
-            subBeanlist = new ArrayList();
-            for(int x=0;x<size;x++){
-                Object subBean;
-                try {
-                    subBean = subBeanClass.newInstance();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    throw new RuntimeException("runtime fail");
-                }
-                subBeanlist.add(subBean);
+        subBeanlist = new ArrayList();
+        for(int x=0;x<size;x++){
+            Object subBean;
+            try {
+                subBean = subBeanClass.newInstance();
             }
-            return subBeanlist;
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            subBeanlist.add(subBean);
         }
+        return subBeanlist;
     }
     
     public static <T> List<T> initCollection2(List<T> subBeanlist,Class<T> subBeanClass,int size){
         //subBeanlist.getClass().
         if(size==0 || subBeanlist!=null) return subBeanlist;
-        else{
-            subBeanlist = new ArrayList<T>();
-            for(int x=0;x<size;x++){
-                T subBean;
-                try {
-                    subBean = subBeanClass.newInstance();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    throw new RuntimeException("runtime fail");
-                }
-                subBeanlist.add(subBean);
+        subBeanlist = new ArrayList<T>();
+        for(int x=0;x<size;x++){
+            T subBean;
+            try {
+                subBean = subBeanClass.newInstance();
             }
-            return subBeanlist;
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            subBeanlist.add(subBean);
         }
+        return subBeanlist;
     }     
     
     /**
@@ -192,8 +205,7 @@ public abstract class Clazz {
             field = (Class<T>)clazz.getDeclaredField(fieldName).getType();
         }
         catch (NoSuchFieldException e) {
-            Encoders.stackTrace(e);
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
         if(field.isEnum()){
             return (T)Enum.valueOf((Class)field, value);
@@ -207,8 +219,7 @@ public abstract class Clazz {
             field = clazz.getDeclaredField(fieldName).getType();
         }
         catch (NoSuchFieldException e) {
-            Encoders.stackTrace(e);
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
         if(field.isEnum()){
             return Enum.valueOf((Class)field, value);
@@ -235,8 +246,7 @@ public abstract class Clazz {
             return obj.getClass().getMethod(name).invoke(obj);
         }
         catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
 
     }    
@@ -252,8 +262,7 @@ public abstract class Clazz {
             field.set(instance, value);
         }
         catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
     }
 
@@ -264,6 +273,14 @@ public abstract class Clazz {
     public static String getFieldName(Method method) {
         String name = method.getName();
         return Strings.getFieldName(name);
+    }
+    
+    /**
+     * getter인가?
+     */
+    public static boolean isGetter(Method method) {
+        String name = method.getName();
+        return Strings.getFieldName(name)==null ? false :true;
     }
     
     

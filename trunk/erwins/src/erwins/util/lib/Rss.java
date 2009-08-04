@@ -5,6 +5,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.ecs.html.A;
 import org.apache.ecs.wml.Td;
 import org.apache.ecs.wml.Tr;
@@ -45,22 +47,17 @@ public enum Rss {
             "http://feeds.feedburner.com/allofsoftware", //all of 소프트웨어 저자. 개념PM?
             "http://rss.egloos.com/blog/sunnykwak", //써니
             "http://chanwook.tistory.com/rss", //정찬욱
-            "http://whiteship.me/rss" //백선
+            "http://whiteship.me/rss", //백선
+            "http://grails.tistory.com/rss" //그루비??
     }),
-    /**
-     * @uml.property  name="dEV_ETC"
-     * @uml.associationEnd  
-     */
     DEV_ETC(new String[]{
             "http://kwon37xi.springnote.com/pages.rss" //권남이
     }),
-    /**
-     * @uml.property  name="fRIENDS"
-     * @uml.associationEnd  
-     */
     FRIENDS(new String[]{
             "http://zeide.tistory.com/category" //gydud
     });
+    
+    private static Log log =LogFactory.getLog(Rss.class);
     
     private String[] rssUrls;
     
@@ -79,8 +76,8 @@ public enum Rss {
             return input.build(new XmlReader(feedUrl));
         }
         catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage(),e);
+            log.info(e.getMessage());
+            return null;
         }
     }
 
@@ -107,8 +104,8 @@ public enum Rss {
      * 흠냐.. tbody안에 들어갈 테이블 제작
      */
     public static String makeTable(SyndFeed feed){
+        if(feed==null) return "";
         Tr tr = null;
-        //Set<Tr> trs = new HashSet<Tr>();
         List<Tr> trs = new ArrayList<Tr>();
         List<SyndEntry> list = getEntry(feed);
         for(int i=0;i<list.size();i++){

@@ -102,7 +102,7 @@ public class Rq extends GetValuePolicy{
     public <T> T getBean(Class<T> entityType){
         
         try {
-            T entity = (T)entityType.newInstance();
+            T entity = entityType.newInstance();
             Method[] methods = entityType.getMethods();                
             Class setterType = null;
             
@@ -115,7 +115,7 @@ public class Rq extends GetValuePolicy{
                 setterType = method.getParameterTypes()[0]; //bean의 setter의 1번재 parameter를 기준으로 데이터를 검색한다.            
                 
                 String fieldName = Strings.getFieldName(name);            
-                Mapping annotation =  (Mapping)method.getAnnotation(Mapping.class);
+                Mapping annotation =  method.getAnnotation(Mapping.class);
                 MappingType type = null;
                 if(annotation!=null) type = annotation.mappingType();
                 
@@ -142,7 +142,7 @@ public class Rq extends GetValuePolicy{
                 }else if(annotation != null && annotation.mappingType() == MappingType.LIST_PARTITIONED_STRING){ 
                     String str = getStr(fieldName);
                     method.invoke(entity, Sets.getOracleStr(str));
-                }else if(annotation != null && annotation.mappingType() == MappingType.LIST_SUB_ENTITY){                
+                }else if(annotation != null && annotation.mappingType() == MappingType.LIST_SUB_ENTITY){
                     /**
                      * 서브클래스의 입력작업을 시작한다.
                      * 추후 재귀참조로 변형하자.
@@ -203,8 +203,7 @@ public class Rq extends GetValuePolicy{
             return entity;
         }
         catch (Exception e) {
-            Encoders.stackTrace(e);
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
     }
     

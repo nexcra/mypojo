@@ -16,8 +16,7 @@ public abstract class StringCalculator {
     public static abstract class Operation{
         private final String name;
         Operation(String name){ this.name = name;}
-        public String toString(){return this.name;}
-        
+        @Override public String toString(){return this.name;}
         abstract BigDecimal eval(BigDecimal x,BigDecimal y);
         
         //사용자 정의 로직을 정의한다.
@@ -26,7 +25,7 @@ public abstract class StringCalculator {
          * @uml.associationEnd  
          */
         public static final Operation PLUS = new Operation("+"){
-            BigDecimal eval(BigDecimal x,BigDecimal y) {return x.add(y);}
+            @Override BigDecimal eval(BigDecimal x,BigDecimal y) {return x.add(y);}
         };
     }
     

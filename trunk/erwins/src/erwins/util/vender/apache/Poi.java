@@ -43,8 +43,7 @@ public class Poi extends PoiRoot{
         }
         catch (Exception e) {
             close();
-            Encoders.stackTrace(e);
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
         init();
     }
@@ -58,8 +57,7 @@ public class Poi extends PoiRoot{
             stream.close();
         }
         catch (IOException e) {
-            Encoders.stackTrace(e);
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
     }    
     
@@ -104,7 +102,7 @@ public class Poi extends PoiRoot{
     
     /** 기생성된 row에 i번째 컬럼 부터 value를 입력한다. */
     public void setValues(int i,Object ... values){
-        HSSFRow row = currentPoi.createNextRow(); 
+        HSSFRow row = currentPoi.createNextRow();
         for(Object each : values){
             String value = null;
             if(each==null) value="";
@@ -116,6 +114,9 @@ public class Poi extends PoiRoot{
     
     /** sheet의 마지막에 row를 생성하고 value를 입력한다. */    
     public void addValues(Object ... values){
+        setValues(0,values);
+    }
+    public void addValuesArray(Object[] values){
         setValues(0,values);
     }
 
@@ -169,18 +170,16 @@ public class Poi extends PoiRoot{
      * BigDecimal로 변경함으로 성능 문제시 교체하자.
      */
     private static String getStr(HSSFCell cell) {
-        if (cell == null) {
-            return "";
-        }else{
-            switch (cell.getCellType()) {
-                case HSSFCell.CELL_TYPE_NUMERIC:
-                    return new BigDecimal(cell.getNumericCellValue()).toString();
-                case HSSFCell.CELL_TYPE_STRING:
-                    return cell.getRichStringCellValue().getString().trim();
-                default:
-                    return "";
-            }
+        if (cell == null) return "";
+        switch (cell.getCellType()) {
+            case HSSFCell.CELL_TYPE_NUMERIC:
+                return new BigDecimal(cell.getNumericCellValue()).toString();
+            case HSSFCell.CELL_TYPE_STRING:
+                return cell.getRichStringCellValue().getString().trim();
+            default:
+                return "";
         }
+        
     }
     
     /**
@@ -225,7 +224,7 @@ public class Poi extends PoiRoot{
             }
             catch (Exception e) {
                 jdbc.rollback();
-                throw new RuntimeException(e.getMessage(),e);
+                throw new RuntimeException(e);
             }finally{
                 jdbc.close();
             }            

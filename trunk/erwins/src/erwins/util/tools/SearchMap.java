@@ -4,70 +4,74 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import net.sf.json.JSONObject;
-
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.criterion.*;
-
-import erwins.util.lib.*;
-import erwins.util.morph.Rr;
-import erwins.util.root.ListRownumAble;
+import erwins.util.lib.Sets;
+import erwins.util.morph.JSMapper;
+import erwins.util.root.EntityHibernatePaging;
+import erwins.util.vender.hibernate.*;
+import erwins.util.web.AjaxTool;
 
 
 /**
  * iBatis & Hibernate용 페이징 처리기.
+ * 총 목록개수 Long으로 바꿀껏!
  * @author  erwins
  */
 
 public class SearchMap extends Mapp {
     
-    private static final long serialVersionUID = 1L;
+    protected static final int DEFAULT_PAGING_SIZE = 15;
     
     /** HTML에서 서버로 전달 받을 요정 페이지 번호의 이름  */
     public static final String HTML_PAGE_NO = "pageNo";
+    
     /**
-     * @uml.property  name="result"
+     * 결과값의 reference
      */
     protected List<?> result ;
-    protected static int DEFAULT_PAGING_SIZE = 15;
+    
     /**
-     * @uml.property  name="pagingSize"
+     * 한번에 가져올 목록의 수.
      */
     protected Integer pagingSize ;
+    
     /**
-     * @uml.property  name="totalCount"
+     * 총 목록의 개수
      */
     protected Integer totalCount ;
+    
     /**
-     * @uml.property  name="pageNo"
+     * 현제 페이지 번호. 1부터 시작한다.
      */
     protected Integer pageNo;
-    /**
-     * @uml.property  name="skipResults"
-     */
-    protected int skipResults; //역 인덱스.
     
     /**
-     * @uml.property  name="optimize"
+     * 역 인덱스.
+     */
+    protected int skipResults;
+    
+    /**
+     * totla count의 캐싱을 할것인지?
      */
     protected boolean optimize = false;
-    protected Boolean optimized;
     
     /**
-     * Hibernate용 and  Conjunction
-     * @uml.property  name="junction"
+     * total count의 조회가 필요한지?
      */
-    private Conjunction  junction;
+    protected boolean count = false;
+    
+
+    protected Boolean optimized;
     
     /**
      * 1. JAVA에서  pageNo로 paging객체를 생성한다. 이는 쿼리시 사용된다.
      * 디폴트 null의 값인 0이 들어오면 1로 바꿔준다.
      */
     public SearchMap(HttpServletRequest req){
-        String pageNo = req.getParameter(HTML_PAGE_NO);
-        this.pageNo = pageNo==null || pageNo.equals("") ? null : Integer.parseInt(pageNo);
-        this.putAll(new Rr(req).getMap());
+        super(req);
+        this.pageNo = getIntId(HTML_PAGE_NO);
+        //this.putAll(new Rr(req).getMap());
     }
     public SearchMap(int pageNo){
         this.pageNo =   pageNo==0 ? 1 : pageNo;
@@ -75,7 +79,6 @@ public class SearchMap extends Mapp {
     
     /**
      * total count를 구해서 입력한다. 캐싱 하자.
-     * @uml.property  name="totalCount"
      */    
     public void setTotalCount(Integer totalCount){
         if(pageNo==null) pageNo = 1 ;  //기존 플젝때문에 넣은 임시 메소드.. ㄷㄷ
@@ -84,8 +87,7 @@ public class SearchMap extends Mapp {
     }
     
     /**
-     * @return
-     * @uml.property  name="totalCount"
+     * @return totalCount
      */
     public Integer getTotalCount() {
         return totalCount;
@@ -96,7 +98,7 @@ public class SearchMap extends Mapp {
      */
     public boolean isPaging(){
         if(pageNo==null) return false;
-        else return true;
+        return true;
     }
 
     /**
@@ -114,38 +116,22 @@ public class SearchMap extends Mapp {
         return (List<T>)result;
     }
     /**
+     * 하이버네이트의 경우 List형태로 받아오기 때문에 페이징 처리를 따로 해준다.
      * 가장 처음 보는 건의 location이 totalSize가 되도록 넘버링 처리 한다.
+     * T는 ListRownumAble를 구현하고 있어야 한다.
      */
     @SuppressWarnings("unchecked")
-    public List<ListRownumAble> getResultPaging(){
+    public void pagingForHibernate(){
         if(!isPaging()) throw new RuntimeException("this result is not paging!");
-        List<ListRownumAble> temp = (List<ListRownumAble>)result;
-        //public void myLocation(List<ListPagingAble> list, int pagingNo, int totalSize) {
+        if(totalCount==null) throw new RuntimeException("totalCount must not be null!");
+        List<EntityHibernatePaging> temp = (List<EntityHibernatePaging>)result;
         int start = (this.pageNo-1) * this.pagingSize; 
         for(int i=0;i<temp.size();i++){
-            ListRownumAble each = temp.get(i);
+            EntityHibernatePaging each = temp.get(i);
             int location =  this.totalCount - start - i;
             each.setRownum(location);
         }
-        return temp;
     }
-    
-    /*
-    @SuppressWarnings("unchecked")
-    public List<Mapp> getResultMapp(){
-        return (List<Mapp>)result;
-    }
-    
-    @SuppressWarnings("unchecked")
-    public List<Map<String,Object>> getResultMapStr(){
-        return (List<Map<String,Object>>)result;
-    }
-    
-    @SuppressWarnings("unchecked")
-    public List<Map<Object,Object>> getResultMap(){
-        return (List<Map<Object,Object>>)result;
-    }
-    */
     
     /**
      * paging을 리턴 후 삭제한다.
@@ -187,6 +173,7 @@ public class SearchMap extends Mapp {
      * "le"가 붙은것을 "작거나 같은"조건으로 묶어준다. ex) 종료일 <br>
      * 주의! like등의 조건에 해당하지만 실제 클래스와 매칭이 안되면 오류 발생시킴
      */    
+    /*
     public Conjunction getStringJunction(){ //////////////// setParameter를 사용하면 하이버가 알아서 판단!
         if(junction==null) junction = Restrictions.conjunction(); 
         for(Object key : keySet() ){
@@ -210,63 +197,16 @@ public class SearchMap extends Mapp {
         }
         return junction;
     }
+    */
     
-    /**
-     * 모든 타입??에 사용 가능. 성능은 의심.
-     * 주의! like등의 조건에 해당하지만 실제 클래스와 매칭이 안되면 오류 발생시킴 
-     */
-    public Criterion getCastedJunction(Class<?> clazz){
-        
-        if(junction==null) junction = Restrictions.conjunction(); 
-        for(Object key : keySet() ){
-            String keyStr = key.toString();
-            String value = getStr(key);
-            if(value.equals("")) continue; 
-            
-            if(keyStr.startsWith("eq")){
-                String fieldName = Strings.getCamelize2(keyStr,"eq");
-                Object obj = Clazz.getCastedValue(clazz,fieldName,value);
-                junction.add(Restrictions.eq(fieldName,obj));
-            }else if(keyStr.startsWith("like")){
-                String fieldName = Strings.getCamelize2(keyStr,"like");
-                junction.add(Restrictions.like(fieldName, value,MatchMode.ANYWHERE));
-            }else if(keyStr.startsWith("ge")){
-                String fieldName = Strings.getCamelize2(keyStr,"ge");
-                Object obj = Clazz.getCastedValue(clazz,fieldName,value);                
-                junction.add(Restrictions.ge(fieldName, obj));
-            }else if(keyStr.startsWith("le")){
-                String fieldName = Strings.getCamelize2(keyStr,"le");
-                Object obj = Clazz.getCastedValue(clazz,fieldName,value);
-                junction.add(Restrictions.le(fieldName, obj));
-            }
-        }
-        return junction;
-    }  
-    
-    /**
-     * 조건을 추가한다.
-     */
-    public void addAnd(Criterion ... res){
-        if(junction==null) junction = Restrictions.conjunction();
-        for(Criterion c:res) junction.add(c);
-    }
-    
-    /**
-     * 조건을 추가한다.
-     */
-    public void addOr(Criterion ... res){
-        if(junction==null) junction = Restrictions.conjunction();
-        Disjunction or = Restrictions.disjunction();
-        for(Criterion c:res) or.add(c);
-        junction.add(or);
-    }
-    
+    /*
     private static final String[] searchKeyword = {"eq","like","ge","le"};
     
     /**
      * Jsp에서 search조건들을 초기화 한다.
      * 라디오도 되게 수정할것..
      */
+    /*
     public String getJson(){
         JSONObject json = new JSONObject();
         for(Object key : keySet() ){
@@ -283,6 +223,27 @@ public class SearchMap extends Mapp {
 
         }
         return json.toString();
+    }*/
+    
+    /**
+     * HqlBuilder를 생성해낸다.
+     */
+    public HqlBuilderMap hqlBuilder(){
+        return new HqlBuilderMap(this,new HqlBuilderRoot());
+    }
+    
+    /**
+     * HqlBuilder를 생성해낸다.
+     */
+    public CriteriaBuilder criteriaBuilder(){
+        return new CriteriaBuilder(this);
+    }
+    
+    /**
+     * 결과를 json형태로 write한다. 
+     */
+    public void write(HttpServletResponse resp) {
+        AjaxTool.write(resp,JSMapper.instance().getArray(this.getResult()));
     }
     
     // ===========================================================================================
@@ -290,7 +251,8 @@ public class SearchMap extends Mapp {
     // ===========================================================================================
     
     /**
-     * iBatis등의 기본 문자열.. 즉 모두 대문자라고 가정.
+     * result값의 Enum id에 해당하는 값을 name으로 바꾼다.
+     * iBatis등의 기본 문자열로 매칭한다. 즉 모두 대문자라고 가정.
      */
     @SuppressWarnings("unchecked")
     public void enumerated(Class ... enums){
@@ -396,7 +358,7 @@ public class SearchMap extends Mapp {
      */
     public Integer getPagingSize() {
         if(pagingSize==null) return DEFAULT_PAGING_SIZE;
-        else return pagingSize;
+        return pagingSize;
     }
     /**
      * @param pagingSize

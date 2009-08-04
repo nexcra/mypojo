@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSONArray;
@@ -14,9 +15,12 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.annotations.CollectionOfElements;
 
 import erwins.util.lib.*;
-import erwins.util.morph.Mapping.MappingType;
+import erwins.util.morph.anno.Fk;
+import erwins.util.morph.anno.OracleListString;
+import erwins.util.tools.Mapp;
 
 /**
  * RequestResolver.. ㅠㅠ
@@ -27,17 +31,19 @@ import erwins.util.morph.Mapping.MappingType;
  * !!! 사용자 정의 Code를 자동으로 받게 변경
  * @author erwins(my.pojo@gmail.com)
  */
-public class Rr extends NullPolicy{
+public class Dissolver{
     
     private Logger log = Logger.getLogger(this.getClass());
+    
+    private Mapp map;
      
     /**
      * 생성시 debug log를 남긴다.
      */
     @SuppressWarnings("unchecked")
-    public Rr(HttpServletRequest request){
-        
-        this.request = request;
+    public Dissolver(HttpServletRequest request){
+        //dis·slv·er
+        map = new Mapp(request);
         
         if(log.isDebugEnabled()){
             Enumeration<String> parameterNames =  request.getParameterNames();
@@ -74,45 +80,23 @@ public class Rr extends NullPolicy{
     // ===========================================================================================
     //                               protected      
     // ===========================================================================================    
-
-    /** 흠.. 애는 제너릭이 필요없긴 한디..  */
-    @SuppressWarnings("unchecked")
-    public HashMap<String, Object> getMap(){
-        
-        HashMap<String, Object> map = new HashMap<String,Object>();
-        
-        Enumeration enumeration = request.getParameterNames();
-        String name = null;
-        String[] values = null;
-        
-        while (enumeration.hasMoreElements()) {
-            name = (String) enumeration.nextElement();            
-            values = getStrs(name);
-            if (values.length == 1) map.put(name, values[0]);
-            else  map.put(name, values);
-        }
-        return map;
-    }
-
     
     /**
      * ID이거나 Mapping의 FK가 붙어있다면 nullSafe를 적용하지 않는다.
      */
-    @SuppressWarnings("unchecked")
     protected <T> T getBean(Class<T> clazz){
-        //Class<?> clazz = Clazz.extractTypeParameter(this.getClass());
-        return (T)new Resolver().get(clazz);
+        return new BeanDissolver<T>().get(clazz);
     }
     
-    private class Resolver{
+    private class BeanDissolver<T>{
         private Method[] methods;
         private Class<?> setterType;
         private String fieldName;
         private Annotation[] annos;
         
-        Resolver() {}
+        BeanDissolver() {}
         
-        public Object get(Class<?> clazz){
+        public T get(Class<T> clazz){
             try {
                 return getBean(clazz);
             }
@@ -121,8 +105,9 @@ public class Rr extends NullPolicy{
             }
         }
         
-        private Object getBean(Class<?> clazz) throws Exception{
-            Object entity = clazz.newInstance();
+        @SuppressWarnings("unchecked")
+        private T getBean(Class<T> clazz) throws Exception{
+            T entity = clazz.newInstance();
             methods = entity.getClass().getMethods();
             
             for(Method method:methods ){
@@ -130,38 +115,36 @@ public class Rr extends NullPolicy{
                 if(!initSetter(method)) continue;
                 
                 if(setterType == String.class){
-                    method.invoke(entity, getStr(fieldName));
+                    method.invoke(entity, map.getStr(fieldName));
                 }else if(setterType == Integer.class || setterType == int.class){
-                    if(isKey()) method.invoke(entity, getIntId(fieldName)); 
-                    else method.invoke(entity, getInteger(fieldName));
+                    if(isKey()) method.invoke(entity, map.getIntId(fieldName)); 
+                    else method.invoke(entity, map.getInteger(fieldName));
                 }else if(setterType == BigDecimal.class){
-                    method.invoke(entity, getDeciaml(fieldName));
+                    method.invoke(entity, map.getDecimal(fieldName));
                 }else if(setterType == boolean.class){
-                    Boolean boo = getBoolean(fieldName); 
+                    Boolean boo = map.getBoolean(fieldName); 
                     if(boo == null) continue; //yn 이외의 이상한 값이면 디폴트 값을 사용
                     method.invoke(entity, boo);
                 }else if(setterType.isEnum()){
-                    method.invoke(entity,Clazz.getEnum((Class<Enum>)setterType, fieldName));                    
+                    method.invoke(entity,Clazz.getEnum((Class<Enum>)setterType, fieldName));
                 }else if(setterType == Long.class || setterType == long.class){
-                    if(isKey()) method.invoke(entity, getLongId(fieldName));
-                    else method.invoke(entity, getLong(fieldName));
-                }else if(MappingType.LIST_PARTITIONED_STRING.isMatch(annos)){ 
-                    String str = getStr(fieldName);
+                    if(isKey()) method.invoke(entity, map.getLongId(fieldName));
+                    else method.invoke(entity, map.getLong(fieldName));
+                }else if(Sets.isInstanceAny(annos,OracleListString.class)){ 
+                    String str = map.getStr(fieldName);
                     method.invoke(entity, Sets.getOracleStr(str));
-                }else if(MappingType.LIST_SUB_ENTITY.isMatch(annos)){
+                }else if(Sets.isInstanceAny(annos,OneToMany.class,CollectionOfElements.class)){
                     
                     /**
                      * 서브클래스의 입력작업을 시작한다.
                      * 추후 재귀참조로 변형하자.
                      */
-                    
-                    setCollectionName(fieldName);
+                    map.setCollectionName(fieldName);
                     
                     Class<?> subEntityClass =  Clazz.getSetterGeneric(method);
                     List<?> subEntitylist = null;
                     
                     Method[] subMethods = subEntityClass.getMethods();
-                    
                     
                     for(Method subMethod : subMethods){
                         
@@ -174,28 +157,27 @@ public class Rr extends NullPolicy{
                         Object[] temp = null;
 
                         if(setterType == String.class){
-                            temp = getStrs(fieldName);                                           
+                            temp = map.getStrs(fieldName);                                           
                         }else if(setterType == Boolean.class || setterType == boolean.class){
-                            temp = getBooleans(fieldName);
+                            temp = map.getBooleans(fieldName);
                         }else if(setterType == int.class || setterType == Integer.class){
-                            if(isKey()) temp = getIntIds(fieldName);
-                            else temp = getIntegers(fieldName);
+                            if(isKey()) temp = map.getIntIds(fieldName);
+                            else temp = map.getIntegers(fieldName);
                         }else if(setterType == long.class || setterType == Long.class){
-                            if(isKey()) temp = getLongIds(fieldName);
-                            else temp =  getLongs(fieldName);
+                            if(isKey()) temp = map.getLongIds(fieldName);
+                            else temp =  map.getLongs(fieldName);
                         }else if(setterType == BigDecimal.class){
-                            temp = getDeciamls(fieldName);
+                            temp = map.getDecimals(fieldName);
                         }else{
                             continue;
                         }
                         subEntitylist = Clazz.initCollection(subEntitylist,subEntityClass,temp.length);
                         addArrayToList(subMethod,subEntitylist,temp);
-                        
                     }
                     if(subEntitylist==null) continue; //만약 인자가 하나도 들어오지 않았다면 초기값을 건드리지 않고 무시한다.
-                    method.invoke(entity, subEntitylist);   
+                    method.invoke(entity, subEntitylist);
                     
-                    setCollectionName(null);
+                    map.setCollectionName(null);
                 }
             }
             return entity;
@@ -216,9 +198,9 @@ public class Rr extends NullPolicy{
         /**
          * Id가 붙어있거나 Fk가 붙어있을경우 true를 리턴
          */
+        @SuppressWarnings("unchecked")
         private boolean isKey(){
-            if(Sets.isEquals(annos, Id.class)) return true;
-            if(MappingType.FK.isMatch(annos)) return true;
+            if(Sets.isInstanceAny(annos,Id.class,Fk.class)) return true;
             return false; 
         }
     }

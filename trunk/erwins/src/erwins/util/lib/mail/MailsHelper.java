@@ -10,12 +10,13 @@ import erwins.util.vender.spring.SpringMailHelper;
 /**
  * commons mail을 확장한다. 디폴드 보내는 ~~를 지정한다.
  */
+@SuppressWarnings("unused")
 public class MailsHelper extends Mails {
 
     public MailsHelper(String host) {
         super(host);
     }
-
+    
     private Log log = LogFactory.getLog(getClass());
     
     private static final String CSS = "<style>body {margin:0px;}body, table, tr, td, div, th, form{color:#626262; font-family:돋움,돋움체,verdana,tahoma,arial; font-size:12px; line-height:18px;}a:{color:#626262;}a:link         {color:#626262;text-decoration:none;}a:visited      {color:#626262;text-decoration:none;}a:active     {color:#626262;text-decoration:none;}a:hover      {color:#F67F00;text-decoration:none;}.tbl_title_green {color:#247e04; font-size:12px; font-weight:bold;}</style>";

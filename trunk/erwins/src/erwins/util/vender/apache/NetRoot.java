@@ -95,7 +95,7 @@ public abstract class NetRoot {
                     log.debug("disconnected");
                 }
                 catch (IOException e) {
-                    throw new RuntimeException(e.getMessage(),e);
+                    throw new RuntimeException(e);
                 }
             }            
         }

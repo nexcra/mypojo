@@ -53,14 +53,18 @@ public abstract class GenericService<T,ID extends Serializable>{
     public void delete(ID id){
         getDao().makeTransient(id);
     }
-    @Transactional
-    public void delete(T entity){
-        getDao().makeTransient(entity);
-    }
     
     @Transactional
     public void saveOrUpdate(T entity){
         getDao().makePersistent(entity);
+    }
+    
+    /**
+     * 전체 객체를 읽어옴.
+     */    
+    @Transactional(readOnly=true)
+    public List<T> findAll(){
+        return getDao().findAll();
     }
     
     /**
@@ -88,7 +92,7 @@ public abstract class GenericService<T,ID extends Serializable>{
     }
     
     /**
-     * 여러 객체를 읽어옴.
+     * iBatis를 이용해서 여러 객체를 읽어옴.
      */    
     @Transactional(readOnly=true)
     public void list(SearchMap map,String key){

@@ -14,14 +14,18 @@ import erwins.util.vender.quartz.JobRunable;
 @Component
 public class WeatherJob implements JobRunable{
     
-    private static String[] weathers; //5개 3일 후 까지
+    private static String[] weathers = new String[0]; //5개 3일 후 까지
 
     public void jobRun() {
         run();
     }
     
     public static void run(){
-        weathers = Google.getWeatherStr("Inchon");
+        try {
+            weathers = Google.getWeatherStr("Inchon");
+        }catch (RuntimeException e) {
+            // 네트웍 사정이 좋지 않을 경우 무시한다.
+        }
     }
     
     /** 

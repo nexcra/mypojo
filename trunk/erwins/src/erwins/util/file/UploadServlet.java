@@ -23,6 +23,7 @@ public class UploadServlet extends HttpServlet {
      * Url로 업로드할 위치를 넘겨받는다. 'private'제외
      * UploadProgressListener에 세션 처리 안해도 되겠지?
      */
+    @Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	    String urlBody = Strings.getUrlAndExtention(request)[0];
 	    if(urlBody.indexOf("..") > -1)
@@ -30,6 +31,7 @@ public class UploadServlet extends HttpServlet {
 	    new UploadFileListener(request, response, urlBody).setListener(new UploadProgressListener());
 	}
 	
+    @Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	    System.out.println("get은 안되요");
 	}

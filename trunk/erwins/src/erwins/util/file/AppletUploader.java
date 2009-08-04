@@ -36,11 +36,13 @@ public class AppletUploader extends Applet {
     private Vector fileList;
     private JTable uploadFileTable;
     
+    @Override
     public void init() {}
     
     /**
      * 1. 전체 패널을 완성한다.
      */    
+    @Override
     public void start() {
         setLayout(new BorderLayout());
         
@@ -158,6 +160,7 @@ public class AppletUploader extends Applet {
         private static final String LINE_SEPARATOR = "\r\n";
 
         SwingWorker worker = new SwingWorker() {
+            @Override
             protected Object doInBackground(){
                 try {
                     getParameters();

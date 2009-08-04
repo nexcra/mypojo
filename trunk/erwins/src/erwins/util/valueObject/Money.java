@@ -19,6 +19,7 @@ public class Money{
      */
     private BigDecimal decimal;
     
+    @Override
     public String toString(){
         return Formats.INT.get(decimal)+"원";
     }
@@ -56,11 +57,11 @@ public class Money{
     public BigDecimal[] divideAndRemainder(BigDecimal divisor) {
         return decimal.divideAndRemainder(divisor);
     }
-
+    @Override
     public boolean equals(Object x) {
         return decimal.equals(x);
     }
-
+    @Override
     public int hashCode() {
         return decimal.hashCode();
     }

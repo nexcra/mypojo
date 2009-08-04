@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 /**
  * 메모리가 남아돌때 쓰세요.
+ * JVM과 설정에 따라 다르겠지만.. 1초 정도 안쓰니까 슝 GC되버림. 
  * @author erwins(my.pojo@gmail.com)
  */
 public class SoftMap<ID,V>{
@@ -28,18 +29,17 @@ public class SoftMap<ID,V>{
         if(ref==null){
             miss++;
             return null;
-        }else{
-            V obj = ref.get();
-            if(obj==null) miss++; 
-            else hit++;
-            return obj;
         }
+        V obj = ref.get();
+        if(obj==null) miss++; 
+        else hit++;
+        return obj;
     }
     
     public synchronized V remove(ID key) {
         SoftReference<V> ref = cache.remove(key);
         if(ref==null) return null;
-        else return ref.get();
+        return ref.get();
     }
     
 }

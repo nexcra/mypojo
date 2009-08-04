@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * @author erwins(my.pojo@gmail.com)
  */
-public abstract class CacheMap<T extends Object>{
+public abstract class CacheLinkedMap<T extends Object>{
 
     private final static int MAX_CACHE_SIZE = 20;
     

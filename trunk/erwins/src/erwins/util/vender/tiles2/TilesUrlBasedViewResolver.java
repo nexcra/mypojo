@@ -64,6 +64,7 @@ public class TilesUrlBasedViewResolver extends UrlBasedViewResolver {
 	 * @throws Exception if the view couldn't be resolved
 	 * @see #loadView(String, java.util.Locale)
 	 */
+	@Override
 	protected AbstractUrlBasedView buildView(String viewName) throws Exception {
 		AbstractUrlBasedView view = super.buildView(viewName);
 		

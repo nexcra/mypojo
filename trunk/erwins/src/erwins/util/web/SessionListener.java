@@ -1,5 +1,5 @@
 
-package erwins.util.tools;
+package erwins.util.web;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,17 +20,8 @@ public class SessionListener implements HttpSessionListener {
     
     protected static Log log = LogFactory.getLog(SessionListener.class);
 
-    /**
-     * @uml.property  name="serverStartTime"
-     */
     private static String serverStartTime ;
-    /**
-     * @uml.property  name="nowSessionCount"
-     */
     private static long nowSessionCount = 0;
-    /**
-     * @uml.property  name="cumulatedSessionCount"
-     */
     private static long cumulatedSessionCount = 0;    
     private static HashMap<String, HttpSession> sessionMap = new HashMap<String, HttpSession>();
     

@@ -49,6 +49,7 @@ public abstract class Encoders extends StringEscapeUtils {
     /**
      * 스택을 찍고 RuntimeException이 아니라면 RuntimeException으로 바꿔준다.
      */    
+    @Deprecated
     public static void stackTraceTo(Throwable throwable) {
         stackTrace(throwable);
         if(!(throwable instanceof RuntimeException))
@@ -88,7 +89,7 @@ public abstract class Encoders extends StringEscapeUtils {
             return URLEncoder.encode(str,"EUC-KR");
         }
         catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
     }
 

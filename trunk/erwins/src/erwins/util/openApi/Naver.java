@@ -8,10 +8,8 @@ import java.util.*;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.ecs.html.Script;
 
-import erwins.util.dom2.Code;
+import erwins.util.morph.HtmlOptionBuilder;
 import erwins.util.tools.SystemInfo;
-import erwins.util.vender.apache.ECS2;
-import erwins.util.vender.apache.OptionBuilder;
 import erwins.util.xml.DocParser;
 
 
@@ -65,14 +63,13 @@ public abstract class Naver{
             query = "key="+GetNaverMapKey()+"&query="+URLEncoder.encode(address,"euc-kr");
         }
         catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
 
         DocParser dp = new DocParser(RestConnector.getXml(NAVER_GEOCODE_URL,query));
         List<HashMap<String,String>> results =  dp.getElementsByTagName("x","y","address") ;
         
-        OptionBuilder o = new OptionBuilder();
+        HtmlOptionBuilder o = new HtmlOptionBuilder();
         o.addDefault("원하시는 지역을 골라주세요");
         
         for(Map<String,String> result : results){

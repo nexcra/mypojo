@@ -15,7 +15,7 @@ public class SpringIBatisDao extends SqlMapClientDaoSupport{
     private static Map<String,Integer> THRESHOLD_CACHE = new HashMap<String,Integer>();
     private static Map<String,Integer> NORMAL_CACHE = new HashMap<String,Integer>();
     
-    private static Cumulate cu = new Cumulate(500);
+    private static Accumulator cu = new Accumulator(500);
     
     /** 캐시 임계치 10만건 */
     private static final int THRESHOLD = 100000;
@@ -25,7 +25,6 @@ public class SpringIBatisDao extends SqlMapClientDaoSupport{
      * 1. 대량 캐시는 일자별로 바뀌게 만들자.
      * 2. 소량 캐시는.. 흠. 고민일세.
      */
-    @Deprecated
     private void getPagingCount(SearchMap searchMap,String sqlName){
         Integer count = null;
         if(searchMap.isOptimize()){
@@ -47,6 +46,26 @@ public class SpringIBatisDao extends SqlMapClientDaoSupport{
      */
     @SuppressWarnings("unused")
     private void getPagingCount2(SearchMap searchMap,String sqlName){
+        Integer count = null;
+        count =  NORMAL_CACHE.get( searchMap.hashCode(sqlName));
+        if(count==null || (searchMap.getPageNo()==1 && !searchMap.isOptimize()) ){
+            count = (Integer)getSqlMapClientTemplate().queryForObject(sqlName+".Count",searchMap);
+            NORMAL_CACHE.put(searchMap.hashCode(sqlName), count);
+        }else{
+            searchMap.setOptimized(true);
+        }        
+        searchMap.setTotalCount(count);
+    }
+    
+    /**
+     * 가장 강한 캐싱정책
+     * 페이지넘버가 1이 아니라면 무조건 캐싱하고
+     * 페이지넘버가 1이라면 Optimize라면 캐싱한다.
+     * 추후 시간/일자 등을 이용해 캐싱을 초기화 하자.
+     * 아직 미구현~~
+     */
+    @SuppressWarnings("unused")
+    private void getPagingCount3(SearchMap searchMap,String sqlName){
         Integer count = null;
         count =  NORMAL_CACHE.get( searchMap.hashCode(sqlName));
         if(count==null || (searchMap.getPageNo()==1 && !searchMap.isOptimize()) ){

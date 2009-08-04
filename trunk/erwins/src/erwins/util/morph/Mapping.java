@@ -9,6 +9,7 @@ import java.lang.annotation.*;
  * resolver에서  component타입을 인식하기 위해서 사용합니다.
  * @author erwins(my.pojo@gmail.com)
  */
+@Deprecated
 @Retention(RetentionPolicy.RUNTIME)  //클래스 파일에 저장되고 JVM이 인식한다.
 @Target(value=ElementType.METHOD) //method에만 붙일 수 있다.
 public @interface Mapping {
@@ -20,17 +21,14 @@ public @interface Mapping {
     /**
      * @author     Administrator
      */
+    @Deprecated
     public static enum MappingType {
         
         /**
-         * FK로 설정되어 ID와 동일시 간주되는것.
+         * FK로 설정되어 ID와 동일시 간주되는것. 
+         * 즉 reflection시 ""를 처리할때 0대신 null이 들어와야 하는것이다.
          */
         FK,
-        
-        /**
-         * 일반적인 ENTITY
-         */
-        ENTITY,
         
         /**
          * List에 들어간 ENTITY

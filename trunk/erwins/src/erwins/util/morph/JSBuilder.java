@@ -4,12 +4,15 @@ package erwins.util.morph;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.servlet.http.HttpServletResponse;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import erwins.util.dom2.*;
-import erwins.util.lib.Clazz;
-import erwins.util.lib.Strings;
+import erwins.util.lib.*;
+import erwins.util.root.Pair;
 import erwins.util.root.Singleton;
+import erwins.util.vender.etc.Flex;
+import erwins.util.web.AjaxTool;
 
 /**
  * Flex등에서 요청받은 String문자열로 Json을 생성해내는 빌더이다.
@@ -20,22 +23,22 @@ import erwins.util.root.Singleton;
  * @author erwins(my.pojo@gmail.com)
  */
 @Singleton
-public class JsonBuilder{
+public class JSBuilder{
     
     private static final String seperator = "\\|";
     
     private List<JsonCommand> list = new CopyOnWriteArrayList<JsonCommand>();
     
-    public JsonBuilder add(JsonCommand command){
+    public JSBuilder add(JsonCommand command){
         list.add(command);
         return this;
     }
     
-    public JsonBuilder(JsonTemplit ... templits){
+    public JSBuilder(JsonTemplit ... templits){
         for(JsonTemplit each:templits) add(each.getC());
     };
     
-    public JSONObject get(String parameter){
+    public JSONObject build(String parameter){
         JSONObject root = new JSONObject();
         String[] keys = parameter.split(seperator);
         for(String key : keys){
@@ -44,6 +47,11 @@ public class JsonBuilder{
             }
         }
         return root;
+    }
+    
+    public void build(String parameter,HttpServletResponse resp){
+        JSONObject result = build(parameter);
+        AjaxTool.write(resp, result);
     }
     
     /**
@@ -71,28 +79,8 @@ public class JsonBuilder{
                 String enumName = Strings.substringsBetween(key,"(",")")[0];
                 //String className = "erwins.myPage.enums." + enumName;
                 String className = enumName;
-                JSONArray array = JSONs.get(Clazz.getEnums(className),true);
+                JSONArray array = get((Pair[])Clazz.getEnums(className),true);
                 root.put(enumName,array);
-            }
-        }),
-        /** Dom2의 Code를 매핑한다. ex) Code(0,1,345)*/
-        CODE(new JsonCommand("Code"){
-            @Override
-            public void build(JSONObject json,String key) {
-                String upperCodeStr = Strings.substringsBetween(key,"(",")")[0];
-                String[] upperCodes = upperCodeStr.split(",");
-                for(String upperCode : upperCodes){
-                    List<Code> list = Code.getCodes().get(upperCode);      
-                    json.put(preFix+"("+upperCode+")",new DomToJson<Code>(list).getForNoRoot());    
-                }
-            }
-        }),
-        /** Dom2의 Menu를 매핑한다. */
-        MENU(new JsonCommand("Menu"){
-            @Override
-            public void build(JSONObject json,String key) {
-                List<Menu> list = Menu.getMenu();
-                json.put(key,new DomToJson<Menu>(list).get());
             }
         });
         
@@ -105,5 +93,51 @@ public class JsonBuilder{
         }
         
     }
+    
+    // ===========================================================================================
+    //                                    enum
+    // ===========================================================================================
+    
+    @SuppressWarnings("unchecked")
+    public static JSONArray get(Class<?> clazz,boolean all) {
+        Enum<?>[] qwe = ((Class<Enum>)clazz).getEnumConstants();
+        return get((Pair[])qwe,all);
+    }
+    
+    /**
+     * Enum 타입의 class를 제작한다.
+     */
+    public static JSONArray get(Pair[] pairs, boolean all, Pair... ingnor) {
+        JSONArray jsonArray = new JSONArray();
+        if(all) jsonArray.add(emptyJson());
+        for (Pair pair : pairs) {
+            if(Sets.isEqualsAny(ingnor, pair)) continue;
+            JSONObject json = new JSONObject();
+            json.put(Flex.LABEL, pair.getName());
+            json.put(Flex.VALUE, pair.getValue());
+            jsonArray.add(json);
+        }
+        return jsonArray;
+    }
 
+    // ===========================================================================================
+    //                                기타 기본 메소드    
+    // ===========================================================================================
+
+    /**
+     * JSON에 자신을 가르키는 this를 obj로 포함시킨다. (obj:this)
+     **/
+    public static String addJsonThis(JSONObject e) {
+        if(e==null) return null;
+        if(e.size()==0) return e.toString();
+        return "{obj:this,"+e.toString().substring(1);
+    }    
+    
+    private static JSONObject emptyJson(){
+        JSONObject json = new JSONObject();
+        json.put(Flex.LABEL, "전체");
+        json.put(Flex.VALUE,"");
+        return json;
+    }
+    
 }

@@ -50,8 +50,7 @@ public abstract class Cryptor {
             return Strings.getStr(cipherText);
         }
         catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
     }
 
@@ -95,8 +94,7 @@ public abstract class Cryptor {
             return output;
         }
         catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
     }
 
@@ -130,8 +128,7 @@ public abstract class Cryptor {
             return MD5.getHashHexString(str);
         }
         catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
 
     }

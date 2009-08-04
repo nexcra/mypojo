@@ -33,8 +33,7 @@ public class DocParser{
             this.doc =  builder.parse(stream);
         }
         catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
     }
     
@@ -45,8 +44,7 @@ public class DocParser{
             this.doc = builder.parse(source);
         }
         catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
     }
     public DocParser(File file){                
@@ -55,8 +53,7 @@ public class DocParser{
             this.doc = builder.parse(file);
         }
         catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
     }
     

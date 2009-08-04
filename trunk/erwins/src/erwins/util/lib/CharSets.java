@@ -40,8 +40,7 @@ public class CharSets {
             return new String(str.getBytes("8859_1"), "UTF-8");
         }
         catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
     }
     
@@ -53,8 +52,7 @@ public class CharSets {
             return new String(str.getBytes(EUC_KR), UTF_8);
         }
         catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
     }
 
@@ -66,8 +64,7 @@ public class CharSets {
             return new String(str.getBytes("8859_1"), "EUC-KR");
         }
         catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new RuntimeException("runtime fail");
+            throw new RuntimeException(e);
         }
     }
     

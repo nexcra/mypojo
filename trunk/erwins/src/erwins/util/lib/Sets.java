@@ -1,11 +1,13 @@
 package erwins.util.lib;
 
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 
+import erwins.util.root.EntityId;
 import erwins.util.root.StringIdEntity;
 
 /**
@@ -15,12 +17,23 @@ import erwins.util.root.StringIdEntity;
  */
 public abstract class Sets {
     
+    
+    /**
+     * null safe하게 IdEntity를 비교한다.
+     */
+    public static <ID extends Serializable> boolean isEqualIdEntity(EntityId<ID> a, EntityId<ID> b){
+        if(a==null || b==null) return false;
+        if(a.getId().equals(b.getId())) return true;
+        return false;
+    }
+    
+    
     /**
      * 빈 컬렉션인지? 
      */
     public static boolean isEmpty(Collection<?> c) {
         if(c==null || c.size()==0) return true;
-        else return false;
+        return false;
     }
     
     /**
@@ -58,10 +71,11 @@ public abstract class Sets {
      * Collection에서 Unique값을 추출해 낸다.
      */
     public static Integer getResultInt(List<Object> list) {
-        if(list==null || list.size()!=1) throw new RuntimeException(list.size() + " collection nust be unique");
+        if(list==null) throw new RuntimeException("list is null . collection must be not null");
+        if(list.size()!=1) throw new RuntimeException(list.size() + " collection must be unique");
         Object obj = list.get(0);
         if(obj instanceof BigDecimal) return ((BigDecimal) obj).intValue();
-        else return (Integer)list.get(0);
+        return (Integer)list.get(0);
     }
     
     /**
@@ -82,10 +96,14 @@ public abstract class Sets {
         return list.get(list.size()-1);
     }
     
+    // ===========================================================================================
+    //                                    비교하기  각기 3종류를 가진다.
+    // ===========================================================================================
+    
     /**
      * ==으로 비교한다. 
      */
-    public static <T> boolean isSame(T body ,T ... items) {
+    public static <T> boolean isSameAny(T body ,T ... items) {
         if(body==null || items.length==0) return false;
         for(T item:items) if(body == item) return true;
         return false;
@@ -95,7 +113,7 @@ public abstract class Sets {
      * 배열에 해당 물품을 가지고 있는지 검사한다. 
      * 하나라도 있으면 true를 리턴한다.
      */
-    public static <T> boolean isEquals(T[] bodys ,T ... items) {
+    public static <T> boolean isEqualsAny(T[] bodys ,T ... items) {
         if(bodys==null || items.length==0) return false;
         for(T body : bodys) for(T item:items) if(item.equals(body)) return true;
         return false;
@@ -105,9 +123,19 @@ public abstract class Sets {
      * 단일 물품의 값과 배열내의 값을. 비교한다. 
      * 하나라도 있으면 true를 리턴한다.
      */
-    public static <T> boolean isEquals(T bodys ,T ... items) {
+    public static <T> boolean isEqualsAny(Collection<T> bodys ,T ... items) {
         if(bodys==null || items.length==0) return false;
-        for(T item:items) if(item.equals(bodys)) return true;
+        for(T body:bodys) for(T item:items) if(item.equals(body)) return true;
+        return false;
+    }
+    
+    /**
+     * 단일 물품의 값과 배열내의 값을. 비교한다. 
+     * 하나라도 있으면 true를 리턴한다.
+     */
+    public static <T> boolean isEqualsAny(T body ,T ... items) {
+        if(body==null || items.length==0) return false;
+        for(T item:items) if(item.equals(body)) return true;
         return false;
     }
     
@@ -115,7 +143,7 @@ public abstract class Sets {
      * 배열에 null이 있는지 확인한다. 
      * 하나라도 있으면 true를 리턴한다. 배열의 size가 0이면 false이다.
      */
-    public static <T> boolean isNull(T ... items) {
+    public static <T> boolean isNullAny(T ... items) {
         for(T item:items) if(item == null) return true;
         return false;
     }
@@ -123,29 +151,25 @@ public abstract class Sets {
     /**
      * 배열에 해당 물품의 클래스를 가지고 있는지 검사한다. 
      * 하나라도 있으면 true를 리턴한다.
+     * ex) if(Sets.isInstance(annos,Hidden.class)) continue;
      */
-    public static <T> boolean isInstance(T[] bodys , Class<? extends T> ...  clazzs) {
+    public static <T> boolean isInstanceAny(T[] bodys , Class<? extends T> ...  clazzs) {
         if(bodys==null || clazzs.length==0) return false;
         for(T each : bodys) for(Class<? extends T> clazz : clazzs) if(clazz.isInstance(each)) return true;
         return false;
     }
     
-    /**
-     * 배열에 해당 물품을 가지고 있는지 검사한다. 
-     * 하나라도 있으면 true를 리턴한다.
-     */
-    public static <T> boolean isEquals(Collection<T> bodys , T ... items) {
-        if(bodys==null || items.length==0) return false;
-        for(T body : bodys) for(T item:items) if(item.equals(body)) return true;
-        return false;
-    }
+    
+    // ===========================================================================================
+    //                                    null safe
+    // ===========================================================================================
     
     /**
      * null sasfe하게 list의 사이즈를 구한다. 
      */
     public static Integer getSize(List<?> list) {
         if(list==null) return 0;
-        else return list.size();
+        return list.size();
     }
     
     /**
@@ -161,6 +185,10 @@ public abstract class Sets {
         return list;
     }
     
+    // ===========================================================================================
+    //                                    etc
+    // ===========================================================================================
+    
     /**
      * 형을 알 수 없는 obj를 List로 바꾼다.
      * toList를 형을 알 수 없은 상태로 사용할 경우 배열채로 List에 들어가 버린다.
@@ -171,8 +199,6 @@ public abstract class Sets {
         else if(obj instanceof String[]) return  toList((String[])obj);
         else return Collections.emptyList();
     }
-    
-
     
     /**
      * null safe하게 list의 개체를 반환한다. 
@@ -263,8 +289,7 @@ public abstract class Sets {
                 tag = (T) clazz.newInstance();
             }
             catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException("runtime fail");
+                throw new RuntimeException(e);
             }
             tags.add(tag);
         }else{

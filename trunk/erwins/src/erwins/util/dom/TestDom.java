@@ -21,6 +21,7 @@ public class TestDom extends TestCase {
      */
     Dom dom;
 
+    @Override
     protected void setUp(){
         
         dom = new Dom();

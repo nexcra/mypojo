@@ -45,7 +45,7 @@ public abstract class Files {
             oos.writeObject(obj);
         }
         catch (IOException e) {
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }finally{
             try {
                 fos.close();
@@ -61,8 +61,8 @@ public abstract class Files {
      * 파일 경로의 특수문자를 일반 TEXT로 치환한다.
      * FLEX등에서 지원 안해주기때문에 만들었다. 
      */
-    public static String escape(File file){
-        return file.getAbsolutePath().replaceAll("\\\\", ESCAPE);
+    public static String escape(String fileName){
+        return fileName.replaceAll("\\\\", ESCAPE);
     }
 
     /**
@@ -81,7 +81,7 @@ public abstract class Files {
             obj = (T)ois.readObject();
         }
         catch (Exception e) {
-            throw new RuntimeException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }finally{
             try {
                 fis.close();
@@ -154,20 +154,20 @@ public abstract class Files {
             br.close();
         }
         catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         finally {
             try {
                 if (isr != null) isr.close();
             }
             catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
             try {
                 if (osw != null) osw.close();
             }
             catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
     }
@@ -185,14 +185,14 @@ public abstract class Files {
             osw.write(str);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         finally {
             try {
                 if (osw != null) osw.close();
             }
             catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
     }    
@@ -231,16 +231,14 @@ public abstract class Files {
         }catch (IOException e) {
             //if(!e.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException"))
         }catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("fail",e);
+            throw new RuntimeException(e);
         }
         finally {
             if (fis != null) try {
                 fis.close();
             }
             catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException("fail",e);
+                throw new RuntimeException(e);
             }
         }
     }
@@ -317,8 +315,7 @@ public abstract class Files {
                 count += fileCopier.copy(src, dest, overwrite, true);
             }
             catch (IOException e) {
-                Encoders.stackTrace(e);
-                throw new RuntimeException(e.getMessage(),e);
+                throw new RuntimeException(e);
             }
             // 복사후 대상 디렉토리 삭제를 실패한 경우
             if (rmdir(src)) { throw new RuntimeException("copy success But delete fail"); }

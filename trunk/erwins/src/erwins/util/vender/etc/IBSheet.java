@@ -3,6 +3,7 @@ package erwins.util.vender.etc;
 
 
 
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -12,14 +13,18 @@ import org.apache.ecs.xml.XML;
 import org.apache.ecs.xml.XMLDocument;
 
 import erwins.util.dom.Dom;
+import erwins.util.web.AjaxTool;
 
 /**
  * 국산 버그 덩어리 X-Internet IBSheet를 래핑한다. <br>
  * null 입력시 ""을 입력한다.
  * 1. 스크립트 버그 (select의 value가 ''이면 이름이 인자로 넘어감) <br>
  * 2. save메소드시 쿼리스트링이 get방식으로 넘어가는 문제 ('+'값 인식 불가로 인증서 해시값 전송시 문제) <br> 
+ * resp => 나중에 요거 삭제.
  */
-public class IBSheet extends ResponseEditor{
+public class IBSheet{
+    
+    HttpServletResponse resp;
     
     public static final String COLOR_RED = "RED";
     public static final String COLOR_BLUE = "BLUE";
@@ -30,16 +35,16 @@ public class IBSheet extends ResponseEditor{
     public static final String DELETE = "D";
     
     public IBSheet(HttpServletResponse response){
-        super(response);
+        resp = response;
     }
     
     public IBSheet(HttpServletResponse response,List<Object[]> list,int skip){
-        super(response);
+        resp = response;
         makeSimpleSheet(list, skip);
     }
     
     public IBSheet(HttpServletResponse response,List<Object[]> list){
-        super(response);
+        resp = response;
         makeSimpleSheet(list, 1);
     }
     
@@ -123,6 +128,7 @@ public class IBSheet extends ResponseEditor{
     }
     
     public void printError(String resultMsg){
+        PrintWriter out = AjaxTool.getOut(resp);
         out.print("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
         out.print("<ERROR>");
         out.print("<MESSAGE> <![CDATA[");
@@ -158,7 +164,7 @@ public class IBSheet extends ResponseEditor{
         XMLDocument x = new XMLDocument();
         x.setCodeset("UTF-8");
         x.addElement(xmlBody);
-        x.output(out);        
+        x.output(AjaxTool.getOut(resp));        
         
     }
     

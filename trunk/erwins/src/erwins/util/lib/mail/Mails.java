@@ -76,8 +76,10 @@ public class Mails {
     /**
      * 주의!!  templit에 '를 넣지 말것.. \"로 대체하라.
      * 내부적으로 MessageFormat이 사용된다.
+     * 예외가 자주 일어날 수 있음으로 잔드시 잡아줄것 확인할것. 
+     * @throws EmailException 
      */    
-    public void send(String subject,String templit, Object... values) {        
+    public void send(String subject,String templit, Object... values) throws EmailException {        
         email.setSubject(subject);
         
         StringBuilder htmlContent = new StringBuilder();
@@ -90,17 +92,12 @@ public class Mails {
         htmlContent.append("</body>");
         htmlContent.append("</html>");
         
-        try {
-            email.setHtmlMsg(htmlContent.toString());
-            //HTML 이메일을 지원하지 않는 클라이언트라면 다음 메세지를 뿌려웁니다?
-            //보안 설정이 안되어있는 클라이언트한테 나타나는듯..
-            //email.setTextMsg("Your email client does not support HTML messages");
-            email.send();
-        }
-        catch (EmailException e) {
-            Encoders.stackTrace(e);
-            //아무것도 하지 않음.
-        }
+        email.setHtmlMsg(htmlContent.toString());
+        //HTML 이메일을 지원하지 않는 클라이언트라면 다음 메세지를 뿌려웁니다?
+        //보안 설정이 안되어있는 클라이언트한테 나타나는듯..
+        //email.setTextMsg("Your email client does not support HTML messages");
+        email.send();
+
     }
 
 }

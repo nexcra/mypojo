@@ -18,11 +18,13 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 public class UploadServletSample extends HttpServlet {
     
     String upload_dir = null;
+    @Override
     public void init(ServletConfig config) throws ServletException {
           super.init(config);  
           upload_dir = config.getServletContext().getRealPath("/upload/");
     }
  
+    @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
    
         // form type이 multipart/form-data 면 true 그렇지 않으면 false를 반환

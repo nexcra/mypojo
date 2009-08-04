@@ -581,8 +581,7 @@ public class Dom implements Cloneable,StringIdEntity{
         try {
             return (Dom)super.clone();
         } catch (CloneNotSupportedException e) {
-            Encoders.stackTrace(e);
-            return null;
+            throw new RuntimeException(e);
         }
     }
  

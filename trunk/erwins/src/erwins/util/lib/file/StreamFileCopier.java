@@ -36,6 +36,7 @@ public class StreamFileCopier extends AbstractFileCopier {
      * @return 복사한 파일 갯수
      * @throws IOException
      */
+    @Override
     public int copyFile(File srcFile, File destFile, boolean overwrite) throws IOException {
         if (!srcFile.isFile()) {
             throw new IOException(MessageFormat.format("'{0}' is not File.", srcFile.getAbsolutePath()));

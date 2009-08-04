@@ -10,21 +10,18 @@ import org.apache.log4j.Logger;
 
 import erwins.util.lib.Encoders;
 import erwins.util.lib.Strings;
+import erwins.util.web.AjaxTool;
 
 /**
  * 국산 레포팅 툴 오즈의 XML문을 생성합니다.
  */
-public class Oz extends ResponseEditor{
+public class Oz{
     
     private Logger log = Logger.getLogger(this.getClass());
     
     private static final String DATA_SET_NODE_NAME = "sql_retireflow";    
     private static final String RECORD_SET_NODE_NAME =  "flow";
 
-    public Oz(HttpServletResponse response){
-        super(response);
-    }
-    
     private HashMap<String,String> fieldInfos = new HashMap<String,String>();
     private List<HashMap<String,String>> datas = new ArrayList<HashMap<String,String>>();
     private HashMap<String,String> thisList;
@@ -45,7 +42,7 @@ public class Oz extends ResponseEditor{
      * DATA_SET_NODE_NAME = "sql_retireflow";   
      * RECORD_SET_NODE_NAME =  "flow";
      */
-    public void out(){
+    public void out(HttpServletResponse resp){
         
         //response.setContentType("text/xml; charset=utf-8");
         //PrintWriter out = getWriter();            
@@ -68,7 +65,7 @@ public class Oz extends ResponseEditor{
         XMLDocument x = new XMLDocument();
         x.setCodeset("UTF-8");
         x.addElement(xmlBody);
-        x.output(out);
+        x.output(AjaxTool.getOut(resp));
         
         //out.print("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
         //out.print(xmlBody);        

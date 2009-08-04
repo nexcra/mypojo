@@ -9,7 +9,6 @@ import org.apache.ecs.html.Script;
 import org.apache.ecs.html.Table;
 import org.apache.ecs.wml.*;
 
-import erwins.util.dom2.Code;
 import erwins.util.lib.Strings;
 import erwins.util.tools.SystemInfo;
 import erwins.util.xml.XmlParser;
@@ -86,8 +85,6 @@ public class Google{
      */
     public static String[] getWeatherStr(String city){
         String cityName = Strings.nvl(city,"seoul");
-        Code dom = Code.getElementById(city);
-        if(dom!=null) cityName = dom.getParam1();
         
         List<NameValuePair> parmas = new ArrayList<NameValuePair>();
         parmas.add(new NameValuePair("weather",cityName));
@@ -105,10 +102,7 @@ public class Google{
     /**
      * 구글 날씨 정보를 HTML table로 만들어 리턴한다.
      */
-    public static String getWeatherHtmlTable(String city){
-        String cityName = Strings.nvl(city,"seoul");
-        Code dom = Code.getElementById(city);
-        if(dom!=null) cityName = dom.getParam1();
+    public static String getWeatherHtmlTable(String cityName){
         
         List<NameValuePair> parmas = new ArrayList<NameValuePair>();
         parmas.add(new NameValuePair("weather",cityName));
