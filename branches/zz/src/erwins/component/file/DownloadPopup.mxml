@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<erwins:FilecontrolPopup xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:erwins="erwins.component.file.*" 
+    title="File Download" >
+<mx:Script><![CDATA[
+	import erwins.util.Json;
+	import mx.managers.CursorManager;
+	import erwins.util.effect.EventEffect;
+	import erwins.util.TimeUtil;
+	import flexlib.scheduling.Timeline;
+	import mx.core.UIComponent;
+	import mx.managers.PopUpManager;
+	import mx.controls.Alert;
+	import erwins.util.Alerts;
+
+private static var downloading:Boolean = false; //어쩔 수 없이 추가.. 
+private var me:DownloadPopup = this as DownloadPopup;
+
+protected override function init():void{
+	downloading = true;
+	if(this.fileName!=null) me.title = this.fileName;
+    fileRef.addEventListener(ProgressEvent.PROGRESS,function(event:ProgressEvent):void {
+		bar.setProgress(event.bytesLoaded,event.bytesTotal);
+	});
+    fileRef.addEventListener(Event.COMPLETE,function(event:Event):void {
+		downloading = false;
+		currentState = COMPLITE;
+		message.text = '['+fileName +'] : 다운로드 완료';
+		TimeUtil.fire(function():void{
+			PopUpManager.removePopUp( me );
+		},3000);
+		if(successCallback!=null) successCallback();
+	});
+	fileRef.addEventListener(Event.CANCEL,function(event:Event):void {
+		downloading = false;
+		PopUpManager.removePopUp( me );
+	});
+	var request:URLRequest = new URLRequest();
+    request.url = url;
+    request.method="POST";
+    request.data = Json.serialize(args);
+    //request.data['absolutePath'] = 'qwe';
+    
+    try{
+		fileRef.download(request,fileName);
+    }catch(e:SecurityError){
+		if(failCallback==null) Alert.show(e.toString());
+		else failCallback(e);
+		downloading = false;
+    }
+}
+
+        
+]]></mx:Script>
+    
+</erwins:FilecontrolPopup>
