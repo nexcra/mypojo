@@ -3,7 +3,9 @@ package erwins.util.openApi;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.ecs.html.Script;
 
@@ -33,7 +35,7 @@ public abstract class Naver{
         }
         
 
-        DocParser dp = new DocParser(new RESTful().query(query).build(NAVER_GEOCODE_URL).asStream());
+        DocParser dp = new DocParser(RESTful.post(NAVER_GEOCODE_URL).query(query).run().asStream());
         List<HashMap<String,String>> results =  dp.getElementsByTagName("x","y","address");
         
         HtmlOptionBuilder o = new HtmlOptionBuilder();

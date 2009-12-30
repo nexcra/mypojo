@@ -1,137 +1,290 @@
-
 package erwins.util.lib.security;
 
-import javax.crypto.*;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 
-import com.oreilly.servlet.Base64Decoder;
-import com.oreilly.servlet.Base64Encoder;
-
-import erwins.util.counter.Latch;
 import erwins.util.exception.MalformedException;
 import erwins.util.lib.Strings;
 
 /**
- * 암호화 , 복호화, Base64, 해쉬화 , 해쉬값 검증 등의 작업 Base64란 2진 데이터를, 문자코드에 영향을 받지 않는 공통
- * ASCII 영역의 문자들로만 이루어진 일련의 문자열로 바꾸는 방식을 가리키는 개념으로서,간단히 64진수로 보면 됩니다. 오라일리의 jar가
- * 필요하다..
- * 
+ * 대칭키 방식인 Triple DES (a.k.a DESede)이다.  root를 지정 후 싱글톤으로 사용하자.
  * @author erwins(my.pojo@gmail.com)
  */
-public abstract class Cryptor {
+public class Cryptor {
 
-    private static final String DEFAULT_KEY = "quantum.object@hotmail.com";
+	/** 이 key를 사용하면 String 복호화의 경우 padding오류가 난다. 주의 */
+	public static SecretKey generateKey(){
+		SecretKey key = null;
+		KeyGenerator keygen = null;
+		try {
+			keygen = KeyGenerator.getInstance("DESede");
+			key = keygen.generateKey();
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
+		return key;
+	}
+	
+	/** 문자열 단일 암호화는 이것으로 생성하자. ex)quantum.object@hotmail.com  */
+	public static SecretKey generateKey(String key) {
+		byte[] keydata = key.getBytes();
+		SecretKey desKey;
+		try {
+			DESedeKeySpec keySpec = new DESedeKeySpec(keydata);
+			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DESede");
+			desKey = keyFactory.generateSecret(keySpec);
+		} catch (Exception e) {
+			throw new MalformedException("DESede's key length must be 24!");
+		}
+		return desKey;
+	}
 
-    /**
-     * Base64로 인코딩한다.
-     */
-    public static String base64Encode(String str){
-        return Base64Encoder.encode(str.getBytes());
-    }
+	/** Save the specified TripleDES SecretKey to the specified file */
+	public static void writeKey(SecretKey key, File f){
+		try {
+			SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("DESede");
+			DESedeKeySpec keyspec = (DESedeKeySpec) keyfactory.getKeySpec(key, DESedeKeySpec.class);
+			byte[] rawkey = keyspec.getKey();
 
-    /**
-     * Base64를 디코딩한다.
-     */
-    public static String base64Decode(String str){
-        return Base64Decoder.decode(str);
-    }
+			// Write the raw key to the file
+			FileOutputStream out = new FileOutputStream(f);
+			out.write(rawkey);
+			out.close();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    /**
-     * TripletDes방식으로 암호화 한다.
-     */
-    public static String encrypt(String baseStr,String ... key){
-        try {
-            Cipher cipher = Cipher.getInstance("DESede/ECB/PKCS5Padding"); //String으로 모드 설정
-            cipher.init(Cipher.ENCRYPT_MODE, makeKey(key));
-            byte[] plainText = baseStr.getBytes("UTF8");
+	/** Read a TripleDES secret key from the specified file */
+	public static SecretKey readKey(File f){
+		SecretKey key;
+		try {
+			DataInputStream in = new DataInputStream(new FileInputStream(f));
+			byte[] rawkey = new byte[(int) f.length()];
+			in.readFully(rawkey);
+			in.close();
 
-            // 암호화 시작
-            byte[] cipherText = cipher.doFinal(plainText);
+			// Convert the raw bytes to a secret key like this
+			DESedeKeySpec keyspec = new DESedeKeySpec(rawkey);
+			SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("DESede");
+			key = keyfactory.generateSecret(keyspec);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return key;
+	}
+	
+	/** DESede 문자열 모드?? 사실 먼지 모르겠음. */
+	private static final String DESede_STRING_MODE = "DESede/ECB/PKCS5Padding";
+	
+	/** 쓸일이 있을까? */
+	public static String encrypt(SecretKey key, String str){
+		try {
+			Cipher cipher = Cipher.getInstance(DESede_STRING_MODE);
+			cipher.init(Cipher.ENCRYPT_MODE, key);
+			byte[] plainText = str.getBytes("UTF-8");
+			byte[] cipherText = cipher.doFinal(plainText);
+			return Strings.getStr(cipherText);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static String decrypt(SecretKey key, String str){
+		try {
+			Cipher cipher = Cipher.getInstance(DESede_STRING_MODE);
+			cipher.init(Cipher.DECRYPT_MODE, key);
+			byte[] decryptedText = cipher.doFinal(Strings.getByte(str));
+			return new String(decryptedText, "UTF8");
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/** in을 암호화 해서 out을 만든다. */
+	public static void encrypt(SecretKey key, File in, File out){
+		FileInputStream ins = null;
+		FileOutputStream outs = null;
+		try {
+			ins = new FileInputStream(in);
+			outs = new FileOutputStream(out);
+			encrypt(key,ins,outs);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}finally{
+			try {
+				if(ins !=null) ins.close();
+				if(outs !=null) outs.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+	
+	/** in을 복호화 해서 out을 만든다. */
+	public static void decrypt(SecretKey key, File in, File out){
+		FileInputStream ins = null;
+		FileOutputStream outs = null;
+		try {
+			ins = new FileInputStream(in);
+			outs = new FileOutputStream(out);
+			decrypt(key,ins,outs);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}finally{
+			try {
+				if(ins !=null) ins.close();
+				if(outs !=null) outs.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+	
+	/** 암호화에 사용되는 버퍼 */
+	private static final int FILE_BUFFER = 2048;	
 
-            return Strings.getStr(cipherText);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+	private static void encrypt(SecretKey key, InputStream in, OutputStream out) throws Exception {
+		// Create and initialize the encryption engine
+		Cipher cipher = Cipher.getInstance("DESede");
+		cipher.init(Cipher.ENCRYPT_MODE, key);
 
-    /**
-     * 암호화한 String을 char int 형으로 분리한다. 테스트 위해 제작
-     */
-    public static String encryptInt(String baseStr,String ... key){
-        StringBuilder b = new StringBuilder();
-        Latch l = new Latch();
-        for (char ch : encrypt(baseStr,key).toCharArray()) {
-            if (!l.next()) b.append(",");
-            b.append((int) ch);
-        }
-        return b.toString();
-    }
+		// Create a special output stream to do the work for us
+		CipherOutputStream cos = new CipherOutputStream(out, cipher);
 
-    /**
-     * char int 형으로 분리된 문자열을 복호화 한다. 테스트 위해 제작
-     */
-    public static String decryptInt(String baseStr,String ... key){
-        StringBuilder b = new StringBuilder();
-        for (String ch : baseStr.split(",")) {
-            b.append((char) Integer.parseInt(ch));
-        }
-        baseStr = b.toString();
-        return decrypt(baseStr,key);
-    }
+		// Read from the input and write to the encrypting output stream
+		byte[] buffer = new byte[FILE_BUFFER];
+		int bytesRead;
+		while ((bytesRead = in.read(buffer)) != -1) {
+			cos.write(buffer, 0, bytesRead);
+		}
+		cos.close();
 
-    /**
-     * TripletDes방식으로 복호화 한다.
-     */
-    public static String decrypt(String baseStr,String ... key){
+		// For extra security, don't leave any plaintext hanging around memory.
+		java.util.Arrays.fill(buffer, (byte) 0);
+	}
 
-        try {
-            //복호화 모드로서 초기화
-            Cipher cipher = Cipher.getInstance("DESede/ECB/PKCS5Padding"); //String으로 모드 설정
-            cipher.init(Cipher.DECRYPT_MODE, makeKey(key));
-            //복호화 수행
-            byte[] decryptedText = cipher.doFinal(Strings.getByte(baseStr));
-            String output = new String(decryptedText, "UTF8");
-            return output;
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+	public static void decrypt(SecretKey key, InputStream in, OutputStream out) throws Exception {
+		// Create and initialize the decryption engine
+		Cipher cipher = Cipher.getInstance("DESede");
+		cipher.init(Cipher.DECRYPT_MODE, key);
 
-    /**
-     * DESede를 사용할 때는 key 길이는 24여야 합니다? key 길이가 16byte 라면 DESede 대신 DES 를 사용하시면
-     * 됩니다.?
-     **/
-    private static SecretKey makeKey(String[] key){
+		// Read bytes, decrypt, and write them out.
+		byte[] buffer = new byte[FILE_BUFFER];
+		int bytesRead;
+		while ((bytesRead = in.read(buffer)) != -1) {
+			out.write(cipher.update(buffer, 0, bytesRead));
+		}
 
-        byte[] keydata = null;
-        if (key.length == 0) keydata = DEFAULT_KEY.getBytes();
-        else keydata = key[0].getBytes();
+		// Write out the final bunch of decrypted bytes
+		out.write(cipher.doFinal());
+		out.flush();
+	}
+	
+	
 
-        SecretKey desKey;
-        try {
-            DESedeKeySpec keySpec = new DESedeKeySpec(keydata);
-            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DESede");
-            desKey = keyFactory.generateSecret(keySpec);
-        }
-        catch (Exception e) {
-            throw new MalformedException("적절한 key가 아닙니다. DESede를 사용할 때는 key 길이는 24여야 합니다");
-        }
-        return desKey;
-    }
+	/** TripletDes방식으로 File을 암호화 한다. 왜안되지? ㅠ */
+	/*@Deprecated
+	public static void encrypt(File org, String key, File crypted) {
+		java.io.FileInputStream in = null;
+		java.io.FileOutputStream fileOut = null;
+		javax.crypto.CipherOutputStream out = null;
+		try {
+			Cipher cipher = buildCipher(Cipher.ENCRYPT_MODE, key);
+			in = new java.io.FileInputStream(org);
+			fileOut = new java.io.FileOutputStream(crypted);
+			out = new javax.crypto.CipherOutputStream(fileOut, cipher);
+			byte[] buffer = new byte[FILE_CRYPT_BUFFER];
+			int length;
+			while ((length = in.read(buffer)) != -1)
+				out.write(buffer, 0, length);
+			java.util.Arrays.fill(buffer, (byte) 0);
+			// while((length = in.read()) != -1) out.write(length);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				if (in != null)
+					in.close();
+				if (fileOut != null)
+					fileOut.close();
+				if (out != null)
+					out.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}	*/
+	
+	/** TripletDes방식으로 File을 암호화 한다. 왜안되지? ㅠ */
+	/** TripletDes방식으로 File을 복호화 한다. */
+	/*public static void decrypt(File crypted, String key, File org) {
+		java.io.FileInputStream in = null;
+		java.io.FileOutputStream fileOut = null;
+		javax.crypto.CipherOutputStream out = null;
+		try {
+			Cipher cipher = buildCipher(Cipher.DECRYPT_MODE, key);
+			in = new java.io.FileInputStream(crypted);
+			fileOut = new java.io.FileOutputStream(org);
+			out = new javax.crypto.CipherOutputStream(fileOut, cipher);
+			byte[] buffer = new byte[FILE_CRYPT_BUFFER];
+			int length;
+			while ((length = in.read(buffer)) != -1)
+				out.write(buffer, 0, length);
+			// while((length = in.read()) != -1) out.write(length);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				if (in != null)
+					in.close();
+				if (fileOut != null)
+					fileOut.close();
+				if (out != null)
+					out.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}	*/
+	
+	/**
+	 * 암호화한 String을 char int 형으로 분리한다. 테스트 위해 제작
+	 */
+	/*public static String encryptInt(String baseStr, String key) {
+		StringBuilder b = new StringBuilder();
+		Latch l = new Latch();
+		for (char ch : encrypt(baseStr, key).toCharArray()) {
+			if (!l.next())
+				b.append(",");
+			b.append((int) ch);
+		}
+		return b.toString();
+	}*/
 
-    /**
-     * MD5를 이용하여 String객체를 해쉬화 한다. VChar 32
-     */
-    public static String hash(String str){
-        try {
-            return MD5.getHashHexString(str);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-    }
+	/**
+	 * char int 형으로 분리된 문자열을 복호화 한다. 테스트 위해 제작
+	 */
+	/*public static String decryptInt(String baseStr, String key) {
+		StringBuilder b = new StringBuilder();
+		for (String ch : baseStr.split(",")) {
+			b.append((char) Integer.parseInt(ch));
+		}
+		baseStr = b.toString();
+		return decrypt(baseStr, key);
+	}*/
 
 }

@@ -72,14 +72,14 @@ public class Strings extends StringUtils {
     }
 
     /**
-     * 첫번째 패턴까지의 문자열을 리턴한ㄷ. ex) getFirst("12345\qqq\asd","\n") => 12345
+     * 첫번째 패턴까지의 문자열을 리턴한ㄷ. ex) getFirst("12345\qqq\asd","\") => 12345
      */
     public static String getFirst(String str, String pattern) {
         return str.substring(0, str.indexOf(pattern));
     }
 
     /**
-     * 마지막 패턴 이후로의 문자열을 리턴한다. ex) getFirst("12345\qqq\asd","\n") => asd
+     * 마지막 패턴 이후로의 문자열을 리턴한다. ex) getFirst("12345\qqq\asd","\") => asd
      */
     public static String getLast(String str, String pattern) {
         return str.substring(str.lastIndexOf(pattern) + 1);
@@ -501,9 +501,8 @@ public class Strings extends StringUtils {
      * 배열을 seperators로 연결해서 반환한다. Weblogic 10.0/10.3에서 join사용(2.3이후버전)시 오류발생으로
      * 이것으로 대체
      */
-    public static String joinTemp(List<?> list, String... seperators) {
+    public static String joinTemp(List<?> list, String seperator) {
         StringBuffer stringBuffer = new StringBuffer();
-        String seperator = seperators.length == 0 ? "," : seperators[0]; // ""인가 ","인가.
         boolean first = true;
         for (Object string : list) {
             if (!first) stringBuffer.append(seperator);
@@ -517,9 +516,8 @@ public class Strings extends StringUtils {
      * 배열을 seperators로 연결해서 반환한다. Weblogic 10.0/10.3에서 join사용(2.3이후버전)시 오류발생으로
      * 이것으로 대체
      */
-    public static <T> String joinTemp(T[] list, String... seperators) {
+    public static <T> String joinTemp(T[] list, String seperator) {
         StringBuffer stringBuffer = new StringBuffer();
-        String seperator = seperators.length == 0 ? "," : seperators[0];
         boolean first = true;
         for (Object string : list) {
             if (!first) stringBuffer.append(seperator);

@@ -5,12 +5,20 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
-import erwins.util.lib.*;
+import erwins.util.lib.Days;
+import erwins.util.lib.Formats;
+import erwins.util.lib.Strings;
 import erwins.util.tools.JDBC;
 
 /**
@@ -211,7 +219,11 @@ public class Poi extends PoiRoot{
         
         public OracleUploader(String tableName,String ip,String sid,String id,String pass){
             this.tableName = tableName.toUpperCase();
-            jdbc = new JDBC(ip,sid,id,pass);
+            try {
+				jdbc = new JDBC(ip,sid,id,pass);
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
             initSheet(0,0);
             run();
         }

@@ -8,8 +8,8 @@ import erwins.util.reflexive.FolderIterator;
 import erwins.util.root.StringCallback;
 
 /**
- * 텍스트 파일을 리더를 래핑한다. 
  * 복잡한 예외처리 등을 할 수 없지만 간단한거 할때 좋다. 
+ * 마지막 라인에 \\가 들어가면 다음라인까지 이어서 한줄로 취급한다.
  */
 public class TextFileReader {
     
@@ -17,13 +17,11 @@ public class TextFileReader {
      * 이 구문이 오면 다음 구문과 합쳐서 전체를 한줄로 인식한다.
      * SQL등을 한줄로 읽어 파싱할때 사용된다.
      *  */
-    private String lineSeperator;
+    private String lineSeperator = "\\|";
     
     public void setLineSeperator(String lineSeperator) { this.lineSeperator = lineSeperator;}
 
-    /**
-     * 디폴트로  UTF_8을 사용한다.
-     */
+    /** 디폴트로  UTF_8을 사용한다. */
     public void read(File file, StringCallback callback){
         read(file,callback,CharSets.UTF_8);
     }

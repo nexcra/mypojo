@@ -4,20 +4,32 @@ package erwins.util.morph;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.persistence.*;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.CollectionOfElements;
 
-import erwins.util.lib.*;
-import erwins.util.morph.anno.*;
+import erwins.util.lib.Clazz;
+import erwins.util.lib.Sets;
+import erwins.util.lib.Strings;
+import erwins.util.morph.anno.Fk;
+import erwins.util.morph.anno.Numeric;
+import erwins.util.morph.anno.OracleListString;
 import erwins.util.root.EntityId;
 import erwins.util.root.Singleton;
 import erwins.util.tools.Mapp;
+import erwins.util.valueObject.ValueObject;
 
 /**
  * RequestResolver.. ㅠㅠ
@@ -59,6 +71,9 @@ public class Dissolver{
     public <T> T getBean(HttpServletRequest request,Class<T> clazz){
         Mapp map = new Mapp(request);
         return new BeanDissolver<T>(map).get(clazz);
+    }
+    public <T> T getBean(Mapp map,Class<T> clazz){
+    	return new BeanDissolver<T>(map).get(clazz);
     }
     
     private class BeanDissolver<T>{
@@ -103,6 +118,9 @@ public class Dissolver{
                 }
                 if(result!=null) continue;
                 
+                //getMethods()는 슈퍼클래스의 오버라이드 메소드역시 가져온다. 이는 무시해주자.
+                if(method.isBridge()) continue;
+                
                 if(setterType == String.class){
                     String value = null;
                     if(Sets.isInstanceAny(annos,Numeric.class)) value = map.getNumericStr(fieldName);
@@ -117,8 +135,21 @@ public class Dissolver{
                     Boolean boo = map.getBoolean(fieldName); 
                     if(boo == null) continue; //yn 이외의 이상한 값이면 디폴트 값을 사용
                     method.invoke(entity, boo);
+                }else if(ValueObject.class.isAssignableFrom(setterType)){ //아직 테스트 못해봄
+                	Object obj =  map.get(fieldName);
+                	ValueObject valueObject = (ValueObject)Clazz.instance(setterType);
+                	valueObject.setValue(obj);
+                	method.invoke(entity, valueObject);
+                }else if(Date.class.isAssignableFrom(setterType)){ //Date의 경우 일단 Long형태만 지원한다.
+                	Long value = null;
+					try {
+						value = map.getLong(fieldName);
+					} catch (Exception e) {
+						//아무것도 하지 않는다.
+					}
+                	if(value!=null) method.invoke(entity,new Date(value));
                 }else if(setterType.isEnum()){
-                    method.invoke(entity,map.getEnum((Class<Enum>)setterType, fieldName));
+                    method.invoke(entity,map.getEnum((Class<Enum>)setterType, fieldName)); //기본 Enum만 됨.
                 }else if(setterType == Long.class || setterType == long.class){
                     if(isKey()) method.invoke(entity, map.getLongId(fieldName));
                     else method.invoke(entity, map.getLong(fieldName));

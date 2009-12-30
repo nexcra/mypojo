@@ -2,7 +2,9 @@
 package erwins.util.openApi;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.httpclient.NameValuePair;
@@ -78,7 +80,7 @@ public class Google{
     public static String getWeatherXml(String city){
         String cityName = Strings.nvl(city,"seoul");
         NameValuePair[] parmas = new NameValuePair[]{new NameValuePair("weather",cityName)};
-        return new RESTful().query(parmas).build(GOOGLE_WEATHER_URL).asString(CharSets.EUC_KR);
+        return RESTful.get(GOOGLE_WEATHER_URL).query(parmas).run().asString(CharSets.EUC_KR);
     }
  
 

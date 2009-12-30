@@ -2,9 +2,14 @@ package erwins.util.lib;
 
 
 import java.io.File;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
@@ -40,7 +45,8 @@ public abstract class Clazz {
     /**
      * 빈 객체인가?
      */
-    public static boolean isEmpty(Object obj){
+    @SuppressWarnings("unchecked")
+	public static boolean isEmpty(Object obj){
         if(obj==null) return true;
         if(obj instanceof String)
             return Strings.isEmpty((String)obj);
@@ -89,7 +95,16 @@ public abstract class Clazz {
         return en.getEnumConstants();
     }
     
-    
+    /** 인스턴스를 리턴한다. (예외 catch때문에 사용.) */
+    public static <T> T instance(Class<T> clazz){
+    	try {
+			return clazz.newInstance();
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+    }
     
     /**
      * 최초 1회만 실행.  List에 최초의 requestParameters(size)만큼 자식 객체 생성

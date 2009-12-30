@@ -1,16 +1,26 @@
 
 package erwins.util.vender.apache;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map.Entry;
 
-import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.io.IOUtils;
 
 import erwins.util.exception.Throw;
-import erwins.util.lib.*;
+import erwins.util.lib.CharSets;
+import erwins.util.lib.Encoders;
+import erwins.util.lib.Files;
+import erwins.util.lib.RegEx;
+import erwins.util.lib.Strings;
 import erwins.util.root.StringCallback;
 import erwins.util.tools.Mapp;
 
@@ -28,62 +38,52 @@ public class RESTful{
     /** 걍 공용으로 쓴다. */
     private static HttpClient client = new HttpClient();
     
-    private InputStream in = null;
-    private boolean post = true;
+    private HttpMethod method = null;
     
-    private NameValuePair[] querys;
-    private String queryString;
-    
-    
-    /**  기본은 true이다. */
-    public void setPost(boolean post) {
-        this.post = post;
+    public static RESTful post(String url){
+    	RESTful instance = new RESTful();
+        instance.method = new  PostMethod(url);
+        return instance;
     }
-
-    public RESTful query(NameValuePair[] querys) {
-        this.querys = querys;
-        return this;
-    }
-
-    public RESTful query(String queryString) {
-        this.queryString = queryString;
-        return this;
+    public static RESTful get(String url){
+    	RESTful instance = new RESTful();
+    	instance.method = new  GetMethod(url);
+    	return instance;
     }
     
-    /**
-     * 첨부파일 등록시.
-     *  File targetFile = new File(upLoadPath);
-   FilePart filePart = new FilePart("upfile", targetFile, null, "EUC-KR"); //EUC-KR
-   Part[] parts = { filePart  };
-   post.setRequestEntity(new MultipartRequestEntity(parts, post.getParams()));
-     * @param url
-     * @return
-     */
-
-    public RESTful build(String url){
-        HttpMethod method = null;
-        if(post) method = new  PostMethod(url);
-        else method = new  GetMethod(url);
-        
-        if(querys!=null) method.setQueryString(querys);
-        else if(queryString!=null)method.setQueryString(queryString);
-        
+    /** url 사이의 port는 테스트 해바야함. */
+    public RESTful run(){
         try {
             client.executeMethod(method);
-            in =  method.getResponseBodyAsStream();
-        }
-        catch (HttpException e) {
-            Throw.wrap(e);
         }
         catch (IOException e) {
             Throw.wrap(e);
         }
         return this;
+    }    
+    
+    /**
+     * 파일 업로드시.
+     * ex) FilePart filePart = new FilePart("upfile", targetFile, null, "EUC-KR"); //EUC-KR
+     * Part[] parts = { filePart  };
+     */
+    public RESTful upload(Part ... parts){
+    	try {
+    		PostMethod post = (PostMethod)method;
+			post.setRequestEntity(new MultipartRequestEntity(parts, post.getParams()));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return this;
     }
     
     /** 반드시 in을 닫아줄것! */
     public InputStream asStream(){
-        return in;
+    	try {
+			return method.getResponseBodyAsStream();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
     }
     
     /** 기본 UTF-8이다. 국내의 경우 EUC-KR로 해야 보이는 경우도 있다. */
@@ -93,8 +93,9 @@ public class RESTful{
     
     public String asString(String encode){
         String result = null;
+        InputStream in = null;
         try {
-            //result = IOUtils.toString(in);
+        	in = asStream();
             result = IOUtils.toString(in,encode);
         }
         catch (IOException e) {
@@ -106,13 +107,24 @@ public class RESTful{
     }
     
     public void asFile(File result){
+    	InputStream in = null;
         try {
+        	in = asStream();
             Files.write(in, result);
         }finally{
             IOUtils.closeQuietly(in);
         }
     }
     
+    public RESTful query(NameValuePair[] querys) {
+    	method.setQueryString(querys);
+        return this;
+    }
+
+    public RESTful query(String queryString) {
+    	method.setQueryString(queryString);
+        return this;
+    }    
     
     // ===========================================================================================
     //                                   static
@@ -129,7 +141,7 @@ public class RESTful{
                 String fileName = Strings.getLast(src,"/");
                 String filePath = path+"/"+fileName;
                 File local = new File(webroot,filePath);
-                new RESTful().build(src).asFile(local);
+                RESTful.get(src).asFile(local);
                 map.put(src, filePath.replaceAll("\\\\","/")); //윈도우형을 유닉스형으로 바꿔줌.
             }
         });

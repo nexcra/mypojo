@@ -22,7 +22,7 @@ public class HtmlOptionBuilder {
 
     @Override
     public String toString() {
-        return Strings.joinTemp(options);
+        return Strings.joinTemp(options,",");
     }
     
     public void add(Pair pair) {
@@ -148,7 +148,7 @@ public class HtmlOptionBuilder {
                 groupOption.add(optGroup);
             }
         }
-        return Strings.joinTemp(groupOption);
+        return Strings.joinTemp(groupOption,",");
     }
     
     /**
@@ -163,7 +163,7 @@ public class HtmlOptionBuilder {
             }
             groups.add(optGroup);
         }
-        return Strings.joinTemp(groups);
+        return Strings.joinTemp(groups,",");
     }
     
     // ===========================================================================================
@@ -184,7 +184,7 @@ public class HtmlOptionBuilder {
             Label label = getLabel(input);
             list.add(label);
         }
-        return Strings.joinTemp(list);
+        return Strings.joinTemp(list,",");
     }
     
     public static String checkBox(List<Pair> pairs,String entityName) {
@@ -198,7 +198,7 @@ public class HtmlOptionBuilder {
             Label label = getLabel(input);
             list.add(label);
         }
-        return Strings.joinTemp(list);
+        return Strings.joinTemp(list,",");
     }
     
     /**

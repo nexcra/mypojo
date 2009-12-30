@@ -1,9 +1,14 @@
 package erwins.util.vender.spring;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.web.context.ContextLoader;
 
 public class Springs {
+	
+	/** jdbc의 result맵을 Map으로 변형해준다. 리턴값은 가능하다면 apache의 ListOrderedMap를 리턴한다. */
+	public static RowMapper RESULTMAP_TO_MAP = new ColumnMapRowMapper();
 	
 	public static ApplicationContext getApplicationContext() {
 		return ContextLoader.getCurrentWebApplicationContext();

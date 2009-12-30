@@ -7,6 +7,8 @@ import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import erwins.util.lib.Maths;
+
 
 /**
  * 서버 정보에 대한 전반적인 사항을 다룬다.
@@ -40,7 +42,7 @@ public abstract class SystemInfo{
     }
     
     /**
-     * 좀더 정확한 값을 알기 위해 측정 직전에 GC한다. 
+     * 좀더 정확한 값을 알기 위해?? 측정 직전에 GC한다. 
      */
     public static Long nowUsedMemory(){
         Runtime.getRuntime().gc();
@@ -49,6 +51,11 @@ public abstract class SystemInfo{
     public static String nowUsedMemoryStr(){
         double memory = nowUsedMemory();
         return String.valueOf(memory / 1000 / 1000) + "MB";
+    }
+    
+    /** 현재 heap 메모리를 리턴한다. 단위는 MB이다. */
+    public static double totalMemory(){
+    	return Maths.round(Runtime.getRuntime().totalMemory() / 1024.0 / 1024.0,1);
     }
     
     /**

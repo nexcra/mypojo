@@ -12,14 +12,18 @@ import erwins.util.lib.Days;
  * 
  * @author erwins(my.pojo@gmail.com)
  */
-public abstract class Cryptors extends Cryptor{
+public abstract class MD5s extends MD5{
 
+	/** 단순 래핑 */
+	public static String hash(String input){
+        return getHashHexString(input);
+    }
 
     /**
      * 1. 오늘 년월일 기준으로 key 생성
      */
     public static String hashByDate(String baseStr) {
-        return hash(Days.DATE_SIMPLE.get() + baseStr);
+        return getHashHexString(Days.DATE_SIMPLE.get() + baseStr);
     }
     
     /**
@@ -30,7 +34,7 @@ public abstract class Cryptors extends Cryptor{
         Calendar sysdate = Calendar.getInstance();
         for (int i = 0; i < day; i++) {
             sysdate.add(Calendar.DATE, -i);
-            if (Cryptors.isMatch(hashed, Days.DATE_SIMPLE.get(sysdate) + key)) return true;
+            if (isMatch(hashed, Days.DATE_SIMPLE.get(sysdate) + key)) return true;
         }
         return false;
     }
@@ -39,7 +43,7 @@ public abstract class Cryptors extends Cryptor{
      * 해쉬값과 String을 비교하여 일치여부를 판단한다.
      */
     public static boolean isMatch(String hashed,String key) {
-        return hashed.equals(hash(key));
+        return hashed.equals(getHashHexString(key));
     }
 
 }

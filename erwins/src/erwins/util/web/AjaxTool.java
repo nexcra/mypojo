@@ -1,9 +1,12 @@
 
 package erwins.util.web;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.MessageFormat;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSON;
@@ -12,7 +15,9 @@ import net.sf.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import erwins.util.lib.*;
+import erwins.util.lib.CharSets;
+import erwins.util.lib.Encoders;
+import erwins.util.lib.Strings;
 import erwins.util.morph.JDissolver;
 import erwins.util.root.StringCallback;
 import erwins.util.tools.TextFileReader;
@@ -123,6 +128,25 @@ public abstract class AjaxTool {
 
     public static void write(HttpServletResponse resp) {
         write(resp, "", true);
+    }
+    
+    /**
+     * 사용자 브라우저의 정보를 리턴한다.
+     * ex) Mozilla/5.0 (Windows; U; Windows NT 5.1; ko; rv:1.9.0.5) Gecko/2008120122 Firefox/3.0.5 GTB5,gzip(gfe)
+     */
+    public static String addIfNotFound(HttpServletRequest req) {
+        return req.getHeader("User-Agent");
+    }
+    
+    /** 웹루트를 리턴한다. */
+    public static File getRoot(HttpServletRequest req,String path) {
+    	String pathName = req.getSession().getServletContext().getRealPath(Strings.nvl(path,"/"));
+    	return new File(pathName);
+    }
+    
+    /** 루트의 WEB-INF 경로를 리턴한다. */
+    public static File getWebInfoRoot(HttpServletRequest req) {
+    	return getRoot(req,"WEB-INF");
     }
 
 }
