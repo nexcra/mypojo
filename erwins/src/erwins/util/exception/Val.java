@@ -9,6 +9,10 @@ import erwins.util.tools.SystemInfo;
  * 입력값이 false이면 @see {@link MalformedException}을 던진다.
  */
 public abstract class Val{
+	
+	//private IllegalStateException e;
+	//private IllegalArgumentException e;
+	//private UnsupportedOperationException e;
     
     private static final String TEST_MESSAGE = "Test 오류 발생!";
 
@@ -24,7 +28,7 @@ public abstract class Val{
      * 이건 test용으로만 사용
      */
     public static void isTrue(boolean isMustTrue) {
-        isTrue(isMustTrue,TEST_MESSAGE);
+        isTrue(isMustTrue,TEST_MESSAGE + " : is not rtue");
     }
     
     /**
@@ -32,7 +36,7 @@ public abstract class Val{
      * 이건 test용으로만 사용
      */
     public static void isEquals(Object a,Object b) {
-        isTrue(a.equals(b),TEST_MESSAGE);
+        isTrue(a.equals(b),TEST_MESSAGE +" : " + a.toString() + " / " + b.toString());
     }
     
     /**
@@ -73,5 +77,27 @@ public abstract class Val{
     public static void throwEx() {
         if(!SystemInfo.isServer()) throw new RuntimeException("test용 예외 입니다.");
     }
+    
+    /** 예외를 던지는지 검사한다. expect는 nulll로 해도 된다. @ExpectedException를 대체한다. */
+	@SuppressWarnings("null")
+	public static <T extends Exception> void isThrowException(ExceptionRunnable runnable,Class<T> expect){
+        try {
+        	runnable.run();
+		} catch (Exception e) {
+			if(expect!=null){
+				if(expect.isInstance(e)) return;
+				if(expect.isInstance(e.getCause())) return;
+			}
+		}
+		throw new RuntimeException("예상된 예외가 발생되지 않았습니다. " + expect==null ? "" : expect.getClass().getName());
+	}
+	
+	public static void isThrowException(ExceptionRunnable runnable){
+		isThrowException(runnable,null);
+	}
+	
+	public static interface ExceptionRunnable{
+		public void run() throws Exception;
+	}
     
 }

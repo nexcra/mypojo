@@ -4,22 +4,37 @@ package erwins.util.morph;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.persistence.*;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.servlet.http.HttpServletRequest;
 
-import net.sf.json.*;
+import net.sf.json.JSON;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CollectionOfElements;
 
-import erwins.util.lib.*;
+import erwins.util.lib.Clazz;
+import erwins.util.lib.Days;
+import erwins.util.lib.Maths;
+import erwins.util.lib.Sets;
+import erwins.util.lib.Strings;
 import erwins.util.morph.anno.Hidden;
 import erwins.util.morph.anno.OracleListString;
-import erwins.util.root.*;
+import erwins.util.root.DomainObject;
+import erwins.util.root.EntityId;
+import erwins.util.root.Pair;
+import erwins.util.root.Singleton;
 import erwins.util.tools.SearchMap;
 
 /**
@@ -155,12 +170,15 @@ public class JDissolver {
                 if(obj==null) continue; 
                 if(!Hibernate.isInitialized(obj)){
                     if(obj instanceof EntityId){
-                        EntityId temp = (EntityId)obj;
+                        //EntityId temp = (EntityId)obj;
+                    	//캐스팅하면 id만 불러올때 세션을 읽어 쿼리를 날려버린다. (이전 버전에선 가능했다.) 따라서 리플렉션으로 불러오자.
+                        Object id = Clazz.getObject(obj, EntityId.ID_NAME);
+                        if(id==null) continue;
                         JSONObject proxy = new JSONObject();
-                        proxy.put("id", temp.getId());
-                        json.put(fieldName,proxy);    
+                        proxy.put("id", id);
+                        json.put(fieldName,proxy);
                         //Flex 게시판 등의 단일 뎁스를 위해준비.
-                        json.put(fieldName+"Id",temp.getId());
+                        json.put(fieldName+"Id",id);
                     }
                 }else json.put(fieldName,getByDomain(obj));
             } else if (Sets.isInstanceAny(annos, OracleListString.class)) {

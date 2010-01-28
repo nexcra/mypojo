@@ -15,8 +15,13 @@ public class Latch implements Counter{
             first = false;
             return true;
         }
-        return first;
+        return false;
     }
+    
+    @Override
+	public int count() {
+		throw new UnsupportedOperationException();
+	}
     
 
 }

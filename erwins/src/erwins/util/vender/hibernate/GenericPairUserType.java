@@ -1,28 +1,38 @@
 package erwins.util.vender.hibernate;
 
 import java.io.Serializable;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.usertype.UserType;
 
+import erwins.util.lib.Clazz;
+import erwins.util.root.Pair;
+import erwins.util.root.Pair.PairEnum;
+
 
 /**
- * 1개의 컬럼이 1개의 객체(프로퍼티는 여러개일 수 있음)와 매핑될 경우 사용
- * HQL에서 사용할 수는 없음.
+ * Pair이지만 Enum이 아닐경우 nullSafeGet()을 오버라이딩 하자.
+ * 이 클래스는 모두가 불변 객체일때만 사용해야 한다.
  * @author erwins(my.pojo@gmail.com)
  */
-public abstract class GenericUserType<T> implements UserType {
+public abstract class GenericPairUserType<T extends Pair> implements UserType{
 
+	/** Enum이 아닐 경우 각 개싱 타입에 맞추어 요걸 오버라이딩 해야 한다. */
     public T nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
-        String value  = rs.getString(names[0]);
+        String value = rs.getString(names[0]);
         if(rs.wasNull()) return null;
-        return null;
+        return PairEnum.getEnum(this.returnedClass(), value);
     }
 
-    public void nullSafeSet(PreparedStatement arg0, Object arg1, int arg2) throws HibernateException, SQLException {
-        // TODO Auto-generated method stub
+    /** 검색에 Code 대신 Key를 넘겨도 되도록 수정한다. */
+    public void nullSafeSet(PreparedStatement pst, Object object, int index) throws HibernateException, SQLException {
+    	if(object==null) pst.setString(index,null);
+    	else if(object instanceof Pair) pst.setString(index,((Pair)object).getValue());
+        else pst.setString(index,object.toString()); 
     }
     
     /**
@@ -77,5 +87,9 @@ public abstract class GenericUserType<T> implements UserType {
         return obj.hashCode();
     }
 
+    @SuppressWarnings("unchecked")
+	public Class<T> returnedClass() {
+        return (Class<T>) Clazz.genericClass(this.getClass(), 0);
+    }
 	
 }

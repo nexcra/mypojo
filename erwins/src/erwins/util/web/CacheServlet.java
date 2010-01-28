@@ -29,7 +29,7 @@ public class CacheServlet extends HttpServlet{
             message += file.getAbsolutePath() + " is not directory \n";
             message += "web.xml의 서블릿 매핑 설정을 확인하세요.";
             message = Encoders.escapeJavaScript(message);
-            AjaxTool.writeObject(resp, "alert('"+message+"');");
+            AjaxTool.writeToString(resp, "alert('"+message+"');");
         }
         else AjaxTool.writeScript(resp, file,second); 
     }

@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -16,6 +17,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -25,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 
 import erwins.util.exception.MalformedException;
 import erwins.util.exception.Throw;
@@ -39,6 +43,48 @@ public abstract class Files extends FileUtils {
 
 	public static final int BUFFER_SIZE = 4096;
 	public static final int COMPRESSION_LEVEL = 8;
+	
+	/** commons의 NameFileComparator.NAME_COMPARATOR를 대체.(제너릭 때문) */
+	public static final Comparator<File> FILE_NAME_COMPARATOR =  new Comparator<File>() {
+		public int compare(File o1, File o2) {
+			return o1.getName().compareTo(o2.getName());
+		}
+	};
+	public static final FileFilter DIRECTORY_ONLY = new FileFilter(){
+		@Override
+		public boolean accept(File pathname) {
+			return pathname.isDirectory();
+		}
+	};
+	public static final FileFilter FILE_ONLY = new FileFilter(){
+		@Override
+		public boolean accept(File pathname) {
+			return pathname.isFile();
+		}
+	};
+	
+	
+	/** commons에는 기본 메소드가 없다. 그것을 대체한다. */
+	public static final IOFileFilter ALL_FILE = new IOFileFilter(){
+		@Override
+		public boolean accept(File file) {
+			return true;
+		}
+		@Override
+		public boolean accept(File dir, String name) {
+			return true;
+		}
+	};
+	
+	@SuppressWarnings("unchecked")
+	public static Iterator<File> iterateFiles(File directory){
+		return iterateFiles(directory, ALL_FILE, ALL_FILE);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static Iterator<File> iterateFiles(File directory,boolean recursive,String ... ext){
+		return iterateFiles(directory, ext, recursive);
+	}
 
 	/** 출처 : Spring */
 	public static int copy(InputStream in, OutputStream out) {
@@ -119,6 +165,13 @@ public abstract class Files extends FileUtils {
 		if(!success) throw new MalformedException(file.getAbsolutePath() + " : file move fail");
 	}
 	
+	/** 파일을 디렉토리로 이동시킨다. */
+	public static void renameToDirectory(File file, File toDir) {
+		File renamed = new File(toDir,file.getName()); 
+		renamed = Files.uniqueFileName(renamed);
+		renameTo(file,renamed);
+	}
+	
 	/** 파일이 정상적으로 지워지지 않으면 예외를 던진다. */
 	public static void delete(File file) {
 		if (!file.exists()) throw new MalformedException(file.getAbsolutePath() + " : file is not exist");
@@ -147,45 +200,6 @@ public abstract class Files extends FileUtils {
 		}
 	}
 
-	/** byte[]를 file로 변환한다. */
-	public static void toFile(byte[] data, File output) {
-		OutputStream out = null;
-		try {
-			out = new FileOutputStream(output);
-			IOUtils.write(data, new BufferedOutputStream(out));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}finally{
-			IOUtils.closeQuietly(out);
-		}
-	}
-
-	/** InputStream으로 File에 기록한다. */
-	public static void write(InputStream in, File file) {
-
-		FileOutputStream os = null;
-		try {
-			os = new FileOutputStream(file);
-			byte[] bytes = new byte[1024];
-			int c;
-			while ((c = in.read(bytes)) != -1) {
-				os.write(bytes, 0, c);
-			}
-		} catch (FileNotFoundException e) {
-			Throw.wrap(e);
-		} catch (IOException e) {
-			Throw.wrap(e);
-		} finally {
-			try {
-				if (os != null)
-					os.close();
-			} catch (IOException e) {
-				Throw.wrap(e);
-			}
-		}
-
-	}
-
 	/**
 	 * 해당 폴더에서 유일한 파일 이름을 리턴한다. 즉 동일한 값이 있으면 [A => A(1) => A(2) => ..]으로 바꾸어 준다.
 	 * 파일 업로드 등에 사용한다.
@@ -196,10 +210,10 @@ public abstract class Files extends FileUtils {
 		File parent = result.getParentFile();
 		while (result.exists()) {
 			String fileName = result.getName();
-			if (RegEx.isMatch("\\(((\\d))\\)\\.", fileName)) {
+			if (RegEx.isMatch("\\(((\\d+))\\)\\.", fileName)) {
 				String[] temp = Strings.substringsBetween(fileName, "(", ")");
 				Integer i = Strings.plusForInteger(Sets.getLast(temp), 1);
-				fileName = fileName.replaceAll("\\(((\\d))\\)\\.", "(" + i + ").");
+				fileName = fileName.replaceAll("\\(((\\d+))\\)\\.", "(" + i + ").");
 				result = new File(parent, fileName);
 			} else {
 				String[] temp = Strings.getExtentions(fileName);
@@ -429,6 +443,31 @@ public abstract class Files extends FileUtils {
 				}
 		}
 	}
+	
+
+	/** InputStream으로 File에 기록한다. */
+	public static void write(InputStream in, File file) {
+		FileOutputStream os = null;
+		try {
+			os = new FileOutputStream(file);
+			byte[] bytes = new byte[1024];
+			int c;
+			while ((c = in.read(bytes)) != -1) {
+				os.write(bytes, 0, c);
+			}
+		} catch (FileNotFoundException e) {
+			Throw.wrap(e);
+		} catch (IOException e) {
+			Throw.wrap(e);
+		} finally {
+			try {
+				if (os != null)
+					os.close();
+			} catch (IOException e) {
+				Throw.wrap(e);
+			}
+		}
+	}	
 
 	/** null safe한 mkdir */
 	public static boolean mkdir(File file) {

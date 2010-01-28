@@ -82,6 +82,7 @@ public class Dissolver{
         private String fieldName;
         private Annotation[] annos;
         private Mapp map;
+        private Class<?> clazz;
         
         private BeanDissolver(Mapp map) {
             this.map = map;
@@ -98,6 +99,7 @@ public class Dissolver{
         
         @SuppressWarnings("unchecked")
         private T getBean(Class<T> clazz) throws Exception{
+        	this.clazz = clazz;
             T entity = clazz.newInstance();
             methods = entity.getClass().getMethods();
             
@@ -137,15 +139,15 @@ public class Dissolver{
                     method.invoke(entity, boo);
                 }else if(ValueObject.class.isAssignableFrom(setterType)){ //아직 테스트 못해봄
                 	Object obj =  map.get(fieldName);
+                	if(Clazz.isEmpty(obj)) continue;
                 	ValueObject valueObject = (ValueObject)Clazz.instance(setterType);
-                	valueObject.setValue(obj);
+                	valueObject.initValue(obj);
                 	method.invoke(entity, valueObject);
                 }else if(Date.class.isAssignableFrom(setterType)){ //Date의 경우 일단 Long형태만 지원한다.
                 	Long value = null;
 					try {
-						value = map.getLong(fieldName);
-					} catch (Exception e) {
-						//아무것도 하지 않는다.
+						value = map.getLongId(fieldName);
+					} catch (Exception e) { //non
 					}
                 	if(value!=null) method.invoke(entity,new Date(value));
                 }else if(setterType.isEnum()){
@@ -225,8 +227,8 @@ public class Dissolver{
         }
 
         /**
-         * method의 정보를 추출한다.
-         * 해당 조건이 아니면 false를 리턴한다.. 
+         * method의 정보를 추출한다. 해당 조건이 아니면 false를 리턴한다..
+         * 일반적으로 getter에만 어노테이션을 붙임으로 getter를 참조한다. 
          */
         private boolean initSetter(Method method) {
             String methodName = method.getName();
@@ -235,6 +237,12 @@ public class Dissolver{
             if(method.getParameterTypes().length!=1) return false;  //1개의 입력인자만을 인정한다.
             setterType = method.getParameterTypes()[0]; //bean의 setter의 1번재 parameter를 기준으로 데이터를 검색한다.                
             annos = method.getAnnotations();
+            
+            if(Sets.isEmpty(annos)){ //setter에 annotation이 없을 경우 getter의 annotation을 가죠온다.
+            	Method getter = Clazz.toGetter(clazz, fieldName);
+            	if(getter!=null) annos = getter.getAnnotations();
+            }
+            
             return true;
         }
         
@@ -259,6 +267,6 @@ public class Dissolver{
             }
         }
     }
-
+    
     
 }

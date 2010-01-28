@@ -3,7 +3,7 @@ package erwins.util.tools;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.apache.commons.lang.SystemUtils;
+import static org.apache.commons.lang.SystemUtils.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -20,25 +20,27 @@ public abstract class SystemInfo{
     
     private static String[] SERVER_IP ; //기본값
     private static String IP ;
+    private static boolean server = true;
     
     static{
         try {
             IP = InetAddress.getLocalHost().getHostAddress();
-            SERVER_IP = new String[]{"218.156.67.18"};
+            SERVER_IP = new String[]{"192.168.1.220" //sysb 공용서버
+            };
+            if(IS_OS_LINUX || IS_OS_HP_UX || IS_OS_SOLARIS || IS_OS_UNIX) server =  true;
+            else{
+            	for(String ip : SERVER_IP) if(ip.equals(IP)) server =  true;
+            	server = false;
+            }
         }
         catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
     }
     
-    /**
-     * 1. Window Xp(일반적인 개발장비)가 아니면 true를 리턴한다.
-     * 2. XP장비지만 등록된 IP이면 true를 리턴한다.
-     */
+    /** 테스트용임!! NT장비가 들어가는 곳에서는 사용하면 안된다. */
     public static boolean isServer(){
-        if(!SystemUtils.IS_OS_WINDOWS_XP) return true;
-        if(isServerByIp()) return true;        
-        return false;
+        return server;
     }
     
     /**
@@ -56,18 +58,6 @@ public abstract class SystemInfo{
     /** 현재 heap 메모리를 리턴한다. 단위는 MB이다. */
     public static double totalMemory(){
     	return Maths.round(Runtime.getRuntime().totalMemory() / 1024.0 / 1024.0,1);
-    }
-    
-    /**
-     * 등록된 IP의 서버인지?
-     */
-    private static boolean isServerByIp(){
-        for(String ip : SERVER_IP) if(ip.equals(IP)) return true;
-        return false;
-    }
-
-    public static void setServerIp(String[] serverIp){
-        SERVER_IP = serverIp;
     }
     
     /**

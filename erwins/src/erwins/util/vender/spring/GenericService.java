@@ -72,7 +72,7 @@ public abstract class GenericService<T,ID extends Serializable>{
      */    
     @Transactional(readOnly=true)
     public T findById(ID id){
-        return getDao().findById(id);
+        return getDao().getById(id);
     }
     
     /**

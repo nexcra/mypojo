@@ -4,8 +4,10 @@ package erwins.util.web;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,6 +16,8 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.ecs.xml.XML;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import erwins.util.lib.CharSets;
 import erwins.util.lib.Encoders;
@@ -34,6 +38,16 @@ public abstract class AjaxTool {
     //public static final String DEFAULT_CONTENT_TYPE = "text/html;charset=ISO-8859-1";
     public static final String IS_SUCCESS = "isSuccess";
     public static final String MESSAGE = "message";
+    
+    /** Mock 테스트시 json을 파싱해서 성공인지 확인한다. */
+    public static JSONObject assertResponse(MockHttpServletResponse resp) throws UnsupportedEncodingException{
+    	String body = resp.getContentAsString();
+        JSONObject json = JSONObject.fromObject(body);
+        String message = json.getString(AjaxTool.MESSAGE);
+        if(!json.getBoolean(AjaxTool.IS_SUCCESS)) throw new RuntimeException(message.toString());
+        if(!message.startsWith("{")) return null;
+        return  json.getJSONObject(AjaxTool.MESSAGE);
+    }    
 
     /**
      * 자바스크립트를 캐싱한다. \n 하는것 잊지말것
@@ -80,8 +94,15 @@ public abstract class AjaxTool {
     /**
      * obj의 toString을
      */
-    public static void writeObject(HttpServletResponse resp, Object obj) {
+    public static void writeToString(HttpServletResponse resp, Object obj) {
         getOut(resp).write(obj.toString());
+    }
+    
+    /** DownloadException처럼 Ajax처리시 jsp로 바꿀때 사용된다. */
+    public static void writeException(HttpServletResponse resp, Exception e) {
+    	XML xml = new XML(e.getClass().getName());
+    	xml.addElement(e.getMessage());
+    	AjaxTool.writeToString(resp,xml);
     }
 
     /**
@@ -138,15 +159,24 @@ public abstract class AjaxTool {
         return req.getHeader("User-Agent");
     }
     
+    /** 루트의 WEB-INF 경로를 리턴한다. */
+    public static File getRoot(ServletContext context,String path) {
+    	String pathName = context.getRealPath(Strings.nvl(path,"/"));
+    	return new File(pathName);
+    }
+    
     /** 웹루트를 리턴한다. */
     public static File getRoot(HttpServletRequest req,String path) {
-    	String pathName = req.getSession().getServletContext().getRealPath(Strings.nvl(path,"/"));
-    	return new File(pathName);
+    	return getRoot(req.getSession().getServletContext(),path);
     }
     
     /** 루트의 WEB-INF 경로를 리턴한다. */
     public static File getWebInfoRoot(HttpServletRequest req) {
     	return getRoot(req,"WEB-INF");
+    }
+    /** 루트의 WEB-INF 경로를 리턴한다. */
+    public static File getWebInfoRoot(ServletContext context) {
+    	return getRoot(context,"WEB-INF");
     }
 
 }

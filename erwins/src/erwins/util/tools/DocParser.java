@@ -191,10 +191,10 @@ public class DocParser{
     private static void getNode(Node n) {
         for (Node ch = n.getFirstChild(); ch != null; ch = ch.getNextSibling()) {
             if (ch.getNodeType() == Node.ELEMENT_NODE) {
-                System.out.println(ch.getNodeName());
+                ch.getNodeName());
                 getNode(ch);
             } else if (ch.getNodeType() == Node.TEXT_NODE && ch.getNodeValue().trim().length() != 0) {
-                System.out.println(ch.getNodeValue());
+                ch.getNodeValue());
             }
         }
     }

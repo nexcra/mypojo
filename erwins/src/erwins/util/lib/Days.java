@@ -1,7 +1,14 @@
 package erwins.util.lib;
 
-import java.text.*;
-import java.util.*;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
+
+import erwins.util.valueObject.ShowTime;
 
 /**
  * 년도, 일자 등의 처리. singleton
@@ -178,27 +185,19 @@ public enum Days{
      * 두 객체간의 사간차를 String 시분초로 리턴한다.
      */
     public static String betweenTimeStr(Calendar cal1, Calendar cal2) {
-        return toString(betweenTime(cal1,cal2));
+        return new ShowTime(betweenTime(cal1,cal2)).toString();
     }
     
     /**
      * 두 객체간의 사간차를 String 시분초로 리턴한다.
      */
-    public static long[] betweenTime(Calendar start, Calendar end) {
+    public static int[] betweenTime(Calendar start, Calendar end) {
         long diffSecond = (end.getTime().getTime() - start.getTime().getTime())/1000;
-        long h = diffSecond / 60/60;
+        int h = (int)diffSecond / 60/60;
         diffSecond = diffSecond - h * 60 * 60;
-        long mm = diffSecond / 60;
-        long ss = diffSecond % 60;
-        return new long[]{h,mm,ss};
-    }
-
-    
-    /** 시분초를 나누어 문자열을 제작한다. */
-    public static String toString(long ... time){
-        if(time[0]!=0) return MessageFormat.format("{0}시간 {1}분 {2}초", time[0],time[1],time[2]);
-        else if(time[1]!=0) return MessageFormat.format("{0}분 {1}초", time[1],time[2]);
-        else return MessageFormat.format("{0}초", time[2]);
+        int mm = (int)diffSecond / 60;
+        int ss = (int)diffSecond % 60;
+        return new int[]{h,mm,ss};
     }
     
     /** 요일을 리턴한다. 나중에 패턴으로 바꿀것. */

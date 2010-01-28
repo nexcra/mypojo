@@ -18,7 +18,7 @@ public class LibTest{
         Val.isTrue(url[0].equals("D:/qwe.qwe"));
         Val.isTrue(url[1].equals("go"));
 
-        String value = Strings.getCamelize2("searchMapKey","search");
+        String value = Strings.escapeAndUncapitalize("searchMapKey","search");
         Val.isTrue(value.equals("mapKey"));
         
         Val.isTrue(Strings.plus("08", "-10").equals("-2"));

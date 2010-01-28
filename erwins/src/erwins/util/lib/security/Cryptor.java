@@ -7,11 +7,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.KeyGenerator;
+import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
@@ -91,7 +93,7 @@ public class Cryptor {
 	private static final String DESede_STRING_MODE = "DESede/ECB/PKCS5Padding";
 	
 	/** 쓸일이 있을까? */
-	public static String encrypt(SecretKey key, String str){
+	public static String encryptText(SecretKey key, String str){
 		try {
 			Cipher cipher = Cipher.getInstance(DESede_STRING_MODE);
 			cipher.init(Cipher.ENCRYPT_MODE, key);
@@ -103,12 +105,34 @@ public class Cryptor {
 		}
 	}
 	
-	public static String decrypt(SecretKey key, String str){
+	/** 쓸일이 있을까? */
+	public static SealedObject encrypt(SecretKey key, Serializable dataObj){
+		try {
+			Cipher cipher = Cipher.getInstance(DESede_STRING_MODE);
+			cipher.init(Cipher.ENCRYPT_MODE, key);
+			return  new SealedObject(dataObj, cipher);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static String decryptText(SecretKey key, String str){
 		try {
 			Cipher cipher = Cipher.getInstance(DESede_STRING_MODE);
 			cipher.init(Cipher.DECRYPT_MODE, key);
 			byte[] decryptedText = cipher.doFinal(Strings.getByte(str));
 			return new String(decryptedText, "UTF8");
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T extends Serializable> T decrypt(SecretKey key, SealedObject sealedObject){
+		try {
+			Cipher cipher = Cipher.getInstance(DESede_STRING_MODE);
+			cipher.init(Cipher.DECRYPT_MODE, key);
+			return (T)sealedObject.getObject(cipher);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

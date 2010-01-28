@@ -54,10 +54,5 @@ public class CriteriaBuilder {
     public Conjunction get() {
         return and;
     }
-    
-    
-    
-    
-    
 
 }

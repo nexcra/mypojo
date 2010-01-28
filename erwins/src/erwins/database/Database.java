@@ -278,7 +278,6 @@ public final class Database { /*
      **/
     public void loadPersistenceFromCsv() {
         for (File each : location.listFiles()) {
-            System.out.println(each.getAbsolutePath());
             String tableName = each.getName();
             if (!tableName.endsWith(".csv")) continue;
             tableName = tableName.replaceAll("\\.csv", "");

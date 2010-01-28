@@ -31,5 +31,10 @@ public class SafeLoop extends AccumulatorTemplit{
         return true;
     }
 
+	@Override
+	public int count() {
+		return now;
+	}
+
 
 }

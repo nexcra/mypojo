@@ -224,7 +224,6 @@ public enum RegEx {
 
         StringBuffer sb = new StringBuffer();
         while (m.find()) {
-            //System.out.println(m.group());
             m.appendReplacement(sb, maskWord(m.group()));
         }
         m.appendTail(sb);

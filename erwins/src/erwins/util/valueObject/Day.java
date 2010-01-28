@@ -1,34 +1,81 @@
 package erwins.util.valueObject;
 
-import erwins.util.lib.Strings;
+import java.util.Calendar;
 
+import erwins.util.lib.Days;
+import erwins.util.lib.Strings;
 
 /**
  * yyyyMMdd 스타일의 8자리 일자를 나타낸다. 불변객체 아님. ㅠㅠ
  */
-public class Day implements ValueObject{
-    
-    String day;
-    String month;
-    String year;
-        
-    @Override
-    public String toString(){
-        return year+"년"+month+"월"+day+"일";
-    }
+public class Day implements ValueObject {
+
+	public static Day now() {
+		String yyyyMMdd = Days.DATE_FOR_DB.get();
+		return new Day(yyyyMMdd);
+	}
+
+	/** 일/월/년을 각각 더한다. */
+	public void plus(Integer... time) {
+		Calendar thisCalendar = Days.getCalendar(returnValue().toString());
+		Calendar added = Days.addCalendar(thisCalendar, time);
+		String yyyyMMdd = Days.DATE_FOR_DB.get(added);
+		initValue(yyyyMMdd);
+	}
+
+	public Day() {};
+
+	public Day(Object obj) {
+		initValue(obj);
+	}
+
+	private String day;
+	private String month;
+	private String year;
 
 	@Override
-	public Object getValue() {
+	public String toString() {
+		return year + "년" + month + "월" + day + "일";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((day == null) ? 0 : day.hashCode());
+		result = prime * result + ((month == null) ? 0 : month.hashCode());
+		result = prime * result + ((year == null) ? 0 : year.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof ValueObject))
+			return false;
+		ValueObject other = (ValueObject) obj;
+		if(this.returnValue()==null) return false;
+		if(other.returnValue()==null) return false;
+		if(this.returnValue().toString().equals(other.returnValue().toString())) return true;
+		return false;
+	}
+
+	@Override
+	public Object returnValue() {
 		return year + month + day;
 	}
 
 	@Override
-	public void setValue(Object obj) {
+	public void initValue(Object obj) {
 		String yyyyMMdd = Strings.getNumericStr(obj);
-    	if(yyyyMMdd.length()!=8) throw new RuntimeException(yyyyMMdd + " : day lenth must be 8!");
-    	year = yyyyMMdd.substring(0,4);
-    	month = yyyyMMdd.substring(5,6);
-    	day = yyyyMMdd.substring(7,8);
+		if (yyyyMMdd.length() != 8)
+			throw new RuntimeException(yyyyMMdd + " : day lenth must be 8!");
+		year = yyyyMMdd.substring(0, 4);
+		month = yyyyMMdd.substring(4, 6);
+		day = yyyyMMdd.substring(6, 8);
 	}
 
 	public String getDay() {
@@ -42,6 +89,5 @@ public class Day implements ValueObject{
 	public String getYear() {
 		return year;
 	}
-	
-	
+
 }

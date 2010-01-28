@@ -2,6 +2,7 @@
 package erwins.util.tools;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class TextScanner{
     public TextScanner(String key){
         this.key = key;
     }
+    private FileFilter filter;
     private String key;
     private int fileCount;
     private int matchCount;
@@ -34,7 +36,10 @@ public class TextScanner{
     public TextScanner visit(File folder) {
         fileCount = 0;
         matchCount = 0;
-        FolderIterator i =  new FolderIterator(folder);
+        
+        FolderIterator i;
+        if(filter==null) i= new FolderIterator(folder);
+        else i= new FolderIterator(folder,filter);
         while(i.hasNext()){
             final File file = i.next();
             if(!file.isFile()) continue;
@@ -70,4 +75,10 @@ public class TextScanner{
         log.debug(MessageFormat.format("==== {0}개의 파일에서 {1}개의 사항이 검색되었습니다. ====", fileCount,matchCount));
         if(matchCount!=0) throw new RuntimeException("validate 실패.");
     }
+
+	public TextScanner setFilter(FileFilter filter) {
+		this.filter = filter;
+		return this;
+	}
+    
 }

@@ -6,8 +6,10 @@ import java.util.Calendar;
 import javax.servlet.http.HttpSession;
 
 import erwins.util.lib.Days;
+import erwins.util.valueObject.ShowTime;
 
 /**
+ * 이걸 왜만들었을까.. ㅠㅠ
  */
 public class SessionTool<USER>{
     
@@ -27,7 +29,7 @@ public class SessionTool<USER>{
     /**
      * 최종 접속 시간과 현재 시간과의 차이.
      */    
-    public long[] getInterval(){
+    public int[] getInterval(){
         Calendar lastAccessTime = Calendar.getInstance();
         lastAccessTime.setTimeInMillis(session.getLastAccessedTime());
         return Days.betweenTime(lastAccessTime, Calendar.getInstance());
@@ -37,16 +39,16 @@ public class SessionTool<USER>{
      * 최종 접속 시간과 현재 시간과의 차이.
      */    
     public String getIntervalStr(){
-        return Days.toString(getInterval());
+        return new ShowTime(getInterval()).toString();
     }
     
     public String getDurationStr(){
-        long[] result = getDuration();
-        return Days.toString(result);
+    	int[] result = getDuration();
+        return new ShowTime(result).toString();
     }
 
     /** 지속시간 : 마지막 접속시간 - 최초접속시간  */
-    public long[] getDuration() {
+    public int[] getDuration() {
         Calendar lastAccessTime = Calendar.getInstance();
         lastAccessTime.setTimeInMillis(session.getLastAccessedTime());
         Calendar createTime = Calendar.getInstance();
@@ -59,7 +61,7 @@ public class SessionTool<USER>{
      * 66.249.71.75  / 66.249.65.164
      */
     public boolean isBot(){
-        long[] result = getDuration();
+    	int[] result = getDuration();
         for(long each : result) if(each != 0L) return false;
         return true;
     }
@@ -83,9 +85,6 @@ public class SessionTool<USER>{
     public HttpSession getSession() {
         return session;
     }
-    
-    
-    
     
     
     

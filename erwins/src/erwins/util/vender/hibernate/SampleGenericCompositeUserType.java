@@ -2,22 +2,23 @@ package erwins.util.vender.hibernate;
 
 import java.io.Serializable;
 import java.sql.*;
+import java.util.Properties;
 
 import org.hibernate.HibernateException;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.CompositeUserType;
+import org.hibernate.usertype.ParameterizedType;
 
 import erwins.util.root.Pair;
 
 
 /**
  * 범용 객체 매핑기.  캐싱 객체 사용시 오버라이딩해서 사용할것.
- * 
  * HQL에서 사용할 수는 없음.
  * @author erwins(my.pojo@gmail.com)
  */
-public class GenericCompositeUserType<T extends Pair> implements CompositeUserType {
+public class SampleGenericCompositeUserType<T extends Pair> implements CompositeUserType ,ParameterizedType{
 
     public Object assemble(Serializable arg0, SessionImplementor arg1, Object arg2) throws HibernateException {
         return null;
@@ -76,6 +77,12 @@ public class GenericCompositeUserType<T extends Pair> implements CompositeUserTy
     public void setPropertyValue(Object arg0, int arg1, Object arg2) throws HibernateException {
         
     }
+
+	@Override
+	public void setParameterValues(Properties arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	
 }

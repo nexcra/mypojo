@@ -1,8 +1,10 @@
-package erwins.util.tools;
+package erwins.util.jdbc;
 
+import java.io.File;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -17,6 +19,9 @@ import java.util.Map;
 
 import oracle.jdbc.driver.OracleDriver;
 import erwins.util.lib.Clazz;
+import erwins.util.root.StringCallback;
+import erwins.util.tools.Mapp;
+import erwins.util.tools.TextFileReader;
 
 
 /** 테스트용 간이 템플릿. 사용후 반드시 닫을것!
@@ -35,20 +40,21 @@ public class JDBC{
 	
 	private Connection connection_oracle = null;
 	
-	/** oracle용 입니다. 
-	 * @throws SQLException */
+	/** oracle용 입니다. */
 	public JDBC(String ip,String sid,String userId,String pass) throws SQLException {
-		//Class.forName(URL_MSSQL);
-        DriverManager.registerDriver(new OracleDriver());
-        String url = MessageFormat.format(URL_ORACLE, ip,"1521",sid);
-        connection_oracle = DriverManager.getConnection(url,userId, pass);
-        connection_oracle.setAutoCommit(false);
+		String url = MessageFormat.format(URL_ORACLE, ip,"1521",sid);
+		init(url, userId, pass, new OracleDriver());
 	}
-	
 	public JDBC(String ip,String port,String sid,String userId,String pass)  throws SQLException {
-		//Class.forName(URL_MSSQL);
-        DriverManager.registerDriver(new OracleDriver());
-        String url = MessageFormat.format(URL_ORACLE, ip,port,sid);
+		String url = MessageFormat.format(URL_ORACLE, ip,port,sid);
+		init(url, userId, pass, new OracleDriver());
+	}	
+	public JDBC(String url,String userId,String pass,Driver driver)  throws SQLException {
+		init(url, userId, pass, driver);
+	}
+
+	private void init(String url, String userId, String pass, Driver driver) throws SQLException {
+		DriverManager.registerDriver(driver);
         connection_oracle = DriverManager.getConnection(url,userId, pass);
         connection_oracle.setAutoCommit(false);
 	}	
@@ -98,6 +104,34 @@ public class JDBC{
 		resultSet.close();
     	return results;
     }
+    
+    public Mapp selectOne(String sql) throws SQLException{
+    	List<Mapp> list = select(sql);
+    	if(list.size()!=0) throw new RuntimeException(list.size() + " result size must be 1");
+    	return list.get(0);
+    }
+    
+    /** 타임스탬프 포맷을 현제 세션에서 조정한다. */
+    public void setDefaultTimeStampFormat() throws SQLException{
+    	execute("alter session set nls_timestamp_format='YYYY-MM-DD HH24:MI:SSXFF'");
+    }
+    
+    /** SQL구문이 담긴 문장을 읽고 실행한다. 기본 툴에서 실행하는것과 동일하며 한줄에 하나의 SQL만이 담겨야 한다. */
+    public void loadSql(File sql) throws SQLException{
+    	new TextFileReader().read(sql,new StringCallback() {
+			@Override
+			public void process(String line) {
+				line = line.trim().replaceAll(";","");
+				if(line.startsWith("--")) return;
+				try {
+					execute(line);
+				} catch (SQLException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		commit();
+    }    
     
     
     /**

@@ -83,6 +83,7 @@ public abstract class MD5{
     
     /**
      * 파일로부터 데이터를 읽어와서, MD5 알고리즘으로 처리하여 해쉬값을 도출한 다음, 16진수 문자열로 변환하여 출력한다.
+     * 파일 이름이 변경되더라도 동일한 해시를 리턴한다.
      * 380mb 가량의 파일 작동시 2초 가량 걸림.
      */
     public static String getHashHexString(File file){

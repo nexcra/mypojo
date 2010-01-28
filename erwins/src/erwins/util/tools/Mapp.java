@@ -1,16 +1,30 @@
 package erwins.util.tools;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.sf.json.*;
+import net.sf.json.JSON;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import erwins.util.lib.*;
+import erwins.util.lib.Clazz;
+import erwins.util.lib.Maths;
+import erwins.util.lib.RegEx;
+import erwins.util.lib.Strings;
 import erwins.util.morph.JDissolver;
 import erwins.util.openApi.Google;
 
@@ -196,6 +210,40 @@ public class Mapp extends MappRoot {
             put(entry.getKey(),returned);
         }
     }
+    
+    // ===========================================================================================
+    //                                    소팅
+    // ===========================================================================================    
+    
+    public static final Comparator<Entry<Object,Object>> ASC = new Comparator<Entry<Object,Object>>() {
+		@SuppressWarnings("unchecked")
+		@Override
+		public int compare(Entry<Object,Object> o1, Entry<Object,Object> o2) {
+			return ((Comparable)o1.getValue()).compareTo(o2.getValue());
+		}
+	};
+	public static final Comparator<Entry<Object,Object>> DESC = new Comparator<Entry<Object,Object>>() {
+		@SuppressWarnings("unchecked")
+		@Override
+		public int compare(Entry<Object,Object> o1, Entry<Object,Object> o2) {
+			return ((Comparable)o2.getValue()).compareTo(o1.getValue());
+		}
+	};
+    
+    /** value를 기준으로 정렬된 List를 리턴한다.  */
+    public List<Entry<Object,Object>> sortByValue(Comparator<Entry<Object,Object>> comparator) {
+    	List<Entry<Object,Object>> list = new ArrayList<Entry<Object,Object>>();
+		for(Entry<Object,Object> each : this.entrySet()) list.add(each);
+		Collections.sort(list,comparator);
+		return list;
+    }
+    
+    /** 정렬된 Iterator를 리턴한다. 귀찮아서..  */
+    public Iterator<Object> sortedItorator() {
+        SortedMap<Object,Object> sorted = new TreeMap<Object,Object>();
+        sorted.putAll(this);
+        return sorted.values().iterator();
+    }    
 
     // ===========================================================================================
     //                                    기타 잡스킬

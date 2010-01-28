@@ -36,8 +36,8 @@ public class SecurityTest{
     public void cryptString(){
     	SecretKey key = Cryptor.generateKey("quantum.object@hotmail.com");
     	String org = "한국여 eng test @%^&*";
-    	String sealed = Cryptor.encrypt(key, org);
-    	String result = Cryptor.decrypt(key, sealed);
+    	String sealed = Cryptor.encryptText(key, org);
+    	String result = Cryptor.decryptText(key, sealed);
     	Val.isTrue(org.equals(result));
     }
     
@@ -77,7 +77,6 @@ public class SecurityTest{
     	Val.isTrue(sealedZip.delete());
     	Val.isTrue(unsealedZip.delete());
     	Val.isTrue(unzip.delete());
-    	
     }
     
     @BeforeClass

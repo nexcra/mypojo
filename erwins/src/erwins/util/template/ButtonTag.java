@@ -28,8 +28,8 @@ public abstract class ButtonTag<ID extends Serializable,ROLE> {
 
     protected EntityUser<ROLE,ID> user; //asd
     protected ROLE[] roles = null;
-    protected EntityUserValidator<ID> pkEntity;
-    protected EntityUserValidator<ID> jsonEntity;
+    protected EntityOwnerValidator<ID> pkEntity;
+    protected EntityOwnerValidator<ID> jsonEntity;
     protected String id;
     protected String script;
     protected String title;
@@ -108,8 +108,8 @@ public abstract class ButtonTag<ID extends Serializable,ROLE> {
      * subEntity를 우선 적용한다.
      **/
     private void ownerCheck() {
-        if (jsonEntity != null) jsonEntity.validateUser(); 
-        else if (pkEntity != null) pkEntity.validateUser();
+        if (jsonEntity != null) jsonEntity.validateOwner(); 
+        else if (pkEntity != null) pkEntity.validateOwner();
     }
     
     /**

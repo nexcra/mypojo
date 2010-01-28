@@ -249,72 +249,7 @@ public class StopWatch {
     // ===========================================================================================
     //                                    static
     // ===========================================================================================    
-
-    private static ThreadLocal<StopWatch> local = new ThreadLocal<StopWatch>();
-    /**
-     * @uml.property  name="threadTime"
-     */
-    private static ThreadLocal<Long> threadTime = new ThreadLocal<Long>();
-    
-    public static void initThreadTime() {
-        threadTime.set(0L);
-    }
-    public static void addThreadTime(Long time) {
-        if(threadTime.get()!=null) threadTime.set(threadTime.get()+time);
-    }
-    /**
-     * @return
-     * @uml.property  name="threadTime"
-     */
-    public static ShowTime getThreadTime() {
-        return new ShowTime(threadTime.get());
-    }
-    public static String getThreadTimeStr() {
-        if(threadTime.get()==null || threadTime.get()==0) return "== no watch detected ==";
-        return "== thread total time = "+StopWatch.getThreadTime().toString(60) + " ==";
-    }
-
-    /**
-     * 현재 스래드의 StopWatch를 초기화한다.
-     */
-    public static void initAndStamp(String taskName) {
-        local.set(null);
-        stamp(taskName);
-    }
-    
-    /**
-     * 현재 스래드의 StopWatch를 초기화한다.
-     */
-    public static void init() {
-        local.set(null);
-    }
-
-    /**
-     * 어디에서나 StopWatch를 체크 가능
-     */
-    public static void stamp(String taskName) {
-        StopWatch stopWatch = local.get();
-        if (stopWatch == null) {
-            stopWatch = new StopWatch("controller");
-            stopWatch.start(taskName);
-        } else {
-            if (stopWatch.isRunning()) stopWatch.stop();
-            stopWatch.start(taskName);
-        }
-        local.set(stopWatch);
-    }
-
-    /**
-     * ThreadTime에 총 시간을 더한 후 stopWatch를 반환한다.
-     */
-    public static StopWatch stopMe() {
-        StopWatch stopWatch = local.get();
-        stopWatch.stop();
-        addThreadTime(stopWatch.getTotalNanoTime());
-        return stopWatch;
-    }
-    
-    
+    /** run이 가동한 시간을 측정한다. */
     public static StopWatch load(Runnable command) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();   
@@ -323,25 +258,23 @@ public class StopWatch {
         return stopWatch;
     }
 
-    /**
-     * stop 후 table을 리턴한다.
-     */
-    public static String makeTable() {
-        StopWatch stopWatch = stopMe();
-        List<Tr> list = new ArrayList<Tr>();
+    /** table을 리턴한다. */
+    public String buildTable() {
         
-        for (int i = 0; i < stopWatch.getTaskInfo().size(); i++) {
+        List<Tr> list = new ArrayList<Tr>();
+        for (int i = 0; i < this.getTaskInfo().size(); i++) {
+        	TaskInfo info = this.getTaskInfo().get(i);
             Tr tr = new Tr();
             
             Td td = new Td(String.valueOf(i + 1));
             td.addAttribute("align","center");
             tr.addElement(td);
 
-            Td td2 = new Td(stopWatch.getTaskInfo().get(i).getTaskName());
+            Td td2 = new Td(info.getTaskName());
             td2.addAttribute("align","center");
             tr.addElement(td2);
 
-            Td td3 = new Td(stopWatch.getTaskInfo().get(i).getMicroTimeStr() + "<br> (" + stopWatch.getPercent(i) + ")");
+            Td td3 = new Td(info.getMicroTimeStr() + "<br> (" + this.getPercent(i) + ")");
             td3.addAttribute("align","center");
             tr.addElement(td3);
             

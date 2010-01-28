@@ -1,14 +1,20 @@
 
 package erwins.util.lib;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+
+import erwins.util.tools.Mapp;
+import erwins.util.tools.TextFile;
 
 /**
  * apache의 StringUtils에 없는것을 정의한다.
@@ -149,7 +155,7 @@ public class Strings extends StringUtils {
      */
     public static String getFieldName(String name) {
         for (String type : beanMethods) {
-            if (name.startsWith(type)) return getCamelize2(name, type);
+            if (name.startsWith(type)) return escapeAndUncapitalize(name, type);
         }
         return null;
     }
@@ -161,7 +167,7 @@ public class Strings extends StringUtils {
      */
     public static String getterName(String name) {
         for (String type : getterMethods) {
-            if (name.startsWith(type)) return getCamelize2(name, type);
+            if (name.startsWith(type)) return escapeAndUncapitalize(name, type);
         }
         return null;
     }
@@ -173,7 +179,7 @@ public class Strings extends StringUtils {
      */
     public static String setterName(String name) {
         for (String type : setterMethods) {
-            if (name.startsWith(type)) return getCamelize2(name, type);
+            if (name.startsWith(type)) return escapeAndUncapitalize(name, type);
         }
         return null;
     }
@@ -297,30 +303,26 @@ public class Strings extends StringUtils {
         return stringBuffer.toString().toUpperCase();
     }
 
-    /**
-     * "_" 형태의 연결을 카멜 케이스로 변환한다. ex) USER_NAME => userName
-     */
+    /** '_' or '-' 형태의 연결을 카멜 케이스로 변환한다. ex) USER_NAME => userName */
     public static String getCamelize(String str) {
         char[] chars = str.toCharArray();
-        boolean isUpper = false;
+        boolean nextCharIsUpper = false;
         StringBuffer stringBuffer = new StringBuffer();
         for (char cha : chars) {
-            if (cha == '_' && cha == '-') {
-                isUpper = true;
+            if (cha == '_' || cha == '-') {
+                nextCharIsUpper = true;
                 continue;
             }
-            if (isUpper) {
+            if (nextCharIsUpper) {
                 stringBuffer.append(Character.toUpperCase(cha));
-                isUpper = false;
+                nextCharIsUpper = false;
             } else stringBuffer.append(Character.toLowerCase(cha));
         }
         return stringBuffer.toString();
     }
 
-    /**
-     * 두문자를 제거 후 첫 글자를 소문자로 바꾼다. ex) searchMapKey => mapKey
-     */
-    public static String getCamelize2(String str, String header) {
+    /** 두문자를 제거 후 첫 글자를 소문자로 바꾼다. ex) searchMapKey => mapKey */
+    public static String escapeAndUncapitalize(String str, String header) {
         return StringUtils.uncapitalize(str.replaceFirst(header, EMPTY));
     }
 
@@ -387,6 +389,12 @@ public class Strings extends StringUtils {
             stringBuffer.append("'");
         }
         return stringBuffer.toString();
+    }
+    
+    /** 임시 포매팅. MessageFormat이랑 비슷하다. */
+    public static String format(String str,Object ... args) {
+    	for(int i=0;i<args.length;i++) str = str.replaceAll("\\{"+i+"\\}", args[i].toString());
+    	return str;
     }
 
     /**
@@ -525,6 +533,51 @@ public class Strings extends StringUtils {
             stringBuffer.append(string);
         }
         return stringBuffer.toString();
+    }
+    
+    /** txt에 비워드인 걸로 다 짤라서 몇개의 단어가 있는지 검사한다. 얼추 된다. ㅋㅋ */
+    public static class WordCounter implements Iterable<Entry<Object,Object>>{
+    	
+    	private boolean ignoreCase = false;
+    	private Mapp counter = new Mapp();
+    	
+    	public void addCount(File file){
+    		String txt = TextFile.read(file).toString();
+    		addCount(txt);
+    	}
+    	
+    	/** 케이스 무시할 시 모두 소문자로 변경한다. */
+    	public void addCount(String txt){
+    		if(ignoreCase) txt = txt.toLowerCase();
+    		String[] texts = txt.split("[^\\w]");
+    		for(String each : texts){
+    			if(each.equals("")) continue;
+    			counter.plus(each);
+    		}
+    	}
+    	
+    	public void setIgnoreCase(boolean ignoreCase) {
+			this.ignoreCase = ignoreCase;
+		}
+
+		public List<Entry<Object,Object>> result(){
+    		return counter.sortByValue(Mapp.DESC);
+    	}
+
+		@Override
+		public Iterator<Entry<Object, Object>> iterator() {
+			return result().iterator();
+		}
+		/** 디렉토리의 파일(txt,java 등)에서 단어를 추출/집계 후 가장 많이 사용된 순으로 정렬해서 리턴한다. */
+		public static List<Entry<Object,Object>> countDirectoryFile(File directory,String ... exts){
+			WordCounter c = new WordCounter();
+			Iterator<File> i = Files.iterateFiles(directory,true,exts);
+			while(i.hasNext()){
+				File each = i.next();
+				c.addCount(each);
+			}
+			return c.result();
+		}
     }
 
     // ===========================================================================================

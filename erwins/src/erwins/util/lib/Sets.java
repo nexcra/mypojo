@@ -3,8 +3,15 @@ package erwins.util.lib;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import erwins.util.root.EntityId;
@@ -13,9 +20,10 @@ import erwins.util.root.StringIdEntity;
 /**
  * Collection과 Array에 관한 Util이다.
  * java.util.EnumSet을 잘 활용할것!
+ * 경고!!!  T ... items 에 배열이 오면 배열로 인식하지만 collection이 올 경우 하나의 T로 인식해 버린다. 주의
  * @author erwins(my.pojo@gmail.com)
  */
-public abstract class Sets {
+public abstract class Sets  extends CollectionUtils{
     
     
     /**
@@ -37,12 +45,16 @@ public abstract class Sets {
     }    
     
     
-    /**
-     * 빈 컬렉션인지? 
-     */
+    /** 빈 컬렉션인지?  */
     public static boolean isEmpty(Collection<?> c) {
         if(c==null || c.size()==0) return true;
         return false;
+    }
+    
+    /** 빈 배열인지.  */
+    public static <T> boolean isEmpty(T[] t) {
+    	if(t==null || t.length==0) return true;
+    	return false; 
     }
     
     /**
@@ -110,6 +122,13 @@ public abstract class Sets {
         else return list.get(0);
     }
     
+    /** 1개만 추출해 낸다. 없다면 null을 리턴한다.  */
+    public static <T> T getUniqNullable(List<T> sets) {
+		if(sets.size()==0) return null;
+    	else if(sets.size()==1) return sets.get(0);
+    	else throw new IllegalStateException(sets.size()+" collection nust be unique or zero size");
+	}    
+    
     /**
      * 마지막 객체를 반환한다. 
      */
@@ -137,6 +156,7 @@ public abstract class Sets {
     /**
      * 배열에 해당 물품을 가지고 있는지 검사한다. 
      * 하나라도 있으면 true를 리턴한다.
+     * T에 collection이 오면 안된다.
      */
     public static <T> boolean isEqualsAny(T[] bodys ,T ... items) {
         if(bodys==null || items.length==0) return false;

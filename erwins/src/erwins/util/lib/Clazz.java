@@ -2,7 +2,6 @@ package erwins.util.lib;
 
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
@@ -183,7 +182,7 @@ public abstract class Clazz {
         return classFullName.substring(0,classFullName.lastIndexOf("."));
     }
     
-    /** Class의 파일을 가져온다. Groovy 디버깅 용이다. */
+    /** Class의 파일을 가져온다. Groovy 디버깅 용이다. root는 jvm이 실행된 경로를 말한다. */
     public static File sourceFile(Class<?> clazz) {
         final String src =  "src/";
         String name = clazz.getName().replaceAll("\\.","/");
@@ -197,15 +196,17 @@ public abstract class Clazz {
     /**
      * getter를 사용하여  객체를 반환한다.
      * methodName or FieldName을 넣자.
+     * 메소드 해당하는게 없으면 걍 null을 리턴한다.
      */
     public static Object getObject(Object obj,String name){
         if(!name.startsWith("get")) name = "get" + WordUtils.capitalize(name); 
         try {
-            return obj.getClass().getMethod(name).invoke(obj);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+			return obj.getClass().getMethod(name).invoke(obj);
+		} catch (NoSuchMethodException e) {
+			return null;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
     }
     
     /** getter의 name에 해당하는 리턴class를 리턴한다. */
@@ -219,15 +220,12 @@ public abstract class Clazz {
         }
     }
     
-    /**
-     * 인스턴스의 필드중에서 해당하는 이름의 필드에 그 값을 할당한다.
-     */
+    /** 인스턴스의 필드중에서 해당하는 이름의 setter에 객체를 할당한다. */
     public static void setObject(Object instance, String fieldName,Object value){
         Class<?> clazz = instance.getClass();
+        Method setter = Clazz.toSetter(clazz, fieldName, value.getClass());
         try {
-            Field field = clazz.getDeclaredField(fieldName);
-            // field null 체크할 필요가 없음(field가 null이면 NoSuchFieldException이 발생)
-            field.set(instance, value);
+        	setter.invoke(instance, value);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -240,6 +238,36 @@ public abstract class Clazz {
     public static boolean isGetter(Method method) {
         String name = method.getName();
         return Strings.getFieldName(name)==null ? false :true;
+    }
+    
+    /** setter로 getter를 리턴한다. */
+    @SuppressWarnings("unchecked")
+	public static Method toSetter(Class clazz,String fieldName,Class param){
+    	String setterName = "set"+Strings.capitalize(fieldName);
+        Method setter = null;
+		try {
+			setter = clazz.getMethod(setterName,param);
+		} catch (NoSuchMethodException e) {
+			
+		} 
+		return setter;
+    }
+    
+    @SuppressWarnings("unchecked")
+	public static Method toGetter(Class clazz,String fieldName){
+    	String getterName = "get"+Strings.capitalize(fieldName);
+    	Method getter = null;
+    	try {
+    		getter = clazz.getMethod(getterName);
+    	} catch (NoSuchMethodException e) {
+    		String getterName2 = "is"+Strings.capitalize(fieldName);
+    		try {
+				getter = clazz.getMethod(getterName2);
+			} catch (NoSuchMethodException e1) {
+				return null;
+			}
+    	} 
+    	return getter;
     }
     
     

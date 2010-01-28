@@ -29,7 +29,7 @@ public class SoftMapDao<ID extends Serializable,T>{
          
         T obj = softMap.get(id);
         if(obj==null){
-            obj = dao.findById(id);
+            obj = dao.getById(id);
             softMap.put(id, obj);
         }
         return obj;

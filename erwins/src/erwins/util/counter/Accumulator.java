@@ -31,5 +31,10 @@ public class Accumulator extends AccumulatorTemplit{
         }
         return true;
     }
+    
+    @Override
+	public int count() {
+		return now;
+	}    
 
 }

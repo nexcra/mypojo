@@ -2,7 +2,9 @@
 package erwins.util.web;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -34,6 +36,9 @@ public class FileUploader {
         this.req = req;
     }
 
+    /** 리턴되는 map값에는 폼파라메터 값이 들어간다.
+     * upload되는 파일은 유일이름으로 변경되어 오버라이딩 되지 않는다.
+     *  */
     public Map<String,String> upload(File repositoryPath){
         
         int yourMaxMemorySize = 1024 * 200;                 // threshold  값 설정 (0.2M?) 초기값은 0.01메가
@@ -60,7 +65,6 @@ public class FileUploader {
                 }else{
                     String file = item.getName();
                     file = file.substring(file.lastIndexOf(File.separator) + 1);
-                    
                     File uploadedFile = new File(repositoryPath,file);
                     uploadedFile = Files.uniqueFileName(uploadedFile);
                     if(filter != null && !filter.isStorable(uploadedFile)) continue;

@@ -1,11 +1,14 @@
 package erwins.util.tools;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import erwins.util.lib.*;
+import erwins.util.lib.Clazz;
+import erwins.util.lib.Formats;
+import erwins.util.lib.Maths;
+import erwins.util.lib.Strings;
 
 
 /**
@@ -272,15 +275,6 @@ public abstract class MappRoot extends HashMap<Object,Object>  {
         BigDecimal value = getDecimal(key);        
         if(Maths.isZero(value,sum)) return BigDecimal.ZERO;
         return value.divide(sum,8,BigDecimal.ROUND_HALF_UP); //미검증!!
-    }
-    
-    /**
-     * 정렬된 Iterator를 리턴한다. 귀찮아서.. 
-     */
-    public Iterator<Object> getSortedItorator() {
-        SortedMap<Object,Object> sorted = new TreeMap<Object,Object>();
-        sorted.putAll(this);
-        return sorted.values().iterator();
     }
     
     // ===========================================================================================
