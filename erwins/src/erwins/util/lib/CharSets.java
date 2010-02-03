@@ -11,26 +11,7 @@ public class CharSets {
     
     public static final String EUC_KR = "EUC-KR";
     public static final String UTF_8 = "UTF-8";
-
-    /**
-     * 인코딩을 테스트 한다.
-     */
-    @Deprecated
-    public static void testChar(String str) throws UnsupportedEncodingException {
-        int i = 0;
-        System.out.println(++i + new String(str.getBytes(), "utf-8"));
-        System.out.println(++i + new String(str.getBytes(), "euc-kr"));
-        System.out.println(++i + new String(str.getBytes(), "8859_1"));
-        System.out.println(++i + new String(str.getBytes("utf-8")));
-        System.out.println(++i + new String(str.getBytes("euc-kr")));
-        System.out.println(++i + new String(str.getBytes("8859_1")));
-        System.out.println(++i + new String(str.getBytes("euc-kr"), "utf-8"));
-        System.out.println(++i + new String(str.getBytes("euc-kr"), "8859_1"));
-        System.out.println(++i + new String(str.getBytes("UTF-8"), "8859_1"));
-        System.out.println(++i + new String(str.getBytes("UTF-8"), "euc-kr"));
-        System.out.println(++i + new String(str.getBytes("8859_1"), "UTF-8"));
-        System.out.println(++i + new String(str.getBytes("8859_1"), "euc-kr"));
-    }
+    public static final String UNICODE = "UNICODE";
 
     /**
      * UTF-8로 인코딩을 바꾼다.

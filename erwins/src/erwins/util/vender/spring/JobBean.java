@@ -1,5 +1,5 @@
 
-package erwins.util.vender.quartz;
+package erwins.util.vender.spring;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

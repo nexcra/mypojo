@@ -1,9 +1,16 @@
 
 package erwins.util.tools;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 import erwins.util.lib.CharSets;
+import erwins.util.lib.Strings;
 import erwins.util.reflexive.FolderIterator;
 import erwins.util.root.StringCallback;
 
@@ -61,6 +68,53 @@ public class TextFileReader {
             }
         }
     }
+    
+    /** 모든 토큰을 유지하도록 split해서 자료를 넘겨준다. SEPERATOR들은 오버라이드 하자. */
+    public static abstract class StringArrayCallback implements StringCallback{
+    	public static final String SEPERATOR = "|";
+    	public static final String SEPERATE_ESCAPER = "@erwins-seperator@";
+    	
+		@Override
+		public void process(String line) {
+			String SEPERATOR = seperator();
+			String SEPERAT_ESCAPER = seperatEscaper();
+			String[] result = Strings.splitPreserveAllTokens(line, SEPERATOR);
+			for(int i=0;i<result.length;i++){
+				if(Strings.contains(result[i], SEPERAT_ESCAPER)){
+					result[i] = result[i].replaceAll(SEPERAT_ESCAPER,SEPERATOR);
+				}
+			}
+			process(result);
+		}
+		protected String seperator(){return SEPERATOR;};
+		/** SEPERATOR로 사용되는 문자가 해당 문자열로 이미 존재할때 이것으로 치환되어있어야 한다. */
+		public String seperatEscaper(){return SEPERATE_ESCAPER;};
+		
+		protected abstract void process(String[] line);
+    }
+    
+    /** 첫 라인을 컬럼 메타데이터로 보고 MAP으로 매핑시켜 준다. 컬럼과 열이 맞지 않으면 무시한다.*/
+    public static abstract class StringMapCallback extends StringArrayCallback{
+    	private boolean first = true;
+    	private String[] column = null;
+		@Override
+		public void process(String[] line) {
+			if(first){
+				column = new String[line.length];
+				boolean camelize = camelize();
+				for(int i=0;i<line.length;i++) column[i] =  camelize ? Strings.getCamelize(line[i]) : line[i];
+				first = false;
+				return;
+			}
+			Map<String,String> result = new HashMap<String,String>();
+			for(int i=0;i<column.length;i++){
+				result.put(column[i],line[i]);
+			}			
+			process(result);
+		}
+		protected abstract void process(Map<String,String> line);
+		protected boolean camelize(){return false;};
+    }    
     
     /** 
      * 간단한 스캐너 이다. root를 기준으로 모든 파일을 읽어 line을 반환한다.

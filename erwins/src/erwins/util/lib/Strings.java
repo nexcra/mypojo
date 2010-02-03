@@ -440,6 +440,19 @@ public class Strings extends StringUtils {
     public static Integer plusForInteger(String str, int str2) {
         return Integer.parseInt(str)+str2;
     }
+    
+    /** 배열을 더한다. Utils에 있을거 같은데 없네.. */
+	public static String[] addArray(String[] org,String ... args){
+		if(org==null) return args;
+		String[] result = new String[org.length + args.length];
+		for(int i=0;i<org.length;i++){
+			result[i] = org[i];
+		}
+		for(int i=0;i<args.length;i++){
+			result[org.length+i] = args[i];
+		}
+		return result;
+	}    
 
     // ===========================================================================================
     //                                      숫자 치환            
@@ -579,6 +592,8 @@ public class Strings extends StringUtils {
 			return c.result();
 		}
     }
+    
+   
 
     // ===========================================================================================
     //                                      NVL            

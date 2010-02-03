@@ -192,11 +192,11 @@ public class HqlBuilderMap implements HqlBuilder{
         return this;
     }
     
-    public String test1(){
-        return builder.test1();
+    public String hqlStringForCount(){
+        return builder.hqlStringForCount();
     }
-    public String test2(){
-        return builder.test2();
+    public String hqlString(){
+        return builder.hqlString();
     }
     
     

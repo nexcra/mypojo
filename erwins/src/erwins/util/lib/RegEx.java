@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.util.PatternMatchUtils;
-
 import erwins.util.root.StringCallback;
 import erwins.util.root.StringCallback.StringsCallback;
 
@@ -191,12 +189,37 @@ public enum RegEx {
     //                                    기타.
     // ===========================================================================================       
     
-    /**
-     * ANT식의 aaa*bbb등 *이 1개만 들어간거에 적용된다.
-     */
-    public static boolean simpleMatch(CharSequence pattern, String str) {
-        return PatternMatchUtils.simpleMatch(pattern.toString(), str);
-    }
+    /** ANT식의 aaa*bbb등 *이 1개만 들어간거에 적용된다. from spring */
+    public static boolean simpleMatch(String pattern, String str) {
+		if (pattern == null || str == null) {
+			return false;
+		}
+		int firstIndex = pattern.indexOf('*');
+		if (firstIndex == -1) {
+			return pattern.equals(str);
+		}
+		if (firstIndex == 0) {
+			if (pattern.length() == 1) {
+				return true;
+			}
+			int nextIndex = pattern.indexOf('*', firstIndex + 1);
+			if (nextIndex == -1) {
+				return str.endsWith(pattern.substring(1));
+			}
+			String part = pattern.substring(1, nextIndex);
+			int partIndex = str.indexOf(part);
+			while (partIndex != -1) {
+				if (simpleMatch(pattern.substring(nextIndex), str.substring(partIndex + part.length()))) {
+					return true;
+				}
+				partIndex = str.indexOf(part, partIndex + 1);
+			}
+			return false;
+		}
+		return (str.length() >= firstIndex &&
+				pattern.substring(0, firstIndex).equals(str.substring(0, firstIndex)) &&
+				simpleMatch(pattern.substring(firstIndex), str.substring(firstIndex)));
+	}    
 
     /**
      * 문자열을 치환하여 HTML링크를 만들어 준다. 게시판 댓글 등에 사용 https?

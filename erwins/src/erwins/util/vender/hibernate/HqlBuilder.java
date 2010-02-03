@@ -52,8 +52,8 @@ public interface HqlBuilder {
 
     public abstract Query query(Session session);
     
-    public String test1();
-    public String test2();
+    public String hqlStringForCount();
+    public String hqlString();
     
 
 }

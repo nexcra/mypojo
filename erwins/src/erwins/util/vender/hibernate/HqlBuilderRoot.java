@@ -212,10 +212,10 @@ public class HqlBuilderRoot implements HqlBuilder{
     //                                    hibernate
     // ===========================================================================================    
     
-    public String test1(){
+    public String hqlStringForCount(){
         return getText(count);
     }
-    public String test2(){
+    public String hqlString(){
         return getText(hql);
     }
     

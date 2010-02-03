@@ -18,6 +18,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import erwins.util.lib.Clazz;
 import erwins.util.lib.Sets;
+import erwins.util.lib.Strings;
 import erwins.util.root.EntityId;
 import erwins.util.root.EntityInit;
 import erwins.util.root.EntityOwnerValidator;
@@ -176,6 +177,21 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         return T;
     }
     
+    /** 가장 큰 ID를 검색한다. */
+    public ID getMaxId() {
+    	Criteria crit = getSession().createCriteria(getPersistentClass()).setProjection(
+                Projections.projectionList().add(Projections.max(EntityId.ID_NAME))
+                );
+        return (ID)Sets.getResultInt(crit.list());
+    }
+    
+    public Entity getMaxEntity() {
+    	String hql = "from {0} e where e.{1} = (select max({1}) from {0})";
+    	return queryUnique(Strings.format(hql, getPersistentClass().getSimpleName(),EntityId.ID_NAME));
+    }
+    
+    
+    
     /** 유일하지 않으면 예외를 던진다.*/
     protected Entity getUnique(Criterion... criterion) {
         return Sets.getResultUnique(findBy(criterion));
@@ -332,9 +348,14 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     }
     
     /** map없이 사용할때. */
-    @Deprecated
     protected Entity queryUnique(HqlBuilder hql) {
         Query query = hql.query(getSession());
+        return (Entity)query.uniqueResult();
+    }
+    
+    /** 파라메터 없이 아주 간단한거 할때만 사용할것. */
+    protected Entity queryUnique(String hql) {
+    	Query query = super.getSession().createQuery(hql);
         return (Entity)query.uniqueResult();
     }
     

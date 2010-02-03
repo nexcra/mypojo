@@ -278,7 +278,7 @@ public abstract class NetRoot {
         if(ftpfiles==null)  return;
         for (int i = 0; i < ftpfiles.length; i++) {
             FTPFile file = ftpfiles[i];
-            if (file.isFile()) System.out.println(file.toString()); // file.getName(), file.getSize() 등등..
+            if (file.isFile()) file.toString(); // file.getName(), file.getSize() 등등..
             else if(file.isDirectory()) {
                 String fileName = file.getName();
                 if(fileName.equals(".") || fileName.equals("..") ) continue;
@@ -318,14 +318,11 @@ public abstract class NetRoot {
         FTPListParseEngine engine = ftpClient.initiateListParsing("/open"); // 목록을 나타낼 디렉토리
         while (engine.hasNext()) {
             FTPFile[] ftpfiles2 = engine.getNext(10); // 10개 단위로 끊어서 가져온다
-            System.out.println("------------------------ " + page + " ------------------------");
             if (ftpfiles2 != null) {
                 for (int i = 0; i < ftpfiles2.length; i++) {
                     FTPFile file = ftpfiles2[i];
-                    System.out.println(file.toString());
                 }
             }
-            System.out.println("------------------------ " + (page++) + " -------------------------");
         }
     }*/
     

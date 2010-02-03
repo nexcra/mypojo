@@ -178,6 +178,17 @@ public class Mapp extends MappRoot {
         }
     }
     
+    /** 기존 값이 있으면 문자열을 계속 더해나간다. */
+    public void appendString(Object key,String value){
+    	Object obj = get(key);
+    	if(obj==null) put(key, value); 
+    	else if(obj instanceof String){
+        	String exist = (String)obj;
+        	exist += value;
+        	put(key,exist);
+        }else throw new RuntimeException("existing value must be String. but " + obj.getClass().getName());
+    }
+    
     /**
      * put명령 사용시 기존 수를 더하여 입력 
      * 간단한 연산에 사용
