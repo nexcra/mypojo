@@ -30,6 +30,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 
+import erwins.util.exception.ExceptionFactory;
 import erwins.util.exception.MalformedException;
 import erwins.util.exception.Throw;
 import erwins.util.exception.Val;
@@ -79,6 +80,10 @@ public abstract class Files extends FileUtils {
 	@SuppressWarnings("unchecked")
 	public static Iterator<File> iterateFiles(File directory){
 		return iterateFiles(directory, ALL_FILE, ALL_FILE);
+	}
+	@SuppressWarnings("unchecked")
+	public static Iterator<File> iterateFiles(String directoryName){
+		return iterateFiles(new File(directoryName), ALL_FILE, ALL_FILE);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -151,6 +156,18 @@ public abstract class Files extends FileUtils {
 			}
 		}
 	}
+	
+	/** child가  parent에 속해있거나 같으면 true를 리턴한다. */
+	public static boolean isParent(File parent,File child) {
+		if(parent==null || child==null) throw ExceptionFactory.nullArgs();
+		if(!parent.exists()) throw ExceptionFactory.fileNotFound(parent);
+		if(!child.exists()) throw ExceptionFactory.fileNotFound(child);
+		while(true){
+			if(child.equals(parent)) return true;
+			child = child.getParentFile();
+			if(child==null) return false;
+		}
+	}
 
 	/** 파일을 하위 폴더로 이동시킨다. */
 	public static void renameToParentDirectory(File file) {
@@ -210,14 +227,24 @@ public abstract class Files extends FileUtils {
 		File parent = result.getParentFile();
 		while (result.exists()) {
 			String fileName = result.getName();
-			if (RegEx.isMatch("\\(((\\d+))\\)\\.", fileName)) {
+			if (orgFile.isFile() && RegEx.isMatch("\\(((\\d+))\\)\\.", fileName)) {
 				String[] temp = Strings.substringsBetween(fileName, "(", ")");
-				Integer i = Strings.plusForInteger(Sets.getLast(temp), 1);
-				fileName = fileName.replaceAll("\\(((\\d+))\\)\\.", "(" + i + ").");
+				String numString = Sets.getLast(temp);
+				Integer i = Strings.plusForInteger(numString, 1);
+				String changedNumString = Strings.leftPad(i.toString(), numString.length(), '0');
+				fileName = fileName.replaceAll("\\(((\\d+))\\)\\.", "(" + changedNumString + ").");
+				result = new File(parent, fileName);
+			}else if (orgFile.isDirectory() && RegEx.isMatch("\\(((\\d+))\\)", fileName)) { //확장자가 없는경우(디렉토리)
+				String[] temp = Strings.substringsBetween(fileName, "(", ")");
+				String numString = Sets.getLast(temp);
+				Integer i = Strings.plusForInteger(numString, 1);
+				String changedNumString = Strings.leftPad(i.toString(), numString.length(), '0');
+				fileName = fileName.replaceAll("\\(((\\d+))\\)", "(" + changedNumString + ")");
 				result = new File(parent, fileName);
 			} else {
 				String[] temp = Strings.getExtentions(fileName);
-				result = new File(parent, temp[0] + "(1)." + temp[1]);
+				if(temp==null) result = new File(parent, fileName+ "(01)"); //확장자가 없는 경우(디렉토리)
+				else result = new File(parent, temp[0] + "(01)." + temp[1]); //확장자가 있는경우
 			}
 		}
 		return result;

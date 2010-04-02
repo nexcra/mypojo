@@ -1,23 +1,17 @@
 
 package erwins.util.vender.apache;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
-import erwins.util.jdbc.JDBC;
-import erwins.util.lib.Days;
 import erwins.util.lib.Formats;
 import erwins.util.lib.Strings;
 
@@ -26,8 +20,6 @@ import erwins.util.lib.Strings;
  * @author  erwins(my.pojo@gmail.com)
  */
 public class Poi extends PoiRoot{
-    
-    public CurrentPoi currentPoi = new CurrentPoi();
     
     // ===========================================================================================
     //                                    생성자
@@ -44,14 +36,29 @@ public class Poi extends PoiRoot{
     }
     
     public Poi(String fileName){
-        try {
+    	try {
             stream = new FileInputStream(fileName);
             POIFSFileSystem filesystem = new POIFSFileSystem(stream);        
             wb = new HSSFWorkbook(filesystem);
         }
         catch (Exception e) {
-            close();
             throw new RuntimeException(e);
+        }finally{
+        	close();
+        }
+        init();
+    }
+    
+    public Poi(File file){
+        try {
+            stream = new FileInputStream(file);
+            POIFSFileSystem filesystem = new POIFSFileSystem(stream);        
+            wb = new HSSFWorkbook(filesystem);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }finally{
+        	close();
         }
         init();
     }
@@ -74,19 +81,27 @@ public class Poi extends PoiRoot{
     //                                     간편쓰기.
     // ===========================================================================================
     
+    private HSSFSheet nowSheet;
+    
     /**
      * 1. 시트를 만들고 0번째 로우에 헤더를 만든다.
      * 2. 시트의 가로 , 세로 열이 같다면 merge한다.
      */
     public void addSheet(String sheetname,String[] ... titless){
-        currentPoi.createNextSheet(sheetname);
+    	nowSheet = wb.createSheet(sheetname);
         HSSFRow row ;
         for(String[] titles : titless){
-            row = currentPoi.createNextRow();
-            for(short j=0;j<titles.length;j++)
+            row = createNextRow();
+            for(int j=0;j<titles.length;j++)
                 row.createCell(j).setCellValue(new HSSFRichTextString(titles[j]));    
         }
         headerRowCount.add(titless.length);
+    }
+    
+    public HSSFRow createNextRow() {
+        int i = nowSheet.getPhysicalNumberOfRows(); //시트가 순수 createRow로 생성한 로우 수를 반환한다. 즉 중간에 공백이 있으면 안된다.
+        HSSFRow row = nowSheet.createRow(i);
+        return row;
     }
     
     /**
@@ -103,20 +118,20 @@ public class Poi extends PoiRoot{
             Object[] obj = list.get(i);
             row = sheet.createRow(i+header);
             for(int j=0;j<obj.length;j++){
-                row.createCell((short)j).setCellValue(new HSSFRichTextString(Strings.toString(obj[j])));
+                row.createCell(j).setCellValue(new HSSFRichTextString(Strings.toString(obj[j])));
             }
         }
     }    
     
     /** 기생성된 row에 i번째 컬럼 부터 value를 입력한다. */
     public void setValues(int i,Object ... values){
-        HSSFRow row = currentPoi.createNextRow();
+        HSSFRow row = createNextRow();
         for(Object each : values){
             String value = null;
             if(each==null) value="";
             else if(each instanceof Number) value = Formats.DOUBLE2.get((Number)each);
             else value = each.toString();
-            row.createCell((short)i++).setCellValue(new HSSFRichTextString(value));    
+            row.createCell(i++).setCellValue(new HSSFRichTextString(value));    
         }
     }    
     
@@ -127,93 +142,33 @@ public class Poi extends PoiRoot{
     public void addValuesArray(Object[] values){
         setValues(0,values);
     }
+    
 
-    
-    // ===========================================================================================
-    //                                     간편읽기
-    // ===========================================================================================
-    
-    /** 
-     * 시작 sheet와 header개수를 정하자. header는 skip한다.
-     * 헤더가 첫 로우가 헤더이면 1 이다. 
-     * */
-    public void initSheet(int sheet,int header){
-        currentPoi.initSheet(sheet);
-        for(int i=0;i<header-1;i++){
-            currentPoi.nextRow();
-        }
-    }
-    
-    /**
-     * null일때까지 뽑아보아여~ 
-     * ex) while ((values = poi.next()) != null) 
-     * 주의! next()의 경우 null값일 경우 건너뛴다.! 간혹 숨김 컬럼이 있을수도 있다..
-     */
-    @SuppressWarnings("unchecked")
-    public List<String> next(){
-        HSSFRow row = currentPoi.nextRow();
-        if(row==null) return null;
-        
-        List<String> result = new ArrayList<String>();
-        
-        short cellIndex=0;
-        Iterator<HSSFCell> it = row.iterator();
-        while(it.hasNext()){
-            HSSFCell cell = it.next();
-            //null값에 ""를 넣어줌.
-            if(cell.getCellNum()!=cellIndex) {
-                int gap = cell.getCellNum() - cellIndex;
-                for(int i=0;i<gap;i++){
-                    result.add("");        
-                }
-            }
-            result.add(getStr(cell));
-            cellIndex++;
-        }
-        return result;
-    }
-    
-    /**
-     * CELL_TYPE_NUMERIC의 경우 double임으로 2 => 2.0 이런식으로 바뀐다.
-     * BigDecimal로 변경함으로 성능 문제시 교체하자.
-     */
-    private static String getStr(HSSFCell cell) {
-        if (cell == null) return "";
-        switch (cell.getCellType()) {
-            case HSSFCell.CELL_TYPE_NUMERIC:
-                return new BigDecimal(cell.getNumericCellValue()).toString();
-            case HSSFCell.CELL_TYPE_STRING:
-                return cell.getRichStringCellValue().getString().trim();
-            default:
-                return "";
-        }
-        
-    }
-    
-    /**
+    /*
+    *//**
      * 오라클로 엑셀을 업로드 합니다.
      * 첫번째 로우 이름이 Table의 컬럼 이름이 됩니다.
-     */
+     *//*
     public void uploadForOracle(String tableName,String ip,String sid,String id,String pass){
         new OracleUploader(tableName,ip,sid,id,pass);
     }
     
     // ===========================================================================================
-    //                                   oracle uploader    
+    //                                   oracle uploader.. 완전 쓸모없어 보임.
     // ===========================================================================================    
     
-    /**
+    *//**
      * Key를 지정 후 insert or update하게 변경하자. num과 vchar를 구분하는 로직은 필요 없을듯.
-     */
+     *//*
     private class OracleUploader{
         private static final String CREATE_TIME = "CREATE_TIME";
         private static final String TIMESTAMP = "TIMESTAMP";
         
         private List<String> cols = new ArrayList<String>();
-        /**
+        *//**
          * @uml.property  name="jdbc"
          * @uml.associationEnd  
-         */
+         *//*
         JDBC jdbc;
         private String tableName;
         
@@ -274,9 +229,9 @@ public class Poi extends PoiRoot{
             }
         }
 
-        /**
+        *//**
          * 이놈들은 commit이라는게 없다. 조심 
-         */
+         *//*
         private void makeTable() throws SQLException {
             cols = next();
             if(jdbc.isContain("select count(*) from user_tables where table_name = '"+tableName+"'")) return;
@@ -295,69 +250,7 @@ public class Poi extends PoiRoot{
             jdbc.update("COMMENT ON TABLE "+tableName+" IS '"+Days.DATE.get()+" POI로 제작된 테이블 입니다.'");
         }
         
-    }
+    }*/
     
-    // ===========================================================================================
-    //                                   CurrentPoi    
-    // ===========================================================================================
-    
-    /**
-     * @author  Administrator
-     */
-    private class CurrentPoi{
-        private HSSFRow row;
-        /**
-         * @uml.property  name="sheet"
-         */
-        private HSSFSheet sheet;
-        private Iterator<HSSFRow> iterator;
-        
-        public void initSheet(int i) {
-            sheet = wb.getSheetAt(i);
-        }
-
-        @SuppressWarnings("unchecked")
-        public HSSFRow nextRow() {
-            if(iterator==null) iterator = sheet.rowIterator();
-            if(!iterator.hasNext()) return null;
-            row =  iterator.next();
-            return row;
-        }
-        
-        public int getRowSize() {
-            return row.getLastCellNum();
-        }
-        
-        public void createNextSheet(String sheetname) {
-            sheet = wb.createSheet(sheetname);
-        }
-        public HSSFRow createNextRow() {
-            int i = sheet.getPhysicalNumberOfRows(); //시트가 순수 createRow로 생성한 로우 수를 반환한다. 즉 중간에 공백이 있으면 안된다.
-            row = sheet.createRow(i);
-            return row;
-        }
-        
-        // ===========================================================================================
-        //                                    get / setter
-        // ===========================================================================================
-        
-        /**
-         * @return
-         * @uml.property  name="sheet"
-         */
-        public HSSFSheet getSheet() {
-            return sheet;
-        }
-
-        /**
-         * @param sheet
-         * @uml.property  name="sheet"
-         */
-        public void setSheet(HSSFSheet sheet) {
-            this.sheet = sheet;
-        }
-        
-        
-    }
     
 }

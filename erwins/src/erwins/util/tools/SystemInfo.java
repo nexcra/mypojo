@@ -29,13 +29,16 @@ public abstract class SystemInfo{
             };
             if(IS_OS_LINUX || IS_OS_HP_UX || IS_OS_SOLARIS || IS_OS_UNIX) server =  true;
             else{
-            	for(String ip : SERVER_IP) if(ip.equals(IP)) server =  true;
             	server = false;
+            	for(String eachIp : SERVER_IP) if(eachIp.equals(IP)){
+            		server =  true;
+            	}
             }
         }
         catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
+        log.info(server ? "현재 WAS는 서버로 기동됩니다." : "현재 WAS는 개발용 입니다.");
     }
     
     /** 테스트용임!! NT장비가 들어가는 곳에서는 사용하면 안된다. */

@@ -124,32 +124,55 @@ public class RESTful{
     public RESTful query(String queryString) {
     	method.setQueryString(queryString);
         return this;
-    }    
+    }
     
     // ===========================================================================================
     //                                   static
     // ===========================================================================================
     
+    /** URL의 HTML을 파싱해서 이미지파일을 가져옵니다. */
+    public static void parseUrlAndSaveImg(String url,final File rootDir,String ... ableExt){
+    	String html = RESTful.get(url).run().asString("EUC-KR"); //보통 한국.
+		RESTful.parseAndSaveImg(html,rootDir,ableExt);
+    }
+    
     /** text를 파싱하여 원격지의 img파일을 로컬로 이동시킨다. */
-    public static String parseAndSaveImg(String html,final File webroot, final String path){
-        final Mapp map = new Mapp();
+    public static void parseAndSaveImg(String html,final File rootDir,final String ... ableExt){
+    	if(!rootDir.exists()) rootDir.mkdirs();
         html = RegEx.TAG_SCRIPT.replace(html,"");
         RegEx.TAG_IMG.process(html, new StringCallback(){
             public void process(String line) {
                 String src = RegEx.find("(?<=src=('|\")).*?(?=\\1)", line);
-                if(Strings.contains(src, "userfiles")) return; //내 파일이면 무시. 
+                if(src==null) return; // <img src=http://img.ruliweb.com/image/memo2.gif/> 처럼 ""로 안둘러싸여져 있을때 무시.
+                if(ableExt.length!=0 && !Strings.isMatchIgnoreCase(src, ableExt)) return;
                 String fileName = Strings.getLast(src,"/");
-                String filePath = path+"/"+fileName;
-                File local = new File(webroot,filePath);
-                RESTful.get(src).asFile(local);
-                map.put(src, filePath.replaceAll("\\\\","/")); //윈도우형을 유닉스형으로 바꿔줌.
+                File local = new File(rootDir,fileName);
+                RESTful.get(src).run().asFile(local);
             }
         });
-        for(Entry<Object,Object> entry : map.entrySet()){
-            html = html.replaceAll(Encoders.escapeRegEx(entry.getKey().toString()),
-                    Encoders.escapeRegEx(entry.getValue().toString()));
-        }
-        return html;
+    }
+    
+    /** text를 파싱하여 원격지의 img파일을 로컬로 이동시킨다. + 기존 HTML을 로컬의 url로 치환한다. 특수용도라서 하드코딩~ 나중에 수정하자. */
+    public static String parseAndSaveImg(String html,final File webroot, final String targetDirName){
+    	final Mapp map = new Mapp();
+    	html = RegEx.TAG_SCRIPT.replace(html,"");
+    	RegEx.TAG_IMG.process(html, new StringCallback(){
+    		public void process(String line) {
+    			if(!Strings.containsIgnoreCase(line,".jpg")) return;
+    			String src = RegEx.find("(?<=src=('|\")).*?(?=\\1)", line);
+    			if(Strings.contains(src, "userfiles")) return; //내 파일이면 무시. 
+    			String fileName = Strings.getLast(src,"/");
+    			String filePath = targetDirName+"/"+fileName;
+    			File local = new File(webroot,filePath);
+    			RESTful.get(src).run().asFile(local);
+    			map.put(src, filePath.replaceAll("\\\\","/")); //윈도우형을 유닉스형으로 바꿔줌.
+    		}
+    	});
+    	for(Entry<Object,Object> entry : map.entrySet()){
+    		html = html.replaceAll(Encoders.escapeRegEx(entry.getKey().toString()),
+    				Encoders.escapeRegEx(entry.getValue().toString()));
+    	}
+    	return html;
     }    
 
 

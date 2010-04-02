@@ -26,6 +26,7 @@ import org.hibernate.annotations.CollectionOfElements;
 
 import erwins.util.lib.Clazz;
 import erwins.util.lib.Days;
+import erwins.util.lib.Encoders;
 import erwins.util.lib.Maths;
 import erwins.util.lib.Sets;
 import erwins.util.lib.Strings;
@@ -36,6 +37,7 @@ import erwins.util.root.EntityId;
 import erwins.util.root.Pair;
 import erwins.util.root.Singleton;
 import erwins.util.tools.SearchMap;
+import erwins.util.valueObject.ValueObject;
 
 /**
  * Object로 서버사이드의 JsonObject를 생성한다. +로 사용자정의 필터를 추가한 버전이다. FCKEditor의 경우 json으로
@@ -80,6 +82,7 @@ public class JDissolver {
     private <T extends Object> JSONArray getByList(List<T> list) {
         JSONArray jsonArray = new JSONArray();
         for (Object each : list){
+        	if(each==null) continue;
             if(each instanceof Object[]){
                 Object[] array = (Object[])each;
                 int count = 0;
@@ -101,26 +104,27 @@ public class JDissolver {
     public JSON build(Object entity) {
         if (entity instanceof Map) return getByMap((Map<Object, Object>) entity);
         else if (entity instanceof List) return getByList((List<Object>) entity);
-        else if(entity instanceof DomainObject){
-            try {
-                return getByDomain(entity);
-            }
-            catch (Exception e) {
-                throw new RuntimeException(e);
-            }    
-        }else throw new IllegalArgumentException(entity.getClass()+"is not required type");
+        else if(entity instanceof DomainObject) return getByDomain(entity,true);
+        else throw new IllegalArgumentException(entity.getClass()+"is not required type");
     }
 
+
+    /** 외부접근도 가능. 도메인 객체임으로 Map이나 generic이 아닌 List는 고려하지 않는다. */
+    public JSONObject getByDomain(Object entity,boolean recursive){
+    	JSONObject json = new JSONObject();
+    	if (entity == null) return json;
+    	getByDomain(json,entity,recursive);
+    	return json;
+    }
+    
     /**
-     * 도메인 객체임으로 Map이나 generic이 아닌 List는 고려하지 않는다. 
+     * 외부접근도 가능. 도메인 객체임으로 Map이나 generic이 아닌 List는 고려하지 않는다. 
      */
     @SuppressWarnings("unchecked")
-    private JSONObject getByDomain(Object entity) throws Exception{
+    public void getByDomain(JSONObject json,Object entity,boolean recursive){
 
         String fieldName = null;
-
-        JSONObject json = new JSONObject();
-        if (entity == null) return json;
+        if (entity == null) return;
 
         Method[] methods = entity.getClass().getMethods();
         Class returnType = null;
@@ -145,58 +149,67 @@ public class JDissolver {
                 if (each.run(json, method, returnType, annos)) continue;
             }
 
-            if (Sets.isSameAny(returnType, STRING_TYPE)) {
-                Object obj = method.invoke(entity);
-                if (obj != null) json.put(fieldName, obj);
-            }else if (returnType == Calendar.class) {
-                Object obj = method.invoke(entity);
-                if (obj != null) json.put(fieldName, Days.DATE.get((Calendar) obj));
-            } else if (returnType == Date.class) {
-                Object obj = method.invoke(entity);
-                if (obj != null) json.put(fieldName, Days.DATE.get((Date) obj));
-            } else if(Pair.class.isAssignableFrom(returnType)) {  //Enum보다 Pair를 먼저 체크한다.
-                Pair pair = (Pair)method.invoke(entity);
-                if (pair != null){
-                    json.put(fieldName + "Name",pair.getName());
-                    json.put(fieldName,pair.getValue());
-                }
-            } else if (returnType.isEnum()) {
-                Enum num = (Enum) method.invoke(entity);
-                if(num == null) continue;
-                json.put(fieldName + "Name", num.toString());
-                json.put(fieldName, num.name());
-            }else if (Sets.isInstanceAny(annos, ManyToOne.class)) {
-                Object obj = method.invoke(entity);
-                if(obj==null) continue; 
-                if(!Hibernate.isInitialized(obj)){
-                    if(obj instanceof EntityId){
-                        //EntityId temp = (EntityId)obj;
-                    	//캐스팅하면 id만 불러올때 세션을 읽어 쿼리를 날려버린다. (이전 버전에선 가능했다.) 따라서 리플렉션으로 불러오자.
-                        Object id = Clazz.getObject(obj, EntityId.ID_NAME);
-                        if(id==null) continue;
-                        JSONObject proxy = new JSONObject();
-                        proxy.put("id", id);
-                        json.put(fieldName,proxy);
-                        //Flex 게시판 등의 단일 뎁스를 위해준비.
-                        json.put(fieldName+"Id",id);
-                    }
-                }else json.put(fieldName,getByDomain(obj));
-            } else if (Sets.isInstanceAny(annos, OracleListString.class)) {
-                Object obj = method.invoke(entity);
-                if(!Hibernate.isInitialized(obj)) continue;
-                json.put(fieldName, Sets.getOracleStr((List) obj));
-            } else if (Sets.isInstanceAny(annos, OneToMany.class, CollectionOfElements.class,ManyToMany.class)) {
-                JSONArray jsonArray = new JSONArray();
-                Collection sublist = (Collection) method.invoke(entity);
-                if(!Hibernate.isInitialized(sublist)) continue;
-                for(Object object : sublist){
-                    if (object instanceof String) jsonArray.add(object.toString()); //스트링 배열일경우 
-                    else jsonArray.add(getByDomain(object));
-                }
-                json.put(fieldName, jsonArray);
-            }
+            try {
+            	if (returnType == String.class) { //이놈은 특별히 이스케이핑 해준다.
+            		String obj = (String)method.invoke(entity);
+				    if (obj != null) json.put(fieldName,Encoders.escapeFlex(obj));
+            	}else if (Sets.isSameAny(returnType, STRING_TYPE)) {
+				    Object obj = method.invoke(entity);
+				    if (obj != null) json.put(fieldName, obj);
+				}else if (returnType == Calendar.class) {
+				    Object obj = method.invoke(entity);
+				    if (obj != null) json.put(fieldName, Days.DATE.get((Calendar) obj));
+				} else if (returnType == Date.class) {
+				    Object obj = method.invoke(entity);
+				    if (obj != null) json.put(fieldName, Days.DATE.get((Date) obj)); //DATE_SIMPLE가 더 나은듯??
+				} else if (ValueObject.class.isAssignableFrom(returnType)) {
+					ValueObject obj = (ValueObject)method.invoke(entity);
+				    if (obj != null) json.put(fieldName, obj.returnValue());
+				} else if(Pair.class.isAssignableFrom(returnType)) {  //Enum보다 Pair를 먼저 체크한다.
+				    Pair pair = (Pair)method.invoke(entity);
+				    if (pair != null){
+				        json.put(fieldName + "Name",pair.getName());
+				        json.put(fieldName,pair.getValue());
+				    }
+				} else if (returnType.isEnum()) {
+				    Enum num = (Enum) method.invoke(entity);
+				    if(num == null) continue;
+				    json.put(fieldName + "Name", num.toString());
+				    json.put(fieldName, num.name());
+				} else if (Sets.isInstanceAny(annos, OracleListString.class)) {
+				    Object obj = method.invoke(entity);
+				    if(!Hibernate.isInitialized(obj)) continue;
+				    json.put(fieldName, Sets.getOracleStr((List) obj));                
+				}else if (recursive && Sets.isInstanceAny(annos, ManyToOne.class)) {
+				    Object obj = method.invoke(entity);
+				    if(obj==null) continue;
+				    if(obj instanceof EntityId){
+			        	//캐스팅하면 id만 불러올때 세션을 읽어 쿼리를 날려버린다. (이전 버전에선 가능했다.) 따라서 리플렉션으로 불러오자.
+			            Object id = Clazz.getObject(obj, EntityId.ID_NAME);
+			            if(id==null) continue;
+			            JSONObject proxy = new JSONObject();
+			            proxy.put("id", id);
+			            json.put(fieldName,proxy);
+			            //Flex 게시판 등의 단일 뎁스를 위해준비.
+			            json.put(fieldName+"Id",id);
+			        }
+				    //재귀 호출이라도 Hibernate가 init되지 않았다면 재귀를 멈춘다.
+				    if(Hibernate.isInitialized(obj)) json.put(fieldName,getByDomain(obj,true));
+				} else if (recursive && Sets.isInstanceAny(annos, OneToMany.class, CollectionOfElements.class,ManyToMany.class)) {
+				    JSONArray jsonArray = new JSONArray();
+				    Collection sublist = (Collection) method.invoke(entity);
+				    if(!Hibernate.isInitialized(sublist)) continue;
+				    for(Object object : sublist){
+				    	if(object==null) continue;
+				        if (object instanceof String) jsonArray.add(object.toString()); //스트링 배열일경우 
+				        else jsonArray.add(getByDomain(object,true));
+				    }
+				    json.put(fieldName, jsonArray);
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
         }
-        return json;
     }
 
     @SuppressWarnings("unchecked")
@@ -233,5 +246,7 @@ public class JDissolver {
         SearchMap map = new SearchMap(request);
         return JDissolver.instance().getByMap(map).toString();
     }
+    
+    
 
 }

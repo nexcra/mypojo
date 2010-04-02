@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.web.context.ContextLoader;
 
+import erwins.util.lib.Clazz;
+
 public class Springs {
 	
 	/** jdbc의 result맵을 Map으로 변형해준다. 리턴값은 가능하다면 apache의 ListOrderedMap를 리턴한다. */
@@ -31,21 +33,9 @@ public class Springs {
 	
 	/** AOP를 사용할때 aop가 걸린 메소드의 annotation을 가져온다. */
 	@SuppressWarnings("unchecked")
-	public static <T extends Annotation> T getAnnotaion(JoinPoint joinPoint,Class<T> clazz) {
-		Object[] args = joinPoint.getArgs();
-		Class[] argsClazz = new Class[args.length];
-		for(int i=0;i<args.length;i++){
-			argsClazz[i] = args[i].getClass();
-		}
-		Class cc = joinPoint.getTarget().getClass();
-		Method m = null;
-		try {
-			m = cc.getMethod(joinPoint.getSignature().getName(), argsClazz);
-		} catch (SecurityException e) {
-			throw new RuntimeException(e);
-		} catch (NoSuchMethodException e) {
-			throw new RuntimeException(e);
-		}
-		return m.getAnnotation(clazz);
+	public static <T extends Annotation> T getAnnotaion(JoinPoint joinPoint,Class<T> annoClazz) {
+		Class clazz = joinPoint.getTarget().getClass();
+		Method m = Clazz.getMethodByName(clazz, joinPoint.getSignature().getName(), joinPoint.getArgs().length);
+		return m.getAnnotation(annoClazz);
 	}
 }

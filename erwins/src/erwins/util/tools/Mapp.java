@@ -17,16 +17,13 @@ import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import erwins.util.lib.Clazz;
 import erwins.util.lib.Maths;
 import erwins.util.lib.RegEx;
 import erwins.util.lib.Strings;
 import erwins.util.morph.JDissolver;
 import erwins.util.openApi.Google;
+import erwins.util.vender.apache.Log;
 
 
 /**
@@ -38,7 +35,7 @@ import erwins.util.openApi.Google;
 
 public class Mapp extends MappRoot {
     
-    protected Log log = LogFactory.getLog(this.getClass());
+    protected Log log = new Log(this.getClass());
     
     public Mapp(){}
     
@@ -63,7 +60,7 @@ public class Mapp extends MappRoot {
             while(parameterNames.hasMoreElements()){
                 String name = parameterNames.nextElement();
                 String[] values = req.getParameterValues(name);
-                //if(values!=null) continue;                
+                if(values.length==0) continue;                
                 if(values.length==1){
                     if(values[0].equals("")) empty.add(name);                       
                     else parameter.put(name, values[0]);                     
@@ -73,15 +70,9 @@ public class Mapp extends MappRoot {
                     parameters.put(name, array);
                 }
             }
-            
-            log.debug("======== HTML Parameter ============");
-            log.debug("== NAMED.. BUT EMPTY : " + Strings.joinTemp(empty,","));
-            if(parameter.keys().hasNext()){
-                log.debug("== SINGLE PARAMETER : " + parameter);
-            }
-            if(parameters.keys().hasNext()){
-                log.debug("== TWO OR MORE PARAMETERS : " + parameters);
-            }
+            if(empty.size()!=0) log.debug("[HTML] Named.. But Empty : " + Strings.joinTemp(empty,","));
+            if(!parameter.isEmpty()) log.debug("[HTML] Single Parameter : " + parameter);
+            if(!parameter.isEmpty()) log.debug("[HTML] Array Parameters : " + parameters);
         }
 
     }

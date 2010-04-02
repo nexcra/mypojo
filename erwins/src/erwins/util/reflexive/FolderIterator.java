@@ -8,7 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 
 
-/** 전체 트리구조를 따라 File을 리턴한다. Files와 다른 점은 중간 디렉토리도 포함한다는 점이다. */
+/** 전체 트리구조를 따라 File을 리턴한다. Files와 다른 점은 중간 디렉토리도 포함한다는 점이다. =>필요가 거의 없는듯. */
+//@Deprecated
 public class FolderIterator implements Iterator<File>{
 	
 	private static final FileFilter ALL_PASS = new FileFilter(){

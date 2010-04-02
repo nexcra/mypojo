@@ -3,8 +3,10 @@ package erwins.util.vender.hibernate;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.hibernate.Criteria;
@@ -16,6 +18,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import erwins.util.exception.MalformedException;
 import erwins.util.lib.Clazz;
 import erwins.util.lib.Sets;
 import erwins.util.lib.Strings;
@@ -50,7 +53,7 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
      **/
     public void flush(){
         getSession().flush();
-    }    
+    }
     
     /** Flush 이후 메모리(1차캐시?)에서 삭제한다. */
     public void flushAndClear(){
@@ -117,8 +120,7 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     // ===========================================================================================
 
     /**
-     * 페이징 등에서 사용될 전체 카운트 수
-     * 복잡한 검색은 iBatis를 사용하고 아니라면 이것을 사용한다.
+     * 페이징 등에서 사용될 전체 카운트 수  근데 int?? ㅠㅠ
      **/
     protected int count(Criterion... criterion) {
         Criteria crit = getSession().createCriteria(getPersistentClass()).setProjection(
@@ -126,6 +128,12 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
                 );
         if(criterion != null) for (Criterion c : criterion) crit.add(c); //null이면 무시
         return Sets.getResultInt(crit.list());
+    }
+    
+    /** 살작 복잡한 카운트. */
+    protected long count(HqlBuilder hql) {
+    	Query query = hql.query(getSession());
+        return (Long)query.uniqueResult();
     }
     
     /** 주어진 조건에 해당하는 자료가 1건 이상 있는지? */
@@ -153,7 +161,31 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         }
         Integer count = Sets.getResultCount(query.list()).intValue();
         return count > 0 ? true : false; 
-    }    
+    }
+    
+    /** 자연키 중복 여부를 테스트한다. => 어떤게 중복인지 알 수 없네 ㅅㅂ. 쓰지 말것. */
+    protected List<Object[]> natureKeyValidate(String ... natureKeys) {
+    	String sqlPiece = Strings.joinTemp(natureKeys,",");
+    	HqlBuilder hql = new HqlBuilderRoot();
+    	hql.select("count(*),"+sqlPiece).from(getPersistentClass().getSimpleName())
+    		.groupBy(sqlPiece+" having count(*) > 1");
+    	List<Object[]> result = queryForObjectArray(hql);
+    	if(result.size()==0) return null;
+    	return result;
+    }
+    
+    /** 자연키가 중복되면 MalformedException 예외를 일으킨다. */
+    protected void natureKeyValidateThrowException(String ... natureKeys) {
+    	List<Object[]> result = natureKeyValidate(natureKeys);
+		if(result!=null){
+			String header = "count(*)|" +  Strings.joinTemp(natureKeys, "|") + "\n";
+			StringBuilder builder = new StringBuilder(header);
+			for(Object[] each : result){
+				builder.append(Strings.joinTemp(each,"|"));
+			}
+			throw new MalformedException(builder.toString());
+		}
+    }
     
     // ===========================================================================================
     //                                      find
@@ -222,8 +254,8 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     		Clazz.setObject(proxy, EntityId.ID_NAME, id);
     		return proxy;
     	}
-    	else throw new IllegalStateException(list.size()+" collection nust be unique or zero size");
-    }        
+    	else throw new IllegalStateException(list.size()+" collection must be unique or zero size");
+    }
 
     // ===========================================================================================
     //                                    기타 공용
@@ -246,7 +278,7 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
             q.setMaxResults(map.getPagingSize());            
         }
     	return q.list();
-    }    
+    }
     
     // ===========================================================================================
     //                                      Criterion
@@ -262,7 +294,7 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     	Criteria crit = getSession().createCriteria(getPersistentClass());
     	if(cache) crit.setCacheable(true);
         for (Criterion c : criterion)  crit.add(c);
-        for (Order c : getDefaultOrder()) crit.addOrder(c);
+        for (Order c : defaultOrder()) crit.addOrder(c);
         crit.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);  //Set등의 배열이 있을 경우~
         return crit.list();
     }
@@ -277,34 +309,23 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     }
     
     /** 조인 같은거 안됨~ 간단한거만 사용. */
-    protected void findBy(SearchMap map,CriteriaBuilder c) {
+    protected void findBy(CriteriaBuilder c) {
         Criteria criteria = getCriteria();
-        for (Order each : getDefaultOrder()) criteria.addOrder(each);
+        SearchMap map = c.getMap();
+        for (Order each : defaultOrder()) criteria.addOrder(each);
         criteria.add(c.get());
         if(map.isPaging()){
             map.setTotalCount(count(c.get()));
             criteria.setFirstResult(map.getSkipResults());
             criteria.setMaxResults(map.getPagingSize());            
         }
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         map.setResult(criteria.list());
-    }       
-    
-    /** totalCount기능 없음. 단순 페이징 처리만 됨. */
-    @Deprecated
-    protected List<Entity> findBy(SearchMap map,Criterion ... criterion) {
-        Criteria criteria = getCriteria();
-        for (Order each : getDefaultOrder()) criteria.addOrder(each);
-        for (Criterion c : criterion)  criteria.add(c);
-        if(map.isPaging()){
-            criteria.setFirstResult(map.getSkipResults());
-            criteria.setMaxResults(map.getPagingSize());            
-        }
-        return criteria.list();
-   }
+    }
     
     /** 프로시저 호출 */
     @Deprecated
-    protected void callSP() {        
+    protected void callSP(){
         //"{ call PG_DBR_CONNECT.SP_RECEIPT () }"
     }
     
@@ -347,6 +368,22 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         return query.list();
     }
     
+    /** 통계 작성 등에 사용된다. */
+    protected List<Object[]> queryForObjectArray(HqlBuilder hql) {
+        Query query = hql.query(getSession());
+        return query.list();
+    }
+    
+    /** 결과 배열을 key,value의 Flate한 Map으로 변환한다. select구문에 반드시 2개(나무지는 무시)만 들어가야 한다. */
+    protected Map<String,Object> queryForFlatMap(HqlBuilder hql) {
+    	List<Object[]> result = queryForObjectArray(hql);
+    	Map<String,Object> map = new HashMap<String,Object>();
+    	for(Object[] each : result){
+    		map.put(each[0].toString(),each[1]);
+    	}
+        return map;
+    }        
+    
     /** map없이 사용할때. */
     protected Entity queryUnique(HqlBuilder hql) {
         Query query = hql.query(getSession());
@@ -385,8 +422,8 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     //                                        서브클래스에서 구현하시오.
     // ===========================================================================================
 
-    /** 오버라이드 해서 사용.  안쓰는데도 있으니 abstract는 안달았음. */
-    protected Order[] getDefaultOrder(){
+    /** 오버라이드 해서 사용. findBy에만 사용된다.  안쓰는데도 있으니 abstract는 안달았음. */
+    protected Order[] defaultOrder(){
         return new Order[0];
     }
     

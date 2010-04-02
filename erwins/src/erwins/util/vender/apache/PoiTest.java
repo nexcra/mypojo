@@ -1,11 +1,14 @@
 package erwins.util.vender.apache;
 
 import java.io.File;
+import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.Test;
 
+import erwins.util.exception.Val;
 import erwins.util.lib.Files;
+import erwins.util.vender.apache.PoiSheetReader.StringMapPoiCallback;
 
 
 
@@ -21,11 +24,10 @@ public class PoiTest{
     public void test(){
         addSheet();
         readAndWrite();
+        readAndConfirm();
     }
     
-    /**
-     * 다중 시트 추가를 테스트한다.
-     */
+    /** 다중 시트 추가를 테스트한다. */
     public void addSheet(){
         
         Poi poi = new Poi();
@@ -47,7 +49,6 @@ public class PoiTest{
         poi.setComments("물질정보에 등록한 단위규격에 맟주어 출고량을 입력해 주세요.", 0, 0, 2);
         
         poi.write(TEST1);
-        
     }
     
     public void readAndWrite(){
@@ -57,6 +58,22 @@ public class PoiTest{
         poi.setStyle(poi.BODY_Left,0,2);
         poi.setStyle(poi.BODY_Right,0,1);
         poi.write(TEST2);
+    }
+    
+    public void readAndConfirm(){
+    	int count = 0;
+		PoiReader reader = new PoiReader(TEST2);
+		for(PoiSheetReader each : reader){
+			count++;
+			Val.isEquals("국가코드표", each.getSheetName());
+			each.read(new StringMapPoiCallback(){
+				@Override
+				protected void process(Map<String, String> line) {
+					//아무것도 하지 않는다.
+				}
+			});
+		}
+		Val.isEquals(count,1);
     }
     
     @AfterClass

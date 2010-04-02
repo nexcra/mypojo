@@ -1,15 +1,29 @@
 
 package erwins.util.vender.apache;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
+import org.apache.poi.hssf.usermodel.HSSFComment;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFPatriarch;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.hssf.util.Region;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
 
 import erwins.util.tools.Mapp;
 
@@ -18,22 +32,19 @@ import erwins.util.tools.Mapp;
  * @author  erwins(my.pojo@gmail.com)
  */
 public abstract class PoiRoot{
-    
-    /**
-     * @uml.property  name="wb"
-     */
+	
     protected HSSFWorkbook wb ;
     
     /** Header에 사용되는 스타일 */
-    protected HSSFCellStyle HEADER;
+    protected CellStyle HEADER;
     
     /** 수정 하지 말라는 뜻의? 회색 블록 */
-    public HSSFCellStyle GRAY;
+    public CellStyle GRAY;
     
     /** thin 테두리를 가지는 일반적인 블록 */
-    protected HSSFCellStyle BODY;
-    public HSSFCellStyle BODY_Left;
-    public HSSFCellStyle BODY_Right;
+    protected CellStyle BODY;
+    public CellStyle BODY_Left;
+    public CellStyle BODY_Right;
     
     protected HSSFFont font;
     
@@ -58,7 +69,7 @@ public abstract class PoiRoot{
         
         HEADER = wb.createCellStyle();
         HEADER.setFillForegroundColor(HSSFColor.YELLOW.index);
-        HEADER.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        HEADER.setFillPattern(CellStyle.SOLID_FOREGROUND);
         HEADER.setVerticalAlignment((short)1);  //중앙정렬..
         HEADER.setAlignment((short)2);  //중앙정렬..
         boxing(HEADER);   
@@ -82,7 +93,7 @@ public abstract class PoiRoot{
         
         GRAY = wb.createCellStyle();
         GRAY.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
-        GRAY.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        GRAY.setFillPattern(CellStyle.SOLID_FOREGROUND);
         boxing(GRAY);
         GRAY.setFont(font);
         
@@ -92,15 +103,15 @@ public abstract class PoiRoot{
     /**
      * 스타일에 박스테두리 삽입 
      */
-    private static void boxing(HSSFCellStyle style){
+    private static void boxing(CellStyle style){
         //cellStyle.setWrapText( true ); //ㅋㅋ 박스안에 다넣기
-        style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+        style.setBorderBottom(CellStyle.BORDER_THIN);
         style.setBottomBorderColor(HSSFColor.BLACK.index);
-        style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+        style.setBorderLeft(CellStyle.BORDER_THIN);
         style.setLeftBorderColor(HSSFColor.BLACK.index);
-        style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+        style.setBorderRight(CellStyle.BORDER_THIN);
         style.setRightBorderColor(HSSFColor.BLACK.index);
-        style.setBorderTop(HSSFCellStyle.BORDER_THIN);
+        style.setBorderTop(CellStyle.BORDER_THIN);
         style.setTopBorderColor(HSSFColor.BLACK.index);
         style.setAlignment((short)1);
     }    
@@ -134,18 +145,19 @@ public abstract class PoiRoot{
      * 개별 체크로.. 부하가 약간 있을 수 있음.
      * sheet1.autoSizeColumn((short)5); //한글이라그런기? 약간 작게 설정된다.
      */    
-    @SuppressWarnings("unchecked")
+    @Deprecated
     private void wrapSheet(int index){
         HSSFSheet sheet =  wb.getSheetAt(index);
         Mapp map = new Mapp();
         
-        for (Iterator<HSSFRow> rows = sheet.rowIterator(); rows.hasNext(); ) {
-            HSSFRow thisRow = rows.next();
-            for (Iterator<HSSFCell> cells = thisRow.cellIterator(); cells.hasNext(); ) {
-                HSSFCell thisCell=  cells.next();
+        for (Iterator<Row> rows = sheet.rowIterator(); rows.hasNext(); ) {
+            Row thisRow = rows.next();
+            for (Iterator<Cell> cells = thisRow.cellIterator(); cells.hasNext(); ) {
+                Cell thisCell=  cells.next();
                 String value = thisCell.getRichStringCellValue().getString();
                 int length = value.length();
-                map.putMaxInteger(thisCell.getCellNum(), length);
+                //map.putMaxInteger(thisCell.getCellNum(), length);  //????????????
+                map.putMaxInteger(thisCell.getColumnIndex(), length);  //임시변통 테스트 안해봄
                 if(thisRow.getRowNum() < headerRowCount.get(index)){
                     thisCell.setCellStyle(HEADER);
                 }else{
@@ -154,11 +166,11 @@ public abstract class PoiRoot{
             }
         }
         for(Object key : map.keySet()){
-            Short sho = (Short)key;
+            Integer sho = (Integer)key;
             Integer length = map.getInteger(key);
             if(length > 20) length = 20; //맥스 제한..
             if(length > 4)
-                sheet.setColumnWidth(sho,(short)(length * font11)); //한글 한글자당 550정도?
+                sheet.setColumnWidth(sho,length * font11); //한글 한글자당 550정도?
         }
     }
     
@@ -167,24 +179,23 @@ public abstract class PoiRoot{
      * wrap이 적용된 후 사용하자. 600*50정도 사이즈면 화면을 가득 채운다.
      */
     public void setColumnWidth(int index,int col,int size){
-        wb.getSheetAt(index).setColumnWidth((short)col, (short)size);
+        wb.getSheetAt(index).setColumnWidth(col,size);
     }
     
     /**
      * wrap이 적용된 후 사용하자.
-     * 강제 정렬 등의 HSSFCellStyle을 조절할때 사용하자.
+     * 강제 정렬 등의 CellStyle을 조절할때 사용하자.
      * 헤더값 int를 피할려 그랬더니 file에서 로드하는거는 안되네. ㅠ 
      * 스타일이 Header와 배경이 같은것은 무시된다.
      */
-    @SuppressWarnings("unchecked")
-    public void setStyle(HSSFCellStyle style,int index,int ... cols){
+    public void setStyle(CellStyle style,int index,int ... cols){
         HSSFSheet sheet =  wb.getSheetAt(index);
         int headerSize =  headerRowCount.size() > index ? headerRowCount.get(index) : 0;
-        for (Iterator<HSSFRow> rows = sheet.rowIterator(); rows.hasNext(); ) {
-            HSSFRow thisRow = rows.next();
+        for (Iterator<Row> rows = sheet.rowIterator(); rows.hasNext(); ) {
+            Row thisRow = rows.next();
             if(thisRow.getRowNum() < headerSize) continue;
             for(int i : cols){
-                HSSFCell thisCell=  thisRow.getCell(i);
+                Cell thisCell=  thisRow.getCell(i);
                 thisCell.setCellStyle(style);
             }
         }
@@ -202,9 +213,9 @@ public abstract class PoiRoot{
         if(patr == null) patr = sheet.createDrawingPatriarch();
         patriarchMap.put(sheetInd, patr);
         
-        HSSFRow row = sheet.getRow (rowNum);
+        Row row = sheet.getRow (rowNum);
         for (int column : columns) {
-            HSSFCell cell = row.getCell(column);
+            Cell cell = row.getCell(column);
             HSSFComment comment = patr.createComment(new HSSFClientAnchor(0, 0, 0, 0, (short)4, 2, (short) 7, 6));
             comment.setString(new HSSFRichTextString(str)); 
             //comment1.setAuthor("한국환경자원공사");
@@ -215,11 +226,11 @@ public abstract class PoiRoot{
     /**
      * 특정 시트의 X,Y로 부터 셀을 리턴
      */
-    public HSSFCell findCell(int sheetInd,int x,int y){
+    public Cell findCell(int sheetInd,int x,int y){
         HSSFSheet sheet = wb.getSheetAt(sheetInd);
-        HSSFRow row = sheet.getRow(y);
+        Row row = sheet.getRow(y);
         if(row==null) row = sheet.createRow(y);
-        HSSFCell cell = row.getCell(x);
+        Cell cell = row.getCell(x);
         if(cell==null) cell = row.createCell((short)x);
         return cell;
     }
@@ -253,7 +264,7 @@ public abstract class PoiRoot{
         private String[] lastValues = new String[100];
         private Integer[] startRows = new Integer[100];
         private HSSFSheet sheet;
-        private HSSFRow row;
+        private Row row;
         private Integer startCol;
         private String lastValue = "";
         
@@ -264,15 +275,15 @@ public abstract class PoiRoot{
             this.sheet = sheet;
         }
         
-        @SuppressWarnings("unchecked")
         public void merge(){
-            for (Iterator<HSSFRow> rows = sheet.rowIterator(); rows.hasNext(); ) {
+            for (Iterator<Row> rows = sheet.rowIterator(); rows.hasNext(); ) {
                 row = rows.next();
                 int rowIndex = row.getRowNum();
                 
-                for (Iterator<HSSFCell> cells = row.cellIterator(); cells.hasNext(); ) {
-                    HSSFCell thisCell =  cells.next();
-                    int colIndex = thisCell.getCellNum();                   
+                for (Iterator<Cell> cells = row.cellIterator(); cells.hasNext(); ) {
+                    Cell thisCell =  cells.next();
+                    //int colIndex = thisCell.getCellNum(); //?????????????????
+                    int colIndex = thisCell.getColumnIndex();                   
                     String value = thisCell.getRichStringCellValue().getString();                    
                     mergeCol(rowIndex,colIndex, value);
                     mergeRow(rows, rowIndex, colIndex, value);
@@ -284,7 +295,8 @@ public abstract class PoiRoot{
         /**
          * 이전 값과 비교하여 merge를 결정한다. 
          */
-        private void mergeCol(int rowIndex, int colIndex, String value) {
+        @SuppressWarnings("deprecation")
+		private void mergeCol(int rowIndex, int colIndex, String value) {
             if(!isColMergeAble(rowIndex)) return;
             if(lastValue.equals(value)){
                 if(startCol == null ) startCol = colIndex-1;
@@ -326,7 +338,8 @@ public abstract class PoiRoot{
          * 이전 값과 비교하여 merge를 결정한다. 
          * 세로 방향의 값을 머지한다.
          */        
-        private void mergeRow(Iterator<HSSFRow> rows, int rowIndex, int colIndex, String value) {
+        @SuppressWarnings("deprecation")
+		private void mergeRow(Iterator<Row> rows, int rowIndex, int colIndex, String value) {
             if(!isRowMergeAble(rowIndex,colIndex)) return;            
             if(value.equals(lastValues[colIndex])){
                 if(startRows[colIndex] == null ) startRows[colIndex] = rowIndex - 1; //최초 설정.

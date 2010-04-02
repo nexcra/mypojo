@@ -72,15 +72,17 @@ public class JSBuilder{
      * 기본세팅
      */
     public enum JsonTemplit{
-        /** Enum을 매핑한다. ex) Enum(SomeType) */
+        /** Enum을 매핑한다. ex) Enum(SomeType,false)
+         * 2번째 인자는 All(전체)를 넣을지 말지를 결정한다. 디폴트는 true이다. 
+         * */
         Enum(new JsonCommand("Enum"){
             @Override
             public void build(JSONObject root, String key) {
-                String enumName = Strings.substringsBetween(key,"(",")")[0];
-                //String className = "erwins.myPage.enums." + enumName;
-                String className = enumName;
-                JSONArray array = get((Pair[])Clazz.getEnums(className),true);
-                root.put(enumName,array);
+                String argsString = Strings.substringsBetween(key,"(",")")[0];
+                String[] args = argsString.split(",");
+                boolean all = args.length >  1 && args[1].equals("false") ? false : true;
+                JSONArray array = get((Pair[])Clazz.getEnums(args[0]),all);
+                root.put(args[0],array);
             }
         });
         

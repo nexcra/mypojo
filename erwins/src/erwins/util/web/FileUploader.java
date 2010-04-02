@@ -2,7 +2,9 @@
 package erwins.util.web;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -22,10 +24,12 @@ import erwins.util.lib.Files;
  * 추후 command를 넣어서 밸리데이션 체크를 하자.
  * 인코딩은 브라우저 jsp설정과 연관되는듯 하다.
  */
-public class FileUploader {
+public class FileUploader implements Iterable<File>{
     
+	public static final String FILE_NAME = "Filename";
     private HttpServletRequest req;
     private Map<String,String> map = new HashMap<String,String>();
+    private List<File> uploadedFiles = new ArrayList<File>();
     private FileFilter filter;
     private String encoding = "UTF-8";
     private int maxMb = 1024*2;
@@ -61,7 +65,7 @@ public class FileUploader {
             for(Object aItem : items) {
                 item = (FileItem)aItem;
                 if(item.isFormField()) {
-                    map.put(item.getFieldName(), item.getString());
+                    map.put(item.getFieldName(), item.getString(encoding));
                 }else{
                     String file = item.getName();
                     file = file.substring(file.lastIndexOf(File.separator) + 1);
@@ -69,6 +73,7 @@ public class FileUploader {
                     uploadedFile = Files.uniqueFileName(uploadedFile);
                     if(filter != null && !filter.isStorable(uploadedFile)) continue;
                     item.write(uploadedFile);
+                    uploadedFiles.add(uploadedFile);
                     //fileItem.get();  //메모리에 모두 할당
                 }
             }
@@ -96,5 +101,10 @@ public class FileUploader {
         /** false를 리턴하면 저장하지 않는다. */
         public boolean isStorable(File file);
     }
+
+	@Override
+	public Iterator<File> iterator() {
+		return uploadedFiles.iterator();
+	}
 
 }

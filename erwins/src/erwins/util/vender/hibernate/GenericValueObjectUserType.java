@@ -12,7 +12,7 @@ import erwins.util.valueObject.ValueObject;
 public abstract class GenericValueObjectUserType<T extends ValueObject> extends GenericRootUserType {
 
 	public T nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
-		if(rs.wasNull()) return null;
+		//if(rs.wasNull()) return null; //이거 뭔지??
 		Object value = rs.getObject(names[0]);
 		if(value==null) return null;
 		T instance = Clazz.instance(returnedClass());

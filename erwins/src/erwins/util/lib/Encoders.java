@@ -42,7 +42,7 @@ public abstract class Encoders extends StringEscapeUtils {
      */
     public static String escapeFlex(String str) {
         //return escapeXml(escapeJavaScript(str));
-        return escapeXml(str.replaceAll("\"", "'"));
+        return escapeXml(str.replaceAll("\"", "'"));  //replaceAll이 먼지 기억이 안난다... ㄷㄷ
     }
     
     /** \는 제외. */

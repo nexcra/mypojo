@@ -7,11 +7,15 @@ import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
+
+import erwins.util.root.Pair;
+import erwins.util.valueObject.ValueObject;
 
 /**
  * 리플렉션 관련 Util
@@ -76,6 +80,23 @@ public abstract class Clazz {
     public static <T extends Enum> T getEnum(Class<T> clazz,String name){
         if(!clazz.isEnum()) throw new RuntimeException(clazz + " is not Enum");
         return (T) Enum.valueOf((Class<Enum>)clazz, name);
+    }
+    
+    /** 파라메터가 없는/ 참조 객체(또는 래퍼)가 아닌 getter 메소드를 리턴한다. */
+    public static List<Method> getGetters(Class<?> clazz){
+    	List<Method> result = new ArrayList<Method>();
+    	Method[] methods = clazz.getMethods();
+    	for (Method method : methods) {
+            String name = method.getName();
+            String fieldName = Strings.getterName(name);
+            if (fieldName == null) continue;
+            if(method.getParameterTypes().length!=0) continue;
+            Class<?> returnType = method.getReturnType();
+            if(returnType.isPrimitive() || String.class.isAssignableFrom(returnType)  || Date.class.isAssignableFrom(returnType)
+            		|| Number.class.isAssignableFrom(returnType)|| ValueObject.class.isAssignableFrom(returnType)
+            		|| Pair.class.isAssignableFrom(returnType) || Boolean.class.isAssignableFrom(returnType)) result.add(method);
+    	}
+    	return result;
     }
 
     /**
@@ -268,6 +289,14 @@ public abstract class Clazz {
 			}
     	} 
     	return getter;
+    }
+    
+    /** 메소드 이름과 args의 수 만으로 메소드를 찾아낸다. 특수목적용 */
+	public static Method getMethodByName(Class<?> clazz,String name,int argsSize){
+    	Method[] methods = clazz.getMethods();
+    	for(Method method : methods)
+    		if(method.getName().equals(name) && method.getParameterTypes().length==argsSize) return method;
+    	return null;
     }
     
     

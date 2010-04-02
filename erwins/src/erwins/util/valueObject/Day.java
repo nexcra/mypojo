@@ -1,6 +1,7 @@
 package erwins.util.valueObject;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import erwins.util.lib.Days;
 import erwins.util.lib.Strings;
@@ -8,7 +9,7 @@ import erwins.util.lib.Strings;
 /**
  * yyyyMMdd 스타일의 8자리 일자를 나타낸다. 불변객체 아님. ㅠㅠ
  */
-public class Day implements ValueObject {
+public class Day implements ValueObject,Comparable<Day> {
 
 	public static Day now() {
 		String yyyyMMdd = Days.DATE_FOR_DB.get();
@@ -70,6 +71,7 @@ public class Day implements ValueObject {
 
 	@Override
 	public void initValue(Object obj) {
+		if(obj instanceof Date) obj = Days.DATE_FOR_DB.get((Date)obj);
 		String yyyyMMdd = Strings.getNumericStr(obj);
 		if (yyyyMMdd.length() != 8)
 			throw new RuntimeException(yyyyMMdd + " : day lenth must be 8!");
@@ -88,6 +90,24 @@ public class Day implements ValueObject {
 
 	public String getYear() {
 		return year;
+	}
+
+	/** 더 큰가? null이거나 동일할 경우 기본값은 false이다. */
+	public boolean isLarge(Day o) {
+		return this.isLarge(o, false);
+	}
+	
+	/** 더 큰가? */
+	public boolean isLarge(Day o,boolean same) {
+		if(o==null) return same;
+		int compare = this.compareTo(o);
+		if(compare==0) return same;
+		return compare > 0; 
+	}
+
+	@Override
+	public int compareTo(Day o) {
+		return this.returnValue().toString().compareTo(o.returnValue().toString());
 	}
 
 }

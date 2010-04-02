@@ -7,11 +7,15 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
@@ -20,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.CollectionOfElements;
 
+import erwins.util.exception.MalformedException;
 import erwins.util.lib.Clazz;
 import erwins.util.lib.Sets;
 import erwins.util.lib.Strings;
@@ -74,6 +79,11 @@ public class Dissolver{
     }
     public <T> T getBean(Mapp map,Class<T> clazz){
     	return new BeanDissolver<T>(map).get(clazz);
+    }
+    public <T> T getBean(Map<?,?> map,Class<T> clazz){
+    	Mapp mapp = new Mapp();
+    	mapp.putAll(map);
+    	return new BeanDissolver<T>(mapp).get(clazz);
     }
     
     private class BeanDissolver<T>{
@@ -181,11 +191,27 @@ public class Dissolver{
                         subEntitylist.add(idEntity);
                     }
                     method.invoke(entity, subEntitylist);
-                }else if(Sets.isInstanceAny(annos,OneToMany.class,CollectionOfElements.class)){
+                }else if(Sets.isInstanceAny(annos,OneToMany.class,CollectionOfElements.class)){ //List만 된다. 주의!
                     
-                    String preFix = fieldName; 
-                    
+                    String preFix = fieldName;
                     Class<?> subEntityClass =  Clazz.getSetterGeneric(method);
+                    
+                    //enum일 경우 부가옵션.
+                    if(Sets.isInstanceAny(annos,Enumerated.class)){
+                    	Collection<Enum> c;
+                    	if(Set.class.isAssignableFrom(setterType)) c = new HashSet();
+                    	else if(Set.class.isAssignableFrom(setterType)) c = new ArrayList();
+                    	else throw new MalformedException(setterType+ "is not required class");
+                    	
+                    	Enumerated enumerated = Sets.getInstance(annos, Enumerated.class);
+                    	if(enumerated.value().equals(EnumType.STRING)){
+                    		String fieldName =  preFix + ".string";
+                        	String[] values = map.getStrs(fieldName);
+                        	for(String eachEnum : values) c.add(Clazz.getEnum((Class<Enum>)subEntityClass, eachEnum));
+                    	}else throw new RuntimeException("sorry. not supported args (EnumType)~ ^^;");
+                    	method.invoke(entity, c);
+                    }
+                    
                     List<?> subEntitylist = null;
                     
                     Method[] subMethods = subEntityClass.getMethods();

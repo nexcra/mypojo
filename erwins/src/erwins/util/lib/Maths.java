@@ -233,6 +233,17 @@ public enum Maths {
         }
         return list;
     }
+    
+    /** null과 Number가 아닌덧을 무시하고 더하는 로직. 소수점 이하는 더할 수 없다. */
+    public static long sum(Object ... datas) {
+    	long sum = 0;
+    	for(Object each : datas){
+    		if(each==null) continue;
+    		if(!(each instanceof Number)) continue; 
+    		sum+= ((Number)each).longValue();
+    	}
+    	return sum;
+    }
 
     /**
      * <p>빠른 m^e mod n 연산을 수행한다.</p>

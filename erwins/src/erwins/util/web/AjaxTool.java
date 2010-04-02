@@ -14,8 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.ecs.xml.XML;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -25,6 +23,7 @@ import erwins.util.lib.Strings;
 import erwins.util.morph.JDissolver;
 import erwins.util.root.StringCallback;
 import erwins.util.tools.TextFileReader;
+import erwins.util.vender.apache.Log;
 
 /**
  * 각종 비동기 Http통신에 필요한 도구 모음.
@@ -32,7 +31,7 @@ import erwins.util.tools.TextFileReader;
  */
 public abstract class AjaxTool {
 
-    private static Log log = LogFactory.getLog(AjaxTool.class);
+	protected static Log log = new Log(AjaxTool.class);
 
     /** 안씀. */
     //public static final String DEFAULT_CONTENT_TYPE = "text/html;charset=ISO-8859-1";
@@ -122,7 +121,7 @@ public abstract class AjaxTool {
             json.put(MESSAGE, array);
         }
         out.write(json.toString());
-        log.debug(json);
+        log.trace("Write Resp : {0}",json);
     }
 
     /**

@@ -1,10 +1,18 @@
 package erwins.util.tools;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.*;
 
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.hibernate.Hibernate;
+import org.hibernate.annotations.CollectionOfElements;
+
+import erwins.util.lib.Clazz;
 import erwins.util.lib.Sets;
 import erwins.util.morph.JDissolver;
 import erwins.util.root.EntityHibernatePaging;
@@ -227,6 +235,32 @@ public class SearchMap extends Mapp {
      */
     public HqlBuilderMap hqlBuilder(){
         return new HqlBuilderMap(this,new HqlBuilderRoot());
+    }
+    
+    /** 급조했음. 주의!  다 귀찮을때 사용하자. */
+    @SuppressWarnings("unchecked")
+	public void initializeByHibernate(){
+    	if(result==null || result.size()==0) return;
+    	Class<?> clazz = result.get(0).getClass();
+        Method[] methods = clazz.getMethods();
+        
+        for(Object each : result){
+        	for(Method method : methods){
+                if(!Clazz.isGetter(method)) continue;
+                Annotation[] annos = method.getAnnotations();
+                if(Sets.isInstanceAny(annos,CollectionOfElements.class,OneToMany.class,ManyToOne.class)){
+                    if(method.getParameterTypes().length!=0) continue;
+                    Object proxy;
+                    try {
+                        proxy = method.invoke(each);
+                    }
+                    catch (Exception e) {
+                        throw new RuntimeException(e.getMessage(),e);
+                    }
+                    Hibernate.initialize(proxy);
+                }
+            }
+        }
     }
     
     /**

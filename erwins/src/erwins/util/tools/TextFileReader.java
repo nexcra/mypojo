@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
+
 import erwins.util.lib.CharSets;
 import erwins.util.lib.Strings;
 import erwins.util.reflexive.FolderIterator;
@@ -18,13 +20,16 @@ import erwins.util.root.StringCallback;
  * 복잡한 예외처리 등을 할 수 없지만 간단한거 할때 좋다. 
  * 마지막 라인에 \\가 들어가면 다음라인까지 이어서 한줄로 취급한다.
  */
-public class TextFileReader {
+public class TextFileReader{
     
     /** 
      * 이 구문이 오면 다음 구문과 합쳐서 전체를 한줄로 인식한다.
      * SQL등을 한줄로 읽어 파싱할때 사용된다.
      *  */
     private String lineSeperator = "\\|";
+    
+    public TextFileReader(){}
+    public TextFileReader(String lineSeperator){this.lineSeperator = lineSeperator;}
     
     public void setLineSeperator(String lineSeperator) { this.lineSeperator = lineSeperator;}
 
@@ -71,17 +76,24 @@ public class TextFileReader {
     
     /** 모든 토큰을 유지하도록 split해서 자료를 넘겨준다. SEPERATOR들은 오버라이드 하자. */
     public static abstract class StringArrayCallback implements StringCallback{
+    	/** replaceAll로 치환시 "\\"를 반드시 추가해 주어야 한다. */
     	public static final String SEPERATOR = "|";
+    	public static final String LINE_SEPERATOR = IOUtils.LINE_SEPARATOR_UNIX;
     	public static final String SEPERATE_ESCAPER = "@erwins-seperator@";
+    	public static final String LINE_SEPERATE_ESCAPER = "@line-seperator@";
     	
 		@Override
 		public void process(String line) {
 			String SEPERATOR = seperator();
 			String SEPERAT_ESCAPER = seperatEscaper();
 			String[] result = Strings.splitPreserveAllTokens(line, SEPERATOR);
+			//이스케이프 해준다.
 			for(int i=0;i<result.length;i++){
 				if(Strings.contains(result[i], SEPERAT_ESCAPER)){
 					result[i] = result[i].replaceAll(SEPERAT_ESCAPER,SEPERATOR);
+				}
+				if(Strings.contains(result[i], LINE_SEPERATE_ESCAPER)){
+					result[i] = result[i].replaceAll(LINE_SEPERATE_ESCAPER,LINE_SEPERATOR);
 				}
 			}
 			process(result);
@@ -93,7 +105,7 @@ public class TextFileReader {
 		protected abstract void process(String[] line);
     }
     
-    /** 첫 라인을 컬럼 메타데이터로 보고 MAP으로 매핑시켜 준다. 컬럼과 열이 맞지 않으면 무시한다.*/
+    /** 첫 라인을 컬럼 메타데이터로 보고 MAP으로 매핑시켜 준다. 컬럼과 열이 맞지 않으면 무시한다. 이 데이터는 trim된다.*/
     public static abstract class StringMapCallback extends StringArrayCallback{
     	private boolean first = true;
     	private String[] column = null;
@@ -108,8 +120,8 @@ public class TextFileReader {
 			}
 			Map<String,String> result = new HashMap<String,String>();
 			for(int i=0;i<column.length;i++){
-				result.put(column[i],line[i]);
-			}			
+				result.put(column[i],line[i]==null ? null : line[i].trim());
+			}
 			process(result);
 		}
 		protected abstract void process(Map<String,String> line);

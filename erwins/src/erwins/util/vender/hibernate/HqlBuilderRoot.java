@@ -60,8 +60,8 @@ public class HqlBuilderRoot implements HqlBuilder{
     
     public HqlBuilder join(String str,boolean fetch){
         add("inner join");
-        add(str);
         if(fetch) add(hql,"fetch");
+        add(str);
         return this;
     }
     
@@ -108,7 +108,7 @@ public class HqlBuilderRoot implements HqlBuilder{
         return this;
     }
     
-    /** 보통 특이한 상황에서 사용함으로 문자열 통으로 받는다. */
+    /** 보통 특이한 상황에서 사용함으로 문자열 통으로 받는다. 여기에 having도 같이 넣자. */
     public HqlBuilder groupBy(String str){
         add("group by");
         add(str);
@@ -183,6 +183,24 @@ public class HqlBuilderRoot implements HqlBuilder{
         return this;
     }
     
+    public HqlBuilder ge(String field,Object obj){
+    	if(obj==null) return this;
+    	where(field);
+    	add(">=");
+    	add("?");
+    	param.add(obj);
+    	return this;
+    }
+    
+    public HqlBuilder le(String field,Object obj){
+    	if(obj==null) return this;
+    	where(field);
+    	add("<=");
+    	add("?");
+    	param.add(obj);
+    	return this;
+    }
+    
     public HqlBuilder ne(String field,Object obj){
         if(obj==null) return this;
         where(field);
@@ -205,6 +223,13 @@ public class HqlBuilderRoot implements HqlBuilder{
         add("like");
         add("?");
         param.add("%"+obj.toUpperCase()+"%");
+        return this;
+    }
+    
+    /** 문자열의 날자 비교할때 등등. */
+    public HqlBuilder between(String field, Object small,Object large){
+    	if(small!=null) ge(field, small);
+    	if(large!=null) le(field, large);
         return this;
     }
     

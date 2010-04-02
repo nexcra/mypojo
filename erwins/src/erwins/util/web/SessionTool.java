@@ -32,7 +32,7 @@ public class SessionTool<USER>{
     public int[] getInterval(){
         Calendar lastAccessTime = Calendar.getInstance();
         lastAccessTime.setTimeInMillis(session.getLastAccessedTime());
-        return Days.betweenTime(lastAccessTime, Calendar.getInstance());
+        return Days.betweenTime(lastAccessTime.getTime(), Calendar.getInstance().getTime());
     }
     
     /**
@@ -53,7 +53,7 @@ public class SessionTool<USER>{
         lastAccessTime.setTimeInMillis(session.getLastAccessedTime());
         Calendar createTime = Calendar.getInstance();
         createTime.setTimeInMillis(session.getCreationTime());
-        return Days.betweenTime(createTime,lastAccessTime);
+        return Days.betweenTime(createTime.getTime(),lastAccessTime.getTime());
     }
     
     /**

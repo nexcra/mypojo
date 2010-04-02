@@ -12,6 +12,15 @@ import erwins.util.lib.Encoders;
 import erwins.util.tools.SystemInfo;
 
 /**
+ * ex) script src="/js.cache?path=js" type="text/javascript" / 
+ * <servlet>
+		<servlet-name>cacheServlet</servlet-name>
+		<servlet-class>erwins.util.web.CacheServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>cacheServlet</servlet-name>
+		<url-pattern>*.cache</url-pattern>
+	</servlet-mapping>
  * @author erwins(my.pojo@gmail.com)
  */
 public class CacheServlet extends HttpServlet{

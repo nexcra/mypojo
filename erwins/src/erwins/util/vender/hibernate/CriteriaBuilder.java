@@ -17,7 +17,10 @@ public class CriteriaBuilder {
     public CriteriaBuilder(SearchMap map) {
         this.map = map;
     }
-    /** 내부적으로 쓰는게 아니라면 외부에서 직접 파라메터를 접근할때 사용된다. */
+    /** 
+     * 내부적으로 쓰는게 아니라면 외부에서 직접 파라메터를 접근할때 사용된다.
+     * AND가 먼저 전부 기록된 후에 OR이 와야 한다. 
+     * */
     public void add(Criterion s){
         if(or!=null) or.add(s);
         else and.add(s);
@@ -27,7 +30,7 @@ public class CriteriaBuilder {
         or = Restrictions.disjunction();
         and.add(or);
         return this;
-    }    
+    }
     
     public CriteriaBuilder ilike(String key){
         if(!map.isEmpty(key)) add(Restrictions.ilike(key,map.getStr(key),MatchMode.ANYWHERE));
@@ -38,12 +41,23 @@ public class CriteriaBuilder {
         return this;
     }
     
-    /**
-     * 그냥 꺼내쓰니깐 아마 String바께 안될듯.
-     */
+    /** 걍 닥치고 문자열임. */
     public CriteriaBuilder eq(String key){
         if(!map.isEmpty(key)) add(Restrictions.eq(key,map.get(key)));
         return this;
+    }
+    
+    /** 문자열의 날자 비교할때 등등. */
+    public CriteriaBuilder between(String key, String small,String large){
+    	if(!map.isEmpty(small)) add(Restrictions.ge(key,map.getNumericStr(small)));
+        if(!map.isEmpty(large)) add(Restrictions.le(key,map.getNumericStr(large)));
+        return this;
+    }
+    
+    /** key뒤에 Min,Max를 붙여서 검색한다. */
+    public CriteriaBuilder between(String key){
+    	between(key,key+"Min",key+"Max");
+    	return this;
     }
     
     public <T extends Enum<?>> CriteriaBuilder eq(String key,Class<T> clazz){
@@ -53,6 +67,10 @@ public class CriteriaBuilder {
     
     public Conjunction get() {
         return and;
+    }
+    
+    public SearchMap getMap() {
+    	return map;
     }
 
 }

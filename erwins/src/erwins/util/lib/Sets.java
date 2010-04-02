@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -93,8 +94,8 @@ public abstract class Sets  extends CollectionUtils{
      * 수정 핋요할듯..
      */
     public static Integer getResultInt(List<Object> list) {
-        if(list==null) throw new RuntimeException("list is null . collection must be not null");
-        if(list.size()!=1) throw new RuntimeException(list.size() + " collection must be unique");
+        if(list==null) throw new IllegalArgumentException("list is null . collection must be not null");
+        if(list.size()!=1) throw new IllegalArgumentException(list.size() + " collection must be unique");
         Object obj = list.get(0);
         if(obj instanceof BigDecimal) return ((BigDecimal) obj).intValue();
         return (Integer)list.get(0);
@@ -105,8 +106,8 @@ public abstract class Sets  extends CollectionUtils{
      * Collection에서 Unique값을 추출해 낸다.
      */
     public static Number getResultCount(List<Object> list) {
-        if(list==null) throw new RuntimeException("list is null . collection must be not null");
-        if(list.size()!=1) throw new RuntimeException(list.size() + " collection must be unique");
+        if(list==null) throw new IllegalArgumentException("list is null . collection must be not null");
+        if(list.size()!=1) throw new IllegalArgumentException(list.size() + " collection must be unique");
         Object obj = list.get(0);
         if(obj instanceof BigDecimal) return ((BigDecimal) obj).longValue();
         return (Number)obj;
@@ -117,8 +118,8 @@ public abstract class Sets  extends CollectionUtils{
      * Collection에서 Unique값을 추출해 낸다.
      */
     public static <T> T getResultUnique(List<T> list) {
-        if(list==null) throw new RuntimeException(" collection is null! ");
-        else if(list.size()!=1) throw new RuntimeException(list.size() + " collection nust be unique");
+        if(list==null) throw new IllegalArgumentException(" collection is null! ");
+        else if(list.size()!=1) throw new IllegalArgumentException(list.size() + " collection must be unique : " + list.get(0).toString());
         else return list.get(0);
     }
     
@@ -126,7 +127,7 @@ public abstract class Sets  extends CollectionUtils{
     public static <T> T getUniqNullable(List<T> sets) {
 		if(sets.size()==0) return null;
     	else if(sets.size()==1) return sets.get(0);
-    	else throw new IllegalStateException(sets.size()+" collection nust be unique or zero size");
+    	else throw new IllegalArgumentException(sets.size()+" collection must be unique or zero size : " + sets.get(0).toString());
 	}    
     
     /**
@@ -196,12 +197,23 @@ public abstract class Sets  extends CollectionUtils{
     /**
      * 배열에 해당 물품의 클래스를 가지고 있는지 검사한다. 
      * 하나라도 있으면 true를 리턴한다.
+     * 다중인자에서 T사용은 안되는구나. ㅠㅠ
      * ex) if(Sets.isInstance(annos,Hidden.class)) continue;
      */
     public static <T> boolean isInstanceAny(T[] bodys , Class<? extends T> ...  clazzs) {
         if(bodys==null || clazzs.length==0) return false;
         for(T each : bodys) for(Class<? extends T> clazz : clazzs) if(clazz.isInstance(each)) return true;
         return false;
+    }
+    
+    /**
+     * 배열에 해당 물품의 클래스를 가지고 있으면 리턴한다.
+     */
+	@SuppressWarnings("unchecked")
+	public static <Super,T extends Super> T getInstance(Super[] bodys , Class<T> clazz) {
+    	if(bodys==null || clazz==null) return null;
+    	for(Super each : bodys) if(clazz.isInstance(each)) return (T)each;
+    	return null;
     }
     
     
@@ -269,7 +281,7 @@ public abstract class Sets  extends CollectionUtils{
         for(String key : map.keySet()){
             List<String> thisList = map.get(key);
             int thisSize = thisList.size();
-            if(thisSize != maxSize) throw new RuntimeException(maxSize + " : " +thisSize + "사이즈가 균일하지 않음");
+            if(thisSize != maxSize) throw new IllegalArgumentException(maxSize + " : " +thisSize + "사이즈가 균일하지 않음");
             for(int i=0;i<thisSize;i++){
                 list.get(i).put(key,thisList.get(i));
             }
@@ -374,4 +386,24 @@ public abstract class Sets  extends CollectionUtils{
         list.add(obj);
     }
     
+	/**
+	 * List를 메인 키를 가지는 Map으로 바꿔 준다. List의 key가 동일하나 내용이 다른 중복데이터는 Map으로 합쳐진다. 
+	 * 파라메터는 반드시 3가지여야 한다. parentKey,header(내부Map의 key),value
+     * value를 제외하면 모두 null이 될 수 없다.
+	 */
+    public static Map<String,Map<String,String>> toMapByParentKey(List<Object[]> args) {
+		Map<String,Map<String,String>> result = new TreeMap<String,Map<String,String>>();
+		for(Object[] each :args){
+			if(each.length!=3) throw new IllegalArgumentException(each.length + "args length must be 3!");
+			Object parentKey = each[0];
+			Map<String,String> map = result.get(parentKey); 
+			if(map==null){
+				map = new HashMap<String,String>();
+				result.put(parentKey.toString(), map);
+			}
+			map.put(each[1].toString(), each[2]==null ? null :each[2].toString());
+		}
+		return result;
+	}    
+
 }

@@ -34,6 +34,20 @@ public class HqlBuilderMap implements HqlBuilder{
         return this;
     }
     
+    public HqlBuilderMap ge(String field,Object key){
+    	if(map.isEmpty(key)) return this;
+    	Object parameter = map.get(key);
+    	builder.ge(field,parameter);
+    	return this;
+    }
+    
+    public HqlBuilderMap le(String field,Object key){
+    	if(map.isEmpty(key)) return this;
+    	Object parameter = map.get(key);
+    	builder.le(field,parameter);
+    	return this;
+    }
+    
     /** 복수형을 담는다!! 그리고 map에서 안가져온다~!! */
     public HqlBuilderMap in(String field,Object[] obj){
         builder.in(field, obj);
@@ -55,6 +69,12 @@ public class HqlBuilderMap implements HqlBuilder{
     public HqlBuilderMap ne(String field){
         return ne(field,getExt(field));
     }
+    public HqlBuilderMap ge(String field){
+    	return ge(field,getExt(field));
+    }
+    public HqlBuilderMap le(String field){
+    	return le(field,getExt(field));
+    }
     
     public HqlBuilderMap like(String field,String key){
         if(map.isEmpty(key)) return this;
@@ -64,6 +84,12 @@ public class HqlBuilderMap implements HqlBuilder{
     public HqlBuilderMap iLike(String field,String key){
         if(map.isEmpty(key)) return this;
         builder.iLike(field, map.getStr(key));
+        return this;
+    }
+    
+    /** 자동으로 숫자형으로 바꾼다. 주의! */
+    public HqlBuilderMap between(String field, Object small,Object large){
+    	builder.between(field, map.getNumericStr(small), map.getNumericStr(large));
         return this;
     }
     
@@ -118,6 +144,12 @@ public class HqlBuilderMap implements HqlBuilder{
         return value;
     }
     
+    /** key뒤에 Min,Max를 붙여서 검색한다. 자동으로 숫자형으로 바꾼다. 주의! */
+    public HqlBuilder between(String key){
+    	String mapKey = Strings.getExtention2(key);
+    	between(key,mapKey+"Min",mapKey+"Max");
+    	return this;
+    }
     
     // ===========================================================================================
     //                                    delegate method
@@ -198,7 +230,7 @@ public class HqlBuilderMap implements HqlBuilder{
     public String hqlString(){
         return builder.hqlString();
     }
-    
+
     
     
 }

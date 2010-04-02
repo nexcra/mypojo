@@ -30,11 +30,11 @@ import erwins.util.tools.TextFileReader;
  *  여기에서는 임시 커넥션을 만을 사용함으로 명시적으로 닫지 않는다. 
  * */
 public class JDBC{	
-    
-	//private static final String DRIVER_ORACLE = "oracle.jdbc.driver.OracleDriver" ;	
-	//private static final String DRIVER_MSSQL = "com.microsoft.jdbc.sqlserver.SQLServerDriver";;
-	private static final String URL_ORACLE = "jdbc:oracle:thin:@{0}:{1}:{2}" ;
-	//private static final String URL_MSSQL = "jdbc:microsoft:sqlserver://211.255.6.117:1433;database=tjkasa";
+	
+    /** 드라이버 구버전 */
+	public static final String URL_MS_SQL_OLD = "jdbc:sqlserver://{0}:{1};Databasename={2}" ;	
+	public static final String URL_MY_SQL = "jdbc:mysql://{0}:{1}/{2}";
+	public static final String URL_ORACLE = "jdbc:oracle:thin:@{0}:{1}:{2}" ;
 	
 	private static final String COUNT = "COUNT(*)";
 	
@@ -116,20 +116,19 @@ public class JDBC{
     	execute("alter session set nls_timestamp_format='YYYY-MM-DD HH24:MI:SSXFF'");
     }
     
-    /** SQL구문이 담긴 문장을 읽고 실행한다. 기본 툴에서 실행하는것과 동일하며 한줄에 하나의 SQL만이 담겨야 한다. */
+    /** SQL구문이 담긴 문장을 읽고 실행한다. and 커밋까지. 기본 툴에서 실행하는것과 동일하며 한줄에 하나의 SQL만이 담겨야 한다. */
     public void loadSql(File sql) throws SQLException{
+    	final List<String> list = new ArrayList<String>();
     	new TextFileReader().read(sql,new StringCallback() {
 			@Override
 			public void process(String line) {
 				line = line.trim().replaceAll(";","");
+				if("".equals(line)) return;
 				if(line.startsWith("--")) return;
-				try {
-					execute(line);
-				} catch (SQLException e) {
-					throw new RuntimeException(e);
-				}
+				list.add(line);
 			}
 		});
+    	execute(list);
 		commit();
     }    
     
@@ -154,7 +153,13 @@ public class JDBC{
     
     public void execute(Collection<String> sqls) throws SQLException{
     	Statement statement_oracle = connection_oracle.createStatement();
-    	for(String sql : sqls) if(statement_oracle.execute(sql)) throw new SQLException(sql+" is fail");
+    	for(String sql : sqls){
+    		try {
+				if(statement_oracle.execute(sql)) throw new SQLException(sql+" is fail");
+			} catch (Exception e) {
+				throw new RuntimeException(sql+" is fail",e);
+			}
+    	}
     }
     
     public int update(String sql) throws SQLException{

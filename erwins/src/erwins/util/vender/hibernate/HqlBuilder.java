@@ -39,6 +39,11 @@ public interface HqlBuilder {
     
     public abstract HqlBuilder eq(String field, Object obj);
     public abstract HqlBuilder ne(String field, Object obj);
+    public abstract HqlBuilder ge(String field, Object obj);
+    public abstract HqlBuilder le(String field, Object obj);
+    
+    /** 문자열의 날자 비교할때 등등. */
+    public abstract HqlBuilder between(String field, Object samll,Object large);
     
     public abstract HqlBuilder isNull(String field);
     

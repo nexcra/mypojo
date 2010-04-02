@@ -31,8 +31,8 @@ public enum RegEx {
     /** 연속으로 줄바꿈 => 즉 공백문자 검색 : 미검증 */
     BLANK_LINE(Pattern.compile("[/r]?\\n\\s*[/r]?\\n")),
     
-    /** 일반 줄바꿈 => 즉 모든 라인피드 검색 .. [/r]?\\n 원래 이거였음..  */
-    LINE(Pattern.compile("[\\n]?\\r")),
+    /** 일반 줄바꿈 => 즉 모든 라인피드 검색 .. [/r]?\\n 원래 이거였음..  [\\n]?\\r???  */
+    LINE(Pattern.compile("[\\r]?\\n")),
     
     /** 라인이 끝난 후 나오는 공백.   */
     LINE_END_BLANK(Pattern.compile("\\s*?$(\\s|\\n)",Pattern.MULTILINE)),
@@ -66,8 +66,8 @@ public enum RegEx {
     TAG_FULL(Pattern.compile("<(.*)>(?:.|\\s)*?</\\1>",Pattern.MULTILINE|Pattern.CASE_INSENSITIVE)),
     /** 태그 안의 text만을 매칭시킨다. */
     TAG_TEXT(Pattern.compile("(?<=<(.{1,100})>).*(?=</\\1>)",Pattern.MULTILINE|Pattern.CASE_INSENSITIVE)),
-    /** IMG태그 전체를 추출한다.*/
-    TAG_IMG(Pattern.compile("\\<img .*?(/\\>|\\</img\\>)",Pattern.CASE_INSENSITIVE)),
+    /** IMG태그 전체를 추출한다. 표준을 안지켜서.. /를 닫지 않은 곳이 많다. 원래는 \\<img .*?(/\\>|\\</img\\>)  */
+    TAG_IMG(Pattern.compile("\\<img .*?(\\>|\\<img\\>)",Pattern.CASE_INSENSITIVE)),
     /** 자바스크립트 태그+내용을 추출한다. 버그로 라인세퍼레이트는 놓지 못했다. */
     TAG_SCRIPT(Pattern.compile("<script.*?>(.)*?</script>",Pattern.CASE_INSENSITIVE)),
     
@@ -144,8 +144,8 @@ public enum RegEx {
     
     public static String find(Pattern pattern,CharSequence  text) {
         Matcher m = pattern.matcher(text);
-        m.find();
-        return m.group();
+        if(m.find()) return m.group(); 
+        return null;
     }
     
     public static void process(Pattern pattern,CharSequence  text,StringCallback command) {

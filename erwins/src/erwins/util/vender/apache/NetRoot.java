@@ -60,12 +60,9 @@ public abstract class NetRoot {
         ftpClient = new FTPClient();
         ftpClient.setControlEncoding("euc-kr"); // 한글파일명 때문에 디폴트 인코딩을 euc-kr로 합니다
     }
-
-    /**
-     * connect 후 login한다. 
-     */
-    public void connect(String serverIp, String id, String pass) throws IOException {
-        ftpClient.connect(serverIp);
+    
+    public void connect(String serverIp,int port,String id, String pass) throws IOException {
+    	ftpClient.connect(serverIp,port);
         log.debug("connect to "+ serverIp);
         int reply = ftpClient.getReplyCode(); // 응답코드가 비정상이면 종료합니다
         if (!FTPReply.isPositiveCompletion(reply)) {
@@ -78,6 +75,13 @@ public abstract class NetRoot {
             
         ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         ftpClient.setFileTransferMode(FTP.STREAM_TRANSFER_MODE);
+    }
+
+    /**
+     * connect 후 login한다. 
+     */
+    public void connect(String serverIp, String id, String pass) throws IOException {
+    	connect(serverIp,21,id,pass);
     }
 
     /**

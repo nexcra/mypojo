@@ -124,7 +124,11 @@ public enum Days{
         if(time.length >= 2) c.add(Calendar.MONTH, time[1]);
         if(time.length >= 1) c.add(Calendar.DATE, time[0]);
         return c;
-    }    
+    }
+    
+    public static Calendar addCalendar(Date d,Integer ... time) {
+    	return addCalendar(getCalendar(d),time);
+    }
     
     /**
      * 4,2,2자리 년월일을 받아서 Carender 객체를 리턴한다. 
@@ -133,7 +137,13 @@ public enum Days{
     	Calendar cal = Calendar.getInstance();
         cal.setLenient(false);
         cal.set(year,month-1,day);
-        cal.getTime();
+    	return cal;
+    }
+    
+    /** Date로 Calendar를 생성한다. */
+    public static Calendar getCalendar(Date date) {
+    	Calendar cal = Calendar.getInstance();
+    	cal.setTime(date);
     	return cal;
     }
     
@@ -158,18 +168,16 @@ public enum Days{
     	return getCalendar(year,month,day);
     }
     
-    public static String sin(Calendar cal1, Calendar cal2) {
-        double day = betweenDate(Calendar.getInstance(),getCalendar("20070601") );
-        day += 741;
-        return Formats.DOUBLE1.get(day / 365);
+    public static int betweenDate(Calendar cal1, Calendar cal2) {
+    	return betweenDate(cal1.getTime(),cal2.getTime());
     }
 
     /**
      * 두 객체간의 일자를 리턴한다.
      * @param1,2 Calendar객체
      */
-    public static int betweenDate(Calendar cal1, Calendar cal2) {
-    	long diff = cal2.getTime().getTime() - cal1.getTime().getTime();
+    public static int betweenDate(Date cal1, Date cal2) {
+    	long diff = cal2.getTime() - cal1.getTime();
     	return (int)(diff/24/60/60/1000);
     }
 
@@ -178,21 +186,21 @@ public enum Days{
      * @param1,2 String 8자리 ex) "20080216"
      */	
     public static int betweenDate(String strDate1, String strDate2) {
-    	return betweenDate(getCalendar(strDate2), getCalendar(strDate1));
+    	return betweenDate(getCalendar(strDate2).getTime(), getCalendar(strDate1).getTime());
     }
     
     /**
      * 두 객체간의 사간차를 String 시분초로 리턴한다.
      */
-    public static String betweenTimeStr(Calendar cal1, Calendar cal2) {
+    public static String betweenTimeStr(Date cal1, Date cal2) {
         return new ShowTime(betweenTime(cal1,cal2)).toString();
     }
     
     /**
      * 두 객체간의 사간차를 String 시분초로 리턴한다.
      */
-    public static int[] betweenTime(Calendar start, Calendar end) {
-        long diffSecond = (end.getTime().getTime() - start.getTime().getTime())/1000;
+    public static int[] betweenTime(Date start, Date end) {
+        long diffSecond = (end.getTime() - start.getTime())/1000;
         int h = (int)diffSecond / 60/60;
         diffSecond = diffSecond - h * 60 * 60;
         int mm = (int)diffSecond / 60;

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 
+import erwins.util.counter.Latch;
 import erwins.util.tools.Mapp;
 import erwins.util.tools.TextFile;
 
@@ -100,6 +101,13 @@ public class Strings extends StringUtils {
         if (index == -1) return "";
         return str.substring(index + 1);
     }
+    
+    /** 확장자를 리턴한다. 없으면 기본 문자를  그대로 리턴한다. */
+    public static String getExtention2(String str) {
+        int index = str.lastIndexOf(".");
+        if (index == -1) return str;
+        return str.substring(index + 1);
+    }    
     
     /** .이 없으면 null을 리턴한다. */
     public static String[] getExtentions(String str) {
@@ -391,11 +399,17 @@ public class Strings extends StringUtils {
         return stringBuffer.toString();
     }
     
-    /** 임시 포매팅. MessageFormat이랑 비슷하다. */
+    /** 임시 포매팅. MessageFormat이랑 비슷하다. null이면 ''를 입력한다. */
     public static String format(String str,Object ... args) {
-    	for(int i=0;i<args.length;i++) str = str.replaceAll("\\{"+i+"\\}", args[i].toString());
-    	return str;
+    	return formatNullable(str,"",args);
     }
+    
+    /** 임시 포매팅. null이면 0을 입력한다. */
+    public static String formatNullable(String str,String nullString,Object ... args) {
+    	if(Sets.isEmpty(args)) return str;
+    	for(int i=0;i<args.length;i++) str = str.replaceAll("\\{"+i+"\\}", args[i]==null ? nullString : args[i].toString());
+    	return str;
+    }    
 
     /**
      * 문자열을 특정 문자의 개수를 구한다.
@@ -548,6 +562,22 @@ public class Strings extends StringUtils {
         return stringBuffer.toString();
     }
     
+    /** '--'같은 문자열은 인코딩 변경시 바이트 코드가 변경?된다. 이를 확인하는 디버깅용 메소드 이다. */
+    public static String getByteString(String line) {
+    	StringBuilder b = new StringBuilder();
+    	Latch l = new Latch();
+    	for(byte each : line.getBytes()){
+    		if(!l.next()) b.append("|"); 
+    		b.append(each);
+		}
+    	return b.toString();
+    }
+    
+    public static boolean isEmptyAny(String ... objs) {
+    	for(String each : objs) if(isEmpty(each)) return true;
+    	return false;
+    }    
+    
     /** txt에 비워드인 걸로 다 짤라서 몇개의 단어가 있는지 검사한다. 얼추 된다. ㅋㅋ */
     public static class WordCounter implements Iterable<Entry<Object,Object>>{
     	
@@ -592,8 +622,6 @@ public class Strings extends StringUtils {
 			return c.result();
 		}
     }
-    
-   
 
     // ===========================================================================================
     //                                      NVL            
@@ -604,6 +632,10 @@ public class Strings extends StringUtils {
      */
     public static String nvl(String str) {
         return nvl(str, EMPTY);
+    }
+    public static String nvlObject(Object obj,String escape) {
+    	if(obj==null) return escape;
+    	return nvl(obj.toString(), escape);
     }
 
     /**

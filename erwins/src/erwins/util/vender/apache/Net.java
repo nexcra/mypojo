@@ -187,6 +187,16 @@ public class Net extends NetRoot {
         if (!file.isDirectory()) file.mkdirs();
         loopAndSynch(file, ftpRoot,new Update());
     }
+    public synchronized void updateLog() throws IOException {
+    	File file = new File(clientOrToRoot);
+    	if (!file.isDirectory()) file.mkdirs();
+    	loopAndSynch(file, ftpRoot,new UpdateLog());
+    }
+    public synchronized void commitLog() throws IOException {
+    	File file = new File(clientOrToRoot);
+    	if (!file.isDirectory()) file.mkdirs();
+    	loopAndSynch(file, ftpRoot,new CommitLog());
+    }
     
     /**
      * 순회하면서 파일을 복사한다.
@@ -223,6 +233,7 @@ public class Net extends NetRoot {
         /** 로컬에는 파일이 있으나 서버에는 없는경우.  */
         public void noServerFile(List<File> isNoMatch)  throws IOException ;
     }
+    
     /** 로컬을 수정해서 서버로 반영할때. */
     private class Commit implements Synch{
         public void noLocalFile(FTPFile ftpFile,String root) throws IOException {
@@ -239,6 +250,24 @@ public class Net extends NetRoot {
             }
         }
     }
+    
+    /** 로컬을 수정해서 서버로 반영할때. */
+    private class CommitLog implements Synch{
+    	public void noLocalFile(FTPFile ftpFile,String root) throws IOException {
+    		if(ftpFile.getName().endsWith(".")) return;
+    		log.info("delete remote file : " + ftpFile.getName());
+    	}
+    	public void noServerFile(List<File> isNoMatch)  throws IOException {
+    		for (File each : isNoMatch){
+    			log.info("upload : " + each.getName());
+    			if(each.isDirectory()){
+    				String newFtpFullPath = getNameByClient(each);
+    				loopAndSynch(each,newFtpFullPath,this);
+    			}
+    		}
+    	}
+    }
+    
     /** 서버의 수정분을 로컬로 반영할때. */
     private class Update implements Synch{
         public void noLocalFile(FTPFile ftpFile,String root) throws IOException {
@@ -257,6 +286,25 @@ public class Net extends NetRoot {
                 else log.error(each.getAbsolutePath() + " : 로컬 파일/폴더 삭제 실패");
             }
         }
+    }
+    
+    /** 서버의 수정분을 로컬로 반영할때 Log */
+    private class UpdateLog implements Synch{
+    	public void noLocalFile(FTPFile ftpFile,String root) throws IOException {
+    		if(ftpFile.getName().endsWith(".")) return;
+    		String newFtpFullPath = root + "/" + ftpFile.getName();
+    		if(ftpFile.isFile()) log.info("donwload : "+newFtpFullPath);
+    		else{
+    			File file = new File(getNameByFtpRoot(newFtpFullPath));
+    			file.mkdir();
+    			loopAndSynch(file,newFtpFullPath,this);
+    		}
+    	}
+    	public void noServerFile(List<File> isNoMatch)  throws IOException {
+    		for (File each : isNoMatch){
+    			log.info("delete local file : " + each.getAbsolutePath());
+    		}
+    	}
     }
 
     // ===========================================================================================
