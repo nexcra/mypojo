@@ -3,16 +3,19 @@
 	xmlns:erwins="erwins.component.file.*" 
     title="File Upload" >
 <mx:Script><![CDATA[
-	import erwins.util.UILib.TimeUtil;
+	import erwins.util.Json;
 	import mx.managers.CursorManager;
 	import erwins.util.effect.EventEffect;
+	import erwins.util.TimeUtil;
 	import flexlib.scheduling.Timeline;
 	import mx.core.UIComponent;
 	import mx.managers.PopUpManager;
 	import mx.controls.Alert;
-	import erwins.util.json.Jsons;
+	import erwins.util.Alerts;
 
 private var me:UploadPopup = this as UploadPopup;
+
+public static const COMPLITE:String = "compliteState";
 
 protected override function init():void{
     fileRef.addEventListener(Event.OPEN,function(event:Event):void {
@@ -24,7 +27,8 @@ protected override function init():void{
 		bar.setProgress(event.bytesLoaded,event.bytesTotal);
 	});
     fileRef.addEventListener(Event.COMPLETE,function(event:Event):void {
-		me.title = '업로드 완료';
+		//currentState = COMPLITE;
+		//message.text = '업로드 완료';
 		TimeUtil.fire(function():void{
 			PopUpManager.removePopUp( me );
 		},3000);
@@ -37,7 +41,7 @@ protected override function init():void{
 		var request:URLRequest = new URLRequest();
 	    request.url = url;
 	    request.method="POST";
-	    request.data = Jsons.serialize(args);
+	    request.data = Json.serialize(args);
 	    try{
 			fileRef.upload(request);
 	    }catch(e:SecurityError){

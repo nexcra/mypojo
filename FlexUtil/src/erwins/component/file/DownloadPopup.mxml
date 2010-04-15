@@ -3,15 +3,14 @@
 	xmlns:erwins="erwins.component.file.*" 
     title="File Download" >
 <mx:Script><![CDATA[
-	import erwins.util.Json;
+	import erwins.util.UILib.TimeUtil;
 	import mx.managers.CursorManager;
 	import erwins.util.effect.EventEffect;
-	import erwins.util.TimeUtil;
 	import flexlib.scheduling.Timeline;
 	import mx.core.UIComponent;
 	import mx.managers.PopUpManager;
 	import mx.controls.Alert;
-	import erwins.util.Alerts;
+	import erwins.util.json.Jsons;
 
 private static var downloading:Boolean = false; //어쩔 수 없이 추가.. 
 private var me:DownloadPopup = this as DownloadPopup;
@@ -24,8 +23,7 @@ protected override function init():void{
 	});
     fileRef.addEventListener(Event.COMPLETE,function(event:Event):void {
 		downloading = false;
-		currentState = COMPLITE;
-		message.text = '['+fileName +'] : 다운로드 완료';
+		me.title = '['+fileName +'] : 다운로드 완료';
 		TimeUtil.fire(function():void{
 			PopUpManager.removePopUp( me );
 		},3000);
@@ -38,8 +36,7 @@ protected override function init():void{
 	var request:URLRequest = new URLRequest();
     request.url = url;
     request.method="POST";
-    request.data = Json.serialize(args);
-    //request.data['absolutePath'] = 'qwe';
+    request.data = Jsons.serialize(args);
     
     try{
 		fileRef.download(request,fileName);

@@ -4,7 +4,7 @@
 
 	<mx:Script>
 		<![CDATA[
-			import erwins.util.TooltipUtil;
+			import erwins.util.UILib.TooltipUtil;
 			import mx.managers.ToolTipManager;
 			import mx.controls.Alert;
 			import mx.core.UIComponent;
@@ -16,8 +16,8 @@
 			private var _labelName:String;
 			private var _tooltipName:String;
 			
+			/** Repeater사용시 적용되는 토글 버튼이다. */
 			private function init(): void {
-				
 				this.toggle = true;
 				if(_json==null) Alert.show('plz inser json!');
 				if(_labelName) this.label = _json[_labelName];

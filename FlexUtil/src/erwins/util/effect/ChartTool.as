@@ -2,14 +2,37 @@ package erwins.util.effect{
 	import com.adobe.serialization.json.*;
 	import com.google.maps.Color;
 	
-	import flash.filters.BevelFilter;
-	
-	import mx.core.UIComponent;
+	import mx.graphics.GradientEntry;
+	import mx.graphics.RadialGradient;
 	import mx.graphics.SolidColor;
 	import mx.utils.*;
 	
 	/** 필요할때 만들자. */
 	public class ChartTool{
+		
+		/** 원형 그라디언트 빌더 (파이챠트용) */
+		private static function build(color1:uint,color2:uint):RadialGradient{
+			var temp:RadialGradient = new RadialGradient();
+			var entry1:GradientEntry = new GradientEntry();
+			entry1.color = color1;
+			entry1.ratio = 0;
+			
+			var entry2:GradientEntry = new GradientEntry();
+			entry2.color = color2;
+			entry2.ratio = 1;
+			temp.entries = [entry1,entry2];
+			return temp;
+		}
+		
+		public static function get fillRadialGradient():Array{
+			return [build(Color.BLUE,0x4E82FF),
+					build(Color.GREEN,0x78FF87),
+					build(Color.RED,0xFE6137),
+					build(Color.YELLOW,0xF7FF6E),
+					build(Color.GRAY12,0xD3D3D2),
+					build(Color.CYAN,0xC3F4FA)
+				];
+		}		
 		
 		public static function get fill():Array{
 			var list:Array = new Array();

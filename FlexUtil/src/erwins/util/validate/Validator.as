@@ -2,6 +2,8 @@ package erwins.util.validate{
 	import com.adobe.serialization.json.*;
 	
 	import erwins.util.*;
+	import erwins.util.UILib.MenuUtil;
+	import erwins.util.json.Jsons;
 	
 	import mx.collections.ArrayCollection;
 	import mx.controls.*;
@@ -28,9 +30,19 @@ package erwins.util.validate{
 		// ======================================================================================= */
 		// =================================== 단일값 ============================================= */
 		
+		public function addAll( ... components):void{
+			for each(var item:Object in components){
+				add(item as UIComponent);
+			}
+		}
+		
 		public function add(component:UIComponent):CheckValue{
-			var value:String = Json.getValue(component);
-			if(tempId==null) param[component.id] = value;
+			var value:String = Jsons.getValue(component);
+			if(tempId==null){
+				var key:String = component.id; 
+				if(key==Jsons.ENTITY_ID) param["id"] = value;  //예약어인 id를 대체해준다.
+				param[key] = value; //이것을 스킵하기않고 넣어준다.
+			} 
 			else{
 				param[tempId] = value;
 				tempId = null;

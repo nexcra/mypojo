@@ -21,55 +21,44 @@
 	import mx.managers.PopUpManager;
 	import mx.controls.Alert;
 
-protected var url:String;
-
 protected var fileName:String;
 protected var fileRef:FileReference = new FileReference();
-
+protected var url:String;
 protected var successCallback:Function;
 protected var failCallback:Function;
-
 protected var args:Object;
 protected var filterList:Array;
 
-/** factory : filterList는 업로드에만 사용된다. 필터는 대소문자를 구분하지 않는다. */
-public static function upload(url:String, ... filterList ):FilecontrolPopup{
-	var instance:FilecontrolPopup = new UploadPopup();
-	instance.url = url;
-	instance.filterList = filterList;
-	return instance;	
-}
-/** factory : fileName은 다운로드에만 사용된다. */
-public static function download(url:String,fileName:String=null):FilecontrolPopup{
-	var instance:FilecontrolPopup = new DownloadPopup();
-	instance.url = url;
-	instance.fileName = fileName;
-	return instance;
-}
+public static const UPLOAD:String = "upload";
+public static const DOWNLOAD:String = "download";
 
 protected function init():void{
 	Alert.show('init() 멤퍼펑션을 오버라이딩 하세요.');
 };
 
-public function success(successCallback:Function):FilecontrolPopup{
-	this.successCallback = successCallback;
-	return this;
+public static function factory(mode:String):FilecontrolPopup{
+	if(mode == DOWNLOAD) return new DownloadPopup();
+	else if(mode == UPLOAD) return new UploadPopup();
+	else throw new Error(mode+" 는 정의되지 않았습니다.");
 }
 
-public function fail(failCallback:Function):FilecontrolPopup{
-	this.failCallback = failCallback;
-	return this;
-}
-
-public function query(args:Object):FilecontrolPopup{
-	this.args = args;
-	return this;
-}
-
-public function pop(base:UIComponent):void{
-	PopUpManager.addPopUp(this,base,false);
-	PopUpManager.centerPopUp( this );
-	this.init();
+/**
+ * 실패시 작동되는 callback인 fail은 인자로 SecurityError를 받는다.
+ * 업로드시 fileName은???
+ * */
+public static function popup(mode:String,base:UIComponent,url:String,option:FileOption=null):void{
+	var popWin:FilecontrolPopup = factory(mode);
+	PopUpManager.addPopUp(popWin,base,false);
+	PopUpManager.centerPopUp( popWin );
+	popWin.url = url;
+	if(option!=null){
+		popWin.fileName = option.fileName;
+		popWin.args = option.args;
+		popWin.failCallback = option.failCallback;
+		popWin.successCallback = option.successCallback;
+		popWin.filterList = option.filterList;
+	}
+	popWin.init();
 }        
         
 ]]></mx:Script>

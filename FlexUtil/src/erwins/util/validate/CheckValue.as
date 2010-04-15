@@ -2,6 +2,7 @@ package erwins.util.validate{
 	import com.adobe.serialization.json.*;
 	
 	import erwins.util.*;
+	import erwins.util.lib.Strings;
 	
 	import mx.controls.*;
 	import mx.core.UIComponent;
@@ -38,6 +39,16 @@ package erwins.util.validate{
 			}
 			return this;
 		}
+		
+		/** 비밀번호 등~  */
+		public function isEquals(compare:String,message:String):CheckValue{
+			if(value is String){
+				if(compare != value.toString()) error(message);	
+			}else if(value is Array){
+				error('value must be String type');
+			}
+			return this;
+		}		
 		
 		/** size와 문자 길이가 일치하는지? */
 		public function isLength(size:int,message:String):CheckValue{

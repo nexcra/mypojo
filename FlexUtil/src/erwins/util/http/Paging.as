@@ -1,7 +1,12 @@
 package erwins.util.http{
 	import com.adobe.serialization.json.*;
 	
+	import flash.events.MouseEvent;
+	
+	import mx.collections.ArrayCollection;
 	import mx.controls.*;
+	import mx.core.UIComponent;
+	import mx.events.ListEvent;
 	import mx.utils.*;
 	
 	/**
@@ -14,6 +19,16 @@ package erwins.util.http{
 		/** 현제 페이지 번호 */
 		[Bindable]
 		public var nowPageNo:int= 1;
+		[Bindable]
+		public var nextAble:Boolean = true;
+		[Bindable]
+		public var beforeAble:Boolean = true;
+		
+		/** Hibernate의 rownum이 있을 경우 next / before를 초기화 한다. */
+		public function renew(list:ArrayCollection):void{
+			nextAble = list[list.length-1].rownum!=1;
+			beforeAble = nowPageNo != 1;
+		}
 		
 		private var fun:Function ;
 		
@@ -32,10 +47,10 @@ package erwins.util.http{
 			search(nowPageNo,callback);
 		}		
 		public function next():void{
-			search(nowPageNo+1);
+			if(nextAble) search(nowPageNo+1);
 		}
 		public function before():void{
-			search(nowPageNo-1);
+			if(beforeAble) search(nowPageNo-1);
 		}
 		
 		/**
@@ -50,6 +65,24 @@ package erwins.util.http{
 			try{
 				fun(callback);
 			}finally{
+			}
+		}
+		
+		/** 뭐가 됬든 반응시  search하는 버튼을 만들어 준다. */
+		public function addListener( ... bases):void{
+			
+			for each(var eachBase:Object in bases){
+				var ui:UIComponent = 	eachBase as UIComponent;
+				if(ui==null) throw new Error(eachBase + " : input must be UIComponent");
+				if(ui is Button){
+					ui.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{
+						search();
+					});
+				}else if(ui is ComboBox){
+					ui.addEventListener(ListEvent.CHANGE,function(e:ListEvent):void{
+						search();
+					});
+				}else throw new Error(eachBase + " : is not supported UIComponent");
 			}
 		}
 	}

@@ -1,17 +1,16 @@
 package erwins.util.http{
 	import com.adobe.serialization.json.*;
 	
-	import erwins.util.PopupUtil;
+	import erwins.util.UILib.PopupUtil;
 	
 	import mx.controls.*;
 	import mx.core.UIComponent;
 	import mx.managers.CursorManager;
-	import mx.managers.PopUpManager;
 	import mx.utils.*;
 	
 	/**
 	 * Lockable을 지원하는 중계기 이다.
-	 * lock의 상태가 변할 때 마다 실행해준다.
+	 * lock의 상태가 변할 때 마다 실행해준다. 등록된 펑션이 없다면 커서만 변경해준다.
 	 **/  
 	public class Mediator implements Lockable{
 		

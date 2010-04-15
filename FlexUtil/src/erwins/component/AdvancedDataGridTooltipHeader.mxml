@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<mx:AdvancedDataGridHeaderRenderer xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()" >
+<mx:Script><![CDATA[
+	import erwins.util.UILib.TooltipUtil;
+	public var title:String = "Header Info";
+	public var message:String;
+	private function init():void{
+		TooltipUtil.addStaticTooltip(this,title,message);
+	}
+]]></mx:Script>
+</mx:AdvancedDataGridHeaderRenderer>

@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:google="flexlib.controls.*"
+	xmlns:erwins="erwins.component.*"
+	xmlns:cus="*"
+	layout="absolute" applicationComplete="init()"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off" 
+	height="100%" width="1200" backgroundColor="white">
+<mx:Style source="/config/css/config.css"/>
+
+<mx:Script>
+<![CDATA[
+	import mx.events.AdvancedDataGridEvent;
+	import mx.rpc.events.HeaderEvent;
+	import mx.controls.Button;
+	import mx.charts.events.ChartItemEvent;
+	import mx.controls.dataGridClasses.DataGridColumn;
+	import mx.core.IUIComponent;
+	import mx.effects.easing.Bounce;
+	import mx.core.UIComponent;
+	import mx.events.DataGridEvent;
+	import mx.events.ToolTipEvent;
+	import mx.events.CloseEvent;
+	import mx.events.ItemClickEvent;
+	import mx.events.ListEvent;
+	import mx.collections.ArrayCollection;
+	import mx.utils.*;
+	import mx.controls.Alert;
+	import mx.managers.PopUpManager;
+
+import erwins.util.effect.*;
+import erwins.util.json.*;
+import erwins.util.http.*;
+import erwins.util.validate.*;
+import erwins.util.UILib.*;
+import erwins.util.lib.*;
+
+private var me:AgentState = this as AgentState;
+
+[Bindable] private var dataList:ArrayCollection = new ArrayCollection();
+[Bindable] public var dataPaging:Paging;
+
+[Bindable] private var agentStatus:ArrayCollection = new ArrayCollection();
+[Bindable] public var paging:Paging;
+
+private function init():void{
+	
+	var mediator:Mediator = new Mediator(me);
+	
+	paging = new Paging(function(callback:Function=null):void{
+		var params:Object = new Object();
+		params.pageNo = paging.nowPageNo;
+		 
+		var ajax:Ajax = new Ajax(Domain.agentState().agent().search());
+		ajax.setMediator(mediator);
+		ajax.send(params,function(json:Jsons):void{
+			agentStatus = json.getArray();
+			for each(var eachAgent:Object in agentStatus){
+				eachAgent["message"] = "담당자명 : " + eachAgent.chgName
+				+ "\n전화번호 : " + eachAgent.chgTel;
+				if(eachAgent.error!=null) eachAgent["message"] += "\n오류사항 : " + eachAgent.error;
+			}
+			if(callback!=null) callback();
+		});
+	},mediator);
+	
+	sheet.addEventListener(MouseEvent.MOUSE_WHEEL,function(event:MouseEvent):void{
+		var w:int = event.delta;
+		if(w>0) paging.before();
+		else paging.next(); 
+	});
+	
+	searchBtn.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{paging.search();});
+	newAgentBtn.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{AgentEdit.popUp(me);});
+	
+	TooltipUtil.addStaticTooltip(statusHelp,"Agent 도움말2",
+	"<p>1. asdasdasd</p>"+
+	"<p>2. ㅁㄴㅇㅁㄴㅇ</p>"+
+	"<p>3. 최근 변경일이 적색인것은 ~~~</p>");
+	
+	TooltipUtil.addPanelToolTip(sheet,"상세정보","message");
+	//TooltipUtil.addPanelToolTip(asas,"상세정보","asdasdasdas");
+	Domain.addLogin(me);
+	
+	sheet.addEventListener(ListEvent.ITEM_DOUBLE_CLICK,function(e:ListEvent):void{
+		if(sheet.selectedItems.length!=1){
+			Alerts.show('한개의 업체를 선택해 주세요.');
+			return;
+		}
+		AgentEdit.popUp(me,sheet.selectedItem);
+	});
+	
+	paging.search();
+}
+
+
+]]>
+</mx:Script>
+
+<!-- ==================================== ColumnInfo ==============================================  -->
+<mx:Array id="rp" >
+	<mx:AdvancedDataGridRendererProvider columnIndex="0">
+		<mx:renderer>
+			<mx:Component>
+				<mx:Label>
+					<mx:Script><![CDATA[
+						override public function set data(json:Object):void{
+							if(json==null) return;
+							super.data = json;
+							if(json.readyForConnect) htmlText = "<b><font color='#000DFF'>" + json.id + "</font></b>";
+							else  htmlText = "<font color='#FF0606'>" + json.id + "</font>";
+						}
+					]]></mx:Script>
+				</mx:Label>
+			</mx:Component>    
+		</mx:renderer>
+	</mx:AdvancedDataGridRendererProvider>
+	<mx:AdvancedDataGridRendererProvider columnIndex="1">
+		<mx:renderer>
+			<mx:Component>
+				<mx:Label>
+					<mx:Script><![CDATA[
+						override public function set data(json:Object):void{
+							if(json==null) return;
+							super.data = json;
+							if(json.activeWasFlag!=null && !json.activeWasFlag) htmlText = "<b><font color='#FF0606'>" + json.comName + "</font></b>";
+							else  htmlText = json.comName;
+						}
+					]]></mx:Script>
+				</mx:Label>
+			</mx:Component>    
+		</mx:renderer>
+	</mx:AdvancedDataGridRendererProvider>
+</mx:Array>
+
+<!-- ==================================== view ==============================================  -->
+    <mx:VBox width="100%" height="100%" >
+        <mx:HBox width="100%" horizontalAlign="right" >
+        	<cus:ResultLabel id="resultMessage" />
+			<mx:LinkButton label="도움말" color="blue"  id="statusHelp" textDecoration="underline"  />
+			<erwins:Buttons id="searchBtn" label="검색" />
+			<erwins:Buttons id="newAgentBtn" label="Agent 신규등록" />
+		</mx:HBox>
+		<mx:AdvancedDataGrid id="sheet" width="100%" height="600" dataProvider="{agentStatus}"
+				rendererProviders="{rp}" doubleClickEnabled="true" allowMultipleSelection="true" >
+			<mx:columns>
+				<cus:AdvancedDataGridColimns dataField="id" headerText="ID" width="150" textAlign="left"
+					message = "ID가 적색인 것은 연결로 설정되지 않아 데이터 요청을 하고 있지 않은  Agent입니다." />
+				<cus:AdvancedDataGridColimns dataField="comName" headerText="업체이름" textAlign="left"
+					message = "업체 이름이 적색인 것은 현재 연결되지 않는, 확인 대상 업체 입니다." />
+				<mx:AdvancedDataGridColumn dataField="serverUrl" headerText="서버IP" width="200" textAlign="left" sortable="false" />
+				<mx:AdvancedDataGridColumn dataField="osName" headerText="OS명" width="150" textAlign="left" />
+				<mx:AdvancedDataGridColumn dataField="monitorCount" headerText="위반수" width="100" textAlign="right" formatter="{LabelFunctions.numberFormatter}" />
+				<mx:AdvancedDataGridColumn dataField="lastModified" headerText="최근변경일" width="100" textAlign="center"/>
+			</mx:columns>
+		</mx:AdvancedDataGrid>
+		<mx:Spacer width="1%" />
+    </mx:VBox>
+
+</mx:Application>  

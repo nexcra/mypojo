@@ -12,7 +12,7 @@
 >
     <mx:Script><![CDATA[
         [Bindable]   
-        public var _text:String;  
+        private var _text:String;  
         
         public function get text():String { 
             return _text; 
