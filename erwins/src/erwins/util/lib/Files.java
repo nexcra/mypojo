@@ -66,7 +66,7 @@ public abstract class Files extends FileUtils {
 	
 	
 	/** commons에는 기본 메소드가 없다. 그것을 대체한다. */
-	public static final IOFileFilter ALL_FILE = new IOFileFilter(){
+	public static final IOFileFilter ALL = new IOFileFilter(){
 		@Override
 		public boolean accept(File file) {
 			return true;
@@ -77,15 +77,33 @@ public abstract class Files extends FileUtils {
 		}
 	};
 	
+	/** commons에는 기본 메소드가 없다. 그것을 대체한다. */
+	public static final IOFileFilter ALL_FILES = new IOFileFilter(){
+		@Override
+		public boolean accept(File file) {
+			return file.isFile();
+		}
+		@Override
+		public boolean accept(File dir, String name) {
+			return true;
+		}
+	};
+	
 	@SuppressWarnings("unchecked")
 	public static Iterator<File> iterateFiles(File directory){
-		return iterateFiles(directory, ALL_FILE, ALL_FILE);
+		return iterateFiles(directory, ALL, ALL);
 	}
 	@SuppressWarnings("unchecked")
 	public static Iterator<File> iterateFiles(String directoryName){
-		return iterateFiles(new File(directoryName), ALL_FILE, ALL_FILE);
+		return iterateFiles(new File(directoryName), ALL, ALL);
+	}
+	/** Files.ALL_FILES가 아니라면 디렉토리도 같이 포함되어 들어올것이다. */
+	@SuppressWarnings("unchecked")
+	public static Iterator<File> iterateFiles(String directoryName,IOFileFilter filter){
+		return iterateFiles(new File(directoryName), filter, ALL);
 	}
 	
+	/** 기존 메소드의 []를 ...로 대체시킨것이다. */
 	@SuppressWarnings("unchecked")
 	public static Iterator<File> iterateFiles(File directory,boolean recursive,String ... ext){
 		return iterateFiles(directory, ext, recursive);

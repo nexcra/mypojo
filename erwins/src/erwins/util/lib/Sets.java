@@ -57,7 +57,7 @@ public abstract class Sets  extends CollectionUtils{
     	if(t==null || t.length==0) return true;
     	return false; 
     }
-    
+        
     /**
      * List를 짧게 만든다. 별 의미 없음. ㅋ 
      */

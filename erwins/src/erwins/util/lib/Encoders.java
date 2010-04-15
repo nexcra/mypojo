@@ -39,6 +39,7 @@ public abstract class Encoders extends StringEscapeUtils {
     /**
      * javascript XML을 둘다 이스케이프 해준다. Flex에서 JSON을 사용할때 적용하면 된다. 특히 일반문자열을 json으로
      * 변환할려고 할때 사용한다. 원천적으로 데이터에는 '<>'등의 특수문자를 허용하면 안된다.
+     * 음.. 이 구분은 경험치로 구한 것이다... 제길  
      */
     public static String escapeFlex(String str) {
         //return escapeXml(escapeJavaScript(str));

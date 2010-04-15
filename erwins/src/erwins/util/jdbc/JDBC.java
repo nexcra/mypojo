@@ -81,15 +81,19 @@ public class JDBC{
         }
 	}
 	
-    public List<Mapp> select(String sql) throws SQLException{
+    public List<Mapp> select(String sql){
         List<Mapp> results = new ArrayList<Mapp>();
-        Statement statement_oracle = connection_oracle.createStatement();
-        ResultSet resultSet = statement_oracle.executeQuery(sql);
-        
-        while(resultSet.next()){
-            results.add(resultsetToMapp(resultSet));
-        }
-        resultSet.close();
+        try {
+			Statement statement_oracle = connection_oracle.createStatement();
+			ResultSet resultSet = statement_oracle.executeQuery(sql);
+			
+			while(resultSet.next()){
+			    results.add(resultsetToMapp(resultSet));
+			}
+			resultSet.close();
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
         return results;
     }
     
@@ -105,7 +109,7 @@ public class JDBC{
     	return results;
     }
     
-    public Mapp selectOne(String sql) throws SQLException{
+    public Mapp selectOne(String sql){
     	List<Mapp> list = select(sql);
     	if(list.size()!=0) throw new RuntimeException(list.size() + " result size must be 1");
     	return list.get(0);

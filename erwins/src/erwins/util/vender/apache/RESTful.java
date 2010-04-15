@@ -8,7 +8,9 @@ import java.util.Map.Entry;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
@@ -49,6 +51,16 @@ public class RESTful{
     	RESTful instance = new RESTful();
     	instance.method = new  GetMethod(url);
     	return instance;
+    }
+    
+    /** 동일한 세션에서 다른 url을 사용할때 쓴다. */
+    public RESTful run(String url){
+    	try {
+			method.setURI(new HttpURL(url));
+		} catch (URIException e) {
+			throw new RuntimeException(e);
+		}
+		return run();
     }
     
     /** url 사이의 port는 테스트 해바야함. */

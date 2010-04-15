@@ -105,7 +105,7 @@ public class JDissolver {
         if (entity instanceof Map) return getByMap((Map<Object, Object>) entity);
         else if (entity instanceof List) return getByList((List<Object>) entity);
         else if(entity instanceof DomainObject) return getByDomain(entity,true);
-        else throw new IllegalArgumentException(entity.getClass()+"is not required type");
+        else throw new IllegalArgumentException(entity+" is not required type");
     }
 
 
@@ -212,29 +212,36 @@ public class JDissolver {
         }
     }
 
+    /** DB에서 null이 입력되면 Map으로 바꿔서 가져올때 null로 들어온다. 
+     * Flex에서 null을 입력하면 인지하지 못한다. 따라서 ""로 입력한다.
+     *  */
     @SuppressWarnings("unchecked")
     private JSONObject getByMap(Map<Object, Object> map) {
-        Object obj;
+        Object value;
         Object key;
         JSONObject json = new JSONObject();
 
         for (Entry<Object, Object> entry : map.entrySet()) {
-            obj = entry.getValue();
+            value = entry.getValue();
             key = entry.getKey();
-            Class<?> clazz = obj.getClass();
+            if(value==null){
+            	json.put(key, "");
+            	continue;
+            }
+            Class<?> clazz = value.getClass();
             if (Sets.isEqualsAny(STRING_TYPE, clazz)) {
-                json.put(key, obj);
+            	json.put(key, Encoders.escapeFlex(value.toString()));
             } else if (clazz == String[].class) { //request에서 받아올때 주로 사용~
-                String[] temp = (String[]) obj;
+                String[] temp = (String[]) value;
                 JSONArray jsonArray = new JSONArray();
                 for (int index = 0; index < temp.length; index++) {
                     jsonArray.add(temp[index]);
                 }
                 json.put(key, jsonArray);
-            } else if (obj instanceof Date) {
-                json.put(key, Days.DATE_SIMPLE.get((Date) obj));
-            } else if (obj instanceof List) {
-                JSON array = getByList((List)obj);
+            } else if (value instanceof Date) {
+                json.put(key, Days.DATE_SIMPLE.get((Date) value));
+            } else if (value instanceof List) {
+                JSON array = getByList((List)value);
                 json.put(key, array);
             }
         }

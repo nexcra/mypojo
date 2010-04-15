@@ -22,6 +22,7 @@ public class TableInfos{
 	
 	public static class ColumnInfo{
 		public String name;
+		public String dataType;
 		public String pk;
 		public boolean isPk(){
 			return "true".equals(pk);
@@ -48,7 +49,7 @@ public class TableInfos{
     	for(String each : names){
     		TableInfo info = new TableInfo();
     		info.name = each;
-    		tables.add(info);	
+    		tables.add(info);
     	}
 	}
     

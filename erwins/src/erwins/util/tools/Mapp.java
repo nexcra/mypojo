@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Map.Entry;
@@ -246,6 +247,12 @@ public class Mapp extends MappRoot {
         sorted.putAll(this);
         return sorted.values().iterator();
     }    
+    
+    /** 간단 캐스팅용... 쓸일이 없다. Entry가 안되서 ㅠㅠ */
+    @SuppressWarnings("unchecked")
+	public <T> Set<T> entrySet(Class<T> a) {
+    	return (Set<T>)values();
+    }
 
     // ===========================================================================================
     //                                    기타 잡스킬

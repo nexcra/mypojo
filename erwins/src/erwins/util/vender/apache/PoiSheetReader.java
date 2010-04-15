@@ -50,7 +50,25 @@ public class PoiSheetReader{
 		}
 		protected abstract void process(Map<String,String> line);
 		protected boolean camelize(){return false;};
-    	
+    }
+    
+    /** 배당은 항상 작은애 기준이다. 즉 컬럼이 작으면 라인이 더 들어와도 짤리고, 라인이 적으면 컬럼이 많아도 읽지 않는다. */
+    public static abstract class StringColimnPoiCallback implements StringArrayPoiCallback{
+    	private boolean first = true;
+    	protected String[] column = null;
+    	@Override
+    	public void readRow(String[] line) {
+    		if(first){
+    			column = new String[line.length];
+    			boolean camelize = camelize();
+    			for(int i=0;i<line.length;i++) column[i] =  camelize ? Strings.getCamelize(line[i]) : line[i];
+    			first = false;
+    			return;
+    		}
+    		readColimn(line);
+    	}
+    	protected abstract void readColimn(String[] line);
+    	protected boolean camelize(){return false;};
     }
     
     public String getSheetName(){
@@ -59,6 +77,7 @@ public class PoiSheetReader{
 	
     /** 
      * 시트 이름이 HSSFSheet객체에 있는게 아니라 WB에 있다. ㅅㅂ.
+     * 모든 셀이 빈공간이라면 여백으로 간주하고 스킵한다.
      * */
     public void read(StringArrayPoiCallback callback){
     	Iterator<Row> rows = sheet.iterator();
@@ -71,8 +90,14 @@ public class PoiSheetReader{
     			Cell eachCell = cells.next();
     			line[index++] = toString(eachCell);
     		}
-    		callback.readRow(line);
+    		if(!isEmpty(line)) callback.readRow(line);
     	}
+    }
+    
+    /** 전체가 빈 배열인지? */
+    private static boolean isEmpty(String[] line) {
+    	for(String each : line) if(!each.equals("")) return false;
+    	return true; 
     }
 
   

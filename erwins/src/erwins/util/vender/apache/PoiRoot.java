@@ -397,10 +397,11 @@ public abstract class PoiRoot{
     public void write(String fileName){
         write(fileName,wb);
     }
+    public void write(File file){
+    	write(file,wb);
+    }
     
-    /** 엑셀시트를 파일로 변경한다. */
-    public static void write(String fileName, HSSFWorkbook workbook){
-        File file = new File(fileName);
+    public static void write(File file, HSSFWorkbook workbook){
         FileOutputStream fileOut = null;
         try {
             fileOut = new FileOutputStream(file);
@@ -410,6 +411,11 @@ public abstract class PoiRoot{
         catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    /** 엑셀시트를 파일로 변경한다. */
+    public static void write(String fileName, HSSFWorkbook workbook){
+        write(new File(fileName), workbook);
     }
 
     
