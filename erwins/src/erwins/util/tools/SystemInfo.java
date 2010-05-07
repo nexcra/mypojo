@@ -1,13 +1,15 @@
 package erwins.util.tools;
 
+import static org.apache.commons.lang.SystemUtils.IS_OS_HP_UX;
+import static org.apache.commons.lang.SystemUtils.IS_OS_LINUX;
+import static org.apache.commons.lang.SystemUtils.IS_OS_SOLARIS;
+import static org.apache.commons.lang.SystemUtils.IS_OS_UNIX;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import static org.apache.commons.lang.SystemUtils.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import erwins.util.lib.Maths;
+import erwins.util.vender.apache.Log;
 
 
 /**
@@ -16,7 +18,7 @@ import erwins.util.lib.Maths;
  **/
 public abstract class SystemInfo{
     
-    private static Log log = LogFactory.getLog(SystemInfo.class); 
+    protected static Log log = new Log(SystemInfo.class);
     
     private static String[] SERVER_IP ; //기본값
     private static String IP ;
@@ -25,7 +27,7 @@ public abstract class SystemInfo{
     static{
         try {
             IP = InetAddress.getLocalHost().getHostAddress();
-            SERVER_IP = new String[]{"192.168.1.220" //sysb 공용서버
+            SERVER_IP = new String[]{"192.168.1.132" //sysb 공용서버
             };
             if(IS_OS_LINUX || IS_OS_HP_UX || IS_OS_SOLARIS || IS_OS_UNIX) server =  true;
             else{
@@ -38,7 +40,7 @@ public abstract class SystemInfo{
         catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
-        log.info(server ? "현재 WAS는 서버로 기동됩니다." : "현재 WAS는 개발용 입니다.");
+        log.info("[{0}] 모드로 기동중입니다." , server ? "실서버" : "테스트서버");
     }
     
     /** 테스트용임!! NT장비가 들어가는 곳에서는 사용하면 안된다. */

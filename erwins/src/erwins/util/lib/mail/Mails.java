@@ -7,6 +7,7 @@ import org.apache.commons.mail.*;
 
 /**
  * commons mail을 확장한다.
+ * 상세 구문은 템플릿은 Groovy를 이용할것!
  */
 public class Mails {
 

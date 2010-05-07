@@ -18,7 +18,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import erwins.util.exception.MalformedException;
 import erwins.util.lib.Clazz;
 import erwins.util.lib.Sets;
 import erwins.util.lib.Strings;
@@ -163,28 +162,13 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         return count > 0 ? true : false; 
     }
     
-    /** 자연키 중복 여부를 테스트한다. => 어떤게 중복인지 알 수 없네 ㅅㅂ. 쓰지 말것. */
-    protected List<Object[]> natureKeyValidate(String ... natureKeys) {
+    /** 자연키 중복 여부를 테스트한다. 중복된게 없다면 null을 리턴한다. 있으면 갯수를 리턴한다. */
+    protected Integer natureKeyValidate(String ... natureKeys) {
     	String sqlPiece = Strings.joinTemp(natureKeys,",");
     	HqlBuilder hql = new HqlBuilderRoot();
-    	hql.select("count(*),"+sqlPiece).from(getPersistentClass().getSimpleName())
+    	hql.select("sum(count(*))").from(getPersistentClass().getSimpleName())
     		.groupBy(sqlPiece+" having count(*) > 1");
-    	List<Object[]> result = queryForObjectArray(hql);
-    	if(result.size()==0) return null;
-    	return result;
-    }
-    
-    /** 자연키가 중복되면 MalformedException 예외를 일으킨다. */
-    protected void natureKeyValidateThrowException(String ... natureKeys) {
-    	List<Object[]> result = natureKeyValidate(natureKeys);
-		if(result!=null){
-			String header = "count(*)|" +  Strings.joinTemp(natureKeys, "|") + "\n";
-			StringBuilder builder = new StringBuilder(header);
-			for(Object[] each : result){
-				builder.append(Strings.joinTemp(each,"|"));
-			}
-			throw new MalformedException(builder.toString());
-		}
+    	return (Integer) queryUnique(hql);
     }
     
     // ===========================================================================================
@@ -372,6 +356,12 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     protected List<Object[]> queryForObjectArray(HqlBuilder hql) {
         Query query = hql.query(getSession());
         return query.list();
+    }
+    
+    /** 통계 작성 등에 사용된다. */
+    protected List<Object> queryForObject(HqlBuilder hql) {
+    	Query query = hql.query(getSession());
+    	return query.list();
     }
     
     /** 결과 배열을 key,value의 Flate한 Map으로 변환한다. select구문에 반드시 2개(나무지는 무시)만 들어가야 한다. */

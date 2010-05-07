@@ -1,7 +1,5 @@
 package erwins.util.lib.mail;
 
-import org.junit.Test;
-
 import erwins.util.vender.spring.SpringMailHelper;
 
 
@@ -21,7 +19,7 @@ public class EmailTest{
         helper.send(TO,"hellow","asd {0}","id");
     }
     
-    @Test
+    //@Test
     public void sendMail() throws Exception{
         Mails mail = new Mails(HOST);
         mail.setFrom("영감님", FROM);

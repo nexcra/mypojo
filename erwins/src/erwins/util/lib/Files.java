@@ -413,6 +413,11 @@ public abstract class Files extends FileUtils {
 		return obj;
 	}
 
+	/** 윈도우의 디렉토리 세퍼레이터는 \이다 이때문에 문자열 취급시 오류가 발생할 수 있음으로 치환해 준다.  */
+	public static String getPath(File file) {
+		return file.getAbsolutePath().replaceAll("\\\\","/");
+	}
+	
 	/** 파일 사이즈(MB)를 String으로 나타낸다. */
 	public static String getMb(File file) {
 		return Formats.DOUBLE1.get(file.length() / FileUtils.ONE_KB / 1000.0) + "Mb";

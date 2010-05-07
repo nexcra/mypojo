@@ -46,7 +46,10 @@ public abstract class PoiRoot{
     public CellStyle BODY_Left;
     public CellStyle BODY_Right;
     
+    public CellStyle LINKED;
+    
     protected HSSFFont font;
+    protected HSSFFont BLUE_FONT;
     
     /**  헤더길이 :  시트초기화시 설정된다. */
     protected List<Integer> headerRowCount = new ArrayList<Integer>();;
@@ -64,6 +67,13 @@ public abstract class PoiRoot{
         font = wb.createFont();
         font.setFontHeightInPoints((short)11);
         font.setFontName("맑은 고딕");
+        
+        BLUE_FONT = wb.createFont();
+        BLUE_FONT.setFontHeightInPoints((short)11);
+        BLUE_FONT.setFontName("맑은 고딕");
+        BLUE_FONT.setItalic(true);
+        //BLUE_FONT.setStrikeout(true);
+        BLUE_FONT.setColor(HSSFColor.BLUE.index);
         //font.setItalic(true);
         //font.setStrikeout(true);
         
@@ -97,6 +107,9 @@ public abstract class PoiRoot{
         boxing(GRAY);
         GRAY.setFont(font);
         
+        LINKED = wb.createCellStyle();
+        boxing(LINKED);
+        LINKED.setFont(BLUE_FONT);
         //sheet.shiftRows(2, 4, -1); //아래위 바꿈..        
     }
     
@@ -138,6 +151,7 @@ public abstract class PoiRoot{
         for(int i=0;i<sheetLength;i++){            
             wrapSheet(i);
         }
+        for(PoiCellPair each : pairs) each.accept();
     }
     
     /**
@@ -145,7 +159,6 @@ public abstract class PoiRoot{
      * 개별 체크로.. 부하가 약간 있을 수 있음.
      * sheet1.autoSizeColumn((short)5); //한글이라그런기? 약간 작게 설정된다.
      */    
-    @Deprecated
     private void wrapSheet(int index){
         HSSFSheet sheet =  wb.getSheetAt(index);
         Mapp map = new Mapp();
@@ -251,7 +264,8 @@ public abstract class PoiRoot{
     }    
     
     /**
-     * 해당 시트의 가로/세로를 머지한다. 
+     * 해당 시트의 가로/세로를 머지한다.
+     * Wrap 이전에 호출되어야 한다. 
      */
     public Merge getMerge(int index){
         return new Merge(wb.getSheetAt(index));         
@@ -417,6 +431,25 @@ public abstract class PoiRoot{
     public static void write(String fileName, HSSFWorkbook workbook){
         write(new File(fileName), workbook);
     }
-
+    
+    /* ================================================================================== */
+	/*                             부분  스타일 적용                                                       */
+	/* ================================================================================== */
+    
+    protected List<PoiCellPair> pairs = new ArrayList<PoiCellPair>();
+    
+    /** 일괄 wrap 후 부분적으로 셀을 초기화해주기 위해 사용한다. */
+    protected static class PoiCellPair{
+    	private Cell cell;
+    	private CellStyle cellStyle;
+    	protected PoiCellPair(Cell cell,CellStyle cellStyle){
+    		this.cell = cell;
+    		this.cellStyle = cellStyle;
+    	}
+    	/** 개별 셀 스타일 조정. */
+    	public void accept(){
+    		cell.setCellStyle(cellStyle);
+    	}
+    }    
     
 }

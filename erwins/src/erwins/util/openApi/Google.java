@@ -27,7 +27,7 @@ public class Google{
     private static final String GOOGLE_CHART_URL = "http://chart.apis.google.com/chart";
     private static final String GOOGLE_WEATHER_URL = "http://www.google.co.kr/ig/api";
     private static final String GOOGLE_LOCAL_MAP_KEY = "ABQIAAAAbnojiUetDB2JPnAr7msMxhT2yXp_ZAY8_ufC3CFXhHIE1NvwkxSSUTahXG1TgB4AL-LL3DXVwdGvXg";
-    private static final String GOOGLE_SERVER_MAP_KEY = "ABQIAAAAbnojiUetDB2JPnAr7msMxhSJ9_8WeQAaXDHeBdc7dwvnuUSw7BQOdEokh8Ck27mfaJWo36FaoQVUpQ";
+    private static final String GOOGLE_SERVER_MAP_KEY = "ABQIAAAAbnojiUetDB2JPnAr7msMxhQ0X3PD8M9p51GbyLnt4zg9AYh1ZBSqd86Pt0zb2S1bkxjecXYnIKuHhw";
     
     /**
      * 지정된 서버IP가 아니면 LOCAL Key를 , 지정된 서버이면 서버 key를 리턴한다.

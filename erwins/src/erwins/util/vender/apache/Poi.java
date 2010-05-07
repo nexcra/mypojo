@@ -4,6 +4,7 @@ package erwins.util.vender.apache;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -14,8 +15,8 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.Hyperlink;
 
+import erwins.util.lib.Days;
 import erwins.util.lib.Formats;
 import erwins.util.lib.Strings;
 import erwins.util.tools.Mapp;
@@ -79,8 +80,7 @@ public class Poi extends PoiRoot{
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }    
-    
+    }
     
     // ===========================================================================================
     //                                     간편쓰기.
@@ -103,10 +103,14 @@ public class Poi extends PoiRoot{
         headerRowCount.add(titless.length);
     }
     
-    public HSSFRow createNextRow() {
+    private HSSFRow createNextRow() {
         int i = nowSheet.getPhysicalNumberOfRows(); //시트가 순수 createRow로 생성한 로우 수를 반환한다. 즉 중간에 공백이 있으면 안된다.
-        HSSFRow row = nowSheet.createRow(i);
-        return row;
+        return nowSheet.createRow(i);
+    }
+    
+	private HSSFRow currentRow() {
+    	int i = nowSheet.getPhysicalNumberOfRows(); //시트가 순수 createRow로 생성한 로우 수를 반환한다. 즉 중간에 공백이 있으면 안된다.
+    	return nowSheet.getRow(i-1);
     }
     
     /**
@@ -126,36 +130,43 @@ public class Poi extends PoiRoot{
                 row.createCell(j).setCellValue(new HSSFRichTextString(Strings.toString(obj[j])));
             }
         }
-    }    
+    }
     
-    /** 기생성된 row에 i번째 컬럼 부터 value를 입력한다. */
-    public void setValues(int i,Object ... values){
+    /** 기존 셀이 완성되어 있어야 한다. 예제  시트이음!A1   */
+    public void addHyperlink(int cellnum,String linkText){
+    	HSSFRow row = currentRow();
+    	HSSFCell cell =  row.getCell(cellnum);
+    	HSSFHyperlink link = new HSSFHyperlink(HSSFHyperlink.LINK_DOCUMENT);
+    	link.setAddress(linkText);
+    	cell.setHyperlink(link);
+    	pairs.add(new PoiCellPair(cell, LINKED));
+    }
+    
+    public void addHyperlink(int cellnum,String sheetName,String column,int rownum){
+    	addHyperlink(cellnum,sheetName+"!"+column+rownum);
+    }
+    
+    /** row를 만들고 i번째 컬럼 부터 value를 입력한다.? i는 왜넣었을까..ㅋ */
+    public void addValues(int i,Object ... values){
         HSSFRow row = createNextRow();
         for(Object each : values){
             String value = null;
             if(each==null) value="";
+            else if(each instanceof Long || each instanceof Integer) value = Formats.INT.get((Number)each);
             else if(each instanceof Number) value = Formats.DOUBLE2.get((Number)each);
+            else if(each instanceof Date) value = Days.DATE.get((Date)each);
             else value = each.toString();
             row.createCell(i++).setCellValue(new HSSFRichTextString(value));    
         }
     }
     
-    public void temp(){
-    	nowSheet = wb.createSheet("aa");
-    	HSSFRow row = createNextRow();
-    	HSSFCell cell =  row.createCell(0);
-    	cell.setCellValue("1111");
-    	cell =  row.createCell(1);
-    	cell.setCellValue("2222");
-    	HSSFHyperlink l = new HSSFHyperlink(HSSFHyperlink.LINK_DOCUMENT);
-    	l.setAddress("aa!A1");
-    	cell.setHyperlink(l);
-    	
+    public void addValuesArray(Object[] values){
+    	addValues(0,values);
     }
     
     /** sheet의 마지막에 row를 생성하고 value를 입력한다. */    
     public void addValues(Object ... values){
-        setValues(0,values);
+    	addValues(0,values);
     }
     
     /** 컬럼 순서같은건 없다. 간단메소드로서 사용에 주의할것. */
@@ -186,10 +197,6 @@ public class Poi extends PoiRoot{
 			}
 			this.addValuesArray(values);
 		}
-    }
-    
-    public void addValuesArray(Object[] values){
-        setValues(0,values);
     }
     
 }

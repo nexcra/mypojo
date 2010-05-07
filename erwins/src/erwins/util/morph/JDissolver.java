@@ -23,6 +23,7 @@ import net.sf.json.JSONObject;
 
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CollectionOfElements;
+import org.hibernate.annotations.Parent;
 
 import erwins.util.lib.Clazz;
 import erwins.util.lib.Days;
@@ -107,6 +108,18 @@ public class JDissolver {
         else if(entity instanceof DomainObject) return getByDomain(entity,true);
         else throw new IllegalArgumentException(entity+" is not required type");
     }
+    
+    /** json타입은 XML과는 달리 바디 부분에 key가 없는 value를 넣기 애매하다. 
+     * 따라서 DB에서 하나의 컬럼만 가져와서 배열로 할당하는 경우 강제로 키를 지정해주자. */
+    public JSONArray buildSingleList(List<Object> list,String key){
+    	JSONArray jsonArray = new JSONArray();
+    	for(Object each : list){
+    		JSONObject json = new JSONObject();
+    		json.put(key, each);
+    		jsonArray.add(json);
+    	}
+    	return jsonArray;
+    }
 
 
     /** 외부접근도 가능. 도메인 객체임으로 Map이나 generic이 아닌 List는 고려하지 않는다. */
@@ -119,6 +132,7 @@ public class JDissolver {
     
     /**
      * 외부접근도 가능. 도메인 객체임으로 Map이나 generic이 아닌 List는 고려하지 않는다. 
+     * Hibernate등으로 인해 Javassist로 엮인 객체는 anno를 얻어오지 못한다. 따라서 가져오는 방법을 이중화 한다.
      */
     @SuppressWarnings("unchecked")
     public void getByDomain(JSONObject json,Object entity,boolean recursive){
@@ -178,9 +192,12 @@ public class JDissolver {
 				    json.put(fieldName, num.name());
 				} else if (Sets.isInstanceAny(annos, OracleListString.class)) {
 				    Object obj = method.invoke(entity);
+				    if(obj==null) continue;
 				    if(!Hibernate.isInitialized(obj)) continue;
-				    json.put(fieldName, Sets.getOracleStr((List) obj));                
-				}else if (recursive && Sets.isInstanceAny(annos, ManyToOne.class)) {
+				    json.put(fieldName, Sets.getOracleStr((List) obj));            
+				    /** Parent가 있을 경우 무한루프 방지. */
+				}else if (recursive && !Sets.isInstanceAny(annos, Parent.class) && 
+						(Sets.isInstanceAny(annos, ManyToOne.class) || DomainObject.class.isAssignableFrom(returnType)  )) {
 				    Object obj = method.invoke(entity);
 				    if(obj==null) continue;
 				    if(obj instanceof EntityId){
@@ -195,9 +212,11 @@ public class JDissolver {
 			        }
 				    //재귀 호출이라도 Hibernate가 init되지 않았다면 재귀를 멈춘다.
 				    if(Hibernate.isInitialized(obj)) json.put(fieldName,getByDomain(obj,true));
-				} else if (recursive && Sets.isInstanceAny(annos, OneToMany.class, CollectionOfElements.class,ManyToMany.class)) {
+				} else if (recursive && ( Sets.isInstanceAny(annos, OneToMany.class, CollectionOfElements.class,ManyToMany.class)
+					 || Collection.class.isAssignableFrom(returnType)	)) {
 				    JSONArray jsonArray = new JSONArray();
 				    Collection sublist = (Collection) method.invoke(entity);
+				    if(sublist==null) continue;
 				    if(!Hibernate.isInitialized(sublist)) continue;
 				    for(Object object : sublist){
 				    	if(object==null) continue;

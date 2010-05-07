@@ -43,7 +43,8 @@ public abstract class Encoders extends StringEscapeUtils {
      */
     public static String escapeFlex(String str) {
         //return escapeXml(escapeJavaScript(str));
-        return escapeXml(str.replaceAll("\"", "'"));  //replaceAll이 먼지 기억이 안난다... ㄷㄷ
+        //return escapeXml(str.replaceAll("\"", "'"));  //replaceAll이 먼지 기억이 안난다... ㄷㄷ
+    	return escapeXml2(str.replaceAll("\"", "'"));  //한글 변환을 막기 위해서 다시 이걸로 수정 ㅠㅠ
     }
     
     /** \는 제외. */
@@ -65,7 +66,11 @@ public abstract class Encoders extends StringEscapeUtils {
      * 에러표시가 부담스럽다면..
      */
     public static void stackTrace(Throwable throwable) {
-        stackTraceToStr(throwable);
+    	stackTrace(throwable,15);
+    }
+    
+    public static void stackTrace(Throwable throwable,Integer ableCount) {
+    	stackTraceToStr(throwable,ableCount);
         StringWriter stringWriter = new StringWriter();
         throwable.printStackTrace(new PrintWriter(stringWriter));
         getRootCause(stringWriter.toString());
@@ -74,13 +79,13 @@ public abstract class Encoders extends StringEscapeUtils {
     /**
      * 에러 메세지를 필터링하여 일정 개수만 보여준다.
      */
-    private static void stackTraceToStr(Throwable e) {
+    private static void stackTraceToStr(Throwable e,Integer ableCount) {
         log.error(" ====== EXCEPTION ======");
         StackTraceElement[] elements = e.getStackTrace();
         int count = 0;
         for (StackTraceElement element : elements) {
             count++;
-            if (count > 3) break;
+            if (count > ableCount) break;
             log.error(element.getClassName() + ".class >  " + element.getMethodName() + "()");
         }
     }

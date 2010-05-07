@@ -46,7 +46,7 @@ public abstract class AjaxTool {
         if(!json.getBoolean(AjaxTool.IS_SUCCESS)) throw new RuntimeException(message.toString());
         if(!message.startsWith("{")) return null;
         return  json.getJSONObject(AjaxTool.MESSAGE);
-    }    
+    }
 
     /**
      * 자바스크립트를 캐싱한다. \n 하는것 잊지말것

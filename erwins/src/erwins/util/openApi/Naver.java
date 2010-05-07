@@ -53,7 +53,7 @@ public abstract class Naver{
     //지도 관련
     private static final String NAVER_MAP_JS_URL = "http://map.naver.com/js/naverMap.naver";
     private static final String NAVER_LOCAL_MAP_KEY = "ac7298e783b0c0ebced2520878d43c35";
-    private static final String NAVER_SERVER_MAP_KEY = "f792ae611c9e8df4018443e56edb53c4";
+    private static final String NAVER_SERVER_MAP_KEY = "3bd776115c4d41a66793a69ae642865c";
     
     /**
      * 지정된 서버IP가 아니면 LOCAL Key를 , 지정된 서버이면 서버 key를 리턴한다.

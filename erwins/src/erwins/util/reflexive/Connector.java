@@ -12,7 +12,7 @@ import erwins.util.root.Pair;
 /**
  * 트리 구조를 형성하는 Connector이다.
  * 이 인스턴스는 시스템 기동시 단 한번만 초기화 된다.  자료 변경시 지우고 새로 만들것!
- * Connectable은 불변객체라 가정하면 스래드 안전하다.
+ * Connectable가 불변객체라면 스래드 안전하다.
  * map을 리턴할때는 unmidifiable하게 던져주자.
  * 1. 부모를 먼저 지정해 주자.
  * 2. 자식을 지정해 주자.

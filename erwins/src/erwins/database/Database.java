@@ -272,6 +272,10 @@ public final class Database { /*
         databaseInfo.put("tableInfo", list);
         return databaseInfo;
     }
+    
+    public int  tableSize() {
+    	return tables.size();
+    }
 
     /**
      * 기존 데이터(*.csv)들을 전부 로딩한다. 이미 로딩된 테이블은 적용하지 않는다.
