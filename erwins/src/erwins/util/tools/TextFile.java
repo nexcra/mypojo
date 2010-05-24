@@ -10,7 +10,8 @@ import erwins.util.lib.CharSets;
 import erwins.util.reflexive.FolderIterator;
 
 /**
- * 텍스트 파일을 문자열로 바꿔준다. 
+ * 텍스트 파일을 간단히 문자열로 바꿔준다.
+ * 성능에 무관한 곳에만 사용해야 한다. 
  */
 public class TextFile{
     

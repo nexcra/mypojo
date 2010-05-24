@@ -76,11 +76,17 @@ public class HqlBuilderMap implements HqlBuilder{
     	return le(field,getExt(field));
     }
     
-    public HqlBuilderMap like(String field,String key){
-        if(map.isEmpty(key)) return this;
-        builder.like(field, map.getStr(key));
-        return this;
+    public HqlBuilderMap like(String field){
+        return like(field,getExt(field));
     }
+    public HqlBuilderMap like(String field,String key){
+    	if(map.isEmpty(key)) return this;
+    	builder.like(field, map.getStr(key));
+    	return this;
+    }
+    public HqlBuilderMap iLike(String field){
+        return iLike(field,getExt(field));
+    }    
     public HqlBuilderMap iLike(String field,String key){
         if(map.isEmpty(key)) return this;
         builder.iLike(field, map.getStr(key));
@@ -134,14 +140,13 @@ public class HqlBuilderMap implements HqlBuilder{
     }
     
     /**
-     * hql.eq("a.someType", SomeType.class); 라고 입력하면
+     * ex1) hql.eq("a.someType", SomeType.class); 라고 입력하면
      * ==> a.someType = :somType
      * ==> setParameter(map.getEnum('someType'));
+     * ex2) "a.agent.id"  => "agent.id" 로 바꿔 준다
      */
     private String getExt(String str){
-        String value = Strings.getExtention(str);
-        if(value.equals("")) throw new RuntimeException(str+" has no extention");
-        return value;
+        return Strings.getFirstAfter(str, ".");
     }
     
     /** key뒤에 Min,Max를 붙여서 검색한다. 자동으로 숫자형으로 바꾼다. 주의! */

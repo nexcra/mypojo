@@ -80,7 +80,7 @@ public class JDissolver {
      * key가 없는 객체일 경우 (Hibernate에서 Object[]로 얻어오는 경우)를 필터링 해준다.
      *   => 이경우 doube은 소수 2째자리에서 반올림해준다.
      */
-    private <T extends Object> JSONArray getByList(List<T> list) {
+    private <T extends Object> JSONArray getByList(Iterable<T> list) {
         JSONArray jsonArray = new JSONArray();
         for (Object each : list){
         	if(each==null) continue;
@@ -104,7 +104,7 @@ public class JDissolver {
     @SuppressWarnings("unchecked")
     public JSON build(Object entity) {
         if (entity instanceof Map) return getByMap((Map<Object, Object>) entity);
-        else if (entity instanceof List) return getByList((List<Object>) entity);
+        else if (entity instanceof Iterable) return getByList((Iterable) entity);
         else if(entity instanceof DomainObject) return getByDomain(entity,true);
         else throw new IllegalArgumentException(entity+" is not required type");
     }

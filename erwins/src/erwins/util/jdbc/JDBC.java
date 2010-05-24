@@ -35,6 +35,12 @@ public class JDBC{
 	public static final String URL_MS_SQL_OLD = "jdbc:sqlserver://{0}:{1};Databasename={2}" ;	
 	public static final String URL_MY_SQL = "jdbc:mysql://{0}:{1}/{2}";
 	public static final String URL_ORACLE = "jdbc:oracle:thin:@{0}:{1}:{2}" ;
+	public static final String URL_ORACLE_SERVICENAME = "jdbc:oracle:thin:@(DESCRIPTION=" 
+		+"(CONNECT_DATA=(SERVICE_NAME={2}))"
+		+"(ADDRESS=(PROTOCOL=TCP)(HOST={0})(PORT={1})))";
+	
+	String url = "jdbc:oracle:thin:@(DESCRIPTION=";
+	
 	
 	private static final String COUNT = "COUNT(*)";
 	
@@ -48,7 +54,11 @@ public class JDBC{
 	public JDBC(String ip,String port,String sid,String userId,String pass)  throws SQLException {
 		String url = MessageFormat.format(URL_ORACLE, ip,port,sid);
 		init(url, userId, pass, new OracleDriver());
-	}	
+	}
+	public JDBC(String ip,String port,String sid,String userId,String pass,boolean isServiceName)  throws SQLException {
+		String url = MessageFormat.format(URL_ORACLE_SERVICENAME, ip,port,sid);
+		init(url, userId, pass, new OracleDriver());
+	}
 	public JDBC(String url,String userId,String pass,Driver driver)  throws SQLException {
 		init(url, userId, pass, driver);
 	}

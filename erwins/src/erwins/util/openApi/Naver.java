@@ -52,6 +52,9 @@ public abstract class Naver{
     private static final String NAVER_GEOCODE_URL = "http://maps.naver.com/api/geocode.php";
     //지도 관련
     private static final String NAVER_MAP_JS_URL = "http://map.naver.com/js/naverMap.naver";
+    
+    @SuppressWarnings("unused")
+	private static final String NAVER_NORMAL_KEY = "3826a877cfff565aa2f109ad9a9c121d";
     private static final String NAVER_LOCAL_MAP_KEY = "ac7298e783b0c0ebced2520878d43c35";
     private static final String NAVER_SERVER_MAP_KEY = "3bd776115c4d41a66793a69ae642865c";
     

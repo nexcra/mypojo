@@ -39,13 +39,14 @@ public abstract class AjaxTool {
     public static final String MESSAGE = "message";
     
     /** Mock 테스트시 json을 파싱해서 성공인지 확인한다. */
-    public static JSONObject assertResponse(MockHttpServletResponse resp) throws UnsupportedEncodingException{
+    public static JSON assertResponse(MockHttpServletResponse resp) throws UnsupportedEncodingException{
     	String body = resp.getContentAsString();
         JSONObject json = JSONObject.fromObject(body);
         String message = json.getString(AjaxTool.MESSAGE);
         if(!json.getBoolean(AjaxTool.IS_SUCCESS)) throw new RuntimeException(message.toString());
-        if(!message.startsWith("{")) return null;
-        return  json.getJSONObject(AjaxTool.MESSAGE);
+        if(message.startsWith("{")) return  json.getJSONObject(AjaxTool.MESSAGE);
+        else if(message.startsWith("[")) return  json.getJSONArray(AjaxTool.MESSAGE);
+        return null;
     }
 
     /**

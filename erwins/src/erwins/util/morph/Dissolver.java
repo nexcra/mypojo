@@ -1,6 +1,7 @@
 package erwins.util.morph;
 
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.servlet.http.HttpServletRequest;
 
@@ -168,6 +170,17 @@ public class Dissolver{
                 }else if(Sets.isInstanceAny(annos,OracleListString.class)){ 
                     String str = map.getStr(fieldName);
                     method.invoke(entity, Sets.getOracleStr(str));
+                }else if(Sets.isInstanceAny(annos,ManyToOne.class)){
+                    String entityName = fieldName + "." + EntityId.ID_NAME;
+                    Serializable temp = null;
+                    Class<?> idClass = Clazz.getterReturnClass(setterType,EntityId.ID_NAME);
+                    if(idClass==Integer.class) temp = map.getIntId(entityName);
+                    else if(idClass==Long.class) temp = map.getLongId(entityName);
+                    else if(idClass==String.class) temp = (Serializable)map.get(entityName);
+                    if(temp==null) continue;
+                    EntityId newEntity = (EntityId)Clazz.instance(setterType);
+                    newEntity.setId(temp);
+                    method.invoke(entity, newEntity);
                 }else if(Sets.isInstanceAny(annos,ManyToMany.class)){
                     /** List만 사용되는것이 아니라 Set이 사용될 수도 있다. */
                     Class<?> subEntityClass =  Clazz.getSetterGeneric(method);

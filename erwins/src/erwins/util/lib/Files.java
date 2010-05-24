@@ -89,6 +89,16 @@ public abstract class Files extends FileUtils {
 		}
 	};
 	
+	/** 2개나 재정의하는게 귀찮아서 만든 간이 클래스~ */
+	public static abstract class IOFileFilter2 implements IOFileFilter{
+		@Override
+		public boolean accept(File dir, String name) {
+			//디렉토리를 읽지 않으니 어차피 안쓴다.
+			return false;
+		}
+	}
+
+	
 	@SuppressWarnings("unchecked")
 	public static Iterator<File> iterateFiles(File directory){
 		return iterateFiles(directory, ALL, ALL);
@@ -101,6 +111,12 @@ public abstract class Files extends FileUtils {
 	@SuppressWarnings("unchecked")
 	public static Iterator<File> iterateFiles(String directoryName,IOFileFilter filter){
 		return iterateFiles(new File(directoryName), filter, ALL);
+	}
+	
+	/** 하나만 재정의해도 된다. */
+	@SuppressWarnings("unchecked")
+	public static Iterator<File> iterateFiles(File directory,IOFileFilter2 filter){
+		return iterateFiles(directory, filter, ALL);
 	}
 	
 	/** 기존 메소드의 []를 ...로 대체시킨것이다. */
@@ -184,6 +200,21 @@ public abstract class Files extends FileUtils {
 			if(child.equals(parent)) return true;
 			child = child.getParentFile();
 			if(child==null) return false;
+		}
+	}
+	
+	/** root는 반드시 file의  parent(몇단계가 되었던 간에)이어야 한다.
+	 * ex) file이 D:/A/B/C  이고 루트가 D:/A 이라면 D:/A/B 를 리턴한다.  */
+	public static File getFirstByRoot(File file,File root) {
+		if(file==null || root==null) throw ExceptionFactory.nullArgs();
+		if(!file.exists()) throw ExceptionFactory.fileNotFound(file);
+		if(!root.exists()) throw ExceptionFactory.fileNotFound(root);
+		File parent;
+		while(true){
+			parent = file.getParentFile();
+			if(parent==null) throw new RuntimeException(file.getAbsolutePath()+" file's parent must be root");
+			if(parent.equals(root)) return file;
+			file = parent;
 		}
 	}
 

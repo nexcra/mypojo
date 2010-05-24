@@ -132,7 +132,16 @@ public class Poi extends PoiRoot{
         }
     }
     
-    /** 기존 셀이 완성되어 있어야 한다. 예제  시트이음!A1   */
+    /** 파일다운로드링크, 페이지 이동링크 등등 */
+    public void addUrlHyperlink(int cellnum,String url){
+    	HSSFRow row = currentRow();
+    	HSSFCell cell =  row.getCell(cellnum);
+    	HSSFHyperlink link = new HSSFHyperlink(HSSFHyperlink.LINK_URL);
+    	link.setAddress(url);
+    	cell.setHyperlink(link);
+    	pairs.add(new PoiCellPair(cell, LINKED));
+    }
+    
     public void addHyperlink(int cellnum,String linkText){
     	HSSFRow row = currentRow();
     	HSSFCell cell =  row.getCell(cellnum);

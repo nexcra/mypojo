@@ -93,6 +93,12 @@ public class FileUploader implements Iterable<File>{
         this.maxMb = maxMb;
     }
 
+    /** ex)  up.setFilter(new FileFilter(){
+            public boolean isStorable(File file) {
+                log.debug(file.getAbsolutePath()+" is uploaded.");
+                return true;
+            }
+        }); */
     public void setFilter(FileFilter filter) {
         this.filter = filter;
     }

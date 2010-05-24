@@ -29,6 +29,8 @@ public abstract class Sets  extends CollectionUtils{
     
     /**
      * null safe하게 IdEntity를 비교한다.
+     * EntityId <= 이게 들어가면 ID만 읽어도 객체를 로드하려고 한다. 즉 PK인것을 하이버네이트가 인지하지 못한다. 
+     * Reflection으로 읽어야 안전한듯. 
      */
     public static <ID extends Serializable> boolean isEqualIdEntity(EntityId<ID> a, EntityId<ID> b){
         if(a==null || b==null) return false;

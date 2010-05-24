@@ -79,10 +79,19 @@ public class Strings extends StringUtils {
     }
 
     /**
-     * 첫번째 패턴까지의 문자열을 리턴한ㄷ. ex) getFirst("12345\qqq\asd","\") => 12345
+     * 첫번째 패턴까지의 문자열을 리턴한다. ex) getFirst("12345\qqq\asd","\") => 12345
      */
     public static String getFirst(String str, String pattern) {
         return str.substring(0, str.indexOf(pattern));
+    }
+    
+    /**
+     * 첫번째 패턴 이후로의 문자열을 리턴한다. 
+     * ex) getFirstAfter("12345\qqq\asd","\") => qqq\asd
+     * 매칭이 안되면 원본을 리턴한다.
+     */
+    public static String getFirstAfter(String str, String pattern) {
+    	return str.substring(str.indexOf(pattern)+1,str.length() );
     }
 
     /**

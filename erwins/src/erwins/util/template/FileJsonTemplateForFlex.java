@@ -29,7 +29,7 @@ public abstract class FileJsonTemplateForFlex{
     protected void reflexiveVisit(File file,JSONArray array) {
         if (file.isHidden()) return;
         JSONObject obj = new JSONObject();
-        obj.put("label", file.getName());
+        obj.put(Flex.LABEL, file.getName());
 
         if (file.isFile()) {
             obj.put(Flex.IS_BRANCH, false);
