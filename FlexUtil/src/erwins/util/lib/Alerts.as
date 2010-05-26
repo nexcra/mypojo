@@ -49,11 +49,11 @@ package erwins.util.lib{
   			var temp2:String = Alert.okLabel;
   			Alert.yesLabel = btn1;
   			Alert.okLabel = btn2;
-  			Alert.show(message,title,Alert.YES|Alert.OK|Alert.NO,null,function(e:CloseEvent):void{
+  			Alert.show(message,title,Alert.YES|Alert.OK|Alert.CANCEL,null,function(e:CloseEvent):void{
 				switch(e.detail){
 					case Alert.YES : command1(); return;
 					case Alert.OK : command2(); return;
-					case Alert.NO : return;
+					case Alert.CANCEL : return;
 				}
 			});
 			Alert.yesLabel = temp1;

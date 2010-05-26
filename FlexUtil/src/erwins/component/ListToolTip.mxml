@@ -12,8 +12,8 @@
 >
     <mx:Script><![CDATA[
     	import mx.collections.ArrayCollection;
-        public var _columns:Array;
-        public var _dataProvider:ArrayCollection;
+    	[Bindable] private var _columns:Array;
+        [Bindable] private var _dataProvider:ArrayCollection;
         
         public function set text(value:String):void {
         }

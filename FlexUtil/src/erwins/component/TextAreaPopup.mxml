@@ -15,6 +15,12 @@
 	import mx.managers.PopUpManager;
 	import mx.core.UIComponent;
 
+public static function clickPopUp(base:UIComponent,target:UIComponent,title:String,text:String,width:int=0,height:int=0):void{
+	target.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{
+		TextAreaPopup.popUp(base,title,text,width,height);
+	});
+}
+
 /** 디자인은 추후 면경하자. 텍스트에어리어 팝업의 경우 고정길이가 많다.  */
 public static function popUp(base:UIComponent,title:String,text:String,width:int=0,height:int=0):void{
 	var popWin:TextAreaPopup = new TextAreaPopup();

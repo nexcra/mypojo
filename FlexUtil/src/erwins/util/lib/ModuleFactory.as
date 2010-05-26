@@ -1,9 +1,10 @@
 package erwins.util.lib{
 	import com.adobe.serialization.json.*;
 	
-	import erwins.util.lib.Alerts;
+	import erwins.util.UILib.TimeUtil;
 	
 	import flash.display.DisplayObject;
+	import flash.utils.Timer;
 	
 	import mx.controls.Alert;
 	import mx.events.ModuleEvent;
@@ -14,8 +15,6 @@ package erwins.util.lib{
 	public  class ModuleFactory{
 		
 		public static var map:Object = new Object();
-		public static var click:Object = new Object();
-		public static var busy:Boolean = false;
 		
 		public static function count(url:String):int{
 			return map[url] as int;
@@ -23,36 +22,41 @@ package erwins.util.lib{
 		
 		/** 기존 로드된 모듈이라면  요청을 무시한다. */
 		public static function loadUnique(url:String,callback:Function):void{
+			if(map[url]) return;
 			var info:IModuleInfo = ModuleManager.getModule(url);
-			if(map[url]==null){
-				info.addEventListener(ModuleEvent.ERROR, function(e:ModuleEvent):void{
-					Alerts.debug("load Error : " + e.errorText);
-				});
-				var func:Function = function(e:ModuleEvent):void{
-					trace('ModuleEvent.READY');
-					var result:Object =  info.factory.create();
-					CursorManager.removeBusyCursor();
-					if(result==null) Alert.show("로드한 모듈이 null입니다 URL을 확인하세요\n" + url); 
-					else{
-						map[url] = 1;
-						callback(result);
-						info.removeEventListener(ModuleEvent.READY,func);
+			info.addEventListener(ModuleEvent.ERROR, function(e:ModuleEvent):void{
+				trace('ModuleEvent.ERROR : ' + url);
+				Alerts.debug("load Error : " + e.errorText);
+			});
+			var func:Function = function(e:ModuleEvent):void{
+				trace('ModuleEvent.READY : ' + url);
+				var result:Object =  info.factory.create();
+				CursorManager.removeBusyCursor();
+				if(result==null) Alert.show("로드한 모듈이 null입니다 URL을 확인하세요\n" + url); 
+				else{
+					map[url] = true;
+					callback(result);
+					//info.removeEventListener(ModuleEvent.READY,func);
+				}
+			};
+			
+			info.addEventListener(ModuleEvent.READY,func);
+			info.addEventListener(ModuleEvent.SETUP,function():void{
+				trace('ModuleEvent.SETUP : ' + url);
+				/** 혹시나 가끔 READY이벤트가 안될때가 있어서 타이머를 부착시켰다. 기동될때까지 load를 날려준다.  */
+				var tt:Timer = TimeUtil.fire(function():void{
+					if(!map[url]){
+						info.load();
+						tt.start();
+						trace('ModuleEvent.READY is not fired. Do reload : ' + url);
 					}
-				};
-				info.addEventListener(ModuleEvent.READY,func);
-				//왜인지 이거 추가하니까 잘됨?????
-				info.addEventListener(ModuleEvent.SETUP,function():void{
-					trace('ModuleEvent.SETUP');
-				});
-				info.load();
-				CursorManager.setBusyCursor();
-			}
-			//가끔 두번 클릭해야 뜰때까 있다. 그때 마우스 비지 방지.
-			if(click[url]) CursorManager.removeBusyCursor();
-			click[url] = true;
+				},500);
+			});
+			info.load();
+			CursorManager.setBusyCursor();
 		}		
 		
-		/** 기존 로드된 모듈이라면 카운트를 하나 올리고 리턴해 준다. */
+		/** 기존 로드된 모듈이라면 카운트를 하나 올리고 리턴해 준다. - 사용중지 */
 		public static function load(url:String,callback:Function):void{
 			var info:IModuleInfo = ModuleManager.getModule(url);
 			if(map[url]==null){

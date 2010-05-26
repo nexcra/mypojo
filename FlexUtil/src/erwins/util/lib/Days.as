@@ -1,7 +1,6 @@
 package erwins.util.lib{
 	import com.adobe.serialization.json.*;
 	
-	import mx.collections.ArrayCollection;
 	import mx.formatters.DateFormatter;
 	import mx.utils.*;
 	
@@ -13,6 +12,13 @@ package erwins.util.lib{
 	        var month:String;
 	        month = String(int(date.substr(4, 2)) - 1);
 	        return new Date(date.substr(0, 4), month, date.substr(6, 2));
+	    }
+	    
+	    /** 8자씩 끊어서 년월일로. => 임시사용 */
+	    public static function fromTextToStr(yyyyMMdd:String):String{
+	        var month:String;
+	        month = String(int(yyyyMMdd.substr(4, 2)) - 1);
+	        return yyyyMMdd.substr(0, 4)+'년'+ month + '월'+yyyyMMdd.substr(6, 2) + '일';
 	    }
 	    		
 		public static function toText(date:Date=null,formatString:String = "YYYY년MM월DD일"):String{

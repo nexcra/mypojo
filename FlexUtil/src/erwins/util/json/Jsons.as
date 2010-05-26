@@ -1,6 +1,8 @@
 package erwins.util.json{
 	import com.adobe.serialization.json.*;
 	
+	import erwins.util.UILib.MenuUtil;
+	
 	import mx.collections.ArrayCollection;
 	import mx.controls.*;
 	import mx.controls.listClasses.ListBase;
@@ -78,10 +80,14 @@ package erwins.util.json{
 		
 		/* ==================================== oprion ===========================================   */		
 		/** json에 checked속성을 추가해준다. */
-		public static const CHECKED:Function = function checked(json:ArrayCollection):void{
+		public static const CHECKED:Function = function(json:ArrayCollection):void{
 			for each(var obj:Object in json){
 				obj.type = 'check';
 			}
+		}
+		/** json의 0번째에 기본항목을 추가해 준다. */
+		public static const ADD_DEFAULT:Function = function(json:ArrayCollection):void{
+			MenuUtil.addDefaultOption(json);
 		}
 
 		
@@ -127,14 +133,11 @@ package erwins.util.json{
 			}else if(component is TextArea){
 				var textArea:TextArea = component as TextArea;
 				textArea.text = value;
-			}else if(component is ComboBox){
-				var comboBox:ComboBox = component as ComboBox;
-				var oo:ArrayCollection = comboBox.dataProvider as ArrayCollection;
-				for(var i:int=0;i<oo.length;i++){
-					if(oo[i].id == value || oo[i].value == value){
-						comboBox.selectedIndex = i; break;
-					}
-				}
+			}else if(component is RichTextEditor){
+				var rt:RichTextEditor = component as RichTextEditor;
+				rt.htmlText = value;
+			}else if(component is ComboBox || component is ToggleButtonBar){
+				selectedByValue(component,value);
 			}else if(component is CheckBox){
 				var checkBox:CheckBox = component as CheckBox;
 				if(value=="true") checkBox.selected = true;
@@ -142,9 +145,22 @@ package erwins.util.json{
 			}
 		}
 		
+		/** dataProvider안의 id또는 value를 비교해서 일치하는 것을 선택된 것으로 만들어 준다. 
+		 * 범용으로 덕타입을 지원한다. */
+		public static function selectedByValue(component:*,value:String):void{
+			var oo:ArrayCollection = component.dataProvider as ArrayCollection;
+			for(var i:int=0;i<oo.length;i++){
+				if(oo[i].id == value || oo[i].value == value){
+					component.selectedIndex = i;
+					return;
+				}
+			}			
+		}
+		
 		/**
 		 * 알려진 컴포넌트의 value를 가져온다.
 		 * Object형태의 json date의 경우 값은 id로 먼저 찾고 없으면 value를 찾는다.
+		 * editable가 false이라면 null을 리턴한다.
 		 **/  
 		public static function getValue(component:UIComponent):String{
 			if(component==null) return null;
@@ -154,6 +170,9 @@ package erwins.util.json{
 			}else if(component is TextInput){
 				var textInput:TextInput = component as TextInput;
 				return textInput.text;
+			}else if(component is RichTextEditor){
+				var exitor:RichTextEditor = component as RichTextEditor;
+				return exitor.htmlText;
 			}else if(component is TextArea){
 				var textArea:TextArea = component as TextArea;
 				return textArea.text;
@@ -162,6 +181,7 @@ package erwins.util.json{
 				return checkBox.selected ? 'true' : 'false';
 			}else if(component is ComboBox){
 				var comboBox:ComboBox = component as ComboBox;
+				if(!comboBox.enabled) return null;
 				var result:String = comboBox.selectedItem.id;
 				if(result==null) result = comboBox.selectedItem.value;
 				return result;
@@ -170,6 +190,10 @@ package erwins.util.json{
 				var listResult:String = listBase.selectedItem.id;
 				if(listResult==null) listResult = listBase.selectedItem.value;
 				return listResult;
+			}else if(component is ToggleButtonBar){
+				var toggle:ToggleButtonBar = component as ToggleButtonBar;
+				var item:Object = toggle.dataProvider[toggle.selectedIndex]; 
+				return item.id==null ? item.value : item.id;
 			}
 			return null;
 		}

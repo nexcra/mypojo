@@ -48,12 +48,13 @@ public function close():void {
  * 외부의 접근이 가능하다.
  * command를 래핑해준다.
  * */
-public static function popUp(base:UIComponent,list:ArrayCollection,command:Function):void{
+public static function popUp(base:UIComponent,list:ArrayCollection,command:Function,title:String=null):void{
 	var popWin:ListPopup = new ListPopup();
 	PopUpManager.addPopUp(popWin,base,true);
 	PopUpManager.centerPopUp( popWin );
 	popWin.list = list;
 	popWin.command = command;
+	if(title!=null) popWin.title = title;
 	//popWin.showCloseButton = true;
 	popWin.command = function(item:Object):void{
 		command(item);

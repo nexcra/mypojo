@@ -3,6 +3,7 @@
 
 <mx:Script>
 <![CDATA[
+	import mx.events.ListEvent;
 	import erwins.util.UILib.LFUtil;
 	import erwins.util.UILib.TooltipUtil;
 	import erwins.util.UILib.InitUtil;
@@ -36,7 +37,6 @@ private function init():void{
 			_each2ndCache = json.getArray("each2ndCache");
 			_eachQuery = json.getArray("eachQuery");
 			if(callback!=null) callback();
-			mediator.locked = false;
 		});
 	},mediator);	
 	
@@ -47,6 +47,10 @@ private function init():void{
 
 	InitUtil.init(secondTap,function():void{
 		TooltipUtil.addPanelToolTip(querySheet,"HQL","categoryName");
+		TooltipUtil.addStaticTooltip(help,"도움말","행을 클릭하면 클립보드에 HQL구문이 저장됩니다.");
+		querySheet.addEventListener(ListEvent.ITEM_CLICK,function(e:ListEvent):void{
+			System.setClipboard(querySheet.selectedItem.categoryName);
+		});
 	});
 }
 
@@ -110,17 +114,18 @@ private function init():void{
 			</mx:GridRow>
 			<mx:GridRow width="100%">
 				<mx:GridItem width="50%" >
-					<mx:DataGrid id="eachEntitySheet" width="100%" height="450" rowCount="14"  columns="{eachEntityInfo}" dataProvider="{_eachEntity}" />
+					<mx:DataGrid id="eachEntitySheet" width="100%" height="440" rowCount="14"  columns="{eachEntityInfo}" dataProvider="{_eachEntity}" />
 				</mx:GridItem>
 				<mx:GridItem width="50%" >
-					<mx:DataGrid id="each2ndCacheSheet" width="100%" height="450" rowCount="14" columns="{each2ndCacneInfo}" dataProvider="{_each2ndCache}" />
+					<mx:DataGrid id="each2ndCacheSheet" width="100%" height="440" rowCount="14" columns="{each2ndCacneInfo}" dataProvider="{_each2ndCache}" />
 				</mx:GridItem>
 			</mx:GridRow>
 		</mx:Grid>
 	</mx:VBox>
 	<mx:VBox id="secondTap" width="100%" height="100%" horizontalAlign="center" label="Query현황">
 		<mx:HBox  horizontalAlign="left" width="100%" height="25">
-			<mx:Label text="개별 Query현황" />	
+			<mx:Label text="개별 Query현황" />
+			<mx:LinkButton label="도움말" color="blue"  id="help" textDecoration="underline"  />
 		</mx:HBox>
 		<mx:DataGrid id="querySheet" width="100%" height="500" rowCount="20" columns="{eachQueryInfo}" dataProvider="{_eachQuery}"/>
 	</mx:VBox>

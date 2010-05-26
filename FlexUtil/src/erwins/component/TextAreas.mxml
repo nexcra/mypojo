@@ -9,6 +9,7 @@
 			private function init(): void {
 				this.textField.alwaysShowSelection = true;
 				var me:TextArea = this;
+				this.imeMode = IMEConversionMode.KOREAN; //미테스트.
 				this.addEventListener(FocusEvent.FOCUS_IN,function(e:FocusEvent):void{
 					me.setStyle("backgroundColor",Color.YELLOW);
 					me.setStyle("fontWeight",FontStyle.BOLD);

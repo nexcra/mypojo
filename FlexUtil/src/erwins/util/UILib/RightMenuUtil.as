@@ -9,29 +9,19 @@ package erwins.util.UILib{
 	import mx.utils.*;
 	public  class RightMenuUtil{
 		
-		private var menu:ContextMenu;
-		
-		/** 마우스 우클릭 메뉴를 생성해준다.  마지막의 select이벤트는 마우스 좌표를 얻기 위한 행위로서 없어도 된다. */
-		public static function create(base:Sprite,select:Function=null):RightMenuUtil{
-			var obj:RightMenuUtil  = new RightMenuUtil();
-			obj.menu = new ContextMenu();
-			if(select!=null){
-				obj.menu.addEventListener(ContextMenuEvent.MENU_SELECT, function(e:ContextMenuEvent):void {
-			    	select(e);
-			    });	
+		/** line이 true이면 윗줄에 LINE을 그어준다. 첫줄은 당연히 default로 true이다. */
+		public static function addMenu(base:Sprite,name:String,click:Function,line:Boolean=false,enable:Boolean=true):void{
+			var menu:ContextMenu = base.contextMenu;
+			if(menu==null){
+				menu = new ContextMenu();
+				menu.hideBuiltInItems();
+				base.contextMenu = menu;
 			}
-			obj.menu.hideBuiltInItems();
-		    base.contextMenu = obj.menu;
-		    return obj;
-		}
-		
-		public function add(name:String,click:Function,line:Boolean=false,enable:Boolean=true):RightMenuUtil{
 			var menuItem:ContextMenuItem = new ContextMenuItem(name,line,enable);
 		    menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(e:ContextMenuEvent):void {
 				click(e);
 		    });
 		    menu.customItems.push(menuItem);
-			return this;
 		}
 		
 	}

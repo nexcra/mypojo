@@ -18,6 +18,13 @@ package erwins.util.UILib{
 			return collection;
 		}
 		
+		/** 기존 컬렉션의  0번에 디폴트를 추가한다.  */
+		public static function addDefaultOption(collection:ArrayCollection,text:String='전체',lablename:String='label'):void{
+			var item:Object = new Object();
+			item[lablename] = text;
+			collection.addItemAt(item,0);
+		}
+		
 		/**
 		 * 하나의 객체에서 반복 사용됨으로 초기화 후 사용한다. 
 		 * 각각 id or value로 비교한다. 

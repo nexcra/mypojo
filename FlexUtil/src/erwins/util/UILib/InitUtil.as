@@ -21,6 +21,15 @@ package erwins.util.UILib{
 			base.addEventListener(FlexEvent.CREATION_COMPLETE,fun);
 		}
 		
+		/** CREATION_COMPLETE보다 INITIALIZE가 늦는 객체(탭, 뷰스택 등)에 사용 */
+		public static function initialize(base:UIComponent,callback:Function):void{
+			var fun:Function = function(e:FlexEvent):void{
+				callback();
+				base.removeEventListener(FlexEvent.INITIALIZE,fun);
+			};
+			base.addEventListener(FlexEvent.INITIALIZE,fun);
+		}
+		
 		/** init과 비슷하나  스택류가 변경될때마다 호출한다.  */
 		public static function addEventByIndex(base:Container,index:int,callback:Function):void{
 			base.addEventListener(IndexChangedEvent.CHANGE,function(e:IndexChangedEvent):void{

@@ -1,8 +1,9 @@
 package erwins.util.UILib{
 	
+	import erwins.util.lib.Colors;
+	
 	import mx.charts.LinearAxis;
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
-	import mx.controls.dataGridClasses.DataGridColumn;
 	import mx.formatters.NumberFormatter;
 	
 	/** 라벨 평선 유틸 : 전부 다 사용 가능하다.  나머지는 Advance전용 */
@@ -15,7 +16,8 @@ package erwins.util.UILib{
 		public static function toDate(field:String):Function{
 			var fun:Function = function(item:Object,column:*):String{
 				var value:String = item[field];
-				if(value==null || value.length!=8) throw new Error(value+" date length must be 8!");
+				if(value==null || value=='') return null;
+				if(value.length!=8) throw new Error(value+" date length must be 8!");
 				return value.substring(0,4)+"년" + value.substring(5,6)+"월" + value.substring(7,8) + "일";
 			}
 			return fun;
@@ -31,11 +33,11 @@ package erwins.util.UILib{
 			return fun;
 		}
 		
-		// ========================= Advanced 전용 ============================== //
+		// ========================= Advanced 전용 스타일펑션 ============================== //
 		
 		/** 4자리마다 ,를 찍어준다. 
 		 * ex) formatter="{LabelFunctions.numberFormatter} */
-		public static var numberFormatter:NumberFormatter = new NumberFormatter();		
+		[Bindable] public static var numberFormatter:NumberFormatter = new NumberFormatter();		
 		
 		/** 빨갛게~ 만들어 준다.
 		 * AdvancedDataGrid에 붙이면 로우전체가 영향받고,AdvancedDataGridColumn에 붙이면 해당 컬럼만 영향받는다.
@@ -43,6 +45,16 @@ package erwins.util.UILib{
 		public static function toRed(func:Function):Function{
 			var temp:Function = function(data:Object,col:AdvancedDataGridColumn):Object{
 				if(func(data)==true) return {color:0xFF0000,fontWeight:"bold"};
+				return null;
+			}
+			return temp;
+		}
+		/** 빨갛게~ 만들어 준다.
+		 * AdvancedDataGrid에 붙이면 로우전체가 영향받고,AdvancedDataGridColumn에 붙이면 해당 컬럼만 영향받는다.
+		 * ex) styleFunction="{LabelFunctions.toBlue(function(data:Object):Boolean{return data.sum>0})} */
+		public static function toBlue(func:Function):Function{
+			var temp:Function = function(data:Object,col:AdvancedDataGridColumn):Object{
+				if(func(data)==true) return {color:Colors.BLUE,fontWeight:"bold"};
 				return null;
 			}
 			return temp;

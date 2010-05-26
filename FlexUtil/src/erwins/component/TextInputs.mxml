@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <google:PromptingTextInput  xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:google="flexlib.controls.*" 
-    initialize="init()">
+    creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
 			import com.google.maps.Color;
 			import mx.core.UITextField;
 			import mx.controls.Alert;
 			import mx.controls.TextInput;
+			
+			private var _toEnglish:Boolean = false;
+			
 			private function init(): void {
 				this.textField.alwaysShowSelection = true;
-				this.imeMode = IMEConversionMode.ALPHANUMERIC_HALF; //미테스트.
+				this.imeMode = _toEnglish ? IMEConversionMode.ALPHANUMERIC_HALF : IMEConversionMode.KOREAN;
+				
 				//this.textField.autoSize = TextFieldAutoSize.LEFT; //한글 계산이 힘들어서 포기.. 자동기능은 없는둣.,
 				var me:TextInput = this;
 				this.addEventListener(FocusEvent.FOCUS_IN,function(e:FocusEvent):void{
@@ -20,6 +24,12 @@
 					me.setStyle("backgroundColor",Color.WHITE);
 					me.setStyle("fontWeight",FontStyle.REGULAR);
 				});
+			}
+			
+			/** 기본값을 영문으로~ ID입력이나 비밀번호 등등 */
+			
+			public function set toEnglish(value:Boolean):void{
+				_toEnglish = value;
 			}
 		]]>
 	</mx:Script>

@@ -1,11 +1,16 @@
 package erwins.util.http{
 	import com.adobe.serialization.json.*;
 	
+	import erwins.component.ButtonBarForPaging;
+	import erwins.util.UILib.KeyboardBinder;
+	import erwins.util.lib.Binder;
+	
 	import flash.events.MouseEvent;
 	
 	import mx.collections.ArrayCollection;
 	import mx.controls.*;
 	import mx.core.UIComponent;
+	import mx.events.ItemClickEvent;
 	import mx.events.ListEvent;
 	import mx.utils.*;
 	
@@ -26,11 +31,14 @@ package erwins.util.http{
 		
 		/** Hibernate의 rownum이 있을 경우 next / before를 초기화 한다. */
 		public function renew(list:ArrayCollection):void{
-			nextAble = list[list.length-1].rownum!=1;
 			beforeAble = nowPageNo != 1;
+			if(list==null || list.length <= 1) return;
+			nextAble = list[list.length-1].rownum!=1;
+			if(buttonBarForPagingMediator!=null) buttonBarForPagingMediator();
 		}
 		
 		private var fun:Function ;
+		private var buttonBarForPagingMediator:Function ;
 		
 		private var lock:Lockable;
 		
@@ -68,9 +76,17 @@ package erwins.util.http{
 			}
 		}
 		
+		/** 마우스휠 작동시 한칸씩 이동한다. 이동중의 휠스크롤은 무시된다. */
+		public function addMouseWheelAction(base:UIComponent):void{
+			base.addEventListener(MouseEvent.MOUSE_WHEEL,function(event:MouseEvent):void{
+				var w:int = event.delta;
+				if(w>0) before();
+				else next(); 
+			});
+		}
+		
 		/** 뭐가 됬든 반응시  search하는 버튼을 만들어 준다. */
 		public function addListener( ... bases):void{
-			
 			for each(var eachBase:Object in bases){
 				var ui:UIComponent = 	eachBase as UIComponent;
 				if(ui==null) throw new Error(eachBase + " : input must be UIComponent");
@@ -82,6 +98,33 @@ package erwins.util.http{
 					ui.addEventListener(ListEvent.CHANGE,function(e:ListEvent):void{
 						search();
 					});
+				}else if(ui is TextInput){
+					Binder.onEnter(ui,search);
+				}else if(ui is ButtonBarForPaging){
+					var btns:ButtonBarForPaging = ui as ButtonBarForPaging;
+					
+					var keyBinder:KeyboardBinder = new KeyboardBinder(btns);
+					var ctrlInterval:int = 10;
+					var shiftKeyInterval:int = 5;
+					
+					btns.addEventListener(ItemClickEvent.ITEM_CLICK,function(e:ItemClickEvent):void{
+						switch(e.index){
+							case 0 : 
+								if(keyBinder.ctrlKey) search(nowPageNo - ctrlInterval)
+								else if(keyBinder.shiftKey) search(nowPageNo - shiftKeyInterval)
+								else before(); 
+								break;
+							case 1 :
+								if(keyBinder.ctrlKey) search(nowPageNo + ctrlInterval)
+								if(keyBinder.shiftKey) search(nowPageNo + shiftKeyInterval)
+								else next(); 
+								break;
+						}
+					});					
+					buttonBarForPagingMediator = function():void{
+						UIComponent(btns.getChildren()[0]).enabled = beforeAble;
+						UIComponent(btns.getChildren()[1]).enabled = nextAble;
+					};
 				}else throw new Error(eachBase + " : is not supported UIComponent");
 			}
 		}

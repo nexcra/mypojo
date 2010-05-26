@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ButtonBar xmlns:mx="http://www.adobe.com/2006/mxml" horizontalGap="5" buttonMode="true" width="150" creationComplete="init()" >
+
+<mx:Script>
+<![CDATA[
+	import erwins.util.lib.Colors;
+	import erwins.util.UILib.TooltipUtil;
+	import mx.managers.ToolTipManager;
+	import mx.controls.Alert;
+	import mx.core.UIComponent;
+	import mx.collections.ArrayCollection;
+	import mx.core.Container;
+	import mx.containers.Tile;
+	
+	/** 툴팁이  적용되는 버튼이다. 기본 컬러는 하늘색. */
+	private function init(): void {
+		if(_tip1) TooltipUtil.addStaticTooltip(UIComponent(this.getChildren()[0]),"Before",_tip1,_tipColor);
+		if(_tip2)TooltipUtil.addStaticTooltip(UIComponent(this.getChildren()[1]),"Next",_tip2,_tipColor);
+	}
+	
+	private var _tip1:String;
+	private var _tip2:String;
+	private var _tipColor:int = Colors.SKY;
+	
+	public function set tip1(tip1:String):void{
+		this._tip1 = tip1;
+	}
+	public function set tip2(tip2:String):void{
+		this._tip2 = tip2;
+	}
+	public function set tipColor(tipColor:int):void{
+		this._tipColor = tipColor;
+	}	
+
+	
+]]>
+</mx:Script>
+    <mx:dataProvider>
+        <mx:Array>
+            <mx:String>Before</mx:String>
+            <mx:String>Next</mx:String>
+        </mx:Array>
+    </mx:dataProvider>	
+</mx:ButtonBar>
