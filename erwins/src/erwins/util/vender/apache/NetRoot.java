@@ -1,11 +1,18 @@
 
 package erwins.util.vender.apache;
 
-import java.io.*;
-import java.text.MessageFormat;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.net.ftp.*;
-import org.apache.log4j.Logger;
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPReply;
 
 import erwins.util.lib.Strings;
 
@@ -20,11 +27,10 @@ public abstract class NetRoot {
     
     /** 완료되는 요구된 파일 활동 okay. */
     public static final int SUCCESS = 250;
+    
     /** 요구된 파일 활동 & 팬딩. 즉 다음 커맨드를 주어야 정상 실행 */ 
     public static final int ACCEPT_AND_WAIT = 350;
 
-    protected Logger log = Logger.getLogger(this.getClass());
-    
     protected FTPClient ftpClient = null;
 
     /** ftp상의 root */
@@ -41,14 +47,96 @@ public abstract class NetRoot {
     protected String[] ableExtentions;
     protected String ableFolder;
     
-    private int downloaded;
-    private int uploaded;
-    private int moved;
-    private int deleted;
-    private int directoryMaked;
-    private int directorydeleted;
-    /** Synch할때만 사용된다. */
-    protected int localFiledeleted;
+    protected FtpLog ftpLog = new FtpLog();
+    
+    public static class FtpLog{
+    	protected List<String> downloaded = new ArrayList<String>();
+    	protected List<String> uploaded = new ArrayList<String>();
+    	protected List<String> moved = new ArrayList<String>();
+    	protected List<String> ftpFileDeleted = new ArrayList<String>();
+    	protected List<String> ftpDirectoryMaked = new ArrayList<String>();
+    	protected List<String> ftpDirectorydeleted = new ArrayList<String>();
+    	protected List<String> localFileDeleted = new ArrayList<String>();
+    	protected List<String> error = new ArrayList<String>();
+        
+        public void log(FtpAction ftpAction,String file){
+        	switch(ftpAction){
+        	case DOWNLOADED : downloaded.add(file); break; 
+        	case UPLOADED : uploaded.add(file); break; 
+        	case MOVED : moved.add(file); break;
+        	case FTP_FILE_DELETED : ftpFileDeleted.add(file); break;
+        	case FTP_DERECTORY_MAKED : ftpDirectoryMaked.add(file); break;
+        	case FTP_DIRECTORY_DELETED : ftpDirectorydeleted.add(file); break;
+        	case LOCAL_FILE_DELETED: localFileDeleted.add(file); break;
+        	case ERROR: error.add(file); break;
+        	}
+        }
+        
+        public void logWrite(FtpAction ftpAction,String str,Object ... args){
+        	log(ftpAction,Strings.format(str, args));
+        }
+        
+        @Override
+        public String toString(){
+        	StringBuilder buff = new StringBuilder();
+        	buildString(buff,FtpAction.DOWNLOADED,downloaded);
+        	buildString(buff,FtpAction.UPLOADED,uploaded);
+        	buildString(buff,FtpAction.MOVED,moved);
+        	buildString(buff,FtpAction.FTP_FILE_DELETED,ftpFileDeleted);
+        	buildString(buff,FtpAction.FTP_DERECTORY_MAKED,ftpDirectoryMaked);
+        	buildString(buff,FtpAction.FTP_DIRECTORY_DELETED,ftpDirectorydeleted);
+        	buildString(buff,FtpAction.FTP_FILE_DELETED,localFileDeleted);
+        	buildString(buff,FtpAction.ERROR,error);
+        	return buff.toString();
+        }
+
+		private void buildString(StringBuilder buff,FtpAction ftpAction,List<String> downloaded) {
+			for(String each : downloaded){
+        		buff.append(Strings.rightPad(ftpAction.name(),20)); 
+        		buff.append(" : ");
+        		buff.append(each);
+        		buff.append("\n");
+        	}
+		}
+
+		public List<String> getDownloaded() {
+			return downloaded;
+		}
+
+		public List<String> getUploaded() {
+			return uploaded;
+		}
+
+		public List<String> getMoved() {
+			return moved;
+		}
+
+		public List<String> getFtpFileDeleted() {
+			return ftpFileDeleted;
+		}
+
+		public List<String> getFtpDirectoryMaked() {
+			return ftpDirectoryMaked;
+		}
+
+		public List<String> getFtpDirectorydeleted() {
+			return ftpDirectorydeleted;
+		}
+
+		public List<String> getLocalFileDeleted() {
+			return localFileDeleted;
+		}
+
+		public List<String> getError() {
+			return error;
+		}
+    }
+    
+    public static enum FtpAction{
+    	DOWNLOADED,UPLOADED,MOVED,ERROR,
+    	FTP_FILE_DELETED,LOCAL_FILE_DELETED,FTP_DERECTORY_MAKED,FTP_DIRECTORY_DELETED
+    }
+    
 
     /**
      * FileType : 이 값을 설정하지 않으면 디폴트는 ASCII 이다 
@@ -63,13 +151,11 @@ public abstract class NetRoot {
     
     public void connect(String serverIp,int port,String id, String pass) throws IOException {
     	ftpClient.connect(serverIp,port);
-        log.debug("connect to "+ serverIp);
         int reply = ftpClient.getReplyCode(); // 응답코드가 비정상이면 종료합니다
         if (!FTPReply.isPositiveCompletion(reply)) {
             ftpClient.disconnect();
             throw new IOException("FTP server refused connection.");
         }
-        log.debug("connectedMessage : "+ftpClient.getReplyString());
         ftpClient.setSoTimeout(10000); // 현재 커넥션 timeout을 millisecond 값으로 입력합니다
         if(!ftpClient.login(id, pass)) throw new IOException("login fail"); 
             
@@ -82,6 +168,10 @@ public abstract class NetRoot {
      */
     public void connect(String serverIp, String id, String pass) throws IOException {
     	connect(serverIp,21,id,pass);
+    }
+    
+    public void setPassive(){
+    	ftpClient.enterLocalPassiveMode();
     }
 
     /**
@@ -98,7 +188,6 @@ public abstract class NetRoot {
             if (ftpClient.isConnected()) {
                 try {
                     ftpClient.disconnect();
-                    log.debug("disconnected");
                 }
                 catch (IOException e) {
                     throw new RuntimeException(e);
@@ -166,13 +255,13 @@ public abstract class NetRoot {
     protected void delete(String fullName) throws IOException {
         boolean result = ftpClient.deleteFile(fullName);
         if(!result) throw new IOException(fullName +" 를 지우는데 실패했습니다.");
-        deleted++;
+        ftpLog.log(FtpAction.FTP_FILE_DELETED,"fullName");
     }
     
     protected void deleteDir(String fullName) throws IOException {
         boolean result = ftpClient.removeDirectory(fullName);
         if(!result) throw new IOException(fullName +" 를 지우는데 실패했습니다.");
-        directorydeleted++;
+        ftpLog.log(FtpAction.FTP_DIRECTORY_DELETED,"fullName");
     }
     
     /**
@@ -185,7 +274,7 @@ public abstract class NetRoot {
         int move = ftpClient.rnto(toFile);
         //503이면 실패
         if(move != SUCCESS) throw new IOException(toFile+" 해당 파일의 이동에 실패했습니다. " + move); //250 503
-        moved++;
+        ftpLog.log(FtpAction.MOVED,fromFile+" to "+toFile);
     }
     
     /**
@@ -193,9 +282,8 @@ public abstract class NetRoot {
      */
     public void makeDir(String file) throws IOException {
         boolean result = ftpClient.makeDirectory(file);
-        if(result) directoryMaked++;
-        //else throw new RuntimeException(file+" FTP의 directory생성에 실패했습니다.");
-    }  
+        if(result) ftpLog.log(FtpAction.FTP_DERECTORY_MAKED,file);
+    }
     
     /**
      * overwrite가 false이면 있는 파일은 무시한다.
@@ -206,8 +294,8 @@ public abstract class NetRoot {
         OutputStream outputStream = new FileOutputStream(localFile);
         boolean result = ftpClient.retrieveFile(ftpFileName, outputStream);
         outputStream.close();
-        if(result) downloaded++;
-        else  log.debug(ftpFileName+" 를 "+localFileName+"로 다운로드하는데 실패하였습니다.");
+        if(result) ftpLog.log(FtpAction.DOWNLOADED,localFile.getAbsolutePath());
+        else ftpLog.log(FtpAction.ERROR, ftpFileName+" 를 "+localFileName+"로 다운로드하는데 실패하였습니다.");
     }
     
     /** ftpFileName으로 Local의 파일이름을 Root기준으로 구한다. */
@@ -228,15 +316,14 @@ public abstract class NetRoot {
             if(overwrite) result = ftpClient.storeFile(uploadName, inputStream); //덮어쓰기
             else result =  ftpClient.appendFile(uploadName, inputStream);
             inputStream.close();
-            if(result) uploaded++;
-            else log.debug(clientFile.getAbsolutePath()+" 의 업로드에 실패하였습니다.");    
+            if(result) ftpLog.log(FtpAction.UPLOADED,clientFile.getAbsolutePath());
+            else ftpLog.log(FtpAction.ERROR,clientFile.getAbsolutePath()+" 의 업로드에 실패하였습니다.");    
         }
     }
     
     // ===========================================================================================
     //                                    etc..
     // ===========================================================================================
-    
     
     /**
      * fullPath에서 ftpRoot부분을 잘라낸뒤 clientRoot를 더해서 리턴한다.
@@ -254,23 +341,15 @@ public abstract class NetRoot {
         name = name.substring(clientOrToRoot.length(),name.length());
         return ftpRoot + name;
     }
-    
-    /**
-     * 로깅한다.
-     */
-    public void logging(){
-        if(directoryMaked!=0) log.debug(MessageFormat.format("{0}개의 디렉토리가 생성 되었습니다.", directoryMaked));
-        if(directorydeleted!=0) log.debug(MessageFormat.format("{0}개의 디렉토리가 삭제 되었습니다.", directorydeleted));
-        if(deleted!=0) log.debug(MessageFormat.format("{0}개의 파일이 삭제 되었습니다.", deleted));
-        if(moved!=0) log.debug(MessageFormat.format("{0}개의 파일이 이동되었습니다.", moved));
-        if(uploaded!=0)log.debug(MessageFormat.format("{0}개의 파일이 업로드 되었습니다.", uploaded));
-        if(downloaded!=0) log.debug(MessageFormat.format("{0}개의 파일이 다운로드 되었습니다.", downloaded));
-        if(localFiledeleted!=0) log.debug(MessageFormat.format("{0}개의 로컬 파일/디렉토리가 삭제 되었습니다.", localFiledeleted));
-    }
+
+	public FtpLog getFtpLog() {
+		return ftpLog;
+	}
     
     // ===========================================================================================
     //                                  etc..  
     // ===========================================================================================
+    /*
     @Deprecated
     public void findAll(String root) throws IOException {
         fileLoopAndPrint(root);
@@ -290,7 +369,7 @@ public abstract class NetRoot {
             }
         }
     }
-    
+    */
     /**
      * 변경전 파일명과 변경할 파일명을 파라미터로 준다
      *//*

@@ -217,6 +217,18 @@ public abstract class Files extends FileUtils {
 			file = parent;
 		}
 	}
+	
+	/** root에 기준하는 상대경로를 리턴한다.
+	 * ex) file이 D:/A/B/C  이고 루트가 D:/A 이라면 B/C 를 리턴한다.  */
+	public static String getrelativePath(File file,File root) {
+		if(file==null || root==null) throw ExceptionFactory.nullArgs();
+		if(!file.exists()) throw ExceptionFactory.fileNotFound(file);
+		if(!root.exists()) throw ExceptionFactory.fileNotFound(root);
+		
+		String rootName = getPath(root);
+		String fileName = getPath(file);
+		return fileName.substring(rootName.length());
+	}
 
 	/** 파일을 하위 폴더로 이동시킨다. */
 	public static void renameToParentDirectory(File file) {

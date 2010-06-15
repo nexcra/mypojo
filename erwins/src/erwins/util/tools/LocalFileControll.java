@@ -50,7 +50,7 @@ public class LocalFileControll{
 	}
 	
 	/** 파일의 양이 많아서 1000개씩 끊어서 저장해야 할경우. => 이름은 순차적으로 변경됨. */
-	public void moveToSeperatedDirectory(String directory){
+	public void moveToSeparatedDirectory(String directory){
 		int i = 0;
 		File root  = new File(directory);
 		File eachDir = new File(root,"each(001)");

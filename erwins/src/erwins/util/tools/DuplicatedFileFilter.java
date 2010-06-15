@@ -10,13 +10,12 @@ import org.junit.Test;
 
 import erwins.util.lib.Files;
 import erwins.util.lib.security.MD5;
-import erwins.util.tools.ListMap;
 import erwins.util.vender.apache.Log;
 
 /** 파일 이름에 관계없이 동일파일을 Hash기준으로 알려준다. */
 public class DuplicatedFileFilter{
 	
-	private ListMap<File> map = new ListMap<File>();
+	private ListMap<File> map = ListMap.hashInstance();
 	
 	protected Log log = new Log(this.getClass());
 	

@@ -26,9 +26,11 @@ import erwins.util.tools.Mapp;
  * @author  erwins(my.pojo@gmail.com)
  */
 public class Poi extends PoiRoot{
+	
+	public static final int LIMIT_ROW = 32767; 
     
     // ===========================================================================================
-    //                                    생성자
+    //                                    생성자 XSSF
     // ===========================================================================================
     
     public Poi(HSSFWorkbook wb){
@@ -42,45 +44,31 @@ public class Poi extends PoiRoot{
     }
     
     public Poi(String fileName){
-    	try {
-            stream = new FileInputStream(fileName);
-            POIFSFileSystem filesystem = new POIFSFileSystem(stream);        
-            wb = new HSSFWorkbook(filesystem);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }finally{
-        	close();
-        }
+    	buildPoiByFile(new File(fileName));
         init();
     }
-    
     public Poi(File file){
-        try {
+    	buildPoiByFile(file);
+    	init();
+    }
+
+	private void buildPoiByFile(File file) {
+		try {
             stream = new FileInputStream(file);
-            POIFSFileSystem filesystem = new POIFSFileSystem(stream);        
+            POIFSFileSystem filesystem = new POIFSFileSystem(stream);
             wb = new HSSFWorkbook(filesystem);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
         }finally{
-        	close();
+        	if(stream!=null) try {
+                stream.close();
+            }
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
-        init();
-    }
-    
-    /**
-     * 스트림을 닫아준다.. ㅠㅠ
-     * File로 POI를 만들때 반드시 닫아주자.. 뭐 안해도 되긴 한디..
-     */
-    public void close(){
-        if(stream!=null) try {
-            stream.close();
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	}
     
     // ===========================================================================================
     //                                     간편쓰기.

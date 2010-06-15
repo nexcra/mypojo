@@ -4,6 +4,8 @@ package erwins.util.vender.apache;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -24,7 +26,6 @@ import erwins.util.lib.Files;
 import erwins.util.lib.RegEx;
 import erwins.util.lib.Strings;
 import erwins.util.root.StringCallback;
-import erwins.util.tools.Mapp;
 
 
 
@@ -47,9 +48,19 @@ public class RESTful{
         instance.method = new  PostMethod(url);
         return instance;
     }
+    public static RESTful post(){
+    	RESTful instance = new RESTful();
+    	instance.method = new  PostMethod();
+    	return instance;
+    }
     public static RESTful get(String url){
     	RESTful instance = new RESTful();
     	instance.method = new  GetMethod(url);
+    	return instance;
+    }
+    public static RESTful get(){
+    	RESTful instance = new RESTful();
+    	instance.method = new  GetMethod();
     	return instance;
     }
     
@@ -166,7 +177,7 @@ public class RESTful{
     
     /** text를 파싱하여 원격지의 img파일을 로컬로 이동시킨다. + 기존 HTML을 로컬의 url로 치환한다. 특수용도라서 하드코딩~ 나중에 수정하자. */
     public static String parseAndSaveImg(String html,final File webroot, final String targetDirName){
-    	final Mapp map = new Mapp();
+    	final Map<String,String> map = new HashMap<String,String>();
     	html = RegEx.TAG_SCRIPT.replace(html,"");
     	RegEx.TAG_IMG.process(html, new StringCallback(){
     		public void process(String line) {
@@ -180,7 +191,7 @@ public class RESTful{
     			map.put(src, filePath.replaceAll("\\\\","/")); //윈도우형을 유닉스형으로 바꿔줌.
     		}
     	});
-    	for(Entry<Object,Object> entry : map.entrySet()){
+    	for(Entry<String,String> entry : map.entrySet()){
     		html = html.replaceAll(Encoders.escapeRegEx(entry.getKey().toString()),
     				Encoders.escapeRegEx(entry.getValue().toString()));
     	}

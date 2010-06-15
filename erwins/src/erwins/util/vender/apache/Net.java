@@ -28,7 +28,6 @@ public class Net extends NetRoot {
         try {
             net.connect(serverIp, id, pass);
             net.setRoots(ftpRoot, clientRoot).downloadAll();
-            net.logging();
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -47,13 +46,10 @@ public class Net extends NetRoot {
         loopAndDownload(ftpRoot);
     }
 
-    /**
-     * 순회하면서 파일을 복사한다.
-     */
     private void loopAndDownload(String ftpFullPath) throws IOException {
         FTPFile[] ftpFiles = ftpClient.listFiles(ftpFullPath);
         if (ftpFiles == null || ftpFiles.length == 0) {
-            log.debug("there are no file");
+            ftpLog.log(FtpAction.ERROR,"there are no file");//is?
             return;
         }
         for (FTPFile ftpFile : ftpFiles) {
@@ -79,7 +75,6 @@ public class Net extends NetRoot {
         try {
             m1.connect(serverIp, id, pass);
             m1.setRoots(ftpRoot, ftpToRoot).setAbleFolders(ftpFolderName).moveAll();
-            m1.logging();
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -98,13 +93,10 @@ public class Net extends NetRoot {
         loopAndMove(ftpRoot);
     }
 
-    /**
-     * 순회하면서 파일을 복사한다.
-     */
     private void loopAndMove(String ftpFullPath) throws IOException {
         FTPFile[] ftpFiles = ftpClient.listFiles(ftpFullPath);
         if (ftpFiles == null || ftpFiles.length == 0) {
-            log.debug("there are no file");
+            ftpLog.log(FtpAction.ERROR,"there are no file");
             return;
         }
         for (FTPFile ftpFile : ftpFiles) {
@@ -134,7 +126,6 @@ public class Net extends NetRoot {
             net = new Net();
             net.connect(serverIp, id, pass);
             net.setRoots(ftpRoot, clientRoot).uploadAll();
-            net.logging();
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -153,9 +144,6 @@ public class Net extends NetRoot {
         loopAndUpload(root);
     }
 
-    /**
-     * 순회하면서 파일을 복사한다.
-     */
     private void loopAndUpload(File clientFile) throws IOException {
         for (File file : clientFile.listFiles()) {
             if (file.isHidden()) continue;
@@ -171,33 +159,20 @@ public class Net extends NetRoot {
     }
 
     // ===========================================================================================
-    //                                    synch
-    // ===========================================================================================   
-
-    /**
-     * 로컬파일 기준으로 FTP서버와 동기화한다. 즉 로컬에서 삭제하면 FTP서버의 파일도 삭제된다. 이작업 도중 파일이 움직이면 안된다.
-     **/
-    public synchronized void commit() throws IOException {
-        File file = new File(clientOrToRoot);
-        if (!file.isDirectory()) file.mkdirs();
-        loopAndSynch(file, ftpRoot,new Commit());
-    }
-    public synchronized void update() throws IOException {
-        File file = new File(clientOrToRoot);
-        if (!file.isDirectory()) file.mkdirs();
-        loopAndSynch(file, ftpRoot,new Update());
-    }
-    public synchronized void updateLog() throws IOException {
-    	File file = new File(clientOrToRoot);
-    	if (!file.isDirectory()) file.mkdirs();
-    	loopAndSynch(file, ftpRoot,new UpdateLog());
-    }
-    public synchronized void commitLog() throws IOException {
-    	File file = new File(clientOrToRoot);
-    	if (!file.isDirectory()) file.mkdirs();
-    	loopAndSynch(file, ftpRoot,new CommitLog());
-    }
+    //                                    synch 
+    // ===========================================================================================
     
+    public Synch commit(){ return new Commit(); }
+    public Synch update(){ return new Update(); }
+    public Synch commitLog(){ return new CommitLog(); }
+    public Synch updateLog(){ return new UpdateLog(); }
+
+    public synchronized void synchronize(Synch type) throws IOException {
+        File file = new File(clientOrToRoot);
+        if (!file.isDirectory()) file.mkdirs();
+        loopAndSynch(file, ftpRoot,type);
+    }
+
     /**
      * 순회하면서 파일을 복사한다.
      */
@@ -226,8 +201,8 @@ public class Net extends NetRoot {
         synch.noServerFile(isNoMatch);
     }
     
-    /** 각 버전에 따라 동기화 한다. */
-    private interface Synch{
+    /** 각 버전에 따라 동기화 한다. 로컬파일 기준으로 FTP서버와 동기화한다. 즉 로컬에서 삭제하면 FTP서버의 파일도 삭제된다. 이작업 도중 파일이 움직이면 안된다. */
+    public interface Synch{
         /** 서버에는 파일이 있으나 로컬에는 없는 경우. */
         public void noLocalFile(FTPFile ftpFile,String root)  throws IOException ;
         /** 로컬에는 파일이 있으나 서버에는 없는경우.  */
@@ -255,11 +230,12 @@ public class Net extends NetRoot {
     private class CommitLog implements Synch{
     	public void noLocalFile(FTPFile ftpFile,String root) throws IOException {
     		if(ftpFile.getName().endsWith(".")) return;
-    		log.info("delete remote file : " + ftpFile.getName());
+    		ftpLog.log(FtpAction.FTP_FILE_DELETED, ftpFile.getName());
     	}
     	public void noServerFile(List<File> isNoMatch)  throws IOException {
     		for (File each : isNoMatch){
-    			log.info("upload : " + each.getName());
+    			String uploadName = getNameByClient(each);
+    			ftpLog.logWrite(FtpAction.UPLOADED,"{0} => {1}", each.getAbsolutePath(),uploadName);
     			if(each.isDirectory()){
     				String newFtpFullPath = getNameByClient(each);
     				loopAndSynch(each,newFtpFullPath,this);
@@ -282,8 +258,8 @@ public class Net extends NetRoot {
         }
         public void noServerFile(List<File> isNoMatch)  throws IOException {
             for (File each : isNoMatch){
-                if(Files.deleteRecursively(each)) localFiledeleted++;
-                else log.error(each.getAbsolutePath() + " : 로컬 파일/폴더 삭제 실패");
+                if(Files.deleteRecursively(each)) ftpLog.log(FtpAction.LOCAL_FILE_DELETED, each.getAbsolutePath());
+                else ftpLog.log(FtpAction.ERROR, each.getAbsolutePath() + " : 로컬 파일/폴더 삭제 실패");
             }
         }
     }
@@ -293,7 +269,10 @@ public class Net extends NetRoot {
     	public void noLocalFile(FTPFile ftpFile,String root) throws IOException {
     		if(ftpFile.getName().endsWith(".")) return;
     		String newFtpFullPath = root + "/" + ftpFile.getName();
-    		if(ftpFile.isFile()) log.info("donwload : "+newFtpFullPath);
+    		if(ftpFile.isFile()) {
+    			String localFilePath = getNameByFtpRoot(newFtpFullPath);
+    			ftpLog.logWrite(FtpAction.DOWNLOADED,"{0} => {1}", newFtpFullPath,localFilePath);
+    		}
     		else{
     			File file = new File(getNameByFtpRoot(newFtpFullPath));
     			file.mkdir();
@@ -301,9 +280,7 @@ public class Net extends NetRoot {
     		}
     	}
     	public void noServerFile(List<File> isNoMatch)  throws IOException {
-    		for (File each : isNoMatch){
-    			log.info("delete local file : " + each.getAbsolutePath());
-    		}
+    		for (File each : isNoMatch) ftpLog.log(FtpAction.LOCAL_FILE_DELETED, each.getAbsolutePath());
     	}
     }
 

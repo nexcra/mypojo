@@ -5,6 +5,7 @@ import java.text.MessageFormat;
 
 /**
  * 시분초를 나타내는 범용 TimeClass
+ * 여서 ms는 마이크로초가 아닌 밀리초(1/1000s)이다. 
  */
 public class ShowTime {
 

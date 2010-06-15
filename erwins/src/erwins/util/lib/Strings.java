@@ -40,6 +40,17 @@ public class Strings extends StringUtils {
             if (Strings.contains(body, str)) return true;
         return false;
     }
+    
+    /**
+     * prefix들중 일부라도 매치가 되면 true를 리턴한다.
+     */
+    public static boolean isStartsWithAny(String body, String... prefix) {
+    	if(body==null) return false;
+    	for (String each : prefix)
+    		if (Strings.startsWith(body, each)) return true;
+    	return false;
+    }
+    
     /**
      * strs들중 일부라도 매치가 되면 true를 리턴한다.
      */
@@ -369,6 +380,7 @@ public class Strings extends StringUtils {
 
     /**
      * n개의 랜덤 문자열을 가져온다. 개선의 여지가 있음.
+     * RandomStringUtils.randomAlphanumeric을 사용해도 됨.
      */
     public static String getRandomSring(int len) {
         String randomStr = "abcdefghijklmnopqrstuvwxyz123456789";

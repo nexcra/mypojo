@@ -20,24 +20,15 @@ public class PoiReader implements Iterable<PoiSheetReader>{
 	protected HSSFWorkbook wb ;
     
     public PoiReader(String fileName){
-    	FileInputStream stream = null;
-    	try {
-    		stream = new FileInputStream(fileName);
-            POIFSFileSystem filesystem = new POIFSFileSystem(stream);        
-            wb = new HSSFWorkbook(filesystem);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }finally{
-        	try {
-				if(stream!=null) stream.close();
-			} catch (IOException e) {
-			}
-        }
+    	load(new File(fileName));
     }
     
     public PoiReader(File file){
-    	FileInputStream stream = null;
+    	load(file);
+    }
+
+	private void load(File file) {
+		FileInputStream stream = null;
     	try {
     		stream = new FileInputStream(file);
             POIFSFileSystem filesystem = new POIFSFileSystem(stream);        
@@ -51,7 +42,7 @@ public class PoiReader implements Iterable<PoiSheetReader>{
 			} catch (IOException e) {
 			}
         }
-    }
+	}
 
     public PoiSheetReader get(int i) {
     	return new PoiSheetReader(wb.getSheetAt(i));

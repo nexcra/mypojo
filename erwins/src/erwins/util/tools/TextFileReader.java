@@ -19,6 +19,7 @@ import erwins.util.root.StringCallback;
 /**
  * 복잡한 예외처리 등을 할 수 없지만 간단한거 할때 좋다. 
  * 마지막 라인에 \\가 들어가면 다음라인까지 이어서 한줄로 취급한다.
+ * SEPERATE 이게 아니고 SEPARATE 다.  오타 ㅠㅠ 인데 이미 들어가서 못고침.
  */
 public class TextFileReader{
     
