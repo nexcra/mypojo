@@ -56,22 +56,21 @@ public class Mails {
      * 이를 방지할려면 다음과 같이 메일 자체에 이미지를 첨부시키자.
      * 추후 replace ALL로 변경할것!
      */
-    public String getImgStr(File img,String append) throws EmailException {
+    public String buildImgTag(File img,String append) throws EmailException {
         //String cid = email.embed(imageUrl, "Apache logo");
     	String cid = email.embed(img);
         return "<img src=\"cid:"+cid+"\" "+append+" >";
     }
 
     /**
-     * serverFilePath : 확장자를 포함함 풀 경로를 적어준다.
-     * 여러개의 파일 등록이 가능하다.
+     * serverFilePath : 확장자를 포함함 풀 경로를 적어준다. 한글이 안되니 주의!
      */
-    public void setFile(String serverFilePath,String toFileName,String desc){
+    public void addFile(String serverFilePath,String toFileName){
         EmailAttachment attachment = new EmailAttachment();
         attachment.setPath(serverFilePath);
         attachment.setDisposition(EmailAttachment.ATTACHMENT);
-        attachment.setDescription(desc);
-        attachment.setName(toFileName); //한글 안됨?
+        //attachment.setDescription(desc);
+        attachment.setName(toFileName);
         try {
             email.attach(attachment);
         }
