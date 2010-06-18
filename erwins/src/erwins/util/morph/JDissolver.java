@@ -104,8 +104,8 @@ public class JDissolver {
     @SuppressWarnings("unchecked")
     public JSON build(Object entity) {
         if (entity instanceof Map) return getByMap((Map<Object, Object>) entity);
-        else if (entity instanceof Iterable) return getByList((Iterable) entity);
         else if(entity instanceof DomainObject) return getByDomain(entity,true);
+        else if (entity instanceof Iterable) return getByList((Iterable) entity);
         else throw new IllegalArgumentException(entity+" is not required type");
     }
     

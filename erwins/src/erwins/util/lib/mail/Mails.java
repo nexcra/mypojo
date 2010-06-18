@@ -1,9 +1,12 @@
 
 package erwins.util.lib.mail;
 
+import java.io.File;
 import java.text.MessageFormat;
 
-import org.apache.commons.mail.*;
+import org.apache.commons.mail.EmailAttachment;
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.HtmlEmail;
 
 /**
  * commons mail을 확장한다.
@@ -32,6 +35,11 @@ public class Mails {
         }
     }
     
+    /** 디폴트가 UTF-8인듯? */
+    public void setCharset(String charset){
+    	email.setCharset(charset);
+    }
+    
     /**
      * 여러 놈을 지정 가능 
      */
@@ -48,10 +56,10 @@ public class Mails {
      * 이를 방지할려면 다음과 같이 메일 자체에 이미지를 첨부시키자.
      * 추후 replace ALL로 변경할것!
      */
-    protected String getImgStr(String imageUrl) throws EmailException {
-        //URL url = new URL(imageUrl);
-        String cid = email.embed(imageUrl, "Apache logo");
-        return "<img src=\"cid:"+cid+"\">";
+    public String getImgStr(File img,String append) throws EmailException {
+        //String cid = email.embed(imageUrl, "Apache logo");
+    	String cid = email.embed(img);
+        return "<img src=\"cid:"+cid+"\" "+append+" >";
     }
 
     /**
@@ -62,8 +70,8 @@ public class Mails {
         EmailAttachment attachment = new EmailAttachment();
         attachment.setPath(serverFilePath);
         attachment.setDisposition(EmailAttachment.ATTACHMENT);
-        attachment.setDescription("good~.");
-        attachment.setName(toFileName); //한글 안됨
+        attachment.setDescription(desc);
+        attachment.setName(toFileName); //한글 안됨?
         try {
             email.attach(attachment);
         }
