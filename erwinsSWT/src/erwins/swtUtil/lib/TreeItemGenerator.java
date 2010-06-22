@@ -35,7 +35,5 @@ public class TreeItemGenerator<T extends Connectable> extends AbstractGenerator{
 		writeDefaultItem(each, item);
 		getTreeItem(item,each.getChildren());
 	}
-
-
 	
 }

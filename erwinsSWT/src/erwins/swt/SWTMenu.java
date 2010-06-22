@@ -4,6 +4,8 @@ package erwins.swt;
 import java.util.ArrayList;
 import java.util.List;
 
+import erwins.swt.network.DownloadByUrl;
+import erwins.swt.network.FtpSynch;
 import erwins.swt.text.CodeLine;
 import erwins.swt.text.TextSearch;
 import erwins.util.reflexive.Connectable;
@@ -30,8 +32,10 @@ public enum SWTMenu implements Connectable<String,SWTMenu>{
     
     network("네트워크","",null,root),
     urlTest("URL테스트","개발 등 할때 URL을 테스트 한다.",null,network),
-    ftpSynch("FTP Synch","로컬 디스크의 디렉토리와 원격지의 FTP디렉토리를 동기화 한다.",null,network),
-    urlDownload("URL download","해당 웹페이지 내의 리소스(jpg등)를 모두 다운받는다.",null,network),
+    ftp("FTP 유틸","",null,network),
+    ftpDownload("FTP Download","로컬 디스크에 원격지의 FTP상 특정 파일을 다운로드 한다.",null,ftp),
+    ftpSynch("FTP Synch","로컬 디스크의 디렉토리와 원격지의 FTP디렉토리를 동기화 한다.",new FtpSynch(),ftp),
+    downloadByURL("URL download","해당 웹페이지 내의 리소스(jpg등)를 모두 다운받는다.",new DownloadByUrl(),network),
     googleToNateon("Google To Nateon","구글 주소록을 네이트온 형식으로 바꿔준다.",null,network),
     ;
 

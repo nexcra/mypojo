@@ -24,6 +24,22 @@ public abstract class LayoutUtil{
 		return gridData;
 	}
 	
+	public static GridData hSpan(int hSpan){
+		GridData gridData = new GridData();
+		gridData.horizontalAlignment = GridData.FILL;
+		gridData.grabExcessHorizontalSpace = true;
+		gridData.horizontalSpan = hSpan;
+		return gridData;
+	}
+	
+	public static GridData vSpan(int vSpan){
+		GridData gridData = new GridData();
+		gridData.verticalAlignment = GridData.FILL;
+		gridData.grabExcessVerticalSpace = true;
+		gridData.verticalSpan = vSpan;
+		return gridData;
+	}
+	
 	public static GridLayout container(int column){
 		GridLayout layout = new GridLayout();
 		layout.horizontalSpacing = 5;

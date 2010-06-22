@@ -69,5 +69,13 @@ public class SimpleTreeItem implements Connectable<String,SimpleTreeItem>{
 		return id;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static void addItemIfNoChildren(Connectable root,String name){
+		if(root.getChildren().size()==0){
+    		SimpleTreeItem temp = new SimpleTreeItem();
+    		temp.setName(name);
+    		root.addChildren(temp);
+    	}
+	}
 	
 }

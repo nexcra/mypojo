@@ -20,6 +20,7 @@ import erwins.swt.SWTBuildable;
 import erwins.swt.StoreForList;
 import erwins.swt.img.ImageUtil;
 import erwins.swt.text.TextSearchService.TextSearchResult;
+import erwins.swtUtil.lib.BuildUtil;
 import erwins.swtUtil.lib.LayoutUtil;
 import erwins.swtUtil.lib.MessageUtil;
 import erwins.swtUtil.lib.SimpleTreeItem;
@@ -36,6 +37,9 @@ public class TextSearch implements SWTBuildable{
 	private Tree dependencyTree;
 	private Text inputString;
 	
+	private Button addDirectory;
+	private Button removeDirectory;
+	
 	public void build(final Composite root) {
 		this.shell = root.getShell();
 		final Composite body = new Composite(root, SWT.BORDER);
@@ -51,22 +55,14 @@ public class TextSearch implements SWTBuildable{
 		TableUtil.addColumn(table, "검색할 문자열",210);
 		
 		final Composite btns = new Composite(body, SWT.NONE);
-		GridLayout btnLayout = new GridLayout();
-		btnLayout.horizontalSpacing = 5;
-		btnLayout.verticalSpacing = 5;
-		btnLayout.numColumns = 1;
-		btns.setLayout(btnLayout);
+		btns.setLayout(LayoutUtil.container(1));
 		btns.setLayoutData(LayoutUtil.FULL);
 		
 		inputString = new Text(btns, SWT.LEFT);
 		inputString.setLayoutData(LayoutUtil.FULL);
 		
-		final Button addDirectory = new Button(btns, SWT.BUTTON1);
-		addDirectory.setText("디렉토리 추가");
-		addDirectory.setLayoutData(LayoutUtil.FULL);
-		final Button removeDirectory = new Button(btns, SWT.BUTTON1);
-		removeDirectory.setText("디렉토리 삭제");
-		removeDirectory.setLayoutData(LayoutUtil.FULL);
+		addDirectory = BuildUtil.addButton(btns, "디렉토리 추가");
+		removeDirectory = BuildUtil.addButton(btns, "디렉토리 삭제");
 		
 		final Composite bot = new Composite(root, SWT.BORDER);
 		bot.setLayout(new GridLayout());
@@ -75,12 +71,11 @@ public class TextSearch implements SWTBuildable{
 		dependencyTree = new Tree(bot, SWT.SINGLE | SWT.BORDER | SWT.FULL_SELECTION);
 		dependencyTree.setLayoutData(LayoutUtil.FULL);
 		
-		addListener(addDirectory, removeDirectory);
-	
+		addListener();
 		initialize();
 	}
 
-	private void addListener(final Button addDirectory, final Button removeDirectory) {
+	private void addListener() {
 		removeDirectory.addListener(SWT.MouseUp,new Listener() {
 			@Override
 			public void handleEvent(Event arg0) {
@@ -89,7 +84,7 @@ public class TextSearch implements SWTBuildable{
 					MessageUtil.alert(shell, "하나의 컬럼을 선택하세요");
 					return;
 				}
-				TableItem item = table.getSelection()[0];
+				TableItem item = selected[0];
 				TextSearchService service = (TextSearchService)item.getData();
 				table.remove(table.indexOf(item));
 				codeLineFile.remove(service);
@@ -122,8 +117,12 @@ public class TextSearch implements SWTBuildable{
 		table.addListener(SWT.MouseDoubleClick,new Listener() {
 			@Override
 			public void handleEvent(Event arg0) {
-				
-				TableItem item = table.getSelection()[0];
+				TableItem[] selected = table.getSelection();
+				if(selected.length==0){
+					MessageUtil.alert(shell, "하나의 컬럼을 선택하세요");
+					return;
+				}
+				TableItem item = selected[0];
 				TextSearchService service = (TextSearchService)item.getData();
 				
 				SimpleTreeItem root = new SimpleTreeItem();
@@ -143,11 +142,7 @@ public class TextSearch implements SWTBuildable{
 	
 		    	dependencyTree.removeAll();
 		    	
-		    	if(root.getChildren().size()==0){
-		    		SimpleTreeItem temp = new SimpleTreeItem();
-		    		temp.setName(service.getSearchString()+"로 검색된 데이터가 없습니다.");
-		    		root.addChildren(temp);
-		    	}
+		    	SimpleTreeItem.addItemIfNoChildren(root,service.getSearchString()+"로 검색된 데이터가 없습니다.");
 		    	
 		    	TreeItemGenerator<SimpleTreeItem> generator = new TreeItemGenerator<SimpleTreeItem>(dependencyTree);
 		    	generator.setNodeItemImage(ImageUtil.CLOSE.getImage());
@@ -159,7 +154,7 @@ public class TextSearch implements SWTBuildable{
 
 	private void initialize() {
 		for(TextSearchService each : codeLineFile.get()){
-			addTableItem(each);
+			if(each.getRoot().exists()) addTableItem(each);
 		}
 	}
 	

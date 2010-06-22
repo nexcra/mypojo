@@ -64,7 +64,7 @@ public class TextSearchService implements Serializable{
     	return result;
 	}
 	
-	private static final String[] ABLE_EXTS = new String[]{".JAVA",".TXT",".XML"};
+	private static final String[] ABLE_EXTS = new String[]{".JAVA",".TXT",".XML",".JSP",".JS",".AS",".MXML"};
 	
 	private Iterator<File> textFileIteraotor() {
 		Iterator<File> i = Files.iterateFiles(root, new IOFileFilter2() {

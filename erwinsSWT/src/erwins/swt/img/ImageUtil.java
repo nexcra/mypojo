@@ -16,8 +16,13 @@ public enum ImageUtil {
 	X("/erwins/swt/img/x.png"),
 	CIRCLE("/erwins/swt/img/circle.png"),
 	
+	ANT("/erwins/swt/img/ant.png"),
+	GOLD_BUG("/erwins/swt/img/goldbug.png"),
+	
 	OPEN("/erwins/swt/img/open.png"),
 	CLOSE("/erwins/swt/img/close.png"),
+	BIN("/erwins/swt/img/bin.png"),
+	NOTE("/erwins/swt/img/note.png"),
 	FILE("/erwins/swt/img/file.png");
 	
 	private ImageUtil(String uri){

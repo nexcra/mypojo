@@ -4,12 +4,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import erwins.util.lib.Files;
 
-public class StoreForList<T extends Serializable>{
+public class StoreForMap<T extends Serializable>{
 
 	//getAbsolutePath()를 하지 않으면 안된다. ㅠㅠ
 	public static final File ROOT = new File(new File("").getAbsolutePath(),"erwinsSWT");
@@ -18,36 +18,40 @@ public class StoreForList<T extends Serializable>{
 		if(!ROOT.exists()) ROOT.mkdir();
 	}
 	
-	public StoreForList(String key){
+	public StoreForMap(String key){
 		store = new File(ROOT,key);
 	}
 	
 	private final File store;
 	
-	public void add(T item){
-		List<T> list = get();
-		list.add(item);
-		setObject(store, list);
+	public void put(String key,T item){
+		Map<String,T> map = get();
+		map.put(key,item);
+		setObject(store, map);
 	}
 	
-	public void remove(T item){
-		List<T> list = get();
-		list.remove(item);
-		setObject(store, list);
+	public void remove(String key){
+		Map<String,T> map = get();
+		map.remove(key);
+		setObject(store, map);
 	}
 	
-	public List<T> get(){
-		List<T> list = null;
+	public T get(String key){
+		return get().get(key);
+	}
+	
+	public Map<String,T> get(){
+		Map<String,T> map = null;
 		try {
-			list = Files.getObject(store);
+			map = Files.getObject(store);
 		} catch (Exception e) {
 			if(e.getCause() instanceof java.io.ObjectStreamException){
 				System.out.println("저장된 자원과 버전이 달라 초기화 됩니다.");
 				Files.delete(store);
 			}else throw new RuntimeException(e); 
 		}
-		if(list==null) list = new ArrayList<T>();
-		return list;
+		if(map==null) map = new HashMap<String,T>();
+		return map;
 	}
 	
 	/** 임시메소드~ */
