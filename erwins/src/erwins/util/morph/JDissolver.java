@@ -136,7 +136,7 @@ public class JDissolver {
      */
     @SuppressWarnings("unchecked")
     public void getByDomain(JSONObject json,Object entity,boolean recursive){
-
+    	
         String fieldName = null;
         if (entity == null) return;
 
@@ -149,31 +149,32 @@ public class JDissolver {
 
             fieldName = Strings.getFieldName(name);
             if (fieldName == null) continue;
-
+            
             returnType = method.getReturnType();
-
-            Annotation[] annos = method.getAnnotations();
-
+            
             //애는 걸러준다.
-            if (Sets.isInstanceAny(annos, Hidden.class)) continue;
+            if(Sets.isAnnotationPresent(method, Hidden.class)) continue;
+            //if (Sets.isInstanceAny(annos, Hidden.class)) continue;
+            
             //입력 파라메터가 없는것만 가져온다.
             if(method.getParameterTypes().length!=0) continue;
             
+            Annotation[] annos = method.getAnnotations();
             for (JsonConfig each : list) {
                 if (each.run(json, method, returnType, annos)) continue;
             }
-
+            
             try {
-            	if (returnType == String.class) { //이놈은 특별히 이스케이핑 해준다.
+            	if ((String.class.isAssignableFrom(returnType))) { //이놈은 특별히 이스케이핑 해준다.
             		String obj = (String)method.invoke(entity);
 				    if (obj != null) json.put(fieldName,Encoders.escapeFlex(obj));
-            	}else if (Sets.isSameAny(returnType, STRING_TYPE)) {
+            	}else if (Sets.isAssignableFrom(returnType, STRING_TYPE)) {
 				    Object obj = method.invoke(entity);
 				    if (obj != null) json.put(fieldName, obj);
-				}else if (returnType == Calendar.class) {
+				}else if (Calendar.class.isAssignableFrom(returnType)) {
 				    Object obj = method.invoke(entity);
 				    if (obj != null) json.put(fieldName, Days.DATE.get((Calendar) obj));
-				} else if (returnType == Date.class) {
+				} else if (Date.class.isAssignableFrom(returnType)) {
 				    Object obj = method.invoke(entity);
 				    if (obj != null) json.put(fieldName, Days.DATE.get((Date) obj)); //DATE_SIMPLE가 더 나은듯??
 				} else if (ValueObject.class.isAssignableFrom(returnType)) {
@@ -190,14 +191,14 @@ public class JDissolver {
 				    if(num == null) continue;
 				    json.put(fieldName + "Name", num.toString());
 				    json.put(fieldName, num.name());
-				} else if (Sets.isInstanceAny(annos, OracleListString.class)) {
+				} else if (Sets.isAnnotationPresent(method, OracleListString.class)) {
 				    Object obj = method.invoke(entity);
 				    if(obj==null) continue;
 				    if(!Hibernate.isInitialized(obj)) continue;
 				    json.put(fieldName, Sets.getOracleStr((List) obj));            
 				    /** Parent가 있을 경우 무한루프 방지. */
-				}else if (recursive && !Sets.isInstanceAny(annos, Parent.class) && 
-						(Sets.isInstanceAny(annos, ManyToOne.class) || DomainObject.class.isAssignableFrom(returnType)  )) {
+				}else if (recursive && !Sets.isAnnotationPresent(method, Parent.class) && 
+						(Sets.isAnnotationPresent(method, ManyToOne.class) || DomainObject.class.isAssignableFrom(returnType)  )) {
 				    Object obj = method.invoke(entity);
 				    if(obj==null) continue;
 				    if(obj instanceof EntityId){
@@ -212,7 +213,7 @@ public class JDissolver {
 			        }
 				    //재귀 호출이라도 Hibernate가 init되지 않았다면 재귀를 멈춘다.
 				    if(Hibernate.isInitialized(obj)) json.put(fieldName,getByDomain(obj,true));
-				} else if (recursive && ( Sets.isInstanceAny(annos, OneToMany.class, CollectionOfElements.class,ManyToMany.class)
+				} else if (recursive && ( Sets.isAnnotationPresent(method, OneToMany.class, CollectionOfElements.class,ManyToMany.class)
 					 || Collection.class.isAssignableFrom(returnType)	)) {
 				    JSONArray jsonArray = new JSONArray();
 				    Collection sublist = (Collection) method.invoke(entity);

@@ -2,6 +2,8 @@ package erwins.util.lib;
 
 
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -188,6 +190,15 @@ public abstract class Sets  extends CollectionUtils{
     }
     
     /**
+     * 제우스 긍 ~~~ 
+     */
+    public static boolean isAssignableFrom(Class<?> body ,Class<?> ... items) {
+    	if(body==null || items.length==0) return false;
+    	for(Class<?> item:items) if(item.isAssignableFrom(body)) return true;
+    	return false;
+    }
+    
+    /**
      * 배열에 null이 있는지 확인한다. 
      * 하나라도 있으면 true를 리턴한다. 배열의 size가 0이면 false이다.
      */
@@ -201,11 +212,18 @@ public abstract class Sets  extends CollectionUtils{
      * 하나라도 있으면 true를 리턴한다.
      * 다중인자에서 T사용은 안되는구나. ㅠㅠ
      * ex) if(Sets.isInstance(annos,Hidden.class)) continue;
+     * 티백스의 제우스에서는 오류난다~ ㅋㅋ Method클래스의 isAnnotationPresent(Hidden.class)를 사용할것!
      */
+    @Deprecated
     public static <T> boolean isInstanceAny(T[] bodys , Class<? extends T> ...  clazzs) {
         if(bodys==null || clazzs.length==0) return false;
         for(T each : bodys) for(Class<? extends T> clazz : clazzs) if(clazz.isInstance(each)) return true;
         return false;
+    }
+    
+    public static  boolean isAnnotationPresent(Method bodys , Class<? extends Annotation> ...  clazzs) {
+    	for(Class<? extends Annotation> each : clazzs)  if(bodys.isAnnotationPresent(each)) return true;
+    	return false;
     }
     
     /**

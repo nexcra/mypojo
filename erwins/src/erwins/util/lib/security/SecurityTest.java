@@ -66,7 +66,7 @@ public class SecurityTest{
     	File zip = new File("/zip");
     	File sealedZip = new File("/sealedZip");
     	File unsealedZip = new File("/unsealedZip");
-    	File unzip = new File("/org(1).txt");
+    	File unzip = new File("/org(01).txt");
     	Files.zip(zip, org);
     	Cryptor.encrypt(key, zip, sealedZip);
     	Cryptor.decrypt(key, sealedZip, unsealedZip);

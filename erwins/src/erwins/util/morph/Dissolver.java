@@ -137,11 +137,11 @@ public class Dissolver{
                 
                 if(setterType == String.class){
                     String value = null;
-                    if(Sets.isInstanceAny(annos,Numeric.class)) value = map.getNumericStr(fieldName);
+                    if(Sets.isAnnotationPresent(method,Numeric.class)) value = map.getNumericStr(fieldName);
                     else value =  map.getStr(fieldName);
                     method.invoke(entity, value);
                 }else if(setterType == Integer.class || setterType == int.class){
-                    if(isKey()) method.invoke(entity, map.getIntId(fieldName)); 
+                    if(isKey(method)) method.invoke(entity, map.getIntId(fieldName)); 
                     else method.invoke(entity, map.getInteger(fieldName));
                 }else if(setterType == BigDecimal.class){
                     method.invoke(entity, map.getDecimal(fieldName));
@@ -165,12 +165,12 @@ public class Dissolver{
                 }else if(setterType.isEnum()){
                     method.invoke(entity,map.getEnum((Class<Enum>)setterType, fieldName)); //기본 Enum만 됨.
                 }else if(setterType == Long.class || setterType == long.class){
-                    if(isKey()) method.invoke(entity, map.getLongId(fieldName));
+                    if(isKey(method)) method.invoke(entity, map.getLongId(fieldName));
                     else method.invoke(entity, map.getLong(fieldName));
-                }else if(Sets.isInstanceAny(annos,OracleListString.class)){ 
+                }else if(Sets.isAnnotationPresent(method,OracleListString.class)){ 
                     String str = map.getStr(fieldName);
                     method.invoke(entity, Sets.getOracleStr(str));
-                }else if(Sets.isInstanceAny(annos,ManyToOne.class)){
+                }else if(Sets.isAnnotationPresent(method,ManyToOne.class)){
                     String entityName = fieldName + "." + EntityId.ID_NAME;
                     Serializable temp = null;
                     Class<?> idClass = Clazz.getterReturnClass(setterType,EntityId.ID_NAME);
@@ -181,7 +181,7 @@ public class Dissolver{
                     EntityId newEntity = (EntityId)Clazz.instance(setterType);
                     newEntity.setId(temp);
                     method.invoke(entity, newEntity);
-                }else if(Sets.isInstanceAny(annos,ManyToMany.class)){
+                }else if(Sets.isAnnotationPresent(method,ManyToMany.class)){
                     /** List만 사용되는것이 아니라 Set이 사용될 수도 있다. */
                     Class<?> subEntityClass =  Clazz.getSetterGeneric(method);
                     if(!EntityId.class.isAssignableFrom(subEntityClass)) continue;
@@ -204,13 +204,13 @@ public class Dissolver{
                         subEntitylist.add(idEntity);
                     }
                     method.invoke(entity, subEntitylist);
-                }else if(Sets.isInstanceAny(annos,OneToMany.class,CollectionOfElements.class)){ //List만 된다. 주의!
+                }else if(Sets.isAnnotationPresent(method,OneToMany.class,CollectionOfElements.class)){ //List만 된다. 주의!
                     
                     String preFix = fieldName;
                     Class<?> subEntityClass =  Clazz.getSetterGeneric(method);
                     
                     //enum일 경우 부가옵션.
-                    if(Sets.isInstanceAny(annos,Enumerated.class)){
+                    if(Sets.isAnnotationPresent(method,Enumerated.class)){
                     	Collection<Enum> c;
                     	if(Set.class.isAssignableFrom(setterType)) c = new HashSet();
                     	else if(Set.class.isAssignableFrom(setterType)) c = new ArrayList();
@@ -244,10 +244,10 @@ public class Dissolver{
                         }else if(setterType == Boolean.class || setterType == boolean.class){
                             temp = map.getBooleans(fieldName);
                         }else if(setterType == int.class || setterType == Integer.class){
-                            if(isKey()) temp = map.getIntIds(fieldName);
+                            if(isKey(subMethod)) temp = map.getIntIds(fieldName);
                             else temp = map.getIntegers(fieldName);
                         }else if(setterType == long.class || setterType == Long.class){
-                            if(isKey()) temp = map.getLongIds(fieldName);
+                            if(isKey(subMethod)) temp = map.getLongIds(fieldName);
                             else temp =  map.getLongs(fieldName);
                         }else if(setterType == BigDecimal.class){
                             temp = map.getDecimals(fieldName);
@@ -289,9 +289,8 @@ public class Dissolver{
          * Id가 붙어있거나 Fk가 붙어있을경우 true를 리턴
          */
         @SuppressWarnings("unchecked")
-        private boolean isKey(){
-            if(Sets.isInstanceAny(annos,Id.class,Fk.class)) return true;
-            return false; 
+        private boolean isKey(Method method){
+            return Sets.isAnnotationPresent(method,Id.class,Fk.class); 
         }
         
         /**

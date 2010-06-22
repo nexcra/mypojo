@@ -44,8 +44,8 @@ public abstract class AjaxTool {
         JSONObject json = JSONObject.fromObject(body);
         String message = json.getString(AjaxTool.MESSAGE);
         if(!json.getBoolean(AjaxTool.IS_SUCCESS)) throw new RuntimeException(message.toString());
-        if(message.startsWith("{")) return  json.getJSONObject(AjaxTool.MESSAGE);
-        else if(message.startsWith("[")) return  json.getJSONArray(AjaxTool.MESSAGE);
+        if(message.startsWith("{") && message.endsWith("}")) return  json.getJSONObject(AjaxTool.MESSAGE);
+        else if(message.startsWith("[") && message.endsWith("]")) return  json.getJSONArray(AjaxTool.MESSAGE);
         return null;
     }
 

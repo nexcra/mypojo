@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 
 import erwins.util.counter.Latch;
@@ -79,14 +77,6 @@ public class Strings extends StringUtils {
         for (String str : strs)
             if (body.equalsIgnoreCase(str)) return true;
         return false;
-    }
-
-    /**
-     * Url은 '/'를 포함하는 root부터 시작한다. ex) /D:/qwe.qwe.go => 'D:/qwe.qwe' and 'go'
-     */
-    public static String[] getUrlAndExtention(HttpServletRequest req) {
-        String requestedUrl = req.getRequestURI().substring(req.getContextPath().length());
-        return getUrlAndExtention(requestedUrl);
     }
 
     /**

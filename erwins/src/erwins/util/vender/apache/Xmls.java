@@ -1,12 +1,8 @@
 
 package erwins.util.vender.apache;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.ecs.xml.XML;
 import org.apache.ecs.xml.XMLDocument;
-
-import erwins.util.lib.Writers;
 
 
 /**
@@ -43,12 +39,13 @@ public class Xmls{
         }        
     }
     
+    /*
     public void write(HttpServletResponse response){
         XMLDocument x = new XMLDocument();
         x.setCodeset("UTF-8");
         x.addElement(root);
         x.output(Writers.getWriter(response));
-    }
+    }*/
     
     @Override
     public String toString(){
