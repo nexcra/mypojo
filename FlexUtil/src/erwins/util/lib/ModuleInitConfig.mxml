@@ -7,7 +7,7 @@
 <mx:Script>
 <![CDATA[
 	import erwins.util.UILib.TimeUtil;
-	import erwins.util.UILib.RightMenuUtil
+	import erwins.util.UILib.ContextMenuUtil
 	import erwins.util.lib.*;
 	import erwins.util.json.*;
 	import erwins.component.JsonButton;
@@ -66,7 +66,7 @@ private function load():void{
 /** 마우스 우클릭에 모듈 컨피그를 추가한다. static과 아닌데 혼란스럽다. 나중에 고치자. */
 public static function addRightClickModuleConfig(base:UIComponent,domain:String,list:Array,okCommand:Function,width:int=125):void{
 	
-	RightMenuUtil.addMenu(base,"모듈로더 설정창",function():void{
+	ContextMenuUtil.addMenu(base,"모듈로더 설정창",function():void{
 		var popWin:ModuleInitConfig = new ModuleInitConfig();
 		popWin._domain = domain;
 		popWin._dataProvider  = new ArrayCollection(list);

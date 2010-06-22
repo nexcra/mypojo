@@ -27,6 +27,7 @@ package erwins.util.lib{
 			info.addEventListener(ModuleEvent.ERROR, function(e:ModuleEvent):void{
 				trace('ModuleEvent.ERROR : ' + url);
 				Alerts.debug("load Error : " + e.errorText);
+				CursorManager.removeBusyCursor();
 			});
 			var func:Function = function(e:ModuleEvent):void{
 				trace('ModuleEvent.READY : ' + url);
@@ -41,11 +42,15 @@ package erwins.util.lib{
 			};
 			
 			info.addEventListener(ModuleEvent.READY,func);
+			
+			var count:int = 0;
 			info.addEventListener(ModuleEvent.SETUP,function():void{
 				trace('ModuleEvent.SETUP : ' + url);
 				/** 혹시나 가끔 READY이벤트가 안될때가 있어서 타이머를 부착시켰다. 기동될때까지 load를 날려준다.  */
 				var tt:Timer = TimeUtil.fire(function():void{
 					if(!map[url]){
+						count++;
+						if(count>2) return;
 						info.load();
 						tt.start();
 						trace('ModuleEvent.READY is not fired. Do reload : ' + url);

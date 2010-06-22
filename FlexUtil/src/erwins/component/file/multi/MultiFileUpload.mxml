@@ -207,7 +207,7 @@ private function startUpload():void {
 	    _refUploadFile = new FileReference();
 	    _refUploadFile = listFiles.selectedItem.file;
 	    _refUploadFile.addEventListener(ProgressEvent.PROGRESS, onUploadProgress);
-	   	_refUploadFile.addEventListener(Event.COMPLETE, onUploadComplete);
+	   	_refUploadFile.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onUploadComplete);
 	  	
 	  	try{
 			_refUploadFile.upload(request, "file", false);
@@ -223,7 +223,7 @@ private function startUpload():void {
 // Cancel and clear eventlisteners on last upload
 private function clearUpload():void {
 	_refUploadFile.removeEventListener(ProgressEvent.PROGRESS, onUploadProgress);
-	_refUploadFile.removeEventListener(Event.COMPLETE, onUploadComplete);
+	_refUploadFile.removeEventListener( DataEvent.UPLOAD_COMPLETE_DATA , onUploadComplete);
 	_refUploadFile.cancel();
 	_numCurrentUpload = 0;
 	updateProgBar();
@@ -255,14 +255,14 @@ private function updateProgBar(numPerc:Number = 0):void {
 	progBar.validateNow();
 }
 			
-private function onUploadComplete(event:Event):void {
+private function onUploadComplete(event:DataEvent):void {
 	_numCurrentUpload++;				
 	if (_numCurrentUpload < _arrUploadFiles.length) {
 		startUpload();
 	} else {
 		enableUI();
 		clearUpload();
-		if(successCallback!=null) successCallback();
+		if(successCallback!=null) successCallback(event);
 		this.title = "File(s) have been uploaded.";
 		var timer:Timer = new Timer( 2000, 1 );
 	    timer.addEventListener(TimerEvent.TIMER,function(event:TimerEvent):void{

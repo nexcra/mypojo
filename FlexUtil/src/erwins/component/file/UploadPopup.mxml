@@ -3,6 +3,7 @@
 	xmlns:erwins="erwins.component.file.*" 
     title="File Upload" >
 <mx:Script><![CDATA[
+	import mx.rpc.events.ResultEvent;
 	import erwins.util.UILib.TimeUtil;
 	import mx.managers.CursorManager;
 	import erwins.util.effect.EventEffect;
@@ -23,12 +24,12 @@ protected override function init():void{
     fileRef.addEventListener(ProgressEvent.PROGRESS,function(event:ProgressEvent):void {
 		bar.setProgress(event.bytesLoaded,event.bytesTotal);
 	});
-    fileRef.addEventListener(Event.COMPLETE,function(event:Event):void {
+    fileRef.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA,function(event:DataEvent):void {
 		me.title = '업로드 완료';
 		TimeUtil.fire(function():void{
 			PopUpManager.removePopUp( me );
 		},3000);
-		if(successCallback!=null) successCallback();
+		if(successCallback!=null) successCallback(event);
 	});
 	fileRef.addEventListener(Event.CANCEL,function(event:Event):void {
 		PopUpManager.removePopUp( me );

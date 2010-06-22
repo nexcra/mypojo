@@ -11,7 +11,88 @@ package erwins.util.lib{
 	    public static function removeHTML(value:String):String{
 	        var r:RegExp = /<[a-zA-Z\/][^>]*>/g
 	        return value.replace(r,"");
-	    }		
+	    }
+	    
+	    /** 확인필요 */
+		/**
+		 * str의 byte 단위 길이를 반환한다.
+		 * ex) byteLength("hello") --> 5 byte
+		 *     byteLength("안녕") ---> 4 byte
+		 */
+		public static function byteLength(str:String):uint {
+			var length:uint = 0;
+			
+			for (var idx:uint = 0; idx < str.length; idx++) {
+				if (str.charCodeAt(idx) < 256) {
+					length += 1;
+				} else {
+					length += 2;
+				}
+			}
+			
+			return length;		
+		}
+		
+		/** 확인필요 */
+		public static function chkMaxLength(compareText:String,maxLength:Number):Boolean{
+	 		var paramLength:uint = compareText.length;
+	 		var strLength:Number = 0;
+ 			var subStr:String = "";
+ 			var retnBool:Boolean = true;
+	 		for(var i:uint = 0; i< paramLength;i++){
+	 			strLength += (escape(compareText.charAt(i)).length > 4) ? 2 : 1;
+	 		}
+ 			if(strLength>=maxLength){
+ 				retnBool = false;	 					
+ 			}
+ 			return retnBool;
+	 	}
+	 	
+	 	/** 확인필요 */
+	   public static function getTextByte(compareText:String):Number{
+	 		var paramLength:uint = compareText.length;
+	 		var strLength:Number = 0;
+	 		for(var i:uint = 0; i< paramLength;i++){
+	 			strLength += (escape(compareText.charAt(i)).length > 4) ? 2 : 1;
+	 		}
+ 			return strLength;
+	 	}
+	 	
+		/*
+	   public static function isRRNAdd(rrnAdd:String):Boolean{
+	 		var isRRN:Boolean = true;
+	 		
+            var len:Number = rrnAdd.length;
+
+            var strRRN:String;   
+            var keyNum:Array = [2, 3, 4, 5, 6, 7, 8, 9, 2, 3, 4, 5];   
+            var sum:int = 0;   
+               
+            strRRN = (rrnAdd.toString()).replace(new RegExp("-", "g"), "");   
+               
+               
+            if(strRRN.length != 13)   
+            {   
+                Alert.show("주민등록번호 13자리를 입력하셔야합니다");   
+                isRRN = false;    
+            }else{   
+                for(var ii:int=0; ii<12; ii++)   
+                {   
+                    sum += parseInt(strRRN.substr(ii, 1)) * keyNum[ii];   
+                }   
+                   
+                var strRRNCheckNum:int = parseInt(strRRN.substr(12, 1));    
+                var caculateCheckNum:int = (11-(sum%11))%10;               
+                   
+                if(strRRNCheckNum != caculateCheckNum)   
+                {   
+                    Alert.show("잘못된 주민등록번호입니다");   
+                    isRRN = false;  
+                }   
+            }   
+ 			return isRRN;
+	 	}
+	 	*/	 	
 		
 		/** 매칭되는 문자열이 있는지? */
 		public static function isContain(str:String,key:String):Boolean{

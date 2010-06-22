@@ -27,7 +27,6 @@
 			}
 			
 			/** 기본값을 영문으로~ ID입력이나 비밀번호 등등 */
-			
 			public function set toEnglish(value:Boolean):void{
 				_toEnglish = value;
 			}

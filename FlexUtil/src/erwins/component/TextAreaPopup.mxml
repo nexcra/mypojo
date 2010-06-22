@@ -34,11 +34,14 @@ public static function popUp(base:UIComponent,title:String,text:String,width:int
 		PopUpManager.removePopUp(popWin);
 	});
 	popWin.setFocus();
-	
 }
 
 private function remove():void{
 	PopUpManager.removePopUp( this );
+}
+
+public function addTextLine(added:String):void{
+	this.text.htmlText = this.text.htmlText + '<br>' + added;
 }
 
 ]]></mx:Script>

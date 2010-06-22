@@ -1,5 +1,6 @@
 package erwins.util.lib{
 
+    import erwins.component.TextAreaPopup;
     import erwins.util.json.JsonDebug;
     import erwins.util.json.Jsons;
     
@@ -7,10 +8,33 @@ package erwins.util.lib{
     import flash.utils.Timer;
     
     import mx.controls.Alert;
+    import mx.core.UIComponent;
     import mx.events.CloseEvent;
     import mx.managers.PopUpManager;
 
     public class Alerts{
+    	
+    	private static var _popupForDebug:TextAreaPopup;
+    	
+		/** 디버깅용 trace */
+    	public static function debugTrace(base:UIComponent,obj:Object):void{
+    		var message:String;
+    		if(obj==null){
+    			message = 'null값이 입력되었습니다.';
+    		}else if(Jsons.isReflexive(obj)){
+    			message = new JsonDebug(obj).parse();
+    		}else message = obj.toString();
+    		
+    		if(_popupForDebug==null){
+    			_popupForDebug = new TextAreaPopup();
+				PopUpManager.addPopUp(_popupForDebug,base,false);
+				_popupForDebug.title = '디버깅 중입니다.';
+				_popupForDebug.text.htmlText = message;
+				_popupForDebug.text.height = 600;
+				_popupForDebug.text.width = 400;
+				_popupForDebug.setFocus();
+    		}else _popupForDebug.addTextLine(message);
+    	}    	
     	
     	/** 디버깅용 alert */
     	public static function debug(obj:Object):void{

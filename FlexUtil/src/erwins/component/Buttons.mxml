@@ -4,6 +4,8 @@
 
 	<mx:Script>
 		<![CDATA[
+			import erwins.util.effect.EventEffect;
+			import erwins.util.UILib.TimeUtil;
 			import erwins.util.lib.Colors;
 			import erwins.util.UILib.TooltipUtil;
 			import mx.managers.ToolTipManager;
@@ -12,6 +14,8 @@
 			import mx.collections.ArrayCollection;
 			import mx.core.Container;
 			import mx.containers.Tile;
+			
+			private var me:Buttons = this as Buttons;
 			
 			private var _tooltip:String;
 			private var _tipColor:int = Colors.SKY;
@@ -26,6 +30,15 @@
 			}
 			public function set tipColor(tipColor:int):void{
 				this._tipColor = tipColor;
+			}
+			
+			/** stopImmediatePropagation()하면 요건 작동 안한다. */ 
+			public function set duration(duration:int):void{
+				this.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{
+					//if(e.isDefaultPrevented()) return;
+					EventEffect.showHideIris(me);
+					TimeUtil.hideAndShow(me,duration);
+				},false,-10);
 			}
 			
 		]]>

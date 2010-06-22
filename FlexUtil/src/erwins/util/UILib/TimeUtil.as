@@ -4,6 +4,7 @@ package erwins.util.UILib{
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import mx.core.UIComponent;
 	import mx.utils.*;
 	public class TimeUtil{
 		
@@ -20,6 +21,15 @@ package erwins.util.UILib{
 		    });
 			timer.start(); // 타이머 시작
 			return timer; 
+		}
+		
+		/** 사라졌다가 일정시간 지난 휴 다시 보이게 한다.
+		 * EventEffect.showHideIris(loginBtn) 처럼 hide/show 이펙트를 미리 줘야 간지난다. */
+		public static function hideAndShow(base:UIComponent,duration:int = 2000):void{
+			base.setVisible(false);
+			fire(function():void{
+				base.setVisible(true);
+			},duration);
 		}
 
 	}

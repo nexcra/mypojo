@@ -7,7 +7,7 @@ package erwins.util.UILib{
 	import flash.ui.ContextMenuItem;
 	
 	import mx.utils.*;
-	public  class RightMenuUtil{
+	public  class ContextMenuUtil{
 		
 		/** line이 true이면 윗줄에 LINE을 그어준다. 첫줄은 당연히 default로 true이다. */
 		public static function addMenu(base:Sprite,name:String,click:Function,line:Boolean=false,enable:Boolean=true):void{
