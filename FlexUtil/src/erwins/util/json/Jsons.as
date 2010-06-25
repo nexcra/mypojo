@@ -148,7 +148,7 @@ package erwins.util.json{
 		/** dataProvider안의 id또는 value를 비교해서 일치하는 것을 선택된 것으로 만들어 준다. 
 		 * 범용으로 덕타입을 지원한다. */
 		public static function selectedByValue(component:*,value:String):void{
-			var oo:ArrayCollection = component.dataProvider as ArrayCollection;
+			var oo:* = component.dataProvider;
 			for(var i:int=0;i<oo.length;i++){
 				if(oo[i].id == value || oo[i].value == value){
 					component.selectedIndex = i;

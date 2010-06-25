@@ -22,17 +22,19 @@ package erwins.util.http{
 	public class Paging{ 
 		
 		/** 현제 페이지 번호 */
-		[Bindable]
-		public var nowPageNo:int= 1;
-		[Bindable]
-		public var nextAble:Boolean = true;
-		[Bindable]
-		public var beforeAble:Boolean = true;
+		[Bindable] public var nowPageNo:int= 1;
+		/** 이전 페이지 번호. 이는 너무 많은 페이지를 건너뛰어서 더이상 자료가 없을때 초기화를 위해 필요하다.  */
+		[Bindable] public var beforePageNo:int= 1;
+		[Bindable] public var nextAble:Boolean = true;
+		[Bindable] public var beforeAble:Boolean = true;
 		
 		/** Hibernate의 rownum이 있을 경우 next / before를 초기화 한다. */
 		public function renew(list:ArrayCollection):void{
 			beforeAble = nowPageNo != 1;
-			if(list==null || list.length <= 1) return;
+			if(list==null || list.length <= 1){
+				nowPageNo = beforePageNo;
+				return;
+			} 
 			nextAble = list[list.length-1].rownum!=1;
 			if(buttonBarForPagingMediator!=null) buttonBarForPagingMediator();
 		}
@@ -69,6 +71,7 @@ package erwins.util.http{
 		public function search(terget:int=1,callback:Function=null):void{
 			if( terget < 1) return;  //0페이지 요청이면  스킵.
 			if(lock.locked) return;
+			this.beforePageNo = this.nowPageNo;
 			this.nowPageNo = terget;
 			try{
 				fun(callback);
@@ -110,17 +113,17 @@ package erwins.util.http{
 					btns.addEventListener(ItemClickEvent.ITEM_CLICK,function(e:ItemClickEvent):void{
 						switch(e.index){
 							case 0 : 
-								if(keyBinder.ctrlKey) search(nowPageNo - ctrlInterval)
-								else if(keyBinder.shiftKey) search(nowPageNo - shiftKeyInterval)
+								if(keyBinder.ctrlKey) search(nowPageNo - ctrlInterval);
+								else if(keyBinder.shiftKey) search(nowPageNo - shiftKeyInterval);
 								else before(); 
 								break;
 							case 1 :
-								if(keyBinder.ctrlKey) search(nowPageNo + ctrlInterval)
-								if(keyBinder.shiftKey) search(nowPageNo + shiftKeyInterval)
+								if(keyBinder.ctrlKey) search(nowPageNo + ctrlInterval);
+								else if(keyBinder.shiftKey) search(nowPageNo + shiftKeyInterval);
 								else next(); 
 								break;
 						}
-					});					
+					});
 					buttonBarForPagingMediator = function():void{
 						UIComponent(btns.getChildren()[0]).enabled = beforeAble;
 						UIComponent(btns.getChildren()[1]).enabled = nextAble;

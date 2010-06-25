@@ -31,7 +31,7 @@ package erwins.util.lib{
 				_popupForDebug.title = '디버깅 중입니다.';
 				_popupForDebug.text.htmlText = message;
 				_popupForDebug.text.height = 600;
-				_popupForDebug.text.width = 400;
+				_popupForDebug.text.width = 800;
 				_popupForDebug.setFocus();
     		}else _popupForDebug.addTextLine(message);
     	}    	
