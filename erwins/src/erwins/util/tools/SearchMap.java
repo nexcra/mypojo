@@ -1,8 +1,9 @@
 package erwins.util.tools;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -16,7 +17,9 @@ import erwins.util.lib.Clazz;
 import erwins.util.lib.Sets;
 import erwins.util.morph.JDissolver;
 import erwins.util.root.EntityHibernatePaging;
-import erwins.util.vender.hibernate.*;
+import erwins.util.vender.hibernate.CriteriaBuilder;
+import erwins.util.vender.hibernate.HqlBuilderMap;
+import erwins.util.vender.hibernate.HqlBuilderRoot;
 import erwins.util.web.AjaxTool;
 
 
@@ -247,8 +250,7 @@ public class SearchMap extends Mapp {
         for(Object each : result){
         	for(Method method : methods){
                 if(!Clazz.isGetter(method)) continue;
-                Annotation[] annos = method.getAnnotations();
-                if(Sets.isInstanceAny(annos,CollectionOfElements.class,OneToMany.class,ManyToOne.class)){
+                if(Sets.isAnnotationPresent(method, CollectionOfElements.class,OneToMany.class,ManyToOne.class)){
                     if(method.getParameterTypes().length!=0) continue;
                     Object proxy;
                     try {

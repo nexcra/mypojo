@@ -27,10 +27,18 @@ public class TrackerMap implements Iterable<Tracker>{
     	String key = className + "|" + methodName;
     	Tracker tracker = map.get(key);
     	if(tracker==null){
-    		tracker = new Tracker(className,methodName);
+    		tracker = new Tracker();
+    		tracker.setClassName(className);
+    		tracker.setMethodName(methodName);
     		map.put(key, tracker);
     	}
     	tracker.addTime(time);
+    }
+    
+    /** 요건 DB에 있던 놈을 초기화 할때 사용 */
+    public void addTracker(Tracker tracker){
+    	String key = tracker.getClassName() + "|" + tracker.getMethodName();
+    	map.put(key, tracker);
     }
 
 	public Iterator<Tracker> iterator() {

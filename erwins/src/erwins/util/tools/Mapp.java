@@ -73,7 +73,7 @@ public class Mapp extends MappRoot {
             }
             if(empty.size()!=0) log.debug("[HTML] Named.. But Empty : " + Strings.joinTemp(empty,","));
             if(!parameter.isEmpty()) log.debug("[HTML] Single Parameter : " + parameter);
-            if(!parameter.isEmpty()) log.debug("[HTML] Array Parameters : " + parameters);
+            if(!parameters.isEmpty()) log.debug("[HTML] Array Parameters : " + parameters);
         }
 
     }

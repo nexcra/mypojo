@@ -6,6 +6,7 @@ import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -47,26 +48,30 @@ public class JDBC{
 	private Connection connection_oracle = null;
 	
 	/** oracle용 입니다. */
-	public JDBC(String ip,String sid,String userId,String pass) throws SQLException {
+	public JDBC(String ip,String sid,String userId,String pass){
 		String url = MessageFormat.format(URL_ORACLE, ip,"1521",sid);
 		init(url, userId, pass, new OracleDriver());
 	}
-	public JDBC(String ip,String port,String sid,String userId,String pass)  throws SQLException {
+	public JDBC(String ip,String port,String sid,String userId,String pass) {
 		String url = MessageFormat.format(URL_ORACLE, ip,port,sid);
 		init(url, userId, pass, new OracleDriver());
 	}
-	public JDBC(String ip,String port,String sid,String userId,String pass,boolean isServiceName)  throws SQLException {
+	public JDBC(String ip,String port,String sid,String userId,String pass,boolean isServiceName) {
 		String url = MessageFormat.format(URL_ORACLE_SERVICENAME, ip,port,sid);
 		init(url, userId, pass, new OracleDriver());
 	}
-	public JDBC(String url,String userId,String pass,Driver driver)  throws SQLException {
+	public JDBC(String url,String userId,String pass,Driver driver){
 		init(url, userId, pass, driver);
 	}
 
-	private void init(String url, String userId, String pass, Driver driver) throws SQLException {
-		DriverManager.registerDriver(driver);
-        connection_oracle = DriverManager.getConnection(url,userId, pass);
-        connection_oracle.setAutoCommit(false);
+	private void init(String url, String userId, String pass, Driver driver){
+		try {
+			DriverManager.registerDriver(driver);
+			connection_oracle = DriverManager.getConnection(url,userId, pass);
+			connection_oracle.setAutoCommit(false);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}	
 	
 	public void close(){
@@ -160,9 +165,17 @@ public class JDBC{
         return result;
     }
     
+    public void executeByPrepareStatement(String sql,Object ... objs) throws SQLException{
+    	PreparedStatement statement_oracle = connection_oracle.prepareStatement(sql);
+    	for(int i=0;i<objs.length;i++){
+    		statement_oracle.setObject(i+1,objs[i]);
+    	}
+    	statement_oracle.execute();
+    }
+    
     public void execute(String sql) throws SQLException{
     	Statement statement_oracle = connection_oracle.createStatement();
-        if(statement_oracle.execute(sql)) throw new SQLException(sql+" is fail");
+    	if(statement_oracle.execute(sql)) throw new SQLException(sql+" is fail");
     }
     
     public void execute(Collection<String> sqls) throws SQLException{

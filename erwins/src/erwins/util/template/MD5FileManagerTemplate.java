@@ -6,33 +6,38 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.json.JSONArray;
-import erwins.util.exception.ExceptionFactory;
+import net.sf.json.JSONObject;
+import erwins.util.lib.Files;
+import erwins.util.lib.security.MD5;
 
-/**
- * 단순 json과 해시값을 가지는 컨테이너이다.
- **/
-public abstract class MD5FileManagerTemplate{
+public class MD5FileManagerTemplate extends FileJsonTemplateForFlex{
 	
-	protected JSONArray array;
+	public static final String HASH_CODE = "hashCode";
+	public static final String LENGTH = "length";
+	
 	protected final Map<String,File> eachCached = Collections.synchronizedMap(new HashMap<String,File>()) ;	
-	
-    public final File repository;
     
     public MD5FileManagerTemplate(File repository){
-    	this.repository = repository;
-    	ExceptionFactory.throwExeptionIfNotExist(repository);
+    	super(repository);
     }
     
     public File getFile(String hash){
         return eachCached.get(hash);
     }
-    
-    public abstract JSONArray getJson();
-    
-    public JSONArray refresh(){
-    	array = null;
-    	return getJson();
-    }
+
+	@Override
+	protected void build(File file, JSONObject obj) {
+		String hashCode = MD5.getHashHexString(file.getAbsolutePath());
+    	obj.put(HASH_CODE, hashCode);
+    	eachCached.put(hashCode, file);
+    	obj.put(LENGTH, Files.getMb(file));
+    	build2(file,obj, hashCode);
+	}
+	
+	/** 사용자 정의시 이것을 오버라이딩 할것. */
+	protected void build2(File file,JSONObject obj,String hashCode){
+		//아무것도 하지 않는다.
+	}
+
 
 }

@@ -1,6 +1,7 @@
 
 package erwins.util.tracker;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import erwins.util.root.DomainObject;
@@ -8,20 +9,20 @@ import erwins.util.root.DomainObject;
 /** 나노초(ns):1/1,000,000,000초
  *  밀리초(ms):1/1,000초
  *  */
-public class Tracker implements DomainObject{
+public class Tracker implements DomainObject,Serializable{
     
-    private final String className;
-    private final String methodName;
+	/** 이 두개가 주키이며 변경되지 않는다. */
+    private String className;
+    private String methodName;
+    
     private int count;
     private long maxTime;
     private long minTime;
     private long totalTime;
     private Date lastTime;
     
-    public Tracker(String className,String methodName){
-    	this.className = className;
-    	this.methodName = methodName; 
-    }
+    
+    public Tracker(){}
     
     public void addTime(long time) {
     	count++;
@@ -31,6 +32,14 @@ public class Tracker implements DomainObject{
     	lastTime = new Date();
     }
     
+	public void setClassName(String className) {
+		this.className = className;
+	}
+
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
+	}
+
 	public String getClassName() {
 		return className;
 	}
@@ -76,7 +85,9 @@ public class Tracker implements DomainObject{
 	public void setLastTime(Date lastTime) {
 		this.lastTime = lastTime;
 	}
-    
+	
+	
+	
     
     
 }

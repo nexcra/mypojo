@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
@@ -109,9 +110,15 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
      * 를 거치는 삭제메소드. 
      */
     public void makeTransient(ID id) {
-        Entity entity = getById(id,false);
+        Entity entity = getById(id);
         validate(entity);
         getSession().delete(entity);
+    }
+    
+    /** entity를 update하고 신규 생신된 entity를 받아온다.
+     * update와 다른점은 기존 동일key의 영속객체가 세션에 있어도 요류나지 않고 기존 그놈과 이놈을 동일(==)하게 변경한다.  */
+    public void merge(Entity entity) {
+    	getSession().merge(entity);
     }
     
     // ===========================================================================================
@@ -176,21 +183,28 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     // ===========================================================================================
 
     /**
-     * 수정을 원할경우 lazy로 얻어오자. 일반 select일 경우 lock을 얻을 필요가 없다.
-     * get()으로 참조시 id에 해당하는 값이 없으면 null을 리턴한다.
+     * 복합키를 별도의 객체에 매핑하지 않았을 경우 이걸로 불러온다. (entity를 키로 인식한다.) 
+     * LockMode.READ를 주어서 늦은 로딩을 방지하며 (LockMode.READ/UPGRADE시에는 버전확인을 위해 select를 수행한다.)
+     * 만약 키에 해당하는 값이 없으면 ObjectNotFoundException을 던짐으로 null을 리턴한다.
+     * 자주 사용하지는 말고 이렇게도 가능하다는것만 알아둘것!
      */
-    public Entity getById(ID id, boolean lock) {
-        Entity entity;
-        if (lock) entity = (Entity) getSession().load(getPersistentClass(), id, LockMode.UPGRADE);
-        else entity = (Entity) getSession().get(getPersistentClass(), id);
-        return entity;
+    public Entity loadImmediately(Entity entity) {
+        try {
+			return (Entity) getSession().load(getPersistentClass(),(Serializable)entity, LockMode.READ);
+		} catch (ObjectNotFoundException e) {
+			return null;
+		}
     }
     
-    /** id에 해당하는 객체가 없을경우 예외를 던진다. */
+    /** 일반적으로 DB에 있는 객체를 불러와 갱신할때는 이걸 사용한다. ObjectNotFoundException을 잡을것! */
+    public Entity load(ID id) {
+    	return (Entity) getSession().load(getPersistentClass(),id, LockMode.NONE);
+    }
+    
+    /** id에 해당하는 객체를 즉시 가져온다. DB에 값이 없다면 null을 리턴한다.
+     * null을 명시적으로 체크해야 하는 경우가 아니라면 사용하지 말자. */
     public Entity getById(ID id) {
-        Entity T =  getById(id,false);
-        if(T==null) throw new RuntimeException(persistentClass.getSimpleName()+ " is not found (pk is "+id+"). you need debugging");
-        return T;
+        return (Entity) getSession().get(getPersistentClass(), id);
     }
     
     /** 가장 큰 ID를 검색한다. */
