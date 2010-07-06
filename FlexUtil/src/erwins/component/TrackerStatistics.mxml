@@ -58,7 +58,7 @@ private function init():void{
 	<mx:HBox width="100%" horizontalAlign="right">
 		<mx:LinkButton label="도움말" color="blue"  id="help" textDecoration="underline"  />
 		<erwins:Buttons id="openBtn" label="전체트리 열기" />
-		<erwins:Buttons id="searchBtn" label="검색" />
+		<erwins:Buttons id="searchBtn" label="검색" duration="1000" />
 	</mx:HBox>
 	<mx:HBox width="100%" height="100%" horizontalAlign="right">
 		<mx:AdvancedDataGrid id="tree"  width="100%" height="100%" doubleClickEnabled="true" >
@@ -73,10 +73,10 @@ private function init():void{
 	        </mx:dataProvider>
 	        <mx:columns>
 	            <mx:AdvancedDataGridColumn dataField="methodName" headerText="객체/메소드명" />
-	            <mx:AdvancedDataGridColumn dataField="count" headerText="총요청수" width="100" textAlign="right" />
-	            <mx:AdvancedDataGridColumn dataField="minMs" headerText="최소처리시간" width="150" textAlign="right"/>
-	            <mx:AdvancedDataGridColumn dataField="maxMs" headerText="최대처리시간" width="150" textAlign="right"/>
-	            <mx:AdvancedDataGridColumn dataField="averageMs" headerText="평균처리시간" width="150" textAlign="right"/>
+	            <mx:AdvancedDataGridColumn labelFunction="{LFUtil.toNumeric('count')}" headerText="총요청수" width="100" textAlign="right" />
+	            <mx:AdvancedDataGridColumn labelFunction="{LFUtil.toNumeric('minMs')}" headerText="최소처리시간" width="150" textAlign="right"/>
+	            <mx:AdvancedDataGridColumn labelFunction="{LFUtil.toNumeric('maxMs')}" headerText="최대처리시간" width="150" textAlign="right"/>
+	            <mx:AdvancedDataGridColumn labelFunction="{LFUtil.toNumeric('averageMs')}" headerText="평균처리시간" width="150" textAlign="right"/>
 	            <mx:AdvancedDataGridColumn dataField="lastTime" headerText="최근접속시간" width="200" textAlign="center"/>
 	        </mx:columns>
 		</mx:AdvancedDataGrid>

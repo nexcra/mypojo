@@ -8,7 +8,6 @@ package erwins.util.UILib{
 	import flash.events.MouseEvent;
 	
 	import mx.collections.ArrayCollection;
-	import mx.controls.listClasses.ListBase;
 	import mx.core.FlexSprite;
 	import mx.core.UIComponent;
 	import mx.events.ListEvent;
@@ -91,7 +90,8 @@ package erwins.util.UILib{
 			
 			var fun:Function = function(event:ToolTipEvent):void {
 				var ptt:ListToolTip = new ListToolTip();
-				ptt.title = targetData[title];
+				var tipTitle:String = targetData[title];
+				ptt.title = tipTitle==null ? title : tipTitle;
 				ptt.columns = tooltipColumsInfo;
 				ptt.dataProvider = new ArrayCollection(targetData[description]);
 				event.toolTip = ptt;

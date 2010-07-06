@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mxeffects="com.adobe.ac.mxeffects.*" 
+	xmlns:erwins="erwins.component.*"
     width="300" close="remove()" showCloseButton="true"
     alpha=".8"  title="simpleLogin"
     borderThickness="2"
@@ -125,7 +126,7 @@ private function remove():void{
 <mx:ControlBar>
 	<mx:HBox>
 		<mx:CheckBox id="loginCache" label="remember LOGIN ID"/>
-		<mx:Button id="loginBtn" label="LOGIN" />
+		<erwins:Buttons id="loginBtn" label="LOGIN" tip="PASSWORD is Case Sensitive" />
 	</mx:HBox>	
 </mx:ControlBar>
 		
