@@ -52,11 +52,11 @@ public class DownloadByUrl implements SWTBuildable{
 		
 		directoryName = BuildUtil.addLabel(top, "");
 		directoryName.setLayoutData(LayoutUtil.hSpan(3));
-		setDirectory = BuildUtil.addButton(top, " µğ·ºÅä¸® ÀÔ·Â/º¯°æ ");
-		BuildUtil.addLabel(top, "È®ÀåÀÚ :");
+		setDirectory = BuildUtil.addButton(top, " ë””ë ‰í† ë¦¬ ì…ë ¥/ë³€ê²½ ");
+		BuildUtil.addLabel(top, "í™•ì¥ì :");
 		exts = BuildUtil.addText(top);
 		exts.setText("jpg");
-		execute = BuildUtil.addButton(top, "URL ´Ù¿îµµµå ½ÇÇà");
+		execute = BuildUtil.addButton(top, "URL ë‹¤ìš´ë„ë“œ ì‹¤í–‰");
 		execute.setLayoutData(LayoutUtil.vSpan(2));
 		
 		BuildUtil.addLabel(top, "URL :");
@@ -99,17 +99,17 @@ public class DownloadByUrl implements SWTBuildable{
 			public void handleEvent(Event arg0) {
 				String urlText = url.getText();
 				if(Strings.isEmpty(urlText)){
-					MessageUtil.alert(shell, "URLÀ» ÀÔ·ÂÇØ ÁÖ¼¼¿ä");
+					MessageUtil.alert(shell, "URLì„ ì…ë ¥í•´ ì£¼ì„¸ìš”");
 					return;
 				}
 				File directory = new File(directoryName.getText());
 				if(!directory.isDirectory()){
-					MessageUtil.alert(shell, directoryName.getText()+" ´Â µğ·ºÅä¸®°¡ ¾Æ´Õ´Ï´Ù.");
+					MessageUtil.alert(shell, directoryName.getText()+" ëŠ” ë””ë ‰í† ë¦¬ê°€ ì•„ë‹™ë‹ˆë‹¤.");
 					return;
 				}
 				String extsText = exts.getText();
 				if(Strings.isEmpty(extsText)){
-					MessageUtil.alert(shell, "¿øÇÏ´Â È®ÀåÀÚ ¸í(ex jpg)À» ,·Î ±¸ºĞÇØ¼­ ÀÔ·ÂÇØ ÁÖ¼¼¿ä.");
+					MessageUtil.alert(shell, "ì›í•˜ëŠ” í™•ì¥ì ëª…(ex jpg)ì„ ,ë¡œ êµ¬ë¶„í•´ì„œ ì…ë ¥í•´ ì£¼ì„¸ìš”.");
 					return;
 				}
 				String[] extsArray = extsText.split(",");
@@ -125,7 +125,7 @@ public class DownloadByUrl implements SWTBuildable{
 			
 			@Override
 			public void run() {
-				String html = RESTful.get(urlText).run().asString("EUC-KR"); //º¸Åë ÇÑ±¹.
+				String html = RESTful.get(urlText).run().asString("EUC-KR"); //ë³´í†µ í•œêµ­.
 				
 				if(!rootDir.exists()) rootDir.mkdirs();
 		        html = RegEx.TAG_SCRIPT.replace(html,"");
@@ -133,7 +133,7 @@ public class DownloadByUrl implements SWTBuildable{
 		        RegEx.TAG_IMG.process(html, new StringCallback(){
 		            public void process(String line) {
 		                final String src = RegEx.find("(?<=src=('|\")).*?(?=\\1)", line);
-		                if(src==null) return; // <img src=http://img.ruliweb.com/image/memo2.gif/> Ã³·³ ""·Î ¾ÈµÑ·¯½Î¿©Á® ÀÖÀ»¶§ ¹«½Ã.
+		                if(src==null) return; // <img src=http://img.ruliweb.com/image/memo2.gif/> ì²˜ëŸ¼ ""ë¡œ ì•ˆë‘˜ëŸ¬ì‹¸ì—¬ì ¸ ìˆì„ë•Œ ë¬´ì‹œ.
 		                if(ableExt.length!=0 && !Strings.isMatchIgnoreCase(src, ableExt)) return;
 		                String fileName = Strings.getLast(src,"/");
 		                final File local = new File(rootDir,fileName);
@@ -144,7 +144,7 @@ public class DownloadByUrl implements SWTBuildable{
 		            }
 		        });
 		        
-		        addResultToDisplayForAsynch(counter.count() + " °³ÀÇ ´Ù¿î·Îµå°¡ ¿Ï·áµÇ¾ú½À´Ï´Ù.");
+		        addResultToDisplayForAsynch(counter.count() + " ê°œì˜ ë‹¤ìš´ë¡œë“œê°€ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤.");
 			
 			}
 		}).start();

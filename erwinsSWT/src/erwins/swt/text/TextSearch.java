@@ -51,8 +51,8 @@ public class TextSearch implements SWTBuildable{
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(700,120));
 
-		TableUtil.addColumn(table, "µğ·ºÅä¸® °æ·Î",400);
-		TableUtil.addColumn(table, "°Ë»öÇÒ ¹®ÀÚ¿­",210);
+		TableUtil.addColumn(table, "ë””ë ‰í† ë¦¬ ê²½ë¡œ",400);
+		TableUtil.addColumn(table, "ê²€ìƒ‰í•  ë¬¸ìì—´",210);
 		
 		final Composite btns = new Composite(body, SWT.NONE);
 		btns.setLayout(LayoutUtil.container(1));
@@ -61,8 +61,8 @@ public class TextSearch implements SWTBuildable{
 		inputString = new Text(btns, SWT.LEFT);
 		inputString.setLayoutData(LayoutUtil.FULL);
 		
-		addDirectory = BuildUtil.addButton(btns, "µğ·ºÅä¸® Ãß°¡");
-		removeDirectory = BuildUtil.addButton(btns, "µğ·ºÅä¸® »èÁ¦");
+		addDirectory = BuildUtil.addButton(btns, "ë””ë ‰í† ë¦¬ ì¶”ê°€");
+		removeDirectory = BuildUtil.addButton(btns, "ë””ë ‰í† ë¦¬ ì‚­ì œ");
 		
 		final Composite bot = new Composite(root, SWT.BORDER);
 		bot.setLayout(new GridLayout());
@@ -81,7 +81,7 @@ public class TextSearch implements SWTBuildable{
 			public void handleEvent(Event arg0) {
 				TableItem[] selected = table.getSelection();
 				if(selected.length==0){
-					MessageUtil.alert(shell, "ÇÏ³ªÀÇ ÄÃ·³À» ¼±ÅÃÇÏ¼¼¿ä");
+					MessageUtil.alert(shell, "í•˜ë‚˜ì˜ ì»¬ëŸ¼ì„ ì„ íƒí•˜ì„¸ìš”");
 					return;
 				}
 				TableItem item = selected[0];
@@ -98,7 +98,7 @@ public class TextSearch implements SWTBuildable{
 				
 				String searchKey = inputString.getText();
 				if(Strings.isEmpty(searchKey)){
-					MessageUtil.alert(shell,"°Ë»ö¾î¸¦ ÀÔ·ÂÇØ ÁÖ¼¼¿ä.");
+					MessageUtil.alert(shell,"ê²€ìƒ‰ì–´ë¥¼ ì…ë ¥í•´ ì£¼ì„¸ìš”.");
 					return;
 				}
 				
@@ -119,7 +119,7 @@ public class TextSearch implements SWTBuildable{
 			public void handleEvent(Event arg0) {
 				TableItem[] selected = table.getSelection();
 				if(selected.length==0){
-					MessageUtil.alert(shell, "ÇÏ³ªÀÇ ÄÃ·³À» ¼±ÅÃÇÏ¼¼¿ä");
+					MessageUtil.alert(shell, "í•˜ë‚˜ì˜ ì»¬ëŸ¼ì„ ì„ íƒí•˜ì„¸ìš”");
 					return;
 				}
 				TableItem item = selected[0];
@@ -142,7 +142,7 @@ public class TextSearch implements SWTBuildable{
 	
 		    	dependencyTree.removeAll();
 		    	
-		    	SimpleTreeItem.addItemIfNoChildren(root,service.getSearchString()+"·Î °Ë»öµÈ µ¥ÀÌÅÍ°¡ ¾ø½À´Ï´Ù.");
+		    	SimpleTreeItem.addItemIfNoChildren(root,service.getSearchString()+"ë¡œ ê²€ìƒ‰ëœ ë°ì´í„°ê°€ ì—†ìŠµë‹ˆë‹¤.");
 		    	
 		    	TreeItemGenerator<SimpleTreeItem> generator = new TreeItemGenerator<SimpleTreeItem>(dependencyTree);
 		    	generator.setNodeItemImage(ImageUtil.CLOSE.getImage());

@@ -78,7 +78,7 @@ public class FtpSynch implements SWTBuildable{
 		mid.setLayoutData(LayoutUtil.hBox(30));
 		
 		Label ipText = new Label(mid,SWT.CENTER | SWT.SHADOW_OUT);
-		ipText.setText("¼­¹öIP"); 
+		ipText.setText("ì„œë²„IP"); 
 		ip = new Text(mid,SWT.BORDER | SWT.SINGLE | SWT.LEFT);
 		ip.setLayoutData(LayoutUtil.FULL);
 		
@@ -88,7 +88,7 @@ public class FtpSynch implements SWTBuildable{
 		port.setLayoutData(LayoutUtil.FULL);
 		
 		Label idText = new Label(mid,SWT.CENTER | SWT.SHADOW_OUT);
-		idText.setText("Á¢¼ÓID"); 
+		idText.setText("ì ‘ì†ID"); 
 		id = new Text(mid,SWT.BORDER | SWT.SINGLE | SWT.LEFT);
 		id.setLayoutData(LayoutUtil.FULL);
 		
@@ -98,12 +98,12 @@ public class FtpSynch implements SWTBuildable{
 		pass.setLayoutData(LayoutUtil.FULL);
 		
 		Label remotePathText = new Label(mid,SWT.CENTER | SWT.SHADOW_OUT | SWT.PASSWORD);
-		remotePathText.setText("¿ø°İ µğ·ºÅä¸®"); 
+		remotePathText.setText("ì›ê²© ë””ë ‰í† ë¦¬"); 
 		remoteDir = new Text(mid,SWT.BORDER | SWT.SINGLE | SWT.LEFT);
 		remoteDir.setLayoutData(LayoutUtil.FULL);
 		
 		passive = new Button(mid,SWT.TOGGLE);
-		passive.setText("ÆĞ½Ãºê ¸ğµå");
+		passive.setText("íŒ¨ì‹œë¸Œ ëª¨ë“œ");
 		remoteDir.setLayoutData(LayoutUtil.FULL);
 	}
 
@@ -117,19 +117,19 @@ public class FtpSynch implements SWTBuildable{
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(700,120));
 
-		TableUtil.addColumn(table, "¼­¹öIP",120);
+		TableUtil.addColumn(table, "ì„œë²„IP",120);
 		TableUtil.addColumn(table, "port",50);
-		TableUtil.addColumn(table, "Á¢¼ÓID",100);
-		TableUtil.addColumn(table, "·ÎÄÃ µğ·ºÅä¸®",190);
-		TableUtil.addColumn(table, "¿ø°İ µğ·ºÅä¸®",190);
+		TableUtil.addColumn(table, "ì ‘ì†ID",100);
+		TableUtil.addColumn(table, "ë¡œì»¬ ë””ë ‰í† ë¦¬",190);
+		TableUtil.addColumn(table, "ì›ê²© ë””ë ‰í† ë¦¬",190);
 		TableUtil.addColumn(table, "PASSIVE",60);
 		
 		final Composite btns = new Composite(top, SWT.NONE);
 		btns.setLayout(LayoutUtil.container(2));
 		btns.setLayoutData(LayoutUtil.FULL);
 		
-		addDirectory = BuildUtil.addButton(btns, "µğ·ºÅä¸® Ãß°¡");
-		removeDirectory = BuildUtil.addButton(btns, "µğ·ºÅä¸® »èÁ¦");
+		addDirectory = BuildUtil.addButton(btns, "ë””ë ‰í† ë¦¬ ì¶”ê°€");
+		removeDirectory = BuildUtil.addButton(btns, "ë””ë ‰í† ë¦¬ ì‚­ì œ");
 		commit = BuildUtil.addButton(btns, "commit");
 		commitLog = BuildUtil.addButton(btns, "commitLog");
 		update = BuildUtil.addButton(btns, "update");
@@ -142,7 +142,7 @@ public class FtpSynch implements SWTBuildable{
 			public void handleEvent(Event arg0) {
 				TableItem[] selected = table.getSelection();
 				if(selected.length==0){
-					MessageUtil.alert(shell, "ÇÏ³ªÀÇ ÄÃ·³À» ¼±ÅÃÇÏ¼¼¿ä");
+					MessageUtil.alert(shell, "í•˜ë‚˜ì˜ ì»¬ëŸ¼ì„ ì„ íƒí•˜ì„¸ìš”");
 					return;
 				}
 				TableItem item = table.getSelection()[0];
@@ -158,7 +158,7 @@ public class FtpSynch implements SWTBuildable{
 			public void handleEvent(Event arg0) {
 				
 				if(Strings.isEmptyAny(ip.getText(),port.getText(),id.getText(),pass.getText(),remoteDir.getText())){
-					MessageUtil.alert(shell,"¸ğµç Ç×¸ñÀ» ÀÔ·ÂÇØ ÁÖ¼¼¿ä.");
+					MessageUtil.alert(shell,"ëª¨ë“  í•­ëª©ì„ ì…ë ¥í•´ ì£¼ì„¸ìš”.");
 					return;
 				}
 				
@@ -191,14 +191,14 @@ public class FtpSynch implements SWTBuildable{
 		});
 	}
 
-	/** SynchÆÑÅä¸®¸¦ ¼û±â±â À§ÇØ (staticÀÌ ¾Æ´Ñ ³»ºÎ °´Ã¼¸¦ ¸®ÅÏÇÏ±â ¶§¹® ¤Ğ¤Ğ)  SynchType.COMMIT ¸¦ µû·Î ¸¸µé¾ú´Ù.  */
+	/** SynchíŒ©í† ë¦¬ë¥¼ ìˆ¨ê¸°ê¸° ìœ„í•´ (staticì´ ì•„ë‹Œ ë‚´ë¶€ ê°ì²´ë¥¼ ë¦¬í„´í•˜ê¸° ë•Œë¬¸ ã… ã… )  SynchType.COMMIT ë¥¼ ë”°ë¡œ ë§Œë“¤ì—ˆë‹¤.  */
 	private void addMainListener() {
 		Listener clicked = new Listener() {
 			@Override
 			public void handleEvent(Event arg0) {
 				TableItem[] selected = table.getSelection();
 				if(selected.length==0){
-					MessageUtil.alert(shell, "ÇÏ³ªÀÇ ÄÃ·³À» ¼±ÅÃÇÏ¼¼¿ä");
+					MessageUtil.alert(shell, "í•˜ë‚˜ì˜ ì»¬ëŸ¼ì„ ì„ íƒí•˜ì„¸ìš”");
 					return;
 				}
 				TableItem item = table.getSelection()[0];
@@ -206,7 +206,7 @@ public class FtpSynch implements SWTBuildable{
 				FtpSynchService service = (FtpSynchService)item.getData();
 				SynchType type =  (SynchType)arg0.widget.getData();
 				
-				TreeUtil.clearAndAddItem(dependencyTree, service.getLocalDir()+" ¿Í µ¿±âÈ­ ÁßÀÔ´Ï´Ù. Àá½Ã ±â´Ù·Á ÁÖ¼¼¿ä.");
+				TreeUtil.clearAndAddItem(dependencyTree, service.getLocalDir()+" ì™€ ë™ê¸°í™” ì¤‘ì…ë‹ˆë‹¤. ì ì‹œ ê¸°ë‹¤ë ¤ ì£¼ì„¸ìš”.");
 		    	
 				service.synchronize(type, new FTPcallback() {
 					@Override
@@ -218,17 +218,17 @@ public class FtpSynch implements SWTBuildable{
 							public void run() {
 								SimpleTreeItem root = new SimpleTreeItem();
 						    	
-								eachIterate( root,"´Ù¿î·Îµå",log.getDownloaded());
-								eachIterate( root,"¾÷·Îµå",log.getUploaded());
-								eachIterate( root,"¿ø°İÁö µğ·ºÅä¸® »ı¼º",log.getFtpDirectoryMaked());
-								eachIterate( root,"¿ø°İÁö µğ·ºÅä¸® »èÁ¦",log.getFtpDirectorydeleted());
-								eachIterate( root,"¿ø°İÁö ÆÄÀÏ »èÁ¦",log.getFtpFileDeleted());
-								eachIterate( root,"·ÎÄÃ ÆÄÀÏ »èÁ¦",log.getLocalFileDeleted());
-								eachIterate( root,"ÆÄÀÏ ÀÌµ¿",log.getMoved());
-								eachIterate( root,"¿À·ù³»¿ª",log.getError());
+								eachIterate( root,"ë‹¤ìš´ë¡œë“œ",log.getDownloaded());
+								eachIterate( root,"ì—…ë¡œë“œ",log.getUploaded());
+								eachIterate( root,"ì›ê²©ì§€ ë””ë ‰í† ë¦¬ ìƒì„±",log.getFtpDirectoryMaked());
+								eachIterate( root,"ì›ê²©ì§€ ë””ë ‰í† ë¦¬ ì‚­ì œ",log.getFtpDirectorydeleted());
+								eachIterate( root,"ì›ê²©ì§€ íŒŒì¼ ì‚­ì œ",log.getFtpFileDeleted());
+								eachIterate( root,"ë¡œì»¬ íŒŒì¼ ì‚­ì œ",log.getLocalFileDeleted());
+								eachIterate( root,"íŒŒì¼ ì´ë™",log.getMoved());
+								eachIterate( root,"ì˜¤ë¥˜ë‚´ì—­",log.getError());
 					
 						    	dependencyTree.removeAll();
-						    	SimpleTreeItem.addItemIfNoChildren(root,"·Î±× ³»¿ªÀÌ ¾ø½À´Ï´Ù.");
+						    	SimpleTreeItem.addItemIfNoChildren(root,"ë¡œê·¸ ë‚´ì—­ì´ ì—†ìŠµë‹ˆë‹¤.");
 						    	
 						    	TreeItemGenerator<SimpleTreeItem> generator = new TreeItemGenerator<SimpleTreeItem>(dependencyTree);
 						    	generator.setNodeItemImage(ImageUtil.CLOSE.getImage());

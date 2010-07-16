@@ -79,6 +79,7 @@ public class CodeLineService{
 					counter.next();
 				}
 			});
+			if(counter.count() < 30) continue;
 			avgCounter.add(counter.count());
 		}
 		return avgCounter;

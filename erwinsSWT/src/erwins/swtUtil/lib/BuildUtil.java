@@ -15,10 +15,14 @@ public abstract class BuildUtil{
 		return btn;
 	}
 	
+	public static Label addLabelFull(Composite composite,String text){
+		Label label = addLabel(composite,text);
+		label.setLayoutData(LayoutUtil.FULL);
+		return label;
+	}
 	public static Label addLabel(Composite composite,String text){
 		Label label = new Label(composite,SWT.CENTER | SWT.SHADOW_OUT);
 		label.setText(text);
-		label.setLayoutData(LayoutUtil.FULL);
 		return label;
 	}
 	

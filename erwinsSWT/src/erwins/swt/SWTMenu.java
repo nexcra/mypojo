@@ -6,6 +6,7 @@ import java.util.List;
 
 import erwins.swt.network.DownloadByUrl;
 import erwins.swt.network.FtpSynch;
+import erwins.swt.network.TalkClientActivator;
 import erwins.swt.text.CodeLine;
 import erwins.swt.text.TextSearch;
 import erwins.util.reflexive.Connectable;
@@ -31,6 +32,7 @@ public enum SWTMenu implements Connectable<String,SWTMenu>{
     fileSearch("용량 등의 조건으로 파일 검색 / 삭제","",null,file),
     
     network("네트워크","",null,root),
+    TalkClient("간단 채팅","간단히 만든 소켓 채팅 프로그램",new TalkClientActivator(),network),
     urlTest("URL테스트","개발 등 할때 URL을 테스트 한다.",null,network),
     ftp("FTP 유틸","",null,network),
     ftpDownload("FTP Download","로컬 디스크에 원격지의 FTP상 특정 파일을 다운로드 한다.",null,ftp),

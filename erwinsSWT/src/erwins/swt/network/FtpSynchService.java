@@ -7,7 +7,6 @@ import erwins.util.vender.apache.Net;
 import erwins.util.vender.apache.Net.Synch;
 import erwins.util.vender.apache.NetRoot.FtpLog;
 
-
 @SuppressWarnings("serial")
 public class FtpSynchService implements Serializable{
 	

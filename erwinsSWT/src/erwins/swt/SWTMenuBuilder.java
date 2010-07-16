@@ -1,4 +1,8 @@
 package erwins.swt;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolderEvent;
@@ -14,8 +18,9 @@ import erwins.swt.img.ImageUtil;
 import erwins.swtUtil.lib.LayoutUtil;
 import erwins.swtUtil.lib.MenuItemGenerator;
 import erwins.swtUtil.listener.FolderCloseListener;
+import erwins.util.root.Shutdownable;
 
-public class SWTMenuBuilder {
+public class SWTMenuBuilder implements Shutdownable{
 	
 	private static final StoreForList<SWTMenu> codeLineFile = new StoreForList<SWTMenu>("SelectedMenu");
 	private final CTabFolder folder;
@@ -61,6 +66,8 @@ public class SWTMenuBuilder {
 		for(SWTMenu each : codeLineFile.get()) addTab(each);
 	}
 	
+	private List<Shutdownable> sutdowns = Collections.synchronizedList(new ArrayList<Shutdownable>());
+	
 	private void addTab(SWTMenu menu) {
 		SWTBuildable module =  menu.getSwt();
 		if(module==null) return;
@@ -75,6 +82,24 @@ public class SWTMenuBuilder {
 		newTab.setImage(ImageUtil.CIRCLE.getImage());
 		
 		module.build(body);
+		
+		if(module instanceof Shutdownable){
+			sutdowns.add((Shutdownable)module);
+		}
+		
+	}
+
+	/** shutdown�� �����ص� �����Ѵ�. */
+	@Override
+	public void shutdown() {
+		for(Shutdownable each : sutdowns){
+			try {
+				each.shutdown();
+			} catch (Exception e) {
+				//NON
+			}
+		}
+		
 	}	
 
 

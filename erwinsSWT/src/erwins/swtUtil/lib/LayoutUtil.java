@@ -5,7 +5,7 @@ import org.eclipse.swt.layout.GridLayout;
 
 public abstract class LayoutUtil{
 	
-	/** ¾ÕµÚ·Î ´Ù ´Ã¾î³­´Ù. */
+	/** ì•ë’¤ë¡œ ë‹¤ ëŠ˜ì–´ë‚œë‹¤. */
 	public static final GridData FULL = new GridData();
 	
 	static{
@@ -15,12 +15,20 @@ public abstract class LayoutUtil{
 		FULL.grabExcessVerticalSpace = true;
 	}
 	
-	/** ³Êºñ´Â 100% ³ôÀÌ´Â ÁöÁ¤. */
+	/** ë„ˆë¹„ëŠ” 100% ë†’ì´ëŠ” ì§€ì •. */
 	public static GridData hBox(int height){
 		GridData gridData = new GridData();
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		gridData.heightHint = height;
+		return gridData;
+	}
+	/** ë†’ì´ëŠ” 100% ë„ˆë¹„ëŠ” ì§€ì •. */
+	public static GridData vBox(int width){
+		GridData gridData = new GridData();
+		gridData.verticalAlignment = GridData.FILL;
+		gridData.grabExcessVerticalSpace = true;
+		gridData.widthHint = width;
 		return gridData;
 	}
 	

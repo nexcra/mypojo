@@ -4,7 +4,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-/** ±×¿Ü abort , retry, ignore , cancel µîÀÌ ÀÖ´Ù */
+/** ê·¸ì™¸ abort , retry, ignore , cancel ë“±ì´ ìˆë‹¤ */
 public abstract class MessageUtil{
 
 	public static void alert(Shell shell,String Message){
@@ -14,7 +14,7 @@ public abstract class MessageUtil{
 		di.open();
 	}
 	
-	/** ¹ÌÈ®ÀÎ */
+	/** ë¯¸í™•ì¸ */
 	public static boolean confirm(Shell shell,String Message){
 		MessageBox di = new MessageBox(shell,SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 		di.setText("confirm");

@@ -11,7 +11,7 @@ import erwins.util.lib.Files;
 
 public class StoreForList<T extends Serializable>{
 
-	//getAbsolutePath()¸¦ ÇÏÁö ¾ÊÀ¸¸é ¾ÈµÈ´Ù. ¤Ğ¤Ğ
+	//getAbsolutePath()ë¥¼ í•˜ì§€ ì•Šìœ¼ë©´ ì•ˆëœë‹¤. ã… ã… 
 	public static final File ROOT = new File(new File("").getAbsolutePath(),"erwinsSWT");
 	
 	static{
@@ -42,7 +42,7 @@ public class StoreForList<T extends Serializable>{
 			list = Files.getObject(store);
 		} catch (Exception e) {
 			if(e.getCause() instanceof java.io.ObjectStreamException){
-				System.out.println("ÀúÀåµÈ ÀÚ¿ø°ú ¹öÀüÀÌ ´Ş¶ó ÃÊ±âÈ­ µË´Ï´Ù.");
+				System.out.println("ì €ì¥ëœ ìì›ê³¼ ë²„ì „ì´ ë‹¬ë¼ ì´ˆê¸°í™” ë©ë‹ˆë‹¤.");
 				Files.delete(store);
 			}else throw new RuntimeException(e); 
 		}
@@ -50,7 +50,7 @@ public class StoreForList<T extends Serializable>{
 		return list;
 	}
 	
-	/** ÀÓ½Ã¸Ş¼Òµå~ */
+	/** ì„ì‹œë©”ì†Œë“œ~ */
 	public static void setObject(File file, Object obj) {
 		FileOutputStream fos = null;
 		ObjectOutputStream oos = null;
@@ -67,7 +67,7 @@ public class StoreForList<T extends Serializable>{
 				if (oos != null)
 					oos.close();
 			} catch (IOException e) {
-				// ¹«½ÃÇÑ´Ù.
+				// ë¬´ì‹œí•œë‹¤.
 			}
 		}
 	}	

@@ -50,19 +50,19 @@ public class CodeLine implements SWTBuildable{
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(700,120));
 
-		TableUtil.addColumn(table, "ÇÁ·ÎÁ§Æ® ¼Ò½º",330);
-		TableUtil.addColumn(table, "Å¬·¡½º ¼ö",100);
-		TableUtil.addColumn(table, "ÀüÃ¼ ¶óÀÎ",70);
-		TableUtil.addColumn(table, "Æò±Õ ¶óÀÎ",70);
-		TableUtil.addColumn(table, "ÃÖ´ë ¶óÀÎ",70);
-		TableUtil.addColumn(table, "ÃÖ¼Ò ¶óÀÎ",70);
+		TableUtil.addColumn(table, "í”„ë¡œì íŠ¸ ì†ŒìŠ¤",330);
+		TableUtil.addColumn(table, "í´ë˜ìŠ¤ ìˆ˜",100);
+		TableUtil.addColumn(table, "ì „ì²´ ë¼ì¸",70);
+		TableUtil.addColumn(table, "í‰ê·  ë¼ì¸",70);
+		TableUtil.addColumn(table, "ìµœëŒ€ ë¼ì¸",70);
+		TableUtil.addColumn(table, "ìµœì†Œ ë¼ì¸",70);
 		
 		final Composite btns = new Composite(body, SWT.NONE);
 		btns.setLayout(LayoutUtil.container(1));
 		btns.setLayoutData(LayoutUtil.FULL);
 		
-		addDirectory = BuildUtil.addButton(btns, "µğ·ºÅä¸® Ãß°¡");
-		removeDirectory = BuildUtil.addButton(btns, "µğ·ºÅä¸® »èÁ¦");
+		addDirectory = BuildUtil.addButton(btns, "ë””ë ‰í† ë¦¬ ì¶”ê°€");
+		removeDirectory = BuildUtil.addButton(btns, "ë””ë ‰í† ë¦¬ ì‚­ì œ");
 		
 		final Composite bot = new Composite(root, SWT.BORDER);
 		bot.setLayout(new GridLayout());
@@ -81,7 +81,7 @@ public class CodeLine implements SWTBuildable{
 			public void handleEvent(Event arg0) {
 				TableItem[] selected = table.getSelection();
 				if(selected.length==0){
-					MessageUtil.alert(shell, "ÇÏ³ªÀÇ ÄÃ·³À» ¼±ÅÃÇÏ¼¼¿ä");
+					MessageUtil.alert(shell, "í•œê°œì˜ ë¦¬ìŠ¤íŠ¸ë¥¼ ì„ íƒí•´ ì£¼ì„¸ìš”");
 					return;
 				}
 				TableItem item = table.getSelection()[0];
@@ -111,7 +111,7 @@ public class CodeLine implements SWTBuildable{
 			public void handleEvent(Event arg0) {
 				TableItem[] selected = table.getSelection();
 				if(selected.length==0){
-					MessageUtil.alert(shell, "ÇÏ³ªÀÇ ÄÃ·³À» ¼±ÅÃÇÏ¼¼¿ä");
+					MessageUtil.alert(shell, "í•œê°œì˜ ì»¬ëŸ¼ì„ ì„ íƒí•´ ì£¼ì„¸ìš”");
 					return;
 				}
 				TableItem item = selected[0];
@@ -152,10 +152,9 @@ public class CodeLine implements SWTBuildable{
 		item.setText(0, directory.getAbsolutePath());
 		item.setText(1, Formats.INT.get(c.getCount()));
 		item.setText(2, Formats.INT.get(c.getSum()));
-		item.setText(3, Formats.INT.get(c.getSum()));
-		item.setText(4, Formats.INT.get(c.getAvarage()));
-		item.setText(5, Formats.INT.get(c.getMax()));
-		item.setText(6, Formats.INT.get(c.getMin()));
+		item.setText(3, Formats.INT.get(c.getAvarage()));
+		item.setText(4, Formats.INT.get(c.getMax()));
+		item.setText(5, Formats.INT.get(c.getMin()));
 	}	
 
 }
