@@ -6,24 +6,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.junit.Test;
-
 import erwins.util.lib.Files;
 import erwins.util.lib.security.MD5;
 import erwins.util.vender.apache.Log;
+import erwins.util.vender.apache.LogFactory;
 
 /** 파일 이름에 관계없이 동일파일을 Hash기준으로 알려준다. */
 public class DuplicatedFileFilter{
 	
 	private ListMap<File> map = ListMap.hashInstance();
 	
-	protected Log log = new Log(this.getClass());
-	
-	@Test
-    public void gather() throws Exception {
-		DuplicatedFileFilter item = new DuplicatedFileFilter();
-		item.add("D:/DATA/이미지/코스사진").add("D:/_temp/이미지test/코스사진").remove();
-    }
+	protected Log log = LogFactory.instance(this.getClass());
 	
 	public DuplicatedFileFilter add(String directory){
 		Iterator<File> i = Files.iterateFiles(directory,Files.ALL_FILES);

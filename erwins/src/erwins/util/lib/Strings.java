@@ -415,6 +415,13 @@ public class Strings extends StringUtils {
     	return formatNullable(str,"",args);
     }
     
+    /** 배열 문제 때문에 String으로 입력을 제한한다. */
+    public static String formatStr(String str,String ... args) {
+    	if(Sets.isEmpty(args)) return str;
+    	for(int i=0;i<args.length;i++) str = str.replaceAll("\\{"+i+"\\}", args[i]==null ? "" : args[i].toString());
+    	return str;
+    }
+    
     /** 임시 포매팅. null이면 0을 입력한다. */
     public static String formatNullable(String str,String nullString,Object ... args) {
     	if(Sets.isEmpty(args)) return str;

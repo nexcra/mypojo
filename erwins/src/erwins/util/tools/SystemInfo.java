@@ -9,7 +9,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import erwins.util.lib.Maths;
-import erwins.util.vender.apache.Log;
 
 
 /**
@@ -17,8 +16,6 @@ import erwins.util.vender.apache.Log;
  * @author erwins(my.pojo@gmail.com)
  **/
 public abstract class SystemInfo{
-    
-    protected static Log log = new Log(SystemInfo.class);
     
     private static String[] SERVER_IP ; //기본값
     private static String IP ;
@@ -40,7 +37,6 @@ public abstract class SystemInfo{
         catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
-        log.info("[{0}] 모드로 기동중입니다." , server ? "실서버" : "테스트서버");
     }
     
     /** 테스트용임!! NT장비가 들어가는 곳에서는 사용하면 안된다. */
@@ -75,12 +71,11 @@ public abstract class SystemInfo{
     /**
      * command를 실행하면 얼마나 많은 메모리를 소모하는지?
      */
-    public static String memoryTest(Runnable command,boolean console){
+    public static String memoryTest(Runnable command){
         long before = nowUsedMemory();
         command.run();
         double after = nowUsedMemory() -  before;
         String result = String.valueOf(after / 1000 / 1000) + "MB";
-        if(console) log.info(result);
         return result;
     }
 

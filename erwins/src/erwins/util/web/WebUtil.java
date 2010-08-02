@@ -33,6 +33,20 @@ public abstract class WebUtil {
 	public static void download(HttpServletResponse response, File file) {
 		download(response,file,CONTENT_TYPE_DOWNLOAD);
 	}
+	
+	public static final String USER_AGENT = "user-agent";
+	public static final String ACCEPT = "accept";
+	
+	/** 모바일 기기(안드로이드/아이폰 등)에서 온 요청인지? */
+	public static boolean isMobile(HttpServletRequest req) {
+		String header = req.getHeader(USER_AGENT);
+		return Strings.isMatch(header, "Android","AppleWebKit","iPhon");
+	}
+	
+	/** MIME으로 사용 가능한 타입들 */
+	public static String accept(HttpServletRequest req) {
+		return req.getHeader(ACCEPT);
+	}
 
 	/** 구형 IE에서 다운로드를 취소할때 나는 오류를 무시한다. */
 	public static void download(HttpServletResponse response, File file,String contentType) {
@@ -79,6 +93,15 @@ public abstract class WebUtil {
 	    String requestedUrl = req.getRequestURI().substring(req.getContextPath().length());
 	    return Strings.getUrlAndExtention(requestedUrl);
 	}
+	
+	/*
+	 * 		response.setContentType("application/pdf");
+		response.setContentLength((int) file.length());
+		response.setHeader("Content-Disposition", "attachment; fileName=\"" + UiUtils.toLatin(file.getName()) + "\";");
+		response.setHeader("Expires", "0");
+	    response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
+	    response.setHeader("Pragma", "public");
+	 */
 
 	
 

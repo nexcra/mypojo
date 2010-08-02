@@ -24,6 +24,7 @@ import erwins.util.morph.JDissolver;
 import erwins.util.root.StringCallback;
 import erwins.util.tools.TextFileReader;
 import erwins.util.vender.apache.Log;
+import erwins.util.vender.apache.LogFactory;
 
 /**
  * 각종 비동기 Http통신에 필요한 도구 모음.
@@ -31,7 +32,7 @@ import erwins.util.vender.apache.Log;
  */
 public abstract class AjaxTool {
 
-	protected static Log log = new Log(AjaxTool.class);
+	protected static Log log = LogFactory.instance(AjaxTool.class);
 
     /** 안씀. */
     //public static final String DEFAULT_CONTENT_TYPE = "text/html;charset=ISO-8859-1";
@@ -39,8 +40,13 @@ public abstract class AjaxTool {
     public static final String MESSAGE = "message";
     
     /** Mock 테스트시 json을 파싱해서 성공인지 확인한다. */
-    public static JSON assertResponse(MockHttpServletResponse resp) throws UnsupportedEncodingException{
-    	String body = resp.getContentAsString();
+    public static JSON assertResponse(MockHttpServletResponse resp){
+    	String body;
+		try {
+			body = resp.getContentAsString();
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
         JSONObject json = JSONObject.fromObject(body);
         String message = json.getString(AjaxTool.MESSAGE);
         if(!json.getBoolean(AjaxTool.IS_SUCCESS)) throw new RuntimeException(message.toString());

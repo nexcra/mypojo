@@ -84,7 +84,8 @@ public class JDissolver {
         JSONArray jsonArray = new JSONArray();
         for (Object each : list){
         	if(each==null) continue;
-            if(each instanceof Object[]){
+        	else if(each instanceof String) jsonArray.add(each);
+        	else if(each instanceof Object[]){
                 Object[] array = (Object[])each;
                 int count = 0;
                 JSONObject json = new JSONObject();

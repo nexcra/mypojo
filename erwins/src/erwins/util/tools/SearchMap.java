@@ -1,7 +1,9 @@
 package erwins.util.tools;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -140,6 +142,21 @@ public class SearchMap extends Mapp {
             int location =  this.totalCount - start - i;
             each.setRownum(location);
         }
+    }
+    
+    /** 캐싱되는 로그 등을 페이징처리하기위한 메소드. */
+    @SuppressWarnings("unchecked")
+	public <T> void pagingForList(List<T> list){
+    	if(!isPaging()) throw new RuntimeException("this result is not paging!");
+    	result = new ArrayList<T>();
+    	this.totalCount = list.size();
+    	List<T> temp = (List<T>)result; 
+    	int index = getSkipResults();
+    	Iterator<T> i = list.listIterator(index);
+    	while(i.hasNext()){
+    		temp.add(i.next());
+    		if(temp.size() >= this.getPagingSize() ) break;
+    	}
     }
 
     /** 정확히는 ADD가 맞다. ㅋ */

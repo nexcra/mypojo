@@ -25,6 +25,7 @@ import erwins.util.lib.Strings;
 import erwins.util.morph.JDissolver;
 import erwins.util.openApi.Google;
 import erwins.util.vender.apache.Log;
+import erwins.util.vender.apache.LogFactory;
 
 
 /**
@@ -36,12 +37,14 @@ import erwins.util.vender.apache.Log;
 
 public class Mapp extends MappRoot {
     
-    protected Log log = new Log(this.getClass());
+    protected Log log = LogFactory.instance(this.getClass());
     
     public Mapp(){}
     
+    /** putAll(req.getParameterMap()) 을 쓰지 않는다. -> 이놈은 전부 배열로 들어감. */
     @SuppressWarnings("unchecked")
     public Mapp(HttpServletRequest req){
+    	
         Enumeration<String> enumeration = req.getParameterNames();
         
         while (enumeration.hasMoreElements()) {

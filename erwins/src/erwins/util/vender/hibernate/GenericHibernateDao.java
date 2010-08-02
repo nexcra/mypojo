@@ -9,10 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.hibernate.CacheMode;
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -42,6 +45,11 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     public Class<Entity> getPersistentClass() {
         return persistentClass;
     }
+    
+    /** 이번 세션에 한해서?? 2차 캐시를 무시한다. */
+    protected void cacheIgnore(){
+        getSession().setCacheMode(CacheMode.IGNORE);
+    }    
     
     // ===========================================================================================
     //                                    편의성 단축 메소드.
@@ -331,11 +339,18 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     //                                    HQL
     // ===========================================================================================
     
-    /** 대량의 데이터를 배치처리 or 2차캐싱 할때 사용하자. id값만을 가져온다. */
+    /** 대량의 데이터를 배치처리. id값만을 가져온 후 나머지는 2차캐시(가능하다면)에서 가져온다. */
     protected Iterator<Entity> iterator(HqlBuilder hql) {
         Query query = hql.query(getSession());
         query.iterate();
         return query.iterate();
+    }
+    
+    /** 커서를 이용한다. 사용 후 반드시 닫아주여야 한다. */
+    protected ScrollableResults scroll(HqlBuilder hql) {
+    	Query query = hql.query(getSession());
+    	query.iterate();
+    	return query.scroll(ScrollMode.FORWARD_ONLY);
     }
     
     /** HqlBuilder를 이용한 페이징 처리기. */

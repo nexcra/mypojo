@@ -48,6 +48,7 @@ import erwins.util.valueObject.ValueObject;
  * @author erwins(my.pojo@gmail.com)
  */
 @Singleton
+@SuppressWarnings("unchecked")
 public class Dissolver{
     
     private static Dissolver theInstance = new Dissolver();
@@ -96,6 +97,9 @@ public class Dissolver{
         private Mapp map;
         private Class<?> clazz;
         
+        /** 어노테이션을 확인할때 사용된다. */
+        private Method getter;
+        
         private BeanDissolver(Mapp map) {
             this.map = map;
         }
@@ -105,18 +109,17 @@ public class Dissolver{
                 return getBean(clazz);
             }
             catch (Exception e){
-                throw new RuntimeException(e);
+                throw new RuntimeException("Exception by [Request to Class]",e);
             }
         }
         
-        @SuppressWarnings("unchecked")
         private T getBean(Class<T> clazz) throws Exception{
         	this.clazz = clazz;
             T entity = clazz.newInstance();
             methods = entity.getClass().getMethods();
             
             for(Method method:methods ){
-                
+            	getter = null;
                 if(!initSetter(method)) continue;
                 
                 //콘피그 설정을 먼저 검사한다.
@@ -141,11 +144,11 @@ public class Dissolver{
                     else value =  map.getStr(fieldName);
                     method.invoke(entity, value);
                 }else if(setterType == Integer.class || setterType == int.class){
-                    if(isKey(method)) method.invoke(entity, map.getIntId(fieldName)); 
+                    if(isKey()) method.invoke(entity, map.getIntId(fieldName)); 
                     else method.invoke(entity, map.getInteger(fieldName));
                 }else if(setterType == BigDecimal.class){
                     method.invoke(entity, map.getDecimal(fieldName));
-                }else if(setterType == boolean.class){
+                }else if(setterType == boolean.class || setterType == Boolean.class){
                     Boolean boo = map.getBoolean(fieldName); 
                     if(boo == null) continue; //yn 이외의 이상한 값이면 디폴트 값을 사용
                     method.invoke(entity, boo);
@@ -165,105 +168,114 @@ public class Dissolver{
                 }else if(setterType.isEnum()){
                     method.invoke(entity,map.getEnum((Class<Enum>)setterType, fieldName)); //기본 Enum만 됨.
                 }else if(setterType == Long.class || setterType == long.class){
-                    if(isKey(method)) method.invoke(entity, map.getLongId(fieldName));
+                    if(isKey()) method.invoke(entity, map.getLongId(fieldName));
                     else method.invoke(entity, map.getLong(fieldName));
-                }else if(Sets.isAnnotationPresent(method,OracleListString.class)){ 
-                    String str = map.getStr(fieldName);
-                    method.invoke(entity, Sets.getOracleStr(str));
-                }else if(Sets.isAnnotationPresent(method,ManyToOne.class)){
-                    String entityName = fieldName + "." + EntityId.ID_NAME;
-                    Serializable temp = null;
-                    Class<?> idClass = Clazz.getterReturnClass(setterType,EntityId.ID_NAME);
-                    if(idClass==Integer.class) temp = map.getIntId(entityName);
-                    else if(idClass==Long.class) temp = map.getLongId(entityName);
-                    else if(idClass==String.class) temp = (Serializable)map.get(entityName);
-                    if(temp==null) continue;
-                    EntityId newEntity = (EntityId)Clazz.instance(setterType);
-                    newEntity.setId(temp);
-                    method.invoke(entity, newEntity);
-                }else if(Sets.isAnnotationPresent(method,ManyToMany.class)){
-                    /** List만 사용되는것이 아니라 Set이 사용될 수도 있다. */
-                    Class<?> subEntityClass =  Clazz.getSetterGeneric(method);
-                    if(!EntityId.class.isAssignableFrom(subEntityClass)) continue;
-                    String collectionName = fieldName + "." + EntityId.ID_NAME;
-                    
-                    Number[] temp = null;
-                    Class<?> idClass = Clazz.getterReturnClass(subEntityClass,EntityId.ID_NAME);
-                    if(idClass==Integer.class) temp = map.getIntIds(collectionName);
-                    else if(idClass==Long.class) temp = map.getLongIds(collectionName);
-                    else throw new RuntimeException(idClass +" is not required! ^^;");
-                    
-                    Collection<EntityId> subEntitylist = null;
-                    if(List.class.isAssignableFrom(setterType)) subEntitylist = new ArrayList<EntityId>();
-                    else if(Set.class.isAssignableFrom(setterType)) subEntitylist = new TreeSet<EntityId>();
-                    else throw new RuntimeException(setterType +" is not required! ^^;");
-                    
-                    for(Number each : temp){
-                        EntityId idEntity = (EntityId)subEntityClass.newInstance();
-                        idEntity.setId(each);
-                        subEntitylist.add(idEntity);
-                    }
-                    method.invoke(entity, subEntitylist);
-                }else if(Sets.isAnnotationPresent(method,OneToMany.class,CollectionOfElements.class)){ //List만 된다. 주의!
-                    
-                    String preFix = fieldName;
-                    Class<?> subEntityClass =  Clazz.getSetterGeneric(method);
-                    
-                    //enum일 경우 부가옵션.
-                    if(Sets.isAnnotationPresent(method,Enumerated.class)){
-                    	Collection<Enum> c;
-                    	if(Set.class.isAssignableFrom(setterType)) c = new HashSet();
-                    	else if(Set.class.isAssignableFrom(setterType)) c = new ArrayList();
-                    	else throw new MalformedException(setterType+ "is not required class");
-                    	
-                    	Enumerated enumerated = Sets.getInstance(annos, Enumerated.class);
-                    	if(enumerated.value().equals(EnumType.STRING)){
-                    		String fieldName =  preFix + ".string";
-                        	String[] values = map.getStrs(fieldName);
-                        	for(String eachEnum : values) c.add(Clazz.getEnum((Class<Enum>)subEntityClass, eachEnum));
-                    	}else throw new RuntimeException("sorry. not supported args (EnumType)~ ^^;");
-                    	method.invoke(entity, c);
-                    }
-                    
-                    List<?> subEntitylist = null;
-                    
-                    Method[] subMethods = subEntityClass.getMethods();
-                    
-                    for(Method subMethod : subMethods){
+                }else{
+                	initGetter();
+                	if(Sets.isAnnotationPresent(method,OracleListString.class)){ 
+                        String str = map.getStr(fieldName);
+                        method.invoke(entity, Sets.getOracleStr(str));
+                    }else if(Sets.isAnnotationPresent(getter,ManyToOne.class)){
+                        String entityName = fieldName + "." + EntityId.ID_NAME;
+                        Serializable temp = null;
+                        Class<?> idClass = Clazz.getterReturnClass(setterType,EntityId.ID_NAME);
+                        if(idClass==Integer.class) temp = map.getIntId(entityName);
+                        else if(idClass==Long.class) temp = map.getLongId(entityName);
+                        else if(idClass==String.class) temp = (Serializable)map.get(entityName);
+                        if(temp==null) continue;
+                        EntityId newEntity = (EntityId)Clazz.instance(setterType);
+                        newEntity.setId(temp);
+                        method.invoke(entity, newEntity);
+                    }else if(Sets.isAnnotationPresent(getter,ManyToMany.class)){
+                        /** List만 사용되는것이 아니라 Set이 사용될 수도 있다. */
+                        Class<?> subEntityClass =  Clazz.getSetterGeneric(method);
+                        if(!EntityId.class.isAssignableFrom(subEntityClass)) continue;
+                        String collectionName = fieldName + "." + EntityId.ID_NAME;
                         
-                        if(!initSetter(subMethod)) continue;
+                        Number[] temp = null;
+                        Class<?> idClass = Clazz.getterReturnClass(subEntityClass,EntityId.ID_NAME);
+                        if(idClass==Integer.class) temp = map.getIntIds(collectionName);
+                        else if(idClass==Long.class) temp = map.getLongIds(collectionName);
+                        else throw new RuntimeException(idClass +" is not required! ^^;");
                         
-                        fieldName = preFix + fieldName; //preFix설정.
+                        Collection<EntityId> subEntitylist = null;
+                        if(List.class.isAssignableFrom(setterType)) subEntitylist = new ArrayList<EntityId>();
+                        else if(Set.class.isAssignableFrom(setterType)) subEntitylist = new TreeSet<EntityId>();
+                        else throw new RuntimeException(setterType +" is not required! ^^;");
                         
-                        if(StringUtils.isEmpty(fieldName)) continue;
-                        
-                        Object[] temp = null;
-
-                        if(setterType == String.class){
-                            temp = map.getStrs(fieldName);                                           
-                        }else if(setterType == Boolean.class || setterType == boolean.class){
-                            temp = map.getBooleans(fieldName);
-                        }else if(setterType == int.class || setterType == Integer.class){
-                            if(isKey(subMethod)) temp = map.getIntIds(fieldName);
-                            else temp = map.getIntegers(fieldName);
-                        }else if(setterType == long.class || setterType == Long.class){
-                            if(isKey(subMethod)) temp = map.getLongIds(fieldName);
-                            else temp =  map.getLongs(fieldName);
-                        }else if(setterType == BigDecimal.class){
-                            temp = map.getDecimals(fieldName);
-                        }else{
-                            continue;
+                        for(Number each : temp){
+                            EntityId idEntity = (EntityId)subEntityClass.newInstance();
+                            idEntity.setId(each);
+                            subEntitylist.add(idEntity);
                         }
-                        subEntitylist = Clazz.initCollection(subEntitylist,subEntityClass,temp.length);
-                        addArrayToList(subMethod,subEntitylist,temp);
+                        method.invoke(entity, subEntitylist);
+                    }else if(Sets.isAnnotationPresent(getter,OneToMany.class,CollectionOfElements.class)){ //List만 된다. 주의!
+                        
+                        String preFix = fieldName;
+                        Class<?> subEntityClass =  Clazz.getSetterGeneric(method);
+                        
+                        //enum일 경우 부가옵션.
+                        if(Sets.isAnnotationPresent(getter,Enumerated.class)){
+                        	Collection<Enum> c;
+                        	if(Set.class.isAssignableFrom(setterType)) c = new HashSet();
+                        	else if(Set.class.isAssignableFrom(setterType)) c = new ArrayList();
+                        	else throw new MalformedException(setterType+ "is not required class");
+                        	
+                        	//이하 필요을 모르겠다... 흠냐.. 나중에 수정하자.
+                        	Enumerated enumerated = Sets.getInstance(annos, Enumerated.class);
+                        	if(enumerated.value().equals(EnumType.STRING)){
+                        		String fieldName =  preFix + ".string";
+                            	String[] values = map.getStrs(fieldName);
+                            	for(String eachEnum : values) c.add(Clazz.getEnum((Class<Enum>)subEntityClass, eachEnum));
+                        	}else throw new RuntimeException("sorry. not supported args (EnumType)~ ^^;");
+                        	method.invoke(entity, c);
+                        }
+                        
+                        List<?> subEntitylist = null;
+                        
+                        Method[] subMethods = subEntityClass.getMethods();
+                        
+                        for(Method subMethod : subMethods){
+                            
+                            if(!initSetter(subMethod)) continue;
+                            
+                            fieldName = preFix + "." + fieldName; //preFix설정.
+                            
+                            if(StringUtils.isEmpty(fieldName)) continue;
+                            
+                            Object[] temp = null;
+
+                            if(setterType == String.class){
+                                temp = map.getStrs(fieldName);                                           
+                            }else if(setterType == Boolean.class || setterType == boolean.class){
+                                temp = map.getBooleans(fieldName);
+                            }else if(setterType == int.class || setterType == Integer.class){
+                                if(isKey()) temp = map.getIntIds(fieldName);
+                                else temp = map.getIntegers(fieldName);
+                            }else if(setterType == long.class || setterType == Long.class){
+                                if(isKey()) temp = map.getLongIds(fieldName);
+                                else temp =  map.getLongs(fieldName);
+                            }else if(setterType == BigDecimal.class){
+                                temp = map.getDecimals(fieldName);
+                            }else{
+                                continue;
+                            }
+                            subEntitylist = Clazz.initCollection(subEntitylist,subEntityClass,temp.length);
+                            addArrayToList(subMethod,subEntitylist,temp);
+                        }
+                        if(subEntitylist==null) continue; //만약 인자가 하나도 들어오지 않았다면 초기값을 건드리지 않고 무시한다.
+                        method.invoke(entity, subEntitylist);
                     }
-                    if(subEntitylist==null) continue; //만약 인자가 하나도 들어오지 않았다면 초기값을 건드리지 않고 무시한다.
-                    method.invoke(entity, subEntitylist);
-                    
                 }
             }
             return entity;
         }
+
+        /** 이후는 어노테이션으로 구해야 함으로 어노테이션이 붙는 getter를 찾아준다. */
+		private void initGetter() {
+			if(getter!=null) return;
+			getter = Clazz.toGetter(clazz,fieldName);
+		}
 
         /**
          * method의 정보를 추출한다. 해당 조건이 아니면 false를 리턴한다..
@@ -288,9 +300,9 @@ public class Dissolver{
         /**
          * Id가 붙어있거나 Fk가 붙어있을경우 true를 리턴
          */
-        @SuppressWarnings("unchecked")
-        private boolean isKey(Method method){
-            return Sets.isAnnotationPresent(method,Id.class,Fk.class); 
+        private boolean isKey(){
+        	initGetter();
+            return Sets.isAnnotationPresent(getter,Id.class,Fk.class); 
         }
         
         /**
