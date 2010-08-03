@@ -196,12 +196,13 @@ public class Dissolver{
                         Class<?> idClass = Clazz.getterReturnClass(subEntityClass,EntityId.ID_NAME);
                         if(idClass==Integer.class) temp = map.getIntIds(collectionName);
                         else if(idClass==Long.class) temp = map.getLongIds(collectionName);
-                        else throw new RuntimeException(idClass +" is not required! ^^;");
+                        else throw new MalformedException("{0} : {1} is not required ID Type ^^;",collectionName,idClass);
                         
+                        //Set말고는 전부 List로 초기화 한다.
                         Collection<EntityId> subEntitylist = null;
-                        if(List.class.isAssignableFrom(setterType)) subEntitylist = new ArrayList<EntityId>();
-                        else if(Set.class.isAssignableFrom(setterType)) subEntitylist = new TreeSet<EntityId>();
-                        else throw new RuntimeException(setterType +" is not required! ^^;");
+                        if(Set.class.isAssignableFrom(setterType)) subEntitylist = new TreeSet<EntityId>();
+                        else if(Collection.class.isAssignableFrom(setterType)) subEntitylist = new ArrayList<EntityId>();
+                        else throw new MalformedException("{0} : {1} is not required collection Type",collectionName,idClass);
                         
                         for(Number each : temp){
                             EntityId idEntity = (EntityId)subEntityClass.newInstance();
