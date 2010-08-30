@@ -1,14 +1,17 @@
 package erwins.util.tools;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
 import erwins.util.lib.Clazz;
+import erwins.util.lib.Days;
 import erwins.util.lib.Formats;
 import erwins.util.lib.Maths;
 import erwins.util.lib.Strings;
+import erwins.util.root.Pair;
 
 
 /**
@@ -86,6 +89,13 @@ public abstract class MappRoot extends HashMap<Object,Object>  {
      */
     public String getNumericStr(Object key) {
         return Strings.getNumericStr(get(key));
+    }
+    
+    /** 8자리 숫자를 Calendar형식으로 반환한다. */
+    public Calendar getCalendar(Object key) {
+    	String str =  Strings.getNumericStr(get(key));
+    	if(str==null) return null;
+    	return Days.getCalendar(str);
     }
     
     /**
@@ -249,8 +259,12 @@ public abstract class MappRoot extends HashMap<Object,Object>  {
     /**
      * Enum 값을 반환한다. 표준 작성만 가능하다. (Constructor가 있어야 한다.)
      */
-    public <T extends Enum<?>> T getEnum(Class<T> clazz,String key){
+    @SuppressWarnings("unchecked")
+	public <T extends Enum<?>> T getEnum(Class<T> clazz,String key){
         if(isEmpty(key)) return null;
+        if(Pair.class.isAssignableFrom(clazz)){
+        	return (T) Clazz.getEnumPair((Class<Enum<?>>) clazz, getStr(key));	
+        }
         return Clazz.getEnum(clazz, getStr(key));
     }
 

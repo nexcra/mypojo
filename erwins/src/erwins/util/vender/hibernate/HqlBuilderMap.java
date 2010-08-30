@@ -1,8 +1,11 @@
 package erwins.util.vender.hibernate;
 
+import java.util.Calendar;
+
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+import erwins.util.lib.Days;
 import erwins.util.lib.Strings;
 import erwins.util.tools.SearchMap;
 
@@ -99,6 +102,16 @@ public class HqlBuilderMap implements HqlBuilder{
         return this;
     }
     
+    /** between과 동일하나 Date형식으로 바꿔준다. 
+     * 모든 조건은 =가 들어감으로 max에 +1을 해준다.  */
+    public HqlBuilderMap betweenByDate(String field, Object small,Object large){
+    	Calendar min = map.getCalendar(small);
+    	Calendar max = map.getCalendar(large);
+    	builder.between(field,min==null ? null : min.getTime()
+    			, max==null ? null : Days.addCalendar(max,1).getTime());
+    	return this;
+    }
+    
     /**
      *  map에서 조건을 가져와서 할당한다.
      *  key값이 true이면 역 정렬(DESC)이다.  
@@ -129,6 +142,7 @@ public class HqlBuilderMap implements HqlBuilder{
         }
         return this;
     }
+
     public <T extends Enum<?>> HqlBuilderMap eq(String field,String key,Class<T> clazz){
         if(map.isEmpty(key)) return this;
         builder.eq(field, map.getEnum(clazz, key));
@@ -153,6 +167,13 @@ public class HqlBuilderMap implements HqlBuilder{
     public HqlBuilder between(String key){
     	String mapKey = Strings.getExtention2(key);
     	between(key,mapKey+"Min",mapKey+"Max");
+    	return this;
+    }
+    
+    /** between의 Date버전. DB의 컬럼이 Day나 String이 아니라 TimeStamp계열일때 사용한다. */
+    public HqlBuilder betweenByDate(String key){
+    	String mapKey = Strings.getExtention2(key);
+    	betweenByDate(key,mapKey+"Min",mapKey+"Max");
     	return this;
     }
     

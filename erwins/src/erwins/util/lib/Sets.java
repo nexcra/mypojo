@@ -406,6 +406,20 @@ public abstract class Sets  extends CollectionUtils{
         list.add(obj);
     }
     
+    /** Line이 잘린 컬럼을 머지한다.
+     * ex) A,B,C,D 와 1,2,3,4를 머지하면 A,B,C,D1,2,3,4 이렇게 합쳐진다. */
+    public static String[] mergeForLineSeperated(String[] A,String[] B) {
+    	String[] sum = new String[A.length + B.length -1];
+		for(int i=0;i<A.length;i++){
+			sum[i] = A[i];
+		}
+		sum[A.length-1] += B[0];
+		for(int i=1;i<B.length;i++){
+			sum[A.length-1+i] = B[i];
+		}
+		return sum;
+    }
+    
 	/**
 	 * List를 메인 키를 가지는 Map으로 바꿔 준다. List의 key가 동일하나 내용이 다른 중복데이터는 Map으로 합쳐진다. 
 	 * 파라메터는 반드시 3가지여야 한다. parentKey,header(내부Map의 key),value

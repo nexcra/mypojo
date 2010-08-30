@@ -85,7 +85,7 @@ public abstract class NetRoot {
         	buildString(buff,FtpAction.FTP_FILE_DELETED,ftpFileDeleted);
         	buildString(buff,FtpAction.FTP_DERECTORY_MAKED,ftpDirectoryMaked);
         	buildString(buff,FtpAction.FTP_DIRECTORY_DELETED,ftpDirectorydeleted);
-        	buildString(buff,FtpAction.FTP_FILE_DELETED,localFileDeleted);
+        	buildString(buff,FtpAction.LOCAL_FILE_DELETED,localFileDeleted);
         	buildString(buff,FtpAction.ERROR,error);
         	return buff.toString();
         }
@@ -133,8 +133,9 @@ public abstract class NetRoot {
     }
     
     public static enum FtpAction{
-    	DOWNLOADED,UPLOADED,MOVED,ERROR,
-    	FTP_FILE_DELETED,LOCAL_FILE_DELETED,FTP_DERECTORY_MAKED,FTP_DIRECTORY_DELETED
+    	MOVED,ERROR,
+    	UPLOADED,FTP_FILE_DELETED,FTP_DERECTORY_MAKED,FTP_DIRECTORY_DELETED,
+    	DOWNLOADED,LOCAL_FILE_DELETED
     }
     
 
@@ -148,6 +149,11 @@ public abstract class NetRoot {
         ftpClient = new FTPClient();
         ftpClient.setControlEncoding("euc-kr"); // 한글파일명 때문에 디폴트 인코딩을 euc-kr로 합니다
     }
+    
+    public void setEncoding(String encoding){
+    	ftpClient.setControlEncoding(encoding);
+    }
+    
     
     public void connect(String serverIp,int port,String id, String pass) throws IOException {
     	ftpClient.connect(serverIp,port);
@@ -255,13 +261,13 @@ public abstract class NetRoot {
     protected void delete(String fullName) throws IOException {
         boolean result = ftpClient.deleteFile(fullName);
         if(!result) throw new IOException(fullName +" 를 지우는데 실패했습니다.");
-        ftpLog.log(FtpAction.FTP_FILE_DELETED,"fullName");
+        ftpLog.log(FtpAction.FTP_FILE_DELETED,fullName);
     }
     
     protected void deleteDir(String fullName) throws IOException {
         boolean result = ftpClient.removeDirectory(fullName);
         if(!result) throw new IOException(fullName +" 를 지우는데 실패했습니다.");
-        ftpLog.log(FtpAction.FTP_DIRECTORY_DELETED,"fullName");
+        ftpLog.log(FtpAction.FTP_DIRECTORY_DELETED,fullName);
     }
     
     /**

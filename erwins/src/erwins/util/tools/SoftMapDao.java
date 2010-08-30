@@ -3,6 +3,7 @@ package erwins.util.tools;
 
 import java.io.Serializable;
 
+import erwins.util.collections.SoftMap;
 import erwins.util.root.Singleton;
 import erwins.util.vender.hibernate.GenericHibernateDao;
 

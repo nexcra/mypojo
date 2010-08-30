@@ -1,5 +1,5 @@
 
-package erwins.util.tools;
+package erwins.util.collections;
 
 import java.util.LinkedList;
 

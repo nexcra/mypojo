@@ -10,8 +10,10 @@ public class ThreadPool implements Shutdownable{
 	
 	List<Thread> list = new ArrayList<Thread>();
 	
-	public void add(Thread thread){
+	/** 리턴된 Thread에 이름을 달아주자~ */
+	public Thread add(Thread thread){
 		list.add(thread);
+		return thread;
 	}
 	
 	public void startup(){

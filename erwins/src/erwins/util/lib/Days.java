@@ -131,12 +131,13 @@ public enum Days{
     }
     
     /**
-     * 4,2,2자리 년월일을 받아서 Carender 객체를 리턴한다. 
+     * 4,2,2자리 년월일을 받아서 Carender 객체를 리턴한다.
+     * 시간은 0시0분0초로 초기화 한다. 
      */
     public static Calendar getCalendar(int year, int month, int day) {
     	Calendar cal = Calendar.getInstance();
         cal.setLenient(false);
-        cal.set(year,month-1,day);
+        cal.set(year,month-1,day,0,0,0);
     	return cal;
     }
     

@@ -1,4 +1,4 @@
-package erwins.util.tools;
+package erwins.util.collections;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,7 +12,7 @@ import java.util.Map;
  * ????????? 쓸모없어 보인다. ㅠㅠ
  */
 
-public class MapedList<T> implements Iterable<Map<String,T>>{
+public class MappedList<T> implements Iterable<Map<String,T>>{
 	
 	private List<Map<String,T>> list = new ArrayList<Map<String,T>>();
 

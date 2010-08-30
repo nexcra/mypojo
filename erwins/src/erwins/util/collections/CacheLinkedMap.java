@@ -1,4 +1,4 @@
-package erwins.util.tools;
+package erwins.util.collections;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

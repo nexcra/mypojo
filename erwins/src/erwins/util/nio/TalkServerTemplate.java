@@ -80,6 +80,7 @@ public abstract class TalkServerTemplate implements Shutdownable {
 				}
 			}
 		});
+		acceptor.setName("TalkServer_Acceptor");
 		acceptor.start();
 	}
 	

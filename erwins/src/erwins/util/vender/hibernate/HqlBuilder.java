@@ -32,6 +32,7 @@ public interface HqlBuilder {
     
     public abstract HqlBuilder groupBy(String groupby);
     public abstract HqlBuilder orderBy(String ... orderBy);
+    /** 약간 헷갈릴 수 있다. true이면 desc를 적용한다. 동적으로 정렬이 바뀌는 Map때문에 추가한 인터페이스 */
     public abstract HqlBuilder orderBy(String orderBy,boolean desc);
     
 

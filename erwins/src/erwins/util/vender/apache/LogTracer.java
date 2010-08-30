@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import erwins.util.collections.InverseList;
 import erwins.util.root.DomainObject;
 import erwins.util.root.EntityHibernatePaging;
-import erwins.util.tools.InverseList;
 
 public class LogTracer{
 	

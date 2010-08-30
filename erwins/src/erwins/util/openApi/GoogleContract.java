@@ -16,7 +16,7 @@ import com.google.gdata.data.extensions.Email;
 import com.google.gdata.data.extensions.Name;
 import com.google.gdata.data.extensions.PhoneNumber;
 
-import erwins.util.tools.ListMap;
+import erwins.util.collections.ListMap;
 
 
 /** 구글 데이터의 연락처  */

@@ -14,6 +14,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 
+import erwins.util.exception.MalformedException;
 import erwins.util.root.Pair;
 import erwins.util.valueObject.ValueObject;
 
@@ -82,6 +83,16 @@ public abstract class Clazz {
         return (T) Enum.valueOf((Class<Enum>)clazz, name);
     }
     
+    /** Enum인데 Pair인놈의 객체를 가져온다. Pair의 value로 검색 가능하다. 제한적으로 사용하자. */
+    public static Pair getEnumPair(Class<Enum<?>> clazz,String value){
+    	Enum<?>[] enums = Clazz.getEnums(clazz);
+    	for(Enum<?> each : enums){
+    		Pair pair = (Pair)each;
+    		if(pair.getValue().equals(value)) return pair;
+    	}
+    	throw new MalformedException("[{0}] is not found from {1}", value,clazz.getSimpleName());
+    }
+    
     /** 파라메터가 없는/ 참조 객체(또는 래퍼)가 아닌 getter 메소드를 리턴한다. */
     public static List<Method> getGetters(Class<?> clazz){
     	List<Method> result = new ArrayList<Method>();
@@ -105,15 +116,24 @@ public abstract class Clazz {
      */
     @SuppressWarnings("unchecked")
     public static Enum<?>[] getEnums(String fullName){
-        Class<Enum<?>> en = null;
+        Class<Enum<?>> en = (Class<Enum<?>>) forName(fullName);
+        return en.getEnumConstants();
+    }
+    public static Enum<?>[] getEnums(Class<Enum<?>> clazz){
+    	return clazz.getEnumConstants();
+    }
+
+	@SuppressWarnings("cast")
+	private static Class<?> forName(String fullName) {
+		Class<?> en = null;
         try {
-            en = (Class<Enum<?>>) Class.forName(fullName);
+            en = (Class<?>) Class.forName(fullName);
         }
         catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        return en.getEnumConstants();
-    }
+		return en;
+	}
     
     /** 인스턴스를 리턴한다. (예외 catch때문에 사용.) */
     public static <T> T instance(Class<T> clazz){

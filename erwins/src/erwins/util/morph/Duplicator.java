@@ -77,8 +77,8 @@ public class Duplicator{
             	
                 if(!initGetter(getter)) continue;
                 
-                if(Sets.isInstanceAny(annos,Id.class,Fk.class)) continue; //키값은 복사하지 않는다.
-                if(Sets.isInstanceAny(annos,ManyToOne.class,OneToMany.class,CollectionOfElements.class)) continue; //래퍼런스는 복사안함.
+                if(Sets.isAnnotationPresent(getter,Id.class,Fk.class)) continue; //키값은 복사하지 않는다.
+                if(Sets.isAnnotationPresent(getter,ManyToOne.class,OneToMany.class,CollectionOfElements.class)) continue; //래퍼런스는 복사안함.
                 
                 Method setter = Clazz.toSetter(clazz, fieldName, getter.getReturnType());
                 if(setter==null) continue;

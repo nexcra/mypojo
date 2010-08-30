@@ -11,8 +11,8 @@ import java.nio.charset.Charset;
 
 public class TalkClient {
 	
-	private final Selector selector;
-	private final SocketChannel channel;
+	protected final Selector selector;
+	protected final SocketChannel channel;
 	private final Charset charset = new CharsetUtils().getCharset();
 
 	public TalkClient(String adress,int port){
@@ -28,14 +28,22 @@ public class TalkClient {
 		}
 	}
 	
-	private Thread executeThread;
+	protected Thread executeThread;
 	
 	private final ByteBuffer inputBuffer = ByteBuffer.allocateDirect(1024);
 	
-	public void startup(MessageCallback callBack) {
+	/** 나중에 콜백을 여러개? 추가할 수 있게 변경하자. */
+	public void messageStartup(MessageCallback callBack) {
 		MessageExecutor exe = new MessageExecutor(selector,callBack);
 		executeThread = new Thread(exe);
+		executeThread.setName("TalkClient_ExecuteThread");
 		executeThread.start();
+	}
+	
+	/** 안드로이드의 경우 콜백을 임의로 변경해야 해서 메소드를 추가했다. */
+	public void messageShutdown() {
+		executeThread.interrupt();
+		executeThread = null;
 	}
 
 	/** 1.6 이상의 환경에서만 동작한다. */

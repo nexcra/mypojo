@@ -27,8 +27,13 @@ public class HibernateStatisticsToJson{
 		for(String eachName : stats.getQueries()){
 			QueryStatistics each = stats.getQueryStatistics(eachName);
 			JSONObject json = JDissolver.instance().getByDomain(each, false);
-			double hitRate =  each.getCacheHitCount()==0 ? 0 : each.getCacheHitCount() / each.getCachePutCount();
-			json.put("cacheHitRate", hitRate);
+			
+			if(each.getCacheHitCount()==0) json.put("cacheHitRate", 0);
+			else{
+				double sum =  each.getCacheHitCount() + each.getCacheMissCount();
+				json.put("cacheHitRate", each.getCacheHitCount() / sum * 100);
+			}
+			
 			array.add(json);
 		}
 		return array;
@@ -39,8 +44,13 @@ public class HibernateStatisticsToJson{
 		for(String eachName : stats.getSecondLevelCacheRegionNames()){
 			SecondLevelCacheStatistics each = stats.getSecondLevelCacheStatistics(eachName);
 			JSONObject json = JDissolver.instance().getByDomain(each, false);
-			double hitRate =  each.getHitCount()==0 ? 0 : each.getHitCount() / each.getPutCount();
-			json.put("hitRate", hitRate);
+			
+			if(each.getHitCount()==0) json.put("hitRate",0);
+			else{
+				double sum =  each.getHitCount() + each.getMissCount();	
+				json.put("hitRate",each.getHitCount() / sum * 100);
+			}
+			
 			array.add(json);
 		}
 		return array;
@@ -59,8 +69,12 @@ public class HibernateStatisticsToJson{
 	public static JSONArray summary(Statistics stats) {
 		JSONArray summary = new JSONArray();
 		JSONObject json = JDissolver.instance().getByDomain(stats, false);
-		double secondLevelCacheHitRate =  stats.getSecondLevelCacheHitCount()==0 ? 0 : stats.getSecondLevelCacheHitCount() / stats.getSecondLevelCachePutCount();
-		json.put("secondLevelCacheHitRate", secondLevelCacheHitRate);
+		if(stats.getSecondLevelCacheHitCount()==0) json.put("secondLevelCacheHitRate", 0);
+		else{
+			double sum = stats.getSecondLevelCacheHitCount() + stats.getSecondLevelCacheMissCount();
+			json.put("secondLevelCacheHitRate", stats.getSecondLevelCacheHitCount() / sum * 100 );
+		}
+		
 		double queryCacheHitRate =  stats.getQueryCacheHitCount()==0 ? 0 : stats.getQueryCacheHitCount() / stats.getQueryCachePutCount();
 		json.put("queryCacheHitRate", queryCacheHitRate);
 		summary.add(json);

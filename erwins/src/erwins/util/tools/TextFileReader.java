@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 import erwins.util.lib.CharSets;
+import erwins.util.lib.Sets;
 import erwins.util.lib.Strings;
 import erwins.util.reflexive.FolderIterator;
 import erwins.util.root.StringCallback;
@@ -106,10 +107,14 @@ public class TextFileReader{
 		protected abstract void process(String[] line);
     }
     
-    /** 첫 라인을 컬럼 메타데이터로 보고 MAP으로 매핑시켜 준다. 컬럼과 열이 맞지 않으면 무시한다. 이 데이터는 trim된다.*/
+    /** 첫 라인을 컬럼 메타데이터로 보고 MAP으로 매핑시켜 준다. 컬럼과 열이 맞지 않으면 무시한다. 이 데이터는 trim된다.
+     *  데이터에 Line구분자가 아닌 \r같은 문구가 있을수 있으니 적절히 전버전과 일치시켜 준다. (윈도우와 유닉스 머신의 차이)
+     *  이렇게 하는 이유는 기존 text작성 프로그램을 수정할 수 없기 때문이다. */
     public static abstract class StringMapCallback extends StringArrayCallback{
     	private boolean first = true;
     	private String[] column = null;
+    	private int columnLength;
+    	private String[] before;
 		@Override
 		public void process(String[] line) {
 			if(first){
@@ -117,10 +122,25 @@ public class TextFileReader{
 				boolean camelize = camelize();
 				for(int i=0;i<line.length;i++) column[i] =  camelize ? Strings.getCamelize(line[i]) : line[i];
 				first = false;
+				columnLength = column.length;
 				return;
 			}
+			//잘려진 구문이 있는지 체크한다. 줄바꿈은 무시한다.
+			if(columnLength!=line.length){
+				if(before==null){
+					before = line;
+					return;
+				}
+				String[] sum = Sets.mergeForLineSeperated(before, line);
+				if(sum.length!=columnLength){
+					before = line;
+					return;
+				}
+				line = sum;
+				before = null;
+			}
 			Map<String,String> result = new HashMap<String,String>();
-			for(int i=0;i<column.length;i++){
+			for(int i=0;i<columnLength;i++){
 				result.put(column[i],line[i]==null ? null : line[i].trim());
 			}
 			process(result);

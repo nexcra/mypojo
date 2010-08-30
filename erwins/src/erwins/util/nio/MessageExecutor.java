@@ -8,6 +8,7 @@ import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
 import erwins.util.lib.Strings;
@@ -47,11 +48,26 @@ public class MessageExecutor implements Runnable {
 				//닫아버린 키를 읽으려 할때 생긴다. 걍 무시한다.
 			} catch (CancelledKeyException e){
 				//취소한 키를 읽으려 할때 생긴다. 무시한다. 
+			} catch (ConcurrentModificationException e){
+				//안드로이드에서 로그아웃할때 생긴다. 무시한다. 
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				e.printStackTrace();  //안드로이드 때문에 일단 예외는 무시한다.
+				//throw new MessageExecutorException(e);
 			}
 		}
 		//log.debug("Display Thread를 종료합니다.");
+	}
+	
+	public static class MessageExecutorException extends RuntimeException{
+
+		public MessageExecutorException(String message, Throwable cause) {
+			super(message, cause);
+		}
+
+		public MessageExecutorException(Throwable cause) {
+			super(cause);
+		}
+		
 	}
 
 	/** 데이터가 길어서 2번 이상 읽어야 할 수도 있다. 연속해 들어온다고 일단 가정한다.

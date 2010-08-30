@@ -275,7 +275,7 @@ public class Net extends NetRoot {
     		}
     		else{
     			File file = new File(getNameByFtpRoot(newFtpFullPath));
-    			file.mkdir();
+    			//file.mkdir();
     			loopAndSynch(file,newFtpFullPath,this);
     		}
     	}
