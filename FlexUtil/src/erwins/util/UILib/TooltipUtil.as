@@ -75,7 +75,7 @@ package erwins.util.UILib{
 			});
 		}
 		
-		/** Grid에  ListToolTip 형태의 툴팁을 추가한다.*/
+		/** Grid에  ListToolTip 형태의 툴팁을 추가한다. list가 비어있으면 툴팁을 추가하지 않는다. */
 		public static function addListToolTip(base:FlexSprite,title:String,description:String,tooltipColumsInfo:Array):void{
 			
 			if(base==null) throw new Error('base is null!!');
@@ -89,11 +89,15 @@ package erwins.util.UILib{
 			var targetData:Object;
 			
 			var fun:Function = function(event:ToolTipEvent):void {
+				
+				var array:Array =  targetData[description] as Array;
+				if(array==null || array.length==0) return;
+				
 				var ptt:ListToolTip = new ListToolTip();
 				var tipTitle:String = targetData[title];
 				ptt.title = tipTitle==null ? title : tipTitle;
 				ptt.columns = tooltipColumsInfo;
-				ptt.dataProvider = new ArrayCollection(targetData[description]);
+				ptt.dataProvider = new ArrayCollection(array);
 				event.toolTip = ptt;
 			}
 			

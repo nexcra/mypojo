@@ -21,7 +21,6 @@ public static function clickPopUp(base:UIComponent,target:UIComponent,title:Stri
 	});
 }
 
-/** 디자인은 추후 면경하자. 텍스트에어리어 팝업의 경우 고정길이가 많다.  */
 public static function popUp(base:UIComponent,title:String,text:String,width:int=0,height:int=0):void{
 	var popWin:TextAreaPopup = new TextAreaPopup();
 	PopUpManager.addPopUp(popWin,base,false);
@@ -34,6 +33,18 @@ public static function popUp(base:UIComponent,title:String,text:String,width:int
 		PopUpManager.removePopUp(popWin);
 	});
 	popWin.setFocus();
+}
+
+/** 걍만듬.. 실패작이다. ㅋㅋ htmlText을 escape하는게 낫다. */
+public static function pop(base:UIComponent):TextAreaPopup{
+	var popWin:TextAreaPopup = new TextAreaPopup();
+	PopUpManager.addPopUp(popWin,base,false);
+	PopUpManager.centerPopUp( popWin );
+	Binder.ctrlShift(popWin,function():void{
+		PopUpManager.removePopUp(popWin);
+	});
+	popWin.setFocus();
+	return popWin;
 }
 
 private function remove():void{

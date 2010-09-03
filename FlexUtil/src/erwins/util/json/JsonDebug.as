@@ -1,7 +1,6 @@
 package erwins.util.json{
 	import com.adobe.serialization.json.*;
 	
-	import mx.controls.Alert;
 	import mx.utils.*;
 	
 	/** Alert을 디버깅용으로 찍을때 유일하게 사용된다. */
@@ -24,10 +23,14 @@ package erwins.util.json{
 			for(var key:String in parent){
 				var obj:Object = parent[key];
 				var name:String = parnetName + '/' + key;
-				if(Jsons.isReflexive(obj)){
-					reflexive(obj,name);
-				}else buff += name + ' : ' + obj.toString() + '\n';
+				if(obj==null){
+					buff += name + ' is NULL \n';
+					continue;
+				}
+				if(Jsons.isReflexive(obj)) reflexive(obj,name);
+				else buff += name + ' : ' + obj.toString() + '\n';
 			}
+			
 		}
 		
 		

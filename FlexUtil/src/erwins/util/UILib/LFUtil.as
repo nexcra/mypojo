@@ -18,7 +18,7 @@ package erwins.util.UILib{
 				var value:String = item[field];
 				if(value==null || value=='') return null;
 				if(value.length!=8) throw new Error(value+" date length must be 8!");
-				return value.substring(0,4)+"년" + value.substring(5,6)+"월" + value.substring(7,8) + "일";
+				return value.substring(0,4)+"년" + value.substring(4,6)+"월" + value.substring(6,8) + "일";
 			}
 			return fun;
 		}

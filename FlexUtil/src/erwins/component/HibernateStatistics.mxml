@@ -45,10 +45,20 @@ private function init():void{
 		paging.search();	
 	});
 	paging.search();
+	
+	TooltipUtil.addStaticTooltip(help1,"도움말",
+		"<p>1. Hibernate가 수행한 DB연산을 나타냅니다.</p>"+
+		"<p>2. 크게 단일 객체를 읽어오는 Entity와 여러 자료를 검색해서 읽어오는 Query로 나뉩니다.</p>"+
+		"<p>3. CacheHit : 메모리 내에 저장된 자료가 있어서 DB를 읽지 않고 자료를 반환</p>"+
+		"<p>4. CacheRate : DB접근 대신 캐시를 사용한 비율 </p>");
 
 	InitUtil.init(secondTap,function():void{
 		TooltipUtil.addPanelToolTip(querySheet,"HQL","categoryName");
-		TooltipUtil.addStaticTooltip(help,"도움말","행을 클릭하면 클립보드에 HQL구문이 저장됩니다.");
+		
+		TooltipUtil.addStaticTooltip(help2,"도움말",
+		"<p>1. 행을 클릭하면 클립보드에 HQL구문이 저장됩니다.</p>"+
+		"<p>2. 각 시간의 단위는 밀리초(ms):1/1,000초 입니다.</p>");
+		
 		querySheet.addEventListener(ListEvent.ITEM_CLICK,function(e:ListEvent):void{
 			System.setClipboard(querySheet.selectedItem.categoryName);
 		});
@@ -58,21 +68,21 @@ private function init():void{
 ]]></mx:Script>
 
 <mx:Array id="summaryInfo" >
-	<mx:DataGridColumn headerText="Load" textAlign="right" labelFunction="{LFUtil.toNumeric('entityLoadCount')}" />
-	<mx:DataGridColumn headerText="Fetch"  textAlign="right" labelFunction="{LFUtil.toNumeric('entityFetchCount')}" />
-	<mx:DataGridColumn headerText="Insert"  textAlign="right" labelFunction="{LFUtil.toNumeric('entityInsertCount')}"  />
-	<mx:DataGridColumn headerText="Update"  textAlign="right" labelFunction="{LFUtil.toNumeric('entityUpdateCount')}"  />
-	<mx:DataGridColumn headerText="Delete"  textAlign="right" labelFunction="{LFUtil.toNumeric('entityDeleteCount')}" />
-	<mx:DataGridColumn headerText="Open"  textAlign="right" labelFunction="{LFUtil.toNumeric('sessionOpenCount')}" />
-	<mx:DataGridColumn headerText="Close"  textAlign="right" labelFunction="{LFUtil.toNumeric('sessionCloseCount')}"  />
-	<mx:DataGridColumn headerText="CacheHit"  textAlign="right" labelFunction="{LFUtil.toNumeric('secondLevelCacheHitCount')}" />
-	<mx:DataGridColumn headerText="CachePut"  textAlign="right" labelFunction="{LFUtil.toNumeric('secondLevelCachePutCount')}" />
-	<mx:DataGridColumn headerText="CacheMiss"  textAlign="right" labelFunction="{LFUtil.toNumeric('secondLevelCacheMissCount')}" />
-	<mx:DataGridColumn headerText="HitRate"  textAlign="right" labelFunction="{LFUtil.toNumeric('secondLevelCacheHitRate')}" />
-	<mx:DataGridColumn headerText="QueryHit"  textAlign="right" labelFunction="{LFUtil.toNumeric('queryCacheHitCount')}" />
-	<mx:DataGridColumn headerText="QueryPut"  textAlign="right" labelFunction="{LFUtil.toNumeric('queryCachePutCount')}" />
-	<mx:DataGridColumn headerText="QueryMiss"  textAlign="right" labelFunction="{LFUtil.toNumeric('queryCacheMissCount')}" />
-	<mx:DataGridColumn headerText="HitRate"  textAlign="right" labelFunction="{LFUtil.toNumeric('queryCacheHitRate')}" />
+	<mx:DataGridColumn headerText="Load" textAlign="right" labelFunction="{LFUtil.toNumeric('entityLoadCount')}" sortable="false" />
+	<mx:DataGridColumn headerText="Fetch"  textAlign="right" labelFunction="{LFUtil.toNumeric('entityFetchCount')}" sortable="false" />
+	<mx:DataGridColumn headerText="Insert"  textAlign="right" labelFunction="{LFUtil.toNumeric('entityInsertCount')}" sortable="false" />
+	<mx:DataGridColumn headerText="Update"  textAlign="right" labelFunction="{LFUtil.toNumeric('entityUpdateCount')}" sortable="false"  />
+	<mx:DataGridColumn headerText="Delete"  textAlign="right" labelFunction="{LFUtil.toNumeric('entityDeleteCount')}" sortable="false" />
+	<mx:DataGridColumn headerText="Open"  textAlign="right" labelFunction="{LFUtil.toNumeric('sessionOpenCount')}" sortable="false" />
+	<mx:DataGridColumn headerText="Close"  textAlign="right" labelFunction="{LFUtil.toNumeric('sessionCloseCount')}" sortable="false"  />
+	<mx:DataGridColumn headerText="CacheHit"  textAlign="right" labelFunction="{LFUtil.toNumeric('secondLevelCacheHitCount')}" sortable="false" />
+	<mx:DataGridColumn headerText="CachePut"  textAlign="right" labelFunction="{LFUtil.toNumeric('secondLevelCachePutCount')}" sortable="false" />
+	<mx:DataGridColumn headerText="CacheMiss"  textAlign="right" labelFunction="{LFUtil.toNumeric('secondLevelCacheMissCount')}" sortable="false" />
+	<mx:DataGridColumn headerText="HitRate"  textAlign="right" labelFunction="{LFUtil.toNumeric('secondLevelCacheHitRate')}" sortable="false" />
+	<mx:DataGridColumn headerText="QueryHit"  textAlign="right" labelFunction="{LFUtil.toNumeric('queryCacheHitCount')}" sortable="false" />
+	<mx:DataGridColumn headerText="QueryPut"  textAlign="right" labelFunction="{LFUtil.toNumeric('queryCachePutCount')}" sortable="false" />
+	<mx:DataGridColumn headerText="QueryMiss"  textAlign="right" labelFunction="{LFUtil.toNumeric('queryCacheMissCount')}" sortable="false" />
+	<mx:DataGridColumn headerText="Q-HitRate"  textAlign="right" labelFunction="{LFUtil.toNumeric('queryCacheHitRate')}" sortable="false" />
 </mx:Array>
 <mx:Array id="eachEntityInfo" >
 	<mx:DataGridColumn dataField="categoryName" headerText="객체명" textAlign="left"/>
@@ -104,14 +114,15 @@ private function init():void{
 </mx:Array>
 
 	<mx:VBox width="100%" height="100%" horizontalAlign="center" label="일반현황">
-		<mx:HBox  horizontalAlign="left" width="100%" height="25">
-			<mx:Label text="전체 내역" /> <erwins:Buttons label="Refresh" id="refreshBtn" duration="1000" />
+		<mx:HBox  horizontalAlign="right" width="100%" height="25">
+			<mx:LinkButton label="도움말" color="blue"  id="help1" textDecoration="underline"  />
+			<erwins:Buttons label="Refresh" id="refreshBtn" duration="1000" /> <mx:Label text="전체 내역" />
 		</mx:HBox>
 		<mx:DataGrid id="summarySheet" width="100%" height="50" rowCount="1" columns="{summaryInfo}" dataProvider="{_summary}" />
 		<mx:Grid width="100%" height="100%">
 			<mx:GridRow width="100%" height="25">
-				<mx:GridItem width="50%" horizontalAlign="left"><mx:Label text="Entity별 내역" /></mx:GridItem>
-				<mx:GridItem width="50%" horizontalAlign="left"><mx:Label text="2nd Cache별 내역2" /></mx:GridItem>
+				<mx:GridItem width="50%" horizontalAlign="right"><mx:Label text="Entity별 내역" /></mx:GridItem>
+				<mx:GridItem width="50%" horizontalAlign="right"><mx:Label text="2nd Cache별 내역2" /></mx:GridItem>
 			</mx:GridRow>
 			<mx:GridRow width="100%">
 				<mx:GridItem width="50%" >
@@ -124,9 +135,9 @@ private function init():void{
 		</mx:Grid>
 	</mx:VBox>
 	<mx:VBox id="secondTap" width="100%" height="100%" horizontalAlign="center" label="Query현황">
-		<mx:HBox  horizontalAlign="left" width="100%" height="25">
+		<mx:HBox  horizontalAlign="right" width="100%" height="25">
+			<mx:LinkButton label="도움말" color="blue"  id="help2" textDecoration="underline"  />
 			<mx:Label text="개별 Query현황" />
-			<mx:LinkButton label="도움말" color="blue"  id="help" textDecoration="underline"  />
 		</mx:HBox>
 		<mx:DataGrid id="querySheet" width="100%" height="500" rowCount="20" columns="{eachQueryInfo}" dataProvider="{_eachQuery}"/>
 	</mx:VBox>

@@ -232,6 +232,7 @@ package erwins.util.json{
 			for(var key:String in json){
 				if(buff!='') buff+= '&';
 				var obj:Object = json[key];
+				if(obj==null) continue;
 				if(obj is Array){
 					for each(var part:Object in obj){
 						buff += key + '='+obj.toString();

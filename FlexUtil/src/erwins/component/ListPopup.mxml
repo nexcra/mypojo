@@ -28,13 +28,14 @@ public var me:ListPopup = this as ListPopup;
 
 public function init():void {
 	
-	var ok:Function = function():void{
-		var item:Object = thsList.selectedItem;
-		_command(item);
+	if(_command!=null){
+		var ok:Function = function():void{
+			var item:Object = thsList.selectedItem;
+			_command(item);
+		}
+		thsList.addEventListener(ListEvent.ITEM_CLICK,ok);
+		Binder.onEnter(thsList,ok);
 	}
-	
-	thsList.addEventListener(ListEvent.ITEM_CLICK,ok);
-	Binder.onEnter(thsList,ok);
 
 	thsList.setFocus();
 	thsList.selectedIndex = 0;
@@ -53,13 +54,15 @@ public static function popUp(base:UIComponent,list:ArrayCollection,command:Funct
 	PopUpManager.addPopUp(popWin,base,true);
 	PopUpManager.centerPopUp( popWin );
 	popWin.list = list;
-	popWin.command = command;
 	if(title!=null) popWin.title = title;
 	//popWin.showCloseButton = true;
-	popWin.command = function(item:Object):void{
-		command(item);
-		popWin.close();
+	if(command!=null){
+		popWin.command = function(item:Object):void{
+			command(item);
+			popWin.close();
+		}	
 	}
+	
 }
 
 ]]></mx:Script>
