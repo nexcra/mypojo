@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import oracle.jdbc.driver.OracleDriver;
+import erwins.util.exception.MalformedException;
 import erwins.util.lib.Clazz;
 import erwins.util.root.StringCallback;
 import erwins.util.tools.Mapp;
@@ -126,8 +127,13 @@ public class JDBC{
     
     public Mapp selectOne(String sql){
     	List<Mapp> list = select(sql);
-    	if(list.size()!=0) throw new RuntimeException(list.size() + " result size must be 1");
-    	return list.get(0);
+    	if(list.size() == 1) return list.get(0); 
+    	throw new MalformedException("result size must be 1. input size is {0}",list.size());
+    }
+    public Mapp selectOne2(String sql){
+    	List<Mapp> list = select(sql);
+    	if(list.size() == 1) return list.get(0); 
+    	throw new MalformedException("result size must be 1. input size is {0}",list.size());
     }
     
     /** 타임스탬프 포맷을 현제 세션에서 조정한다. */

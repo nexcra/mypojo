@@ -49,7 +49,13 @@ public abstract class PoiRoot{
     public CellStyle LINKED;
     
     protected HSSFFont font;
-    protected HSSFFont BLUE_FONT;
+    
+    /** 수정금지! */
+    public HSSFFont BLUE_FONT;
+    /** 수정금지! */
+    public HSSFFont RED_FONT;
+    /** 수정금지! -가 그어진 삭제용 */
+    public HSSFFont GRAY_FONT;
     
     /**  헤더길이 :  시트초기화시 설정된다. */
     protected List<Integer> headerRowCount = new ArrayList<Integer>();;
@@ -72,10 +78,19 @@ public abstract class PoiRoot{
         BLUE_FONT.setFontHeightInPoints((short)11);
         BLUE_FONT.setFontName("맑은 고딕");
         BLUE_FONT.setItalic(true);
-        //BLUE_FONT.setStrikeout(true);
         BLUE_FONT.setColor(HSSFColor.BLUE.index);
-        //font.setItalic(true);
-        //font.setStrikeout(true);
+        
+        RED_FONT = wb.createFont();
+        RED_FONT.setFontHeightInPoints((short)11);
+        RED_FONT.setFontName("맑은 고딕");
+        RED_FONT.setItalic(true);
+        RED_FONT.setColor(HSSFColor.RED.index);
+        
+        GRAY_FONT = wb.createFont();
+        GRAY_FONT.setFontHeightInPoints((short)11);
+        GRAY_FONT.setFontName("맑은 고딕");
+        GRAY_FONT.setStrikeout(true);
+        GRAY_FONT.setColor(HSSFColor.GREY_80_PERCENT.index);
         
         HEADER = wb.createCellStyle();
         HEADER.setFillForegroundColor(HSSFColor.YELLOW.index);
@@ -127,7 +142,22 @@ public abstract class PoiRoot{
         style.setBorderTop(CellStyle.BORDER_THIN);
         style.setTopBorderColor(HSSFColor.BLACK.index);
         style.setAlignment((short)1);
-    }    
+    }
+    
+    /** 간단 스타일 빌드. addStyle과 한께 쓰지ㅏ.
+     * ex) HSSFColor.GREY_25_PERCENT.index  */
+    public CellStyle buildStyle(HSSFFont font,Short foregroundColor){
+    	CellStyle style = wb.createCellStyle();
+    	boxing(style);
+    	if(font!=null) style.setFont(font);
+    	if(foregroundColor!=null){
+    		style.setFillForegroundColor(foregroundColor);
+    		style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+    	}
+    	//style.setVerticalAlignment((short)1);  //중앙정렬..
+    	//style.setAlignment((short)2);  //중앙정렬..
+    	return style;
+    } 
     
     /**
      * 워크북을 리턴한다.
@@ -195,18 +225,11 @@ public abstract class PoiRoot{
         wb.getSheetAt(index).setColumnWidth(col,size);
     }
     
-    /**
-     * wrap이 적용된 후 사용하자.
-     * 강제 정렬 등의 CellStyle을 조절할때 사용하자.
-     * 헤더값 int를 피할려 그랬더니 file에서 로드하는거는 안되네. ㅠ 
-     * 스타일이 Header와 배경이 같은것은 무시된다.
-     */
-    public void setStyle(CellStyle style,int index,int ... cols){
-        HSSFSheet sheet =  wb.getSheetAt(index);
-        int headerSize =  headerRowCount.size() > index ? headerRowCount.get(index) : 0;
-        for (Iterator<Row> rows = sheet.rowIterator(); rows.hasNext(); ) {
-            Row thisRow = rows.next();
-            if(thisRow.getRowNum() < headerSize) continue;
+    /** wrap이 적용된 후 사용하자.  일반적인 경우는 PoiCellPair를 쓰는게 더 좋다. */
+    public void setCustomStyle(CellStyle style,int sheetIndex,int[] cols,int ... rows){
+        HSSFSheet sheet =  wb.getSheetAt(sheetIndex);
+        for(int rowIndex : rows){
+        	Row thisRow = sheet.getRow(rowIndex);
             for(int i : cols){
                 Cell thisCell=  thisRow.getCell(i);
                 thisCell.setCellStyle(style);

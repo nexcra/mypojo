@@ -34,6 +34,7 @@ public class Day implements ValueObject,Comparable<Day> {
 	private String month;
 	private String year;
 
+	/** A/B/C 스타일이 더 나은듯. */
 	@Override
 	public String toString() {
 		return year + "년" + month + "월" + day + "일";
@@ -73,8 +74,7 @@ public class Day implements ValueObject,Comparable<Day> {
 	public void initValue(Object obj) {
 		if(obj instanceof Date) obj = Days.DATE_FOR_DB.get((Date)obj);
 		String yyyyMMdd = Strings.getNumericStr(obj);
-		if (yyyyMMdd.length() != 8)
-			throw new RuntimeException(yyyyMMdd + " : day lenth must be 8!");
+		if (yyyyMMdd.length() != 8) throw new ValueObjectBuildException(obj,yyyyMMdd + " : day lenth must be 8!");
 		year = yyyyMMdd.substring(0, 4);
 		month = yyyyMMdd.substring(4, 6);
 		day = yyyyMMdd.substring(6, 8);

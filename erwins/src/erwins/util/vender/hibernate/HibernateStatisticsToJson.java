@@ -69,14 +69,19 @@ public class HibernateStatisticsToJson{
 	public static JSONArray summary(Statistics stats) {
 		JSONArray summary = new JSONArray();
 		JSONObject json = JDissolver.instance().getByDomain(stats, false);
+		
 		if(stats.getSecondLevelCacheHitCount()==0) json.put("secondLevelCacheHitRate", 0);
 		else{
 			double sum = stats.getSecondLevelCacheHitCount() + stats.getSecondLevelCacheMissCount();
 			json.put("secondLevelCacheHitRate", stats.getSecondLevelCacheHitCount() / sum * 100 );
 		}
 		
-		double queryCacheHitRate =  stats.getQueryCacheHitCount()==0 ? 0 : stats.getQueryCacheHitCount() / stats.getQueryCachePutCount();
-		json.put("queryCacheHitRate", queryCacheHitRate);
+		if(stats.getQueryCacheHitCount()==0) json.put("queryCacheHitRate", 0);
+		else{
+			double sum = stats.getQueryCacheHitCount() + stats.getQueryCacheMissCount();
+			json.put("queryCacheHitRate", stats.getQueryCacheHitCount() / sum * 100);	
+		}
+		
 		summary.add(json);
 		return summary;
 	}

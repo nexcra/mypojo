@@ -15,6 +15,9 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
 
 import erwins.util.lib.Days;
 import erwins.util.lib.Formats;
@@ -141,6 +144,13 @@ public class Poi extends PoiRoot{
     
     public void addHyperlink(int cellnum,String sheetName,String column,int rownum){
     	addHyperlink(cellnum,sheetName+"!"+column+rownum);
+    }
+    
+    /** 객체지향이라서 가능한 문법~  */
+    public void addStyle(CellStyle style,int cellnum){
+    	Row row = currentRow();
+    	Cell cell =  row.getCell(cellnum);
+    	pairs.add(new PoiCellPair(cell, style));
     }
     
     /** row를 만들고 i번째 컬럼 부터 value를 입력한다.? i는 왜넣었을까..ㅋ */

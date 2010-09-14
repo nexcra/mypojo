@@ -27,10 +27,12 @@ import erwins.util.vender.apache.Log;
 import erwins.util.vender.apache.LogFactory;
 
 /**
- * 각종 비동기 Http통신에 필요한 도구 모음.
- * @author erwins(my.pojo@gmail.com)
+ * 각종 비동기 Http통신에 필요한 도구 모음. XML이 아닌 JSON을 사용한다.
  */
 public abstract class AjaxTool {
+	
+	public static final String CONTENT_TYPE_XML = "text/xml; charset=" + CharSets.UTF_8;
+	public static final String CONTENT_TYPE_JSON = "application/json; charset=" + CharSets.UTF_8;
 
 	protected static Log log = LogFactory.instance(AjaxTool.class);
 
@@ -54,7 +56,7 @@ public abstract class AjaxTool {
         else if(message.startsWith("[") && message.endsWith("]")) return  json.getJSONArray(AjaxTool.MESSAGE);
         return null;
     }
-
+    
     /**
      * 자바스크립트를 캐싱한다. \n 하는것 잊지말것
      */
@@ -135,7 +137,7 @@ public abstract class AjaxTool {
      * HttpServletResponse의 예외를 래핑한다.
      */
     public static PrintWriter getOut(HttpServletResponse resp) {
-        resp.setContentType("text/xml; charset=" + CharSets.UTF_8);
+        resp.setContentType(CONTENT_TYPE_JSON);
         PrintWriter out;
         try {
             out = resp.getWriter();
