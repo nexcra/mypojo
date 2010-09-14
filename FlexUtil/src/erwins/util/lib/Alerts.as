@@ -1,6 +1,6 @@
 package erwins.util.lib{
 
-    import erwins.component.TextAreaPopup;
+    import erwins.component.popup.TextAreaPopup;
     import erwins.util.json.JsonDebug;
     import erwins.util.json.Jsons;
     

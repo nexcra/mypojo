@@ -1,6 +1,5 @@
 package erwins.component{
 	
-import erwins.component.TextInputs;
 import erwins.openSource.DataUtil;
 import erwins.openSource.HangulFilter;
 
@@ -23,7 +22,7 @@ import mx.utils.UIDUtil;
 
 	/***
 	 * 한글을 인식하는 서제스트.
-	 * ex) <erwins:SuggestInput  displayField="label2" adjustX="-250" >
+	 * ex) <erwins:SuggestInput  keyField="label2" adjustX="-250" >
     		<erwins:list><mx:DataGrid  dataProvider="{arr}" /></erwins:list>
     	   </erwins:SuggestInput>
 	 **/
@@ -40,29 +39,27 @@ import mx.utils.UIDUtil;
 					showDropDown = false;
 				});
 				
-				_listBase.addEventListener(ListEvent.ITEM_CLICK,function(e:ListEvent):void{
-					var index:int = e.rowIndex;
-					if(index < 0) return;
-					//me.textField.text = _listBase.selectedItem[displayField];
+				/** 콜백 추가~ */
+				var success:Function = function():void{
 					me.text = _listBase.selectedItem[_keyField];
+					_selectedItem = _listBase.selectedItem;
 					me.setFocus();
 					me.textField.setSelection(0,me.textField.text.length);
 					showDropDown = false;
 					_listBase.selectedIndex = -1;
+					if(_callback!=null) _callback();
+				};
+				
+				_listBase.addEventListener(ListEvent.ITEM_CLICK,function(e:ListEvent):void{
+					var index:int = e.rowIndex;
+					if(index < 0) return;
+					success();
 				});
 				
 				//주의 KEY_UP 으로 해야 한다.
 				_listBase.addEventListener(KeyboardEvent.KEY_UP,function(e:KeyboardEvent):void{
-					if(_listBase.selectedIndex != -1){
-						me.textField.text = _listBase.selectedItem[_keyField];
-					}
-					if (e.keyCode == Keyboard.ENTER) { //엔터를 칠 경우..
-						me.text = _listBase.selectedItem[_keyField];
-			   			me.textField.setFocus();
-			   			me.textField.setSelection(0,me.textField.text.length);
-			   			_listBase.selectedIndex = -1;
-			   			showDropDown = false;
-			   		}
+					if(_listBase.selectedIndex != -1) me.textField.text = _listBase.selectedItem[_keyField];
+					if (e.keyCode == Keyboard.ENTER) success();
 				});
 				
 				dispatchEvent(new Event("listChanged")); //????
@@ -166,6 +163,18 @@ import mx.utils.UIDUtil;
 	
 		public function get keyField():String{
 			return _keyField;
+		}
+		
+		private var _selectedItem:Object;
+		
+		public function get selectedItem():Object{
+			return _selectedItem;
+		}
+		
+		private var _callback:Function;
+		
+		public function set callback(callback:Function):void{
+			_callback = callback;
 		}
 
 	}

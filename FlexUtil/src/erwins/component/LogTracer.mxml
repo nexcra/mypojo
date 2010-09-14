@@ -6,9 +6,8 @@
 
 <mx:Script>
 <![CDATA[
-	import erwins.component.TextAreaPopup;
+	import erwins.component.popup.TextAreaPopup;
 	import erwins.component.file.FilecontrolPopup;
-	import erwins.component.Confirm;
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 	import erwins.component.ListPopup;
 	import mx.controls.Button;

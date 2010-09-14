@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<erwins:DefaultTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:erwins="erwins.component.*" horizontalAlign="left"
+    width="450" height="350"
+    creationComplete="init()" layout="vertical" >
+
+<mx:Script>
+<![CDATA[
+	import erwins.component.ListPopup;
+	import mx.core.IFlexDisplayObject;
+	import mx.events.ListEvent;
+	import mx.binding.utils.ChangeWatcher;
+	import com.google.maps.Color;
+	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+	import mx.core.Application;
+	import com.adobe.utils.ArrayUtil;
+	
+	import mx.events.MenuEvent;
+	import mx.charts.CategoryAxis;
+	import mx.events.CloseEvent;
+	import mx.collections.ArrayCollection;
+	import mx.core.UIComponent;   
+	import mx.controls.Alert;
+	import mx.utils.StringUtil;
+	import mx.managers.PopUpManager;
+	
+import erwins.util.effect.*;
+import erwins.util.json.*;
+import erwins.util.http.*;
+import erwins.util.validate.*;
+import erwins.util.UILib.*;
+import erwins.util.lib.*;
+
+private var me:UIComponent = this as UIComponent;	
+private var mediator:Mediator = new Mediator(me);
+private var _callback:Function;
+[Bindable] private var _list:ArrayCollection;
+
+private function init():void{
+	keyWord.callback = function():void{
+		var item:Object = keyWord.selectedItem;
+		_callback(item);
+		remove();
+	};
+}
+
+public static function popUp(base:DisplayObject,title:String,list:ArrayCollection,callback:Function):void{
+	var popWin:SuggestInputPopup = new SuggestInputPopup();
+	PopUpManager.addPopUp(popWin,base,true);
+	PopUpManager.centerPopUp( popWin );
+	popWin._list = list;
+	popWin.title = title;
+	popWin._callback = callback;
+	popWin.keyWord.filterActive();
+	popWin.keyWord.setFocus();
+}
+   
+]]>
+</mx:Script>
+
+<mx:VBox width="100%">
+	<mx:Label text="검색어를 입력하면 리스트가 표시됩니다." />
+	<mx:Label text="해당 리스트를 클릭 또는 키보드 이동 후 엔터키를 입력해 주세요." />
+	<erwins:SuggestInput keyField="label" id="keyWord" color="red" prompt="검색할 단어를 입력하세요." width="100%" >
+    	<erwins:list><mx:DataGrid dataProvider="{_list}"  /></erwins:list>
+	</erwins:SuggestInput>	
+</mx:VBox>
+
+</erwins:DefaultTitleWindow>

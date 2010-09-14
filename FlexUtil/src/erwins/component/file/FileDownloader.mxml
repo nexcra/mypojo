@@ -9,7 +9,6 @@
 <![CDATA[
 	import erwins.component.ListPopup;
 	import erwins.component.file.FilecontrolPopup;
-	import erwins.component.TextAreaPopup;
 	import mx.events.ListEvent;
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 	import mx.core.Application;
