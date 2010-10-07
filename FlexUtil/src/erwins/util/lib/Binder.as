@@ -2,9 +2,11 @@ package erwins.util.lib{
 	import com.adobe.serialization.json.*;
 	
 	import flash.display.DisplayObject;
+	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	
+	import mx.controls.TextArea;
 	import mx.core.UIComponent;
 	import mx.utils.*;
 	public class Binder{
@@ -45,6 +47,24 @@ package erwins.util.lib{
 				if(e==16) fun();
 			});
 		}
+		
+		/** 한글2바이트, 영문 1바이트를 고려한 Max제한. HTML은 안된다.  
+		 * substr할때 한글길이는 1개로 인식되기 때문에 사이가 줄어들때까지 잘라준다. (속도 책임 못짐)*/
+		public static function constraintTextAreaMax(target:TextArea,max:int,callback:Function=null):void{
+			target.addEventListener(Event.CHANGE,function(e:Event):void{
+				var text:String = target.text;
+				var size:int = Strings.textLength(text);
+				if(size < max) return;
+				text = text.substr(0,max-1);
+				size = Strings.textLength(text);
+				while(size > max){
+					text = text.substr(0,text.length-1);
+					size = Strings.textLength(text);
+				}
+				target.text = text;
+				if(callback!=null) callback(size);
+			});
+		}		
 
 
 	}

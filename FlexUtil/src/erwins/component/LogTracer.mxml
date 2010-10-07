@@ -2,7 +2,7 @@
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
 	creationComplete="init()"
 	xmlns:erwins="erwins.component.*"
-	layout="vertical" verticalScrollPolicy="off" horizontalScrollPolicy="off"  height="100%" width="100%">
+	layout="absolute" verticalScrollPolicy="off" horizontalScrollPolicy="off"  height="100%" width="100%">
 
 <mx:Script>
 <![CDATA[
@@ -66,8 +66,10 @@ private function init():void{
 	paging.addMouseWheelAction(sheet);
 	paging.addListener(searchBtn,pagingBtn);
 	
-	TooltipUtil.addStaticTooltip(help,"로그 도움말","Log4J를 래핑해서 메모리에 일정량 기록하는 로거입니다.");
-	
+	TooltipUtil.addStaticTooltip(help,"로그 도움말","<p>1. 로그를 메모리에 일정량 기록하는 로거입니다.</p>"+
+	"<p>2. 로거 목록 보기를 클릭하면 현재 등록되어 있는 로거를 볼 수 있습니다. (개발자용) </p>"+
+	"<p>3. 로그는 서버에 설정된 수 만큼만 기록되며 그 이상은 자동으로 메모리에서 지워집니다. </p>");
+		
 	sheet.addEventListener(ListEvent.ITEM_DOUBLE_CLICK,function(e:ListEvent):void{
 		TextAreaPopup.popUp(me,"로거 목록보기",sheet.selectedItem["log"],800,400);
 	});
@@ -88,22 +90,25 @@ private function init():void{
 
 
 <!-- ==================================== view ==============================================  -->
-<mx:HBox width="100%" height="25" horizontalAlign="right" >
-	<mx:LinkButton label="도움말" color="blue"  id="help" textDecoration="underline"  />
-	<erwins:Buttons id="infoBtn" label="로거 목록 보기" />
-	<mx:Label text="현재페이지: " fontSize="15"/>
-	<erwins:NumberRoller value="{paging.nowPageNo}" />
-	<erwins:Buttons id="searchBtn" label="새로고침" duration="1000" />
-	<erwins:ButtonBarForPaging width="180" id="pagingBtn" buttonStyleName="simpleButton" label1="이전자료" label2="다음자료"
-				tip1="Shift/Ctrl를 누른채로 클릭하면 5칸씩 뒤로 이동합니다." tip2="Shift를 누른채로 클릭하면 5칸씩 앞으로 이동합니다." />
-</mx:HBox>
-<mx:AdvancedDataGrid id="sheet" width="100%" height="510" dataProvider="{_dataProvider}" doubleClickEnabled="true">
-	<mx:columns>
-		<mx:AdvancedDataGridColumn dataField="rownum" headerText="NO" width="60" textAlign="right" />
-		<mx:AdvancedDataGridColumn dataField="createDate" headerText="일시" width="180" textAlign="center" />
-		<mx:AdvancedDataGridColumn dataField="className" headerText="클래스명" width="240" textAlign="left" />
-		<mx:AdvancedDataGridColumn dataField="level" headerText="로그레벨" width="80" textAlign="left" />
-		<mx:AdvancedDataGridColumn dataField="log" headerText="로그" textAlign="left" />
-	</mx:columns>
-</mx:AdvancedDataGrid>
+<mx:VBox width="100%" height="100%">
+	<mx:HBox width="100%" height="25" horizontalAlign="right" >
+		<mx:LinkButton label="도움말" color="blue"  id="help" textDecoration="underline"  />
+		<erwins:Buttons id="infoBtn" label="로거 목록 보기" />
+		<mx:Label text="현재페이지: " fontSize="15"/>
+		<erwins:NumberRoller value="{paging.nowPageNo}" />
+		<erwins:Buttons id="searchBtn" label="새로고침" duration="1000" />
+		<erwins:ButtonBarForPaging width="180" id="pagingBtn" buttonStyleName="simpleButton" label1="이전자료" label2="다음자료"
+					tip1="Shift/Ctrl를 누른채로 클릭하면 5칸씩 뒤로 이동합니다." tip2="Shift를 누른채로 클릭하면 5칸씩 앞으로 이동합니다." />
+	</mx:HBox>
+	<mx:AdvancedDataGrid id="sheet" width="100%" height="510" dataProvider="{_dataProvider}" doubleClickEnabled="true">
+		<mx:columns>
+			<mx:AdvancedDataGridColumn dataField="rownum" headerText="NO" width="60" textAlign="right" />
+			<mx:AdvancedDataGridColumn dataField="createDate" headerText="일시" width="180" textAlign="center" />
+			<mx:AdvancedDataGridColumn dataField="className" headerText="클래스명" width="240" textAlign="left" />
+			<mx:AdvancedDataGridColumn dataField="level" headerText="로그레벨" width="80" textAlign="left" />
+			<mx:AdvancedDataGridColumn dataField="log" headerText="로그" textAlign="left" />
+		</mx:columns>
+	</mx:AdvancedDataGrid>
+</mx:VBox>
+
 </mx:Module>

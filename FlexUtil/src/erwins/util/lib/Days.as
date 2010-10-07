@@ -9,16 +9,13 @@ package erwins.util.lib{
 		
 		/** 8자만 되는거 알지? */
 	    public static function fromText(date:String):Date{
-	        var month:String;
-	        month = String(int(date.substr(4, 2)) - 1);
+	        var month:String = String(int(date.substr(4, 2)) - 1);
 	        return new Date(date.substr(0, 4), month, date.substr(6, 2));
 	    }
 	    
 	    /** 8자씩 끊어서 년월일로. => 임시사용 */
 	    public static function fromTextToStr(yyyyMMdd:String):String{
-	        var month:String;
-	        month = String(int(yyyyMMdd.substr(4, 2)) - 1);
-	        return yyyyMMdd.substr(0, 4)+'년'+ month + '월'+yyyyMMdd.substr(6, 2) + '일';
+	        return yyyyMMdd.substr(0, 4)+'년'+ yyyyMMdd.substr(4, 2) + '월'+yyyyMMdd.substr(6, 2) + '일';
 	    }
 	    		
 		public static function toText(date:Date=null,formatString:String = "YYYY년MM월DD일"):String{

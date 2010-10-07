@@ -17,8 +17,9 @@ package erwins.util.UILib{
 			var fun:Function = function(item:Object,column:*):String{
 				var value:String = item[field];
 				if(value==null || value=='') return null;
-				if(value.length!=8) throw new Error(value+" date length must be 8!");
-				return value.substring(0,4)+"년" + value.substring(4,6)+"월" + value.substring(6,8) + "일";
+				if(value.length==8) return value.substring(0,4)+"년" + value.substring(4,6)+"월" + value.substring(6,8) + "일";
+				else if(value.length==6) return value.substring(0,4)+"년" + value.substring(4,6)+"월";
+				throw new Error(value+" date length must be 6 or 8!");
 			}
 			return fun;
 		}

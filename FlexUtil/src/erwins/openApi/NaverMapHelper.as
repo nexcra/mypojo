@@ -17,6 +17,7 @@ package erwins.openApi{
 	import erwins.util.http.Ajax;
 	import erwins.util.http.Mediator;
 	import erwins.util.json.Jsons;
+	import erwins.util.lib.Alerts;
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.UIComponent;
@@ -33,6 +34,8 @@ package erwins.openApi{
 		private var _searchUrl:String;
 		private var _saveUrl:String;
 		private var _removeUrl:String;
+		private var _saveCallback:Function;
+		private var _removeCallback:Function;
 		
 		[Bindable] public var _markerList:ArrayCollection;
 		
@@ -90,9 +93,8 @@ package erwins.openApi{
 				ajax.send(null,function(json:Jsons):void{
 					_markerList = json.getArray();
 					for each(var eachMarker:Object in _markerList) addMarkerToDisplay(eachMarker);
+					afterInit();
 				});
-			    
-			    afterInit();
 			});
 		}
 		
@@ -179,8 +181,20 @@ package erwins.openApi{
 		public function get saveUrl():String{
 			return _saveUrl;
 		}
-		public function get removeUrl():String{
+		public function get removeUrl():String{ 
 			return _removeUrl;
+		}
+		public function set saveCallback(callback:Function):void{
+			_saveCallback = callback;
+		}
+		public function get saveCallback():Function{
+			return _saveCallback;
+		}
+		public function set removeCallback(callback:Function):void{
+			_removeCallback = callback;
+		}
+		public function get removeCallback():Function{
+			return _removeCallback;
 		}
 	}
 }

@@ -47,21 +47,21 @@ public function set keyField(keyField:String):void{
 public function set sharedObjectDomain(sharedObjectDomain:String):void{
 	_sharedObjectDomain = sharedObjectDomain;
 }
+
+public function load(item:Object):void{
+	var url:String = item[_keyField];
+	if(url==null) return;
+	
+	ModuleFactory.loadUnique(url,function(module:DisplayObject):void{
+		var added:VBox = new VBox();
+		added.label = item.label;
+		added.addChild(module);
+		tab.addChild(added);
+		tab.selectedIndex = tab.getChildren().length-1;
+	});
+}
     	
 public function init():void{
-	
-	var load:Function = function(item:Object):void{
-		var url:String = item[_keyField];
-		if(url==null) return;
-		
-		ModuleFactory.loadUnique(url,function(module:DisplayObject):void{
-			var added:VBox = new VBox();
-			added.label = item.label;
-			added.addChild(module);
-			tab.addChild(added);
-			tab.selectedIndex = tab.getChildren().length-1;
-		});
-	}
 	
 	//MenuEvent를 사용하게 되면 ROOT에는 이벤트가 발생하지 않는다.
 	menu.addEventListener(MenuEvent.ITEM_CLICK,function(e:MenuEvent):void{load(e.item)});
@@ -75,9 +75,7 @@ public function init():void{
 		_platDataProvider = Sets.toPlatData(_platDataProvider);
 		ModuleInitConfig.addRightClickModuleConfig(this.parent as UIComponent,_sharedObjectDomain,_platDataProvider,load,200);
 	}
-	
 }
-
 
 ]]></mx:Script>
 	<mx:HBox width="100%">

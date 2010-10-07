@@ -7,6 +7,16 @@ package erwins.util.lib{
 	/** StringUtil을 상속한다. */
 	public class Strings extends StringUtil{
 		
+		/** SMS등 한글이 들어가면 2로 카운트하는 문자길이를 계산한다. */
+		public static function textLength(text:String):int{
+			var sum:int = 0;
+			for(var i:int = 0;i<text.length;i++){
+				if(text.charCodeAt(i) >= 12593) sum+= 2;
+				else sum+= 1;
+			}
+			return sum;
+		}		
+		
 		/** HTML제거.  */
 	    public static function removeHTML(value:String):String{
 	        var r:RegExp = /<[a-zA-Z\/][^>]*>/g

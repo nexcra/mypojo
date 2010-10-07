@@ -31,6 +31,9 @@
 			public function set tipColor(tipColor:int):void{
 				this._tipColor = tipColor;
 			}
+			public function setTooptip(tip:String):void{
+				TooltipUtil.addStaticTooltip(this,this.label,tip,_tipColor);
+			}
 			
 			/** stopImmediatePropagation()하면 요건 작동 안한다. */ 
 			public function set duration(duration:int):void{

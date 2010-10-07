@@ -87,6 +87,7 @@ private function saveMarker():void{
 			else  _naver.removeMarker(_markerData);
 			_naver.addMarkerToDisplay(val.param);
 			_naver._markerList.addItem(val.param);
+			if(_naver.saveCallback!=null) _naver.saveCallback(val.param);
 		});
 	});
 }
@@ -97,6 +98,7 @@ private function deleteMarker():void{
 	ajax.send({id:entityId.text},function(json:Jsons):void{
 		json.result( function(message:String):void{
 			_naver.removeMarker(_markerData);
+			if(_naver.removeCallback!=null) _naver.removeCallback();
 			remove();
 		});
 	});	
