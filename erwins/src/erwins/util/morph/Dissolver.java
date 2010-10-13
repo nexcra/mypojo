@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.CollectionOfElements;
 
 import erwins.util.exception.MalformedException;
+import erwins.util.exception.Throw;
 import erwins.util.lib.Clazz;
 import erwins.util.lib.Sets;
 import erwins.util.lib.Strings;
@@ -109,7 +110,8 @@ public class Dissolver{
                 return getBean(clazz);
             }
             catch (Exception e){
-                throw new RuntimeException("Exception by [Request to Class]",e);
+            	Throw.wrap(e);
+                throw new Error();
             }
         }
         

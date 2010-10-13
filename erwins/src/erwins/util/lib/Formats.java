@@ -157,8 +157,9 @@ public enum Formats {
      */
     public static String toDate(String yyyyMMdd,String seperator) {
         if (Strings.isEmpty(yyyyMMdd)) return "";
-        if(yyyyMMdd.length()!=8) return yyyyMMdd;
-        return yyyyMMdd.substring(0,4)+seperator + yyyyMMdd.substring(4,6)+seperator + yyyyMMdd.substring(6,8);
+        if(yyyyMMdd.length()==8) return yyyyMMdd.substring(0,4)+seperator + yyyyMMdd.substring(4,6)+seperator + yyyyMMdd.substring(6,8);
+        else if(yyyyMMdd.length()==6) return yyyyMMdd.substring(0,4)+seperator + yyyyMMdd.substring(4,6);
+        else return yyyyMMdd;
     }
     
     /**

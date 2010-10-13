@@ -1,7 +1,9 @@
 
 package erwins.util.lib;
 
-import java.io.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -21,8 +23,9 @@ public abstract class Encoders extends StringEscapeUtils {
     // ===========================================================================================
     //                                 기본설정
     // ===========================================================================================
-    private static String[] javaScriptescapes = new String[96];
-    private static String[] htmlEscapes = new String[64];
+    private static final String[] javaScriptescapes = new String[96];
+    private static final String[] htmlEscapes = new String[64];
+    private static final String[] flexEscapes = new String[64];
 
     static {
         javaScriptescapes['\''] = "\\'";
@@ -34,17 +37,20 @@ public abstract class Encoders extends StringEscapeUtils {
         htmlEscapes['<'] = "&lt;";
         htmlEscapes['>'] = "&gt;";
         htmlEscapes['&'] = "&amp;";
+        
+        flexEscapes['<'] = "&lt;";
+        flexEscapes['>'] = "&gt;";
     }
 
     /**
-     * javascript XML을 둘다 이스케이프 해준다. Flex에서 JSON을 사용할때 적용하면 된다. 특히 일반문자열을 json으로
-     * 변환할려고 할때 사용한다. 원천적으로 데이터에는 '<>'등의 특수문자를 허용하면 안된다.
-     * 음.. 이 구분은 경험치로 구한 것이다... 제길  
+     * Flex에 <>가 오면 안되는듯.. & 는 단독으로는 되도 <나 >가 같이오면 안 된다.
+     * <>때문에라도 text대신 htmlText를 사용해 주자.
      */
     public static String escapeFlex(String str) {
         //return escapeXml(escapeJavaScript(str));
         //return escapeXml(str.replaceAll("\"", "'"));  //replaceAll이 먼지 기억이 안난다... ㄷㄷ
-    	return escapeXml2(str.replaceAll("\"", "'"));  //한글 변환을 막기 위해서 다시 이걸로 수정 ㅠㅠ
+    	//return escapeXml2(str.replaceAll("\"", "'"));  //한글 변환을 막기 위해서 다시 이걸로 수정 ㅠㅠ
+    	return escapeXml2(str);
     }
     
     /** \는 제외. */
@@ -147,7 +153,11 @@ public abstract class Encoders extends StringEscapeUtils {
      * 달리 한글 변형 안된다.
      */
     public static String escapeXml2(String str) {
-        str = Strings.nvl(str);
+        return escape(str,htmlEscapes);
+    }
+    
+    public static String escape(String str,String[] escapes) {
+    	if(str==null) return "";
         StringBuffer escapedString = new StringBuffer();
         char[] chars = str.toCharArray();
         int i = 0, j = 0;
@@ -155,7 +165,7 @@ public abstract class Encoders extends StringEscapeUtils {
         try {
             do {
                 char c = chars[i++];
-                String escape = (c < 64) ? htmlEscapes[c] : null;
+                String escape = (c < 64) ? escapes[c] : null;
                 if (escape != null) {
                     escapedString.append(chars, j, i - j - 1).append(escape);
                     j = i;
@@ -173,7 +183,8 @@ public abstract class Encoders extends StringEscapeUtils {
      * 흠녀... 대소문자 구분 지랄같네.. ㅠㅠ 검색패키지 또는 파싱법 새로 도입하자.
      */
     public static String toHtmlFromTextArea(String str, String searchKey) {
-        String temp = str.replaceAll("\n", "<br>");
+        String temp = RegEx.LINE_ALL.replace(str, "<br>");
+        temp = RegEx.LINE_EACH.replace(temp, "<br>");
         return searchKey == null ? temp : temp.replaceAll(searchKey, "<span style='color:red;font-style:italic;'>" + searchKey + "</span>");
     }
 

@@ -20,10 +20,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.tiles.Attribute;
-import org.apache.tiles.AttributeContext;
-import org.apache.tiles.TilesContainer;
-import org.apache.tiles.TilesException;
+import org.apache.tiles.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -38,12 +35,12 @@ import erwins.util.lib.Strings;
  * @author  David Winterfeldt
  * @author  David Winterfeldt가 만든것을 수정해서 사용.
  */
-public class DynamicTilesViewProcessor {
+public class CopyOfDynamicTilesViewProcessor {
     
     /** 이 필터를 조합해서 사용한다. */
-    private static final String FILTER = "_";
+    private static final String[] FILTER = {"_","$"};
 
-    final Logger logger = LoggerFactory.getLogger(DynamicTilesViewProcessor.class);
+    final Logger logger = LoggerFactory.getLogger(CopyOfDynamicTilesViewProcessor.class);
 
     /**
      * Keeps Tiles definition to use once derived.
@@ -225,11 +222,13 @@ public class DynamicTilesViewProcessor {
             
             root += tilesDefinitionName;
             
-            //영감추가. 최종 URL의 첫번째 글자가 Definition에 등록되어 있다면 이것을 사용한다.
-            String firstName = Strings.getFirst(beanName,tilesDefinitionDelimiter);
-            if(container.isValidDefinition(FILTER + firstName, request, response)){
-            	derivedDefinitionName = FILTER + firstName; //캐싱한다~
-            	return FILTER + firstName;
+            //영감추가. 최종 URL의 마지막 글자가 _이면 root의 끝 문자에 _를 더한걸로 정의한다.
+            String name = Strings.getLast(beanName,tilesDefinitionDelimiter);
+            for(String filter : FILTER){
+                if(name.endsWith(filter)){
+                    root += filter;
+                    break;
+                }
             }
 
             if (container.isValidDefinition(root, request, response)) {

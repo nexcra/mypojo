@@ -41,6 +41,7 @@ public class LogTracer{
 		public static final String INFO = "INFO";
 		public static final String DEBUG = "DEBUG";
 		public static final String TRACE = "TRACE";
+		public static final String ERROR = "ERROR";
 		
 		private final String className; 
 		private final String level; 

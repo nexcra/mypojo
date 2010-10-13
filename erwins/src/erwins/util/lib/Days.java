@@ -126,6 +126,19 @@ public enum Days{
         return c;
     }
     
+    /**
+     * Calendar 시각에서  시분초를 더한다.
+     * @param 일/월/년 
+     * ex) add(1,0,3) => 3년 1일 
+     */ 
+    public static Calendar addCalendarTime(Calendar c,Integer ... time) {
+    	if(time.length > 3) throw new RuntimeException(time.length + " too large size");
+    	if(time.length >= 3) c.add(Calendar.HOUR, time[2]);
+    	if(time.length >= 2) c.add(Calendar.MINUTE, time[1]);
+    	if(time.length >= 1) c.add(Calendar.SECOND, time[0]);
+    	return c;
+    }
+    
     public static Calendar addCalendar(Date d,Integer ... time) {
     	return addCalendar(getCalendar(d),time);
     }
@@ -135,9 +148,16 @@ public enum Days{
      * 시간은 0시0분0초로 초기화 한다. 
      */
     public static Calendar getCalendar(int year, int month, int day) {
+    	return getCalendar(year,month,day,0,0);
+    }
+    
+    /**
+     * 4,2,2자리 년월일을 받아서 Carender 객체를 리턴한다.
+     */
+    public static Calendar getCalendar(int year, int month, int day,int h,int m) {
     	Calendar cal = Calendar.getInstance();
-        cal.setLenient(false);
-        cal.set(year,month-1,day,0,0,0);
+    	cal.setLenient(false);
+    	cal.set(year,month-1,day,h,m,0);
     	return cal;
     }
     
@@ -209,9 +229,20 @@ public enum Days{
         return new int[]{h,mm,ss};
     }
     
+    public static final String[] WEEK_KOREAN = {"일","월","화","수","목","금","토"}; 
+    
+    /** 요일을 리턴한다. */
+    public static String getDayOfWeek(Calendar d){
+    	return WEEK_KOREAN[d.get(Calendar.DAY_OF_WEEK)-1];
+    }
+    
+    /** 요일을 리턴한다. 나중에 패턴으로 바꿀것. */
+    public static String getDayStr(Calendar c){
+        return String.format("%tB %<tC일 %<tA", c);
+    }
     /** 요일을 리턴한다. 나중에 패턴으로 바꿀것. */
     public static String getDayStr(){
-        return String.format("%tB %<tC %<tA", Calendar.getInstance());
+    	return getDayStr(Calendar.getInstance());
     }
     
 

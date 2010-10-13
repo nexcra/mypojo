@@ -31,8 +31,10 @@ public enum RegEx {
     /** 연속으로 줄바꿈 => 즉 공백문자 검색 : 미검증 */
     BLANK_LINE(Pattern.compile("[/r]?\\n\\s*[/r]?\\n")),
     
-    /** 일반 줄바꿈 => 즉 모든 라인피드 검색 .. [/r]?\\n 원래 이거였음..  [\\n]?\\r???  */
-    LINE(Pattern.compile("[\\r]?\\n")),
+    /** 일반 줄바꿈1 : => 원래는 [\\r]?\\n 였지만 수정. 이걸로 둘이 붙은걸 먼저 제거해준다. */
+    LINE_ALL(Pattern.compile("\\r\\n")),
+    /** 일반 줄바꿈2 : => 윈도우 엔터는 둘다, 리눅스는 n, 웹(파폭)이나 플렉스에서는 r이 들어오는듯 하다 따라서 두반째로 이걸 해준다. */
+    LINE_EACH(Pattern.compile("\\r|\\n")),
     
     /** 라인이 끝난 후 나오는 공백.   */
     LINE_END_BLANK(Pattern.compile("\\s*?$(\\s|\\n)",Pattern.MULTILINE)),

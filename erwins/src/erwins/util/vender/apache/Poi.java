@@ -18,6 +18,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
 
 import erwins.util.lib.Days;
 import erwins.util.lib.Formats;
@@ -71,6 +72,11 @@ public class Poi extends PoiRoot{
                 throw new RuntimeException(e);
             }
         }
+	}
+	
+	/** 웬만하면 사용하지 말자. */
+	public Workbook getWorkbook(){
+		return this.wb;
 	}
     
     // ===========================================================================================
@@ -153,7 +159,8 @@ public class Poi extends PoiRoot{
     	pairs.add(new PoiCellPair(cell, style));
     }
     
-    /** row를 만들고 i번째 컬럼 부터 value를 입력한다.? i는 왜넣었을까..ㅋ */
+    /** row를 만들고 i번째 컬럼 부터 value를 입력한다.? i는 왜넣었을까..ㅋ
+     * 무조건 텍스트로 변경된다.. 숫자는 알아서 쓸것. */
     public void addValues(int i,Object ... values){
         HSSFRow row = createNextRow();
         for(Object each : values){
@@ -163,7 +170,7 @@ public class Poi extends PoiRoot{
             else if(each instanceof Number) value = Formats.DOUBLE2.get((Number)each);
             else if(each instanceof Date) value = Days.DATE.get((Date)each);
             else value = each.toString();
-            row.createCell(i++).setCellValue(new HSSFRichTextString(value));    
+            row.createCell(i++).setCellValue(new HSSFRichTextString(value));
         }
     }
     

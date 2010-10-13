@@ -12,7 +12,11 @@ public abstract class LogFactory{
 	public static Log instance(Class<?> clazz,LogTracer tracer){
 		return new LogForTrace(clazz,tracer);
 	}
+	public static Log traceLog(Class<?> clazz,LogTracer tracer){
+		return new TraceLog(clazz,tracer);
+	}
 	
+	/** 아파치 로그에 템플릿 파라메터 + 메모리 로깅기능을 추가했다. */
 	private static class LogForTrace implements Log{
 		private final org.apache.commons.logging.Log log;
 		private final String className;
@@ -66,6 +70,52 @@ public abstract class LogFactory{
 		}
 	}	
 	
+	/** log4j를 사용하지 않을때 사용한다. */
+	private static class TraceLog implements Log{
+		private final String className;
+		private final LogTracer tracer;
+		
+		public TraceLog(Class<?> clazz,LogTracer tracer){
+			this.tracer = tracer;
+			className = clazz.getName();
+			tracer.registLoger(this);
+		}
+		
+		public void trace(String format,Object ... args){
+			String message = Strings.format(format, args);
+			tracer.addLog(className,LogTrace.TRACE,message);
+		}
+		public void debug(String format,Object ... args){
+			String message = Strings.format(format, args);
+			tracer.addLog(className,LogTrace.DEBUG,message);
+		}
+		public void info(String format,Object ... args){
+			String message = Strings.format(format, args);
+			tracer.addLog(className,LogTrace.INFO,message);
+		}
+		public void warn(String format,Object ... args){
+			String message = Strings.format(format, args);
+			tracer.addLog(className,LogTrace.WARN,message);
+		}
+		public void error(String format,Object ... args){
+			String message = Strings.format(format, args);
+			tracer.addLog(className,LogTrace.ERROR,message);
+		}
+		public boolean isDebugEnabled(){
+			return true;
+		}
+		public boolean isTraceEnabled(){
+			return true;
+		}
+		public boolean isInfoEnabled(){
+			return true;
+		}
+		public String getClassName() {
+			return className;
+		}
+	}	
+	
+	/** 아파치 로그에 템플릿 파라메터를 추가했다. */
 	private static class LogForParameter implements Log{
 		private final org.apache.commons.logging.Log log;
 		private final String className;

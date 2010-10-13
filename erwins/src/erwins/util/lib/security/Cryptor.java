@@ -18,6 +18,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 
+import sun.misc.BASE64Encoder;
 import erwins.util.exception.MalformedException;
 import erwins.util.lib.Strings;
 
@@ -92,14 +93,22 @@ public class Cryptor {
 	/** DESede 문자열 모드?? 사실 먼지 모르겠음. */
 	private static final String DESede_STRING_MODE = "DESede/ECB/PKCS5Padding";
 	
-	/** 쓸일이 있을까? */
 	public static String encryptText(SecretKey key, String str){
+		return Strings.getStr(encrypt(key,str));
+	}
+	public static String encryptBase64(SecretKey key, String str){
+		BASE64Encoder encoder = new BASE64Encoder();
+		byte[] raw = encrypt(key,str);
+        return encoder.encode(raw);
+	}
+	
+	/** 바이트만을 내보낸다. 이후 Base64등으로 문자화 하자. */
+	public static byte[] encrypt(SecretKey key, String str){
 		try {
 			Cipher cipher = Cipher.getInstance(DESede_STRING_MODE);
 			cipher.init(Cipher.ENCRYPT_MODE, key);
 			byte[] plainText = str.getBytes("UTF-8");
-			byte[] cipherText = cipher.doFinal(plainText);
-			return Strings.getStr(cipherText);
+			return cipher.doFinal(plainText);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

@@ -70,10 +70,9 @@ public abstract class PoiSheetReaderRoot{
     		Row eachRow = rows.next();
     		String[] line = new String[eachRow.getLastCellNum()]; 
     		Iterator<Cell> cells = eachRow.iterator();
-    		int index  = 0;
     		while(cells.hasNext()){
     			Cell eachCell = cells.next();
-    			line[index++] = toString(eachCell);
+    			line[eachCell.getColumnIndex()] = toString(eachCell);
     		}
     		if(!isEmpty(line)) callback.readRow(line);
     	}

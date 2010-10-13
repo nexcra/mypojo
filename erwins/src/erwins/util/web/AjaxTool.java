@@ -28,6 +28,7 @@ import erwins.util.vender.apache.LogFactory;
 
 /**
  * 각종 비동기 Http통신에 필요한 도구 모음. XML이 아닌 JSON을 사용한다.
+ * 구버전임.. 이제 JsonTool을 사용할것.
  */
 public abstract class AjaxTool {
 	
@@ -85,7 +86,7 @@ public abstract class AjaxTool {
     private static final String HEADER_EXPIRES = "Expires";
 
     /** Spring의 메소드를 도용 */
-    private static void cacheForSeconds(HttpServletResponse response, int seconds, boolean mustRevalidate) {
+    public static void cacheForSeconds(HttpServletResponse response, int seconds, boolean mustRevalidate) {
         if (true) {
             response.setDateHeader(HEADER_EXPIRES, System.currentTimeMillis() + seconds * 1000L);
         }
@@ -130,7 +131,7 @@ public abstract class AjaxTool {
             json.put(MESSAGE, array);
         }
         out.write(json.toString());
-        log.trace("Write Resp : {0}",json);
+        if(log.isTraceEnabled()) log.trace("Write Resp : " + json.toString());
     }
 
     /**

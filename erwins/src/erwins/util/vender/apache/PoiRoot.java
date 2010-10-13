@@ -289,6 +289,7 @@ public abstract class PoiRoot{
     /**
      * 해당 시트의 가로/세로를 머지한다.
      * Wrap 이전에 호출되어야 한다. 
+     * ex) poi.getMerge(2).setAbleRow(0,1).merge();
      */
     public Merge getMerge(int index){
         return new Merge(wb.getSheetAt(index));         

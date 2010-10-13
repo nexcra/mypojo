@@ -15,7 +15,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
@@ -37,7 +36,6 @@ import erwins.util.root.DomainObject;
 import erwins.util.root.EntityId;
 import erwins.util.root.Pair;
 import erwins.util.root.Singleton;
-import erwins.util.tools.SearchMap;
 import erwins.util.valueObject.ValueObject;
 
 /**
@@ -67,7 +65,7 @@ public class JDissolver {
 
     public interface JsonConfig {
         public boolean run(JSONObject json, Method method, Class<?> returnType, Annotation[] annos);
-    }    
+    }
 
     /**
      * 특별한 변환 없이 그냥 사용하면 되는것.
@@ -269,12 +267,28 @@ public class JDissolver {
         return json;
     }
     
-    /** 간단한 request 파싱에 사용하자. */
-    public static String requestedJSON(HttpServletRequest request){
-        SearchMap map = new SearchMap(request);
-        return JDissolver.instance().getByMap(map).toString();
-    }
-    
-    
+    /** 플렉스에서는 <>등이 오면 json을 인식하지 못한다. 이것들만 골라서 이스케이핑 해주자. */
+	public static void escapeForFlex(JSON json){
+		if(json instanceof JSONObject){
+			JSONObject obj = (JSONObject)json;
+			for(Object key : obj.keySet()){
+				Object value = obj.get(key);
+				if(value instanceof String) obj.put(key, Encoders.escapeXml2((String)value));
+				else if(value instanceof JSON) escapeForFlex((JSON)value);
+			}
+		}else{
+			JSONArray array = (JSONArray)json;
+			for(int i=0;i<array.size();i++){
+				Object each = array.get(i);
+				if(each==null) continue;
+				if(each instanceof JSON) escapeForFlex((JSON)each);
+				else if(each instanceof String){
+					String value = Encoders.escapeXml2((String)each);
+					array.remove(i);
+					array.add(i, value);
+				}
+			}
+		}
+	}    
 
 }
