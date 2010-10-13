@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 
+import erwins.util.collections.ListMap;
 import erwins.util.counter.AvgCounter;
 import erwins.util.counter.Counter;
 import erwins.util.counter.SimpleCounter;
@@ -12,7 +13,6 @@ import erwins.util.lib.RegEx;
 import erwins.util.lib.Strings;
 import erwins.util.lib.Files.IOFileFilter2;
 import erwins.util.root.StringCallback;
-import erwins.util.tools.ListMap;
 import erwins.util.tools.TextFileReader;
 
 

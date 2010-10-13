@@ -246,6 +246,7 @@ public class FtpSynch implements SWTBuildable{
 			}
 
 			private void eachIterate(SimpleTreeItem root,String name, Iterable<String> list) {
+				if(!list.iterator().hasNext()) return;
 				SimpleTreeItem parent = new SimpleTreeItem();
 				parent.setName(name);
 		    	for(String each : list){

@@ -19,13 +19,13 @@ public abstract class TalkClientActivatorUI implements SWTBuildable{
 	protected List loginList;
 	protected Text view;
 
-	protected Button connect;
+	protected Text message;
 	protected Text loginId;
+	
+	protected Button connect;
 	protected Button login;
 	protected Button logout;
 	protected Button viewClear;
-	
-	protected Text message;
 	protected Button send;
 	
 	public void build(final Composite root) {

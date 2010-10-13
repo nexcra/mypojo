@@ -38,13 +38,13 @@ public class TalkClientActivator extends TalkClientActivatorUI implements Shutdo
 			}
 		});
 	}
+	
+	private void addMessage(String template, String ... textMessage) {
+		view.append(Strings.formatStr(template,textMessage)+"\n");
+	}	
 
 	private void error(String header, String textMessage) {
 		addMessage("Error : {0} / {1}",header,textMessage);
-	}
-
-	private void addMessage(String template, String ... textMessage) {
-		view.append(Strings.formatStr(template,textMessage)+"\n");
 	}
 
 	private void exit(String textMessage) {
@@ -96,14 +96,22 @@ public class TalkClientActivator extends TalkClientActivatorUI implements Shutdo
 		connect.addListener(SWT.MouseUp, new Listener() {
 			@Override
 			public void handleEvent(Event arg0) {
+				String ip =  TalkContext.TALK_SERVER_IP;
+				//ip = "165.124.200.163";
+				int port = TalkContext.TALK_SERVER_PORT;
 				try {
-					client = new TalkClient(TalkContext.TALK_SERVER_ID, TalkContext.TALK_SERVER_PORT);
-					client.startup(callback);
+					connectToServer(callback, ip, port);
 				} catch (Exception e) {
+					String messString = Strings.format("{0}:{1}으로의 접속에 실패힜습니다.", ip,port);
+					MessageUtil.alert(shell,messString + "\n" + e.getMessage());
 					shutdown();
-					MessageUtil.alert(shell, e.getMessage());
 				}
 				mediator();
+			}
+
+			private void connectToServer(final MessageCallback callback, String ip, int port) {
+				client = new TalkClient(ip,port );
+				client.messageStartup(callback);
 				Display.getDefault().syncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -117,12 +125,11 @@ public class TalkClientActivator extends TalkClientActivatorUI implements Shutdo
 			@Override
 			public void handleEvent(Event arg0) {
 				String id = loginId.getText();
-				if(id==null){
+				if(Strings.isEmpty(id)){
 					MessageUtil.alert(shell, "ID를 입력해 주세요");
 					return;
 				}
 				directory.put(SAVED_ID, id);
-				System.out.println(id);
 				client.sendToServer(Protocol.newMessage(Protocol.LOGIN,id));
 				isLogined = true;
 				mediator();
@@ -148,16 +155,19 @@ public class TalkClientActivator extends TalkClientActivatorUI implements Shutdo
 			}
 		});
 		message.addKeyListener(new KeyListener() {
-			/** 기존 채팅의 관례를 따흔다. */
+			/** 기존 채팅의 관례를 따흔다. 엔터 입력시 \n을 삭제하기 위해 뒤의 2자리를 잘라준다.
+			 * 왜이렇게 했냐 하면 이벤트를 중단할줄 몰라서.. ㄷㄷ  */
 			@Override
 			public void keyReleased(KeyEvent e) {
 				int code = e.keyCode;
 				if(code!=13) return;
 				if(e.stateMask == SWT.SHIFT) return;
+				String text = message.getText(); 
+				message.setText(text.substring(0,text.length()-2));
 				sendMessage();
 			}
 			@Override
-			public void keyPressed(KeyEvent arg0) {
+			public void keyPressed(KeyEvent e) {
 			}
 		});
 		mediator();
