@@ -10,14 +10,14 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 
 import erwins.util.lib.FileUtil;
 import erwins.util.lib.StringUtil;
-import erwins.util.vender.apache.Log;
-import erwins.util.vender.apache.LogFactory;
+import erwins.util.vender.apache._Log;
+import erwins.util.vender.apache._LogFactory;
 
 /** 로컬 파일들을 일괄삭제, 이동 시킬때 사용한다. 
  * 추가된 파일들은 모두 명령 메소드에거 실행된다. 주의!*/
 public class LocalFileControll{
 	
-	protected Log log = LogFactory.instance(this.getClass());
+	protected _Log log = _LogFactory.instance(this.getClass());
 	
 	private List<File> list = new ArrayList<File>();
 	

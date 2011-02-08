@@ -15,8 +15,8 @@ import java.util.Iterator;
 
 import erwins.util.exception.BusinessException;
 import erwins.util.root.Shutdownable;
-import erwins.util.vender.apache.Log;
-import erwins.util.vender.apache.LogFactory;
+import erwins.util.vender.apache._Log;
+import erwins.util.vender.apache._LogFactory;
 
 
 /** 나중에 소스참고를 위해 범용적인 부분을 나눈다. 
@@ -24,7 +24,7 @@ import erwins.util.vender.apache.LogFactory;
 public abstract class TalkServerTemplate implements Shutdownable {
 	
 	private Selector selector;
-	protected Log log = LogFactory.instance(this.getClass());
+	protected _Log log = _LogFactory.instance(this.getClass());
 	
 	/** ServerSocketChannel은 OP_ACCEPT만 지원한다. */
 	public TalkServerTemplate(int port){

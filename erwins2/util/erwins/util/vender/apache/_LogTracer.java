@@ -10,7 +10,7 @@ import erwins.util.root.DomainObject;
 import erwins.util.root.EntityHibernatePaging;
 
 /** ListInversed대신 역 페이징 처리기를 만들것! */
-public class LogTracer{
+public class _LogTracer{
 	
 	private final List<String> loggerNames = new ArrayList<String>();
 	
@@ -29,7 +29,7 @@ public class LogTracer{
 		return stack;
 	}
 	
-	public void registLoger(Log loger){
+	public void registLoger(_Log loger){
 		loggerNames.add(loger.getClassName());
 	}
 	

@@ -2,7 +2,7 @@
 package erwins.util.vender.apache;
 
 import erwins.util.lib.StringUtil;
-import erwins.util.vender.apache.LogTracer.LogTrace;
+import erwins.util.vender.apache._LogTracer.LogTrace;
 
 
 /** 
@@ -11,25 +11,25 @@ import erwins.util.vender.apache.LogTracer.LogTrace;
 
     역 페이징 처리기 만들어서 ListInversed 대치.
  * */
-public abstract class LogFactory{
+public abstract class _LogFactory{
 	
-	public static Log instance(Class<?> clazz){
+	public static _Log instance(Class<?> clazz){
 		return new LogForParameter(clazz);
 	}
-	public static Log instance(Class<?> clazz,LogTracer tracer){
+	public static _Log instance(Class<?> clazz,_LogTracer tracer){
 		return new LogForTrace(clazz,tracer);
 	}
-	public static Log traceLog(Class<?> clazz,LogTracer tracer){
+	public static _Log traceLog(Class<?> clazz,_LogTracer tracer){
 		return new TraceLog(clazz,tracer);
 	}
 	
 	/** 아파치 로그에 템플릿 파라메터 + 메모리 로깅기능을 추가했다. */
-	private static class LogForTrace implements Log{
+	private static class LogForTrace implements _Log{
 		private final org.apache.commons.logging.Log log;
 		private final String className;
-		private final LogTracer tracer;
+		private final _LogTracer tracer;
 		
-		public LogForTrace(Class<?> clazz,LogTracer tracer){
+		public LogForTrace(Class<?> clazz,_LogTracer tracer){
 			log = org.apache.commons.logging.LogFactory.getLog(this.getClass());
 			this.tracer = tracer;
 			className = clazz.getName();
@@ -78,11 +78,11 @@ public abstract class LogFactory{
 	}	
 	
 	/** log4j를 사용하지 않을때 사용한다. */
-	private static class TraceLog implements Log{
+	private static class TraceLog implements _Log{
 		private final String className;
-		private final LogTracer tracer;
+		private final _LogTracer tracer;
 		
-		public TraceLog(Class<?> clazz,LogTracer tracer){
+		public TraceLog(Class<?> clazz,_LogTracer tracer){
 			this.tracer = tracer;
 			className = clazz.getName();
 			tracer.registLoger(this);
@@ -123,7 +123,7 @@ public abstract class LogFactory{
 	}	
 	
 	/** 아파치 로그에 템플릿 파라메터를 추가했다. */
-	private static class LogForParameter implements Log{
+	private static class LogForParameter implements _Log{
 		private final org.apache.commons.logging.Log log;
 		private final String className;
 		public LogForParameter(Class<?> clazz){

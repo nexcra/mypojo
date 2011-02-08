@@ -96,7 +96,8 @@ public abstract class OpenIDHelper {
 	}
 	
 	/** 인증 외에 닉네임 등의 부가 정보는 안주느듯.. 요청 해야 하나?
-	 * openID의 경우 ID를 리턴하고, Google의 경우 ID를 URL과 같이 리턴한다. 이 ID는 메일계정으로 변환 가능하다. (어케하는지는??) */
+	 * openID의 경우 ID를 리턴하고, Google의 경우 ID를 URL과 같이 리턴한다. 
+	 * 이 ID는 메일계정으로 변환 가능하다. (IP와 계정을 묶어서 역변환 가능한 조작을 하는듯.. API읽기 귀찮아. ) */
 	public String verification(HttpServletRequest req){
 		ParameterList paramList = new ParameterList(req.getParameterMap());
 		DiscoveryInformation di = (DiscoveryInformation) req.getSession().getAttribute("openid-discover");

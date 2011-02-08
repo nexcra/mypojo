@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jivesoftware.smack.RosterEntry;
-import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 
@@ -61,11 +60,7 @@ public class XMPPBotTokenClient extends XMPPBotClient {
 	}
 	
 	public void TEST_info() {
-		try {
-			connection.getAccountManager().createAccount("cctv-5", "1234");
-		} catch (XMPPException e) {
-			throw new RuntimeException(e);
-		}
+		//createAccount(id, pass);
 	}
 	
 	public void TEST_regroup() {

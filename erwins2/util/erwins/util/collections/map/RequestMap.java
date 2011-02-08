@@ -1,26 +1,19 @@
 package erwins.util.collections.map;
 
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import erwins.util.lib.StringUtil;
 import erwins.util.morph.BeanToJson;
 import erwins.util.openApi.Google;
-import erwins.util.vender.apache.Log;
-import erwins.util.vender.apache.LogFactory;
 
 
 /** key를 String으로 고정하고 HttpServletRequest를 수용  */
 public class RequestMap extends SimpleMap<String>{
     
-    protected Log log = LogFactory.instance(this.getClass());
+    //protected _Log log = _LogFactory.instance(this.getClass());
     
     public RequestMap(){
     	super();
@@ -42,6 +35,7 @@ public class RequestMap extends SimpleMap<String>{
         }
         
         //이하는 간이 테스트 로직
+        /*
         if(log.isDebugEnabled()){
             Enumeration<String> parameterNames =  req.getParameterNames();
             List<String> empty = new ArrayList<String>();
@@ -65,6 +59,7 @@ public class RequestMap extends SimpleMap<String>{
             if(!parameter.isEmpty()) log.debug("[HTML] Single Parameter : " + parameter);
             if(!parameters.isEmpty()) log.debug("[HTML] Array Parameters : " + parameters);
         }
+        */
     }
 
 

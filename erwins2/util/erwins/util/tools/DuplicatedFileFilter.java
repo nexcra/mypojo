@@ -10,15 +10,15 @@ import erwins.util.collections.MapForList;
 import erwins.util.collections.MapType;
 import erwins.util.lib.FileUtil;
 import erwins.util.lib.security.MD5;
-import erwins.util.vender.apache.Log;
-import erwins.util.vender.apache.LogFactory;
+import erwins.util.vender.apache._Log;
+import erwins.util.vender.apache._LogFactory;
 
 /** 파일 이름에 관계없이 동일파일을 Hash기준으로 알려준다. */
 public class DuplicatedFileFilter{
 	
 	private MapForList<File> map = new MapForList<File>(MapType.Hash);
 	
-	protected Log log = LogFactory.instance(this.getClass());
+	protected _Log log = _LogFactory.instance(this.getClass());
 	
 	public DuplicatedFileFilter add(String directory){
 		Iterator<File> i = FileUtil.iterateFiles(directory,FileUtil.ALL_FILES);
