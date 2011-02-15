@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import net.sf.json.util.JSONUtils;
-
 import erwins.util.lib.CollectionUtil;
 import erwins.util.lib.ReflectionUtil;
 import erwins.util.root.DomainObject;
@@ -27,11 +26,13 @@ public class MapToBean extends MapToBeanRoot{
 	public static MapToBean create() {
 		final MapToBean instance = new MapToBean();
 		instance.addConfig(DEFAULT);
+		instance.addConfig(INTEGER);
 		instance.addConfig(LONG);
 		instance.addConfig(BIG_DECIMAL);
 		instance.addConfig(ENUM);
 		instance.addConfig(BOOLEAN);
 		instance.addConfig(VALUE_OBJECT);
+		/** DomainObject인 경우 */
 		instance.addConfig(new MapToBeanConfigFetcher() {
 			@Override
 			public Object fetch(Field field, Map map) {

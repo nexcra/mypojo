@@ -2,7 +2,6 @@ package erwins.util.exception;
 
 import org.apache.commons.lang.Validate;
 
-import erwins.domain.SystemInfo;
 import erwins.util.lib.ReflectionUtil;
 import erwins.util.lib.StringUtil;
 
@@ -14,7 +13,6 @@ public abstract class Check extends Validate{
 	// private IllegalStateException e;
 	// private IllegalArgumentException e;
 	// private UnsupportedOperationException e;
-
 
 	/**
 	 * 사용자가 정확한 값을 입력했는가?
@@ -42,12 +40,6 @@ public abstract class Check extends Validate{
 		isTrue(StringUtil.isNotEmpty(str));
 	}
 
-	/**
-	 * 예외를 강제로 던진다. 테스트용이다. 테섭에서만 작동. 예외를 강제로 일으키고 실수로 지우지 않을 경우를 대비한다.
-	 */
-	public static void throwEx() {
-		if (!SystemInfo.isServer()) throw new RuntimeException("test용 예외 입니다.");
-	}
 
 	/** 예외를 던지는지 검사한다. expect는 nulll로 해도 된다. @ExpectedException를 대체한다. */
 	public static <T extends Exception> void isThrowException(ExceptionRunnable runnable, Class<T> expect) {

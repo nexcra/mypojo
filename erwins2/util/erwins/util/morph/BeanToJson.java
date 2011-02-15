@@ -24,7 +24,7 @@ public class BeanToJson extends BeanToJsonRoot {
 		theInstance.addConfig(DATE);
 		theInstance.addConfig(VALUE_OBJECT);
 		theInstance.addConfig(PAIR_OBJECT);
-		theInstance.addConfig(ENUM_OBJECT);
+		//theInstance.addConfig(ENUM_OBJECT);
 		theInstance.addConfig(new BeanToJSONBaseConfig(new Class[] { DomainObject.class }, new BeanToJSONConfigFetcher() {
 			@Override
 			public boolean fetch(Object instance, Field field, JSONObject json) {

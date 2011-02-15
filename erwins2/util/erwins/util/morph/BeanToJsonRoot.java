@@ -81,6 +81,7 @@ public abstract class BeanToJsonRoot {
     	}
     });
     
+    /** App Engle에서는 Enum에 대한 리플렉션이 막힌듯 하다. 빼고 가자. */
     protected static final BeanToJSONConfigFetcher ENUM_OBJECT = new BeanToJSONConfigFetcher() {
     	@Override
     	public boolean fetch(Object instance,Field field, JSONObject json) {
@@ -89,7 +90,7 @@ public abstract class BeanToJsonRoot {
     		if (value != null){
     			String fieldName = field.getName();
     			json.put(fieldName + "Name", value.toString());
-    		    json.put(fieldName, value.name());
+    		    json.put(fieldName, value.name());  //GWT에서 안되는듯? AppEngile에 올리니 에러난다.
     		}
     		return true;
     	}

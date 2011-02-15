@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.json.JSONObject;
 import net.sf.json.util.JSONUtils;
 import erwins.util.lib.CollectionUtil;
 import erwins.util.lib.ReflectionUtil;
@@ -22,13 +23,28 @@ public abstract class MapToBeanRoot {
 	private final List<MapToBeanConfigFetcher> configs = new ArrayList<MapToBeanConfigFetcher>();
 
 	/** JSON에서 지원하는 기본값 값이 커지면 int->long 등 알아서 변한다. */
-	protected static final MapToBeanConfigFetcher DEFAULT = new MapToBeanBaseConfig(new Class[] { String.class,Integer.class,int.class },
+	protected static final MapToBeanConfigFetcher DEFAULT = new MapToBeanBaseConfig(new Class[] { String.class },
 			new MapToBeanConfigFetcher() {
 				@Override
 				public Object fetch(Field field, Map map) {
-					return map.get(field.getName());
+					Object value = map.get(field.getName());
+					if(JSONUtils.isNull(value)) return null;
+					return value;
 				}
 			});
+	protected static final MapToBeanConfigFetcher INTEGER = new MapToBeanBaseConfig(new Class[] {Integer.class,int.class},
+			new MapToBeanConfigFetcher() {
+		@Override
+		public Object fetch(Field field, Map map) {
+			Object value = map.get(field.getName()); 
+			if(JSONUtils.isNull(value)) return null;
+			if(Long.class.isInstance(value)) return ((Long)value).intValue();
+			if(Integer.class.isInstance(value)) return value;
+			String strValue = value.toString();
+			if(StringUtil.isEmpty(strValue)) return null;
+			return Integer.parseInt(strValue);
+		}
+	});
 	protected static final MapToBeanConfigFetcher LONG = new MapToBeanBaseConfig(new Class[] {Long.class,long.class },
 			new MapToBeanConfigFetcher() {
 		@Override
@@ -36,7 +52,10 @@ public abstract class MapToBeanRoot {
 			Object value = map.get(field.getName()); 
 			if(JSONUtils.isNull(value)) return null;
 			if(Long.class.isInstance(value)) return value;
-			return ((Integer)value).longValue();
+			if(Integer.class.isInstance(value)) return ((Integer)value).longValue();
+			String strValue = value.toString();
+			if(StringUtil.isEmpty(strValue)) return null;
+			return Long.parseLong(strValue);
 		}
 	});
 	protected static final MapToBeanConfigFetcher BIG_DECIMAL = new MapToBeanBaseConfig(new Class[] {BigDecimal.class },
@@ -46,7 +65,9 @@ public abstract class MapToBeanRoot {
 			Object value = map.get(field.getName()); 
 			if(JSONUtils.isNull(value)) return null;
 			if(BigDecimal.class.isInstance(value)) return value;
-			return new BigDecimal(value.toString());
+			String strValue = value.toString();
+			if(StringUtil.isEmpty(strValue)) return null;
+			return new BigDecimal(strValue);
 		}
 	});
 	
@@ -117,6 +138,12 @@ public abstract class MapToBeanRoot {
 
 	public void addConfig(MapToBeanConfigFetcher config) {
 		configs.add(config);
+	}
+	
+	/** JSON을 바로 변환하기 용. */
+	public <T> T build(String json, Class<T> clazz) {
+		JSONObject jsonObject = JSONObject.fromObject(json);
+		return build(jsonObject,clazz);
 	}
 
 	public <T> T build(Map obj, Class<T> clazz) {

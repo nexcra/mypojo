@@ -79,17 +79,17 @@ public abstract class CollectionUtil  extends CollectionUtils{
      * DataAccessUtils과 유사함.
      * Collection에서 Unique값을 추출해 낸다.
      */
-    public static <T> T getResultUnique(List<T> list) {
+    public static <T> T getResultUnique(Collection<T> list) {
         if(list==null) throw new IllegalArgumentException(" collection is null! ");
-        else if(list.size()!=1) throw new IllegalArgumentException(list.size() + " collection must be unique : " + list.get(0).toString());
-        else return list.get(0);
+        else if(list.size()!=1) throw new IllegalArgumentException(list.size() + " collection must be unique : " + list.iterator().next().toString());
+        else return list.iterator().next();
     }
     
     /** 1개만 추출해 낸다. 없다면 null을 리턴한다.  */
-    public static <T> T getUniqNullable(List<T> sets) {
+    public static <T> T getUniqNullable(Collection<T> sets) {
 		if(sets.size()==0) return null;
-    	else if(sets.size()==1) return sets.get(0);
-    	else throw new IllegalArgumentException(sets.size()+" collection must be unique or zero size : " + sets.get(0).toString());
+    	else if(sets.size()==1) return sets.iterator().next();
+    	else throw new IllegalArgumentException(sets.size()+" collection must be unique or zero size : " + sets.iterator().next().toString());
 	}    
     
     /**
@@ -125,6 +125,11 @@ public abstract class CollectionUtil  extends CollectionUtils{
         if(bodys==null || items.length==0) return false;
         for(T body : bodys) for(T item:items) if(item.equals(body)) return true;
         return false;
+    }
+    public static <T> boolean isEqualsAny(T[] bodys ,Collection<T> items) {
+    	if(bodys==null || items.size()==0) return false;
+    	for(T body : bodys) for(T item:items) if(item.equals(body)) return true;
+    	return false;
     }
     
     /**
