@@ -154,8 +154,11 @@ public abstract class MapToBeanRoot {
 			for (MapToBeanConfigFetcher each : configs) {
 				Object input = each.fetch(field, obj);
 				if (input == null) continue;
-				ReflectionUtil.setField(field, instance, input);
-				break;
+				try {
+					ReflectionUtil.setField(field, instance, input);
+				} catch (IllegalStateException e) {
+					// ststic final에 입력할때 예외를 무시한다. (어케 처리할지 모르겠음 ㅠㅠ)
+				}
 			}
 		}
 		return instance;

@@ -5,12 +5,15 @@ import java.util.Collection;
 
 import javax.annotation.Resource;
 import javax.jdo.PersistenceManagerFactory;
+import javax.jdo.Query;
 
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
 import org.springframework.orm.jdo.JdoObjectRetrievalFailureException;
 import org.springframework.orm.jdo.support.JdoDaoSupport;
 
+import erwins.util.lib.StringUtil;
 import erwins.util.root.EntityId;
+import erwins.webapp.mysysbrain.trx.Trx;
 
 public abstract class GenericAppEngineDao<T extends EntityId<String>>  extends JdoDaoSupport{
 	
@@ -31,8 +34,27 @@ public abstract class GenericAppEngineDao<T extends EntityId<String>>  extends J
 		setPersistenceManagerFactory(persistenceManagerFactory);
     }
 	
+	@SuppressWarnings("unchecked")
+	protected Collection<Trx> search(JqlBuilder jql,String order){
+		Query q = getPersistenceManager().newQuery(getPersistentClass());
+		String where = jql.getWhere();
+		if(!StringUtil.isEmpty(where)){
+			q.setFilter(where);
+			q.declareParameters(jql.getParameterInfo());
+		}
+		if(jql.isPaging()){
+			q.setRange(jql.getSkipResults(), jql.getSkipResults()+jql.getPagingSize());
+		}
+		if(order!=null) q.setOrdering(order);
+		return (Collection<Trx>) q.executeWithArray(jql.getParam());
+	}
+	protected Collection<Trx> search(JqlBuilder jql){
+		return search(jql,null);
+	}
+	
 	public Collection<T> findAll(){
-		return  getJdoTemplate().find(getPersistentClass());
+		Collection<T> result = getJdoTemplate().find(getPersistentClass()); 
+		return  result;
 	}
 	protected Collection<T> findAll(String order){
 		return  getJdoTemplate().find(getPersistentClass(),null,order);
@@ -54,6 +76,7 @@ public abstract class GenericAppEngineDao<T extends EntityId<String>>  extends J
 	public void delete(T entity) {
 		getJdoTemplate().deletePersistent(entity);
 	}
+	/** 해당 */
 	public void delete(String id) {
 		T entity = getJdoTemplate().getObjectById(getPersistentClass(), id);
 		getJdoTemplate().deletePersistent(entity);

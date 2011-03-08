@@ -100,7 +100,7 @@ public abstract class BeanToJsonRoot {
     private final List<BeanToJSONConfigFetcher> configs = new ArrayList<BeanToJSONConfigFetcher>();
 	public void addConfig(BeanToJSONConfigFetcher config) {
 		configs.add(config);
-	}    
+	}
 	
     /**
      * Map과 array, domain 3가지 타입을 지원한다. 프리미티브 등 단순 데이터는 허용하지 않는다.
@@ -238,7 +238,7 @@ public abstract class BeanToJsonRoot {
     
     /** 플렉스에서는 <>등이 오면 json을 인식하지 못한다. 이것들만 골라서 이스케이핑 해주자. 
      * 분명 성능에 문제있을듯.. ㅅㅂ
-     * 왜 가본 JSON에 이 옵션이 없는지?*/
+     * 왜 기본 JSON에 이 옵션이 없는지?*/
 	public static void escapeForFlex(JSON json){
 		if(json instanceof JSONObject){
 			JSONObject obj = (JSONObject)json;
@@ -255,6 +255,30 @@ public abstract class BeanToJsonRoot {
 				if(each instanceof JSON) escapeForFlex((JSON)each);
 				else if(each instanceof String){
 					String value = StringEscapeUtil.escapeXml2((String)each);
+					array.remove(i);
+					array.add(i, value);
+				}
+			}
+		}
+	}
+	
+	/** ㅅㅂ 구글서비스에 한글이 안됨으로 억지로 일케 변환해준다. */
+	public static void escapeForGoogleService(JSON json){
+		if(json instanceof JSONObject){
+			JSONObject obj = (JSONObject)json;
+			for(Object key : obj.keySet()){
+				Object value = obj.get(key);
+				if(value instanceof String) obj.put(key, StringEscapeUtil.escapeJavaScript((String)value));
+				else if(value instanceof JSON) escapeForGoogleService((JSON)value);
+			}
+		}else{
+			JSONArray array = (JSONArray)json;
+			for(int i=0;i<array.size();i++){
+				Object each = array.get(i);
+				if(each==null) continue;
+				if(each instanceof JSON) escapeForGoogleService((JSON)each);
+				else if(each instanceof String){
+					String value = StringEscapeUtil.escapeJavaScript((String)each);
 					array.remove(i);
 					array.add(i, value);
 				}

@@ -196,12 +196,16 @@ public enum MathUtil {
     }
     
     /**
-     * A/sum의 %를 구한다.
-     * p는 보통 8 정도?
+     * A/sum의 %를 구한다. 
+     * p는 소수2째자리까지 구한다면 4이다.  보통 8 정도?
      */
-    public static BigDecimal getRate(BigDecimal sum, BigDecimal value,int p) {
+    public static BigDecimal getRate(BigDecimal sum, BigDecimal value,int p,int outScale) {
         if(isZero(sum,value)) return BigDecimal.ZERO;
-        return value.divide(sum,p,BigDecimal.ROUND_HALF_UP).multiply(HUNDRED);
+        return value.divide(sum,p,BigDecimal.ROUND_HALF_UP).multiply(HUNDRED).setScale(outScale);
+    }
+    /** ex) 34.87%  */
+    public static BigDecimal getRate(BigDecimal sum, BigDecimal value) {
+    	return getRate(sum,value,4,2);
     }
     
     /**
@@ -243,6 +247,15 @@ public enum MathUtil {
     		sum+= ((Number)each).longValue();
     	}
     	return sum;
+    }
+    
+    /** 해당 분기를 나타낸다.  size는 일반적으로 3이다.  */
+    public static int getQuarter(int month,int size) {
+    	return ((month-1) / size) +1;
+    }
+    /** 이딴거도 만들어야 하다니. ㅠ  Google App에서 데시말 지원 안해줘서 만듬. */
+    public static BigDecimal toDecimal(String value) {
+    	return value==null ? BigDecimal.ZERO : new BigDecimal(value);
     }
 
     /**

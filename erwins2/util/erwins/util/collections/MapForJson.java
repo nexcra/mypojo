@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 /** 통계 등에 상용된다. */
@@ -49,4 +50,21 @@ public class MapForJson implements Iterable<Entry<String,JSONObject>>{
 	public Iterator<Entry<String, JSONObject>> iterator() {
 		return map.entrySet().iterator();
 	}
+	
+	/** 통계 같은데 사용된다. ex) 파이챠트 */
+	public static JSONArray mapToList(Map<?,?> map,String keyName,String valueName){
+		JSONArray array = new JSONArray();
+		for(Entry<?,?> entry : map.entrySet()){
+			JSONObject json = new JSONObject();
+			json.put(keyName, entry.getKey());
+			json.put(valueName, entry.getValue());
+			array.add(json);
+		}
+		return array;
+	}
+	
+	public static JSONArray mapToList(Map<?,?> map){
+		return mapToList(map,"label","value");
+	}
+	
 }

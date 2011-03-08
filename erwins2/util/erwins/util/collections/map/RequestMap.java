@@ -25,7 +25,8 @@ public class RequestMap extends SimpleMap<String>{
     /** putAll(req.getParameterMap()) 을 쓰지 않는다. -> 이놈은 전부 배열로 들어감. */
     public RequestMap(HttpServletRequest req){
     	
-        Enumeration<String> enumeration = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+		Enumeration<String> enumeration = req.getParameterNames();
         
         while (enumeration.hasMoreElements()) {
             String name = enumeration.nextElement();            

@@ -16,8 +16,8 @@ import net.sf.json.JSON;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CollectionOfElements;
 
-import erwins.util.lib.ReflectionUtil;
 import erwins.util.lib.CollectionUtil;
+import erwins.util.lib.ReflectionUtil;
 import erwins.util.morph.BeanToJson;
 import erwins.util.root.EntityHibernatePaging;
 
@@ -84,6 +84,8 @@ public class SearchMap extends RequestMap{
     }
     public SearchMap(int pageNo){
         this.pageNo =   pageNo==0 ? 1 : pageNo;
+    }
+    public SearchMap(){
     }
     
     /**

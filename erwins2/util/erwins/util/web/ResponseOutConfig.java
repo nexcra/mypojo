@@ -2,7 +2,7 @@
 package erwins.util.web;
 
 
-/** HttpServletResponse에 관한 종합 쓰기 객체. 한번 설정후 spring-bean등의 설정으로 재사용 하자. */
+/** HttpServletResponse 등에 관한 종합 쓰기 객체. 한번 설정후 spring-bean등의 설정으로 재사용 하자. */
 public class ResponseOutConfig{
 	
 	public static enum ContentType{
@@ -25,6 +25,8 @@ public class ResponseOutConfig{
 	private String isSuccessKey = "isSuccess";
 	private String messageKey = "message";
 	private boolean xmlEscape = false;
+	/** Google서비스 등에서 한글지원이 안될때 사용한다. */
+	private boolean javascriptEscape = false;
 	
 	public void setIsSuccessKey(String isSuccessKey) {
 		this.isSuccessKey = isSuccessKey;
@@ -65,7 +67,11 @@ public class ResponseOutConfig{
 	public void setCache(boolean cache) {
 		this.cache = cache;
 	}
-	
-	
+	public boolean isJavascriptEscape() {
+		return javascriptEscape;
+	}
+	public void setJavascriptEscape(boolean javascriptEscape) {
+		this.javascriptEscape = javascriptEscape;
+	}
 
 }

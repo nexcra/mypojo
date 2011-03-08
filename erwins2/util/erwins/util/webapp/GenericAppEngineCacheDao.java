@@ -31,11 +31,18 @@ public abstract class GenericAppEngineCacheDao<T extends EntityId<String>>  exte
 		}
 	}
 	
+	@Override
+	public T saveOrUpdate(T entity) {
+		T t = getJdoTemplate().makePersistent(entity);
+		put(t);
+		return t;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public void put(T entity){
 		cache.put(entity.getId(),entity);
 	}
-	/** 없을때만 스토어를 조회한다.
+	/** 없을때만 스토어를 조회한다. 캐시에도 없고 DB에도 없다면 null을 리턴한다.
 	 * 한번의 트랜잭션에서 단일 엔티티를 부를때는 1개만 가능하다. 
 	 * 따라서 캐싱을 다시 불러오는  getDao().get(id)은 컨트롤러에서만 호출될 수 있다.*/
 	@SuppressWarnings("unchecked")
@@ -47,6 +54,8 @@ public abstract class GenericAppEngineCacheDao<T extends EntityId<String>>  exte
 		}
 		return entity;
 	}
+	
+	/** 서버의 재기동 후 캐시에 남아있을때 오류가능.  */
 	public void clear(){
 		cache.clear();
 	}

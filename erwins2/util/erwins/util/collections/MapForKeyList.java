@@ -1,5 +1,6 @@
 package erwins.util.collections;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,7 +14,8 @@ import java.util.TreeMap;
  * 이하의 간단 버전이다.
  * private Map<T,List<File>> map = new HashMap<T,List<File>>();
  */
-public class MapForKeyList<K,T> implements Iterable<Entry<K, List<T>>>{
+@SuppressWarnings("serial")
+public class MapForKeyList<K,T> implements Iterable<Entry<K, List<T>>>,Serializable{
 	
 	private Map<K,List<T>> map;
 	
@@ -32,6 +34,10 @@ public class MapForKeyList<K,T> implements Iterable<Entry<K, List<T>>>{
 		}
 		list.add(item);
 		return this;
+	}
+	
+	public List<T> get(K key){
+		return map.get(key);
 	}
 	
 	/** 각 key당 중복된 item은 들어갈 수 없다. */

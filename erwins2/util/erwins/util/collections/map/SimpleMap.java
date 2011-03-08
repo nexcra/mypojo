@@ -18,10 +18,10 @@ import java.util.TreeMap;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import erwins.util.exception.BusinessException;
-import erwins.util.lib.ReflectionUtil;
 import erwins.util.lib.DayUtil;
 import erwins.util.lib.FormatUtil;
 import erwins.util.lib.MathUtil;
+import erwins.util.lib.ReflectionUtil;
 import erwins.util.lib.RegEx;
 import erwins.util.lib.StringUtil;
 import erwins.util.reflexive.Connectable;
@@ -32,7 +32,8 @@ import erwins.util.root.Pair;
  * null과 ID등의 처리를 이곳에서 집중 체크한다.
  */
 
-public class SimpleMap<KEY> implements Map<KEY,Object>{
+@SuppressWarnings("serial")
+public class SimpleMap<KEY> implements Map<KEY,Object>,Serializable{
 	
 	protected final Map<KEY,Object> theMap;
 	
@@ -477,6 +478,12 @@ public class SimpleMap<KEY> implements Map<KEY,Object>{
         Integer integer = (Integer)get(key);
         if(integer == null) put(key, value);
         else theMap.put(key, integer + value);
+    }
+    
+    /** null safe한 String을 입력 */
+    public void plus(KEY key,String value){
+    	if(StringUtil.isEmpty(value)) return;
+    	plus(key,new BigDecimal(value));
     }
     
     /**

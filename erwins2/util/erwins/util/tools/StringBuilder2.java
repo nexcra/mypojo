@@ -31,4 +31,9 @@ public class StringBuilder2{
     	the.append(" ");
     	return this;
     }
+    public StringBuilder2 appendComma(Object append) {
+    	the.append(append);
+    	the.append(",");
+    	return this;
+    }
 }

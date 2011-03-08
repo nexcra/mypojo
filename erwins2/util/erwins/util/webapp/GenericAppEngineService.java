@@ -1,5 +1,7 @@
 package erwins.util.webapp;
 
+import java.util.Collection;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import erwins.util.root.EntityId;
@@ -20,6 +22,13 @@ public abstract class  GenericAppEngineService<T extends EntityId<String>>{
 	@Transactional
 	public void delete(String id) {
 		getDao().delete(id);
+	}
+	@Transactional
+	public void delete(T e) {
+		getDao().delete(e);
+	}
+	public Collection<T> findAll(){
+		return getDao().findAll();
 	}
 	
 }
