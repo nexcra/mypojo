@@ -68,6 +68,7 @@ public abstract class PoiSheetReaderRoot{
 	protected void readEach(StringArrayPoiCallback callback, Iterator<Row> rows) {
 		while(rows.hasNext()){
     		Row eachRow = rows.next();
+    		if(eachRow.getLastCellNum() < 0) continue;
     		String[] line = new String[eachRow.getLastCellNum()]; 
     		Iterator<Cell> cells = eachRow.iterator();
     		while(cells.hasNext()){
@@ -80,8 +81,8 @@ public abstract class PoiSheetReaderRoot{
     
     /** 전체가 빈 배열인지? */
     private static boolean isEmpty(String[] line) {
-    	for(String each : line) if(!each.equals("")) return false;
-    	return true; 
+    	for(String each : line) if(each==null || each.equals("")) return true;
+    	return false; 
     }
 
   
@@ -94,6 +95,8 @@ public abstract class PoiSheetReaderRoot{
         switch (cell.getCellType()) {
             case Cell.CELL_TYPE_NUMERIC:
                 return new BigDecimal(cell.getNumericCellValue()).toString();
+            case Cell.CELL_TYPE_FORMULA:
+            	return cell.toString(); ///이거 어케 하지? ㅠㅠ
             default:
             	return cell.getRichStringCellValue().getString().trim();
         }

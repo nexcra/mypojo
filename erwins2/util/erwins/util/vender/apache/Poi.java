@@ -226,4 +226,10 @@ public class Poi extends PoiRoot{
 		}
     }
     
+    /** 전부 작성된 엑셀 파일(출력용으로 맞추어진 엑셀)에 특정 값만 변경할때 사용된다.
+     * 이렇게 만들어진 메모리상의 POI는 원본파일과는 상관 없으며, 다시 write해야한다. */
+    public void changeStringValue(int sheet,int row,int cell,String value){
+    	wb.getSheetAt(sheet).getRow(row).getCell(cell).setCellValue(value);
+    }
+    
 }
