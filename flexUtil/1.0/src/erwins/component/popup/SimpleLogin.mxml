@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:mxeffects="com.adobe.ac.mxeffects.*" 
+	xmlns:erwins="erwins.component.*"
+    width="300" close="remove()" showCloseButton="true"
+    alpha=".8"  title="simpleLogin"
+    borderThickness="2"
+    backgroundColor="0xCCCCCC"
+    dropShadowEnabled="true" 
+    borderColor="black"
+    borderStyle="solid" horizontalAlign="center"
+    fontSize="12"
+    creationCompleteEffect="{EventEffect.iris}"
+    removedEffect="{EventEffect.iris}"
+>
+<mx:Script><![CDATA[
+	import mx.events.ItemClickEvent;
+	import mx.managers.PopUpManager;
+	import mx.core.UIComponent;
+	
+	import erwins.util.effect.*;
+	import erwins.util.json.*;
+	import erwins.util.http.*;
+	import erwins.util.validate.*;
+	import erwins.util.UILib.*;
+	import erwins.util.lib.*;
+	
+private var url:String;
+private var func:Function;
+private var me:SimpleLogin = this as SimpleLogin;
+
+protected static const COMPLITE:String = "compliteState";
+private const LOGIN_ID:String = "loginId";
+private const LOGIN_CACHE_ABLE:String = "loginCacheAble";
+	
+private function init():void{
+	
+	var cookie:SharedObject  = SharedObject.getLocal('simpleLogin');
+	var id:String = cookie.data[LOGIN_ID];
+	if(id==null) loginId.setFocus();
+	else{
+		loginId.text = id;
+		password.setFocus();
+	}
+	loginCache.selected = cookie.data[LOGIN_CACHE_ABLE]==null ? false : cookie.data[LOGIN_CACHE_ABLE];
+	
+	var login:Function = function():void{
+		var val:Validator = new Validator();
+		try{
+			val.add(loginId).isNotEmpty("LOGIN_ID IS REQUIRED");
+			val.add(password).isNotEmpty("PASSWORD IS REQUIRED");
+		}catch(e:MalformedError){
+			e.resolve();
+			return;
+		}
+		
+		if(loginCache.selected) cookie.data[LOGIN_ID] = loginId.text;
+		else  cookie.data[LOGIN_ID] = null;
+		cookie.data[LOGIN_CACHE_ABLE] = loginCache.selected;	
+		
+		var ajax:Ajax = new Ajax(url);
+		ajax.setMediator(new Mediator(me));
+		ajax.send(val.param,function(json:Jsons):void{
+			json.result( function(message:String):void{
+				if(func!=null) func(message);
+				currentState = COMPLITE;
+				loginBtn.enabled = false;
+				TimeUtil.fire(function():void{
+					remove();
+				},2000);
+			});
+		});
+	}
+	
+	Binder.onEnter(password,login,loginBtn);
+}
+
+/** 간단한 로그인 기능을 수행한다. */
+public static function popUp(base:UIComponent,url:String,func:Function=null):void{
+	var popWin:SimpleLogin = new SimpleLogin();
+	popWin.func = func;
+	popWin.url = url;
+	PopUpManager.addPopUp(popWin,base,true);
+	PopUpManager.centerPopUp( popWin );
+	popWin.init();
+}
+
+private function remove():void{
+	PopUpManager.removePopUp( this );
+}
+
+]]></mx:Script>
+
+<!-- ============================================ 이펙트 ============================================ -->
+<mx:states>
+	<mx:State name="{COMPLITE}" >
+		<mx:RemoveChild target="{body}" />
+        <mx:AddChild  relativeTo="{this}">
+            <mx:Label width="100%" height="100%" id="message" text="LOGIN SUCCESS!" />
+        </mx:AddChild> 
+	</mx:State>
+</mx:states>
+<mx:transitions>
+	<mx:Transition fromState="" toState="{COMPLITE}"  effect="{trans1}" />
+</mx:transitions>
+<mx:Sequence id="trans1">
+	<mxeffects:CubeRotate target="{ body }"  siblings="{ [ message ] }"  direction="RIGHT"  horizontalLightingLocation="LEFT" duration="1000" />
+	<mx:RemoveChildAction target="{ body }"/>
+	<mx:AddChildAction target="{ message }"/>
+</mx:Sequence>
+
+
+<!-- ============================================ UI ============================================ -->
+
+<mx:Grid id="body" width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" >
+	<mx:GridRow >
+		<mx:GridItem verticalAlign="middle"><mx:Label text="LOGIN ID"/></mx:GridItem>
+		<mx:GridItem verticalAlign="middle" colSpan="7"><mx:TextInput id="loginId" maxChars="20" restrict="A-z0-9" /></mx:GridItem>
+	</mx:GridRow>
+	<mx:GridRow >
+		<mx:GridItem verticalAlign="middle"><mx:Label text="PASSWORD"/></mx:GridItem>
+		<mx:GridItem verticalAlign="middle" colSpan="7"><mx:TextInput id="password" maxChars="20" restrict="A-z0-9" displayAsPassword="true" /></mx:GridItem>
+	</mx:GridRow>
+</mx:Grid>
+
+<mx:ControlBar>
+	<mx:HBox>
+		<mx:CheckBox id="loginCache" label="remember LOGIN ID"/>
+		<erwins:Buttons id="loginBtn" label="LOGIN" tip="PASSWORD is Case Sensitive" />
+	</mx:HBox>	
+</mx:ControlBar>
+		
+</mx:TitleWindow>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	alpha=".8" 
+    borderThickness="2"
+    backgroundColor="0xCCCCCC"
+    dropShadowEnabled="true" 
+    borderColor="black"
+    borderStyle="solid"
+    fontSize="12"    
+    showCloseButton="true" close="remove()" layout="vertical"
+    creationCompleteEffect="{EventEffect.onWindow}" removedEffect="{EventEffect.offWindow}"
+    verticalAlign="middle" horizontalAlign="center"
+    horizontalScrollPolicy="off" verticalScrollPolicy="off">
+<mx:Script>
+<![CDATA[
+	import erwins.util.effect.EventEffect;
+	import mx.managers.PopUpManager;
+	
+	/** 중복되는TitleWindow를 공용으로 사용하기 위한 객체이다.  <mx:states>등은 ROOT에서만 정의할 수 있음으로 사용 불가능하다.
+	 * borderColor="#62EC06"
+	 *  */
+
+protected function remove():void{
+	PopUpManager.removePopUp( this );
+}
+
+]]>
+</mx:Script>
+    
+</mx:TitleWindow>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" buttonMode="true"
+    creationComplete="init()">
+
+	<mx:Script>
+		<![CDATA[
+			import erwins.util.effect.EventEffect;
+			import erwins.util.UILib.TimeUtil;
+			import erwins.util.lib.Colors;
+			import erwins.util.UILib.TooltipUtil;
+			import mx.managers.ToolTipManager;
+			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			import mx.collections.ArrayCollection;
+			import mx.core.Container;
+			import mx.containers.Tile;
+			
+			private var me:Buttons = this as Buttons;
+			
+			private var _tooltip:String;
+			private var _tipColor:int = Colors.SKY;
+			
+			/** 툴팁이  적용되는 버튼이다. 기본 컬러는 하늘색. */
+			private function init(): void {
+				if(_tooltip) TooltipUtil.addStaticTooltip(this,this.label,_tooltip,_tipColor);
+			}
+			
+			public function set tip(tip:String):void{
+				this._tooltip = tip;
+			}
+			public function set tipColor(tipColor:int):void{
+				this._tipColor = tipColor;
+			}
+			public function setTooptip(tip:String):void{
+				TooltipUtil.addStaticTooltip(this,this.label,tip,_tipColor);
+			}
+			
+			/** stopImmediatePropagation()하면 요건 작동 안한다. */ 
+			public function set duration(duration:int):void{
+				this.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{
+					//if(e.isDefaultPrevented()) return;
+					EventEffect.showHideIris(me);
+					TimeUtil.hideAndShow(me,duration);
+				},false,-10);
+			}
+			
+		]]>
+	</mx:Script>
+</mx:Button>

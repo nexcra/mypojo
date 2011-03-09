@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" width="100%" creationComplete="init()" backgroundColor="white"  >
+<mx:Script><![CDATA[
+	import mx.containers.Box;
+	import mx.core.UIComponent;
+	import mx.events.FlexEvent;
+	import mx.events.IndexChangedEvent;
+	import mx.events.ListEvent;
+	import com.adobe.serialization.json.JSONParseError;
+	import com.adobe.serialization.json.JSON;
+	import mx.events.MenuEvent;
+	import mx.controls.Menu;
+	import mx.events.ItemClickEvent;
+	import mx.managers.CursorManager;
+	import mx.modules.ModuleManager;
+	import mx.modules.IModuleInfo;
+	import mx.events.ModuleEvent;
+	import mx.modules.ModuleLoader;
+	import mx.containers.VBox;
+	import mx.controls.Alert;
+    import mx.managers.PopUpManager;
+    import mx.collections.ArrayCollection;
+    
+import erwins.util.effect.*;
+import erwins.util.json.*;
+import erwins.util.http.*;
+import erwins.util.validate.*;
+import erwins.util.UILib.*;
+import erwins.util.lib.*;
+
+private const REQUESTED_MODULE:String = "requestedModule"; 
+
+private var _sharedObjectDomain:String;
+private var _javascriptRequestObjectName:String;
+private var _keyField:String;
+
+private var me:ModuleContainer = this as ModuleContainer;
+
+public function set dataProvider(list:ArrayCollection):void{
+	menu.dataProvider = list;
+}
+public function set keyField(keyField:String):void{
+	_keyField = keyField;
+}
+
+/** 이게 있으면 최초 로딩정보를 저장/로딩한다. */
+public function set sharedObjectDomain(sharedObjectDomain:String):void{
+	_sharedObjectDomain = sharedObjectDomain;
+}
+
+public function load(item:Object):void{
+	var url:String = item[_keyField];
+	if(url==null) return;
+	
+	ModuleFactory.loadUnique(url,function(module:DisplayObject):void{
+		var added:VBox = new VBox();
+		added.label = item.label;
+		added.addChild(module);
+		tab.addChild(added);
+		tab.selectedIndex = tab.getChildren().length-1;
+	});
+}
+    	
+public function init():void{
+	
+	//MenuEvent를 사용하게 되면 ROOT에는 이벤트가 발생하지 않는다.
+	menu.addEventListener(MenuEvent.ITEM_CLICK,function(e:MenuEvent):void{load(e.item)});
+	
+	if(_sharedObjectDomain){
+		//plat데이터를 정의해 준다.
+		var _platDataProvider:Array = menu.dataProvider.toArray(); //id가 없으니 label을 id로 취급해준다.
+		Sets.parse(_platDataProvider,function(item:Object):void{
+			item.id = item.label;
+		});
+		_platDataProvider = Sets.toPlatData(_platDataProvider);
+		ModuleInitConfig.addRightClickModuleConfig(this.parent as UIComponent,_sharedObjectDomain,_platDataProvider,load,200);
+	}
+}
+
+]]></mx:Script>
+	<mx:HBox width="100%">
+		<mx:MenuBar id="menu" fontSize="14" fontWeight="bold" />
+		<mx:HBox id="extentionBox" horizontalAlign="right" width="100%" />	
+	</mx:HBox>
+	
+	<mx:TabNavigator id="tab" width="100%" height="100%" color="0x323232" />
+	
+</mx:VBox>

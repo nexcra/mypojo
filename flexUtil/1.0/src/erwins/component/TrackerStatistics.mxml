@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="100%" height="100%"
+	xmlns:erwins="erwins.component.*" creationComplete="init()">
+
+<mx:Script>
+<![CDATA[
+	import mx.charts.events.ChartItemEvent;
+	import mx.events.TreeEvent;
+	import mx.events.ListEvent;
+	import mx.collections.ArrayCollection;
+	import mx.events.ItemClickEvent;
+import erwins.util.effect.*;
+import erwins.util.json.*;
+import erwins.util.http.*;
+import erwins.util.validate.*;
+import erwins.util.UILib.*;
+import erwins.util.lib.*;
+	
+[Bindable] private var _dataProvider:ArrayCollection;
+private var me:TrackerStatistics = this as TrackerStatistics;
+
+private var _url:String;
+
+public function set url(url:String):void{
+	this._url = url
+}
+
+private function init():void{
+	
+	var mediator:Mediator = new Mediator(me);
+	var paging:Paging = new Paging(function(callback:Function=null):void{
+		var ajax:Ajax = new Ajax(_url);
+		ajax.setMediator(mediator);
+		ajax.send(null,function(json:Jsons):void{
+			_dataProvider = json.getArray();
+			if(callback!=null) callback();
+			gc.refresh();
+		});
+	},mediator);
+
+	TooltipUtil.addStaticTooltip(help,"로그 도움말",
+	"<p>1. 각 request를 AOP로 접근하여 로그를 남긴것입니다.</p>"+
+	"<p>2. 이것을 토대로 시스템 활용에 대한 분석이 가능합니다.</p>"+
+	"<p>3. 각 시간의 단위는 밀리초(ms):1/1,000초 입니다.</p>");
+	
+	paging.addListener(searchBtn);
+	
+	openBtn.addEventListener(MouseEvent.CLICK,function():void{
+		tree.expandAll();
+	});
+	
+	paging.search();
+}
+
+]]></mx:Script>
+
+<mx:VBox width="100%" height="100%" horizontalAlign="center">
+	<mx:HBox width="100%" horizontalAlign="right">
+		<mx:LinkButton label="도움말" color="blue"  id="help" textDecoration="underline"  />
+		<erwins:Buttons id="openBtn" label="전체트리 열기" />
+		<erwins:Buttons id="searchBtn" label="검색" duration="1000" />
+	</mx:HBox>
+	<mx:HBox width="100%" height="100%" horizontalAlign="right">
+		<mx:AdvancedDataGrid id="tree"  width="100%" height="100%" doubleClickEnabled="true" >
+	        <mx:dataProvider>
+	            <mx:GroupingCollection id="gc" source="{_dataProvider}">
+	                <mx:grouping>
+	                    <mx:Grouping>
+	                        <mx:GroupingField name="className"/>
+	                    </mx:Grouping>
+	                </mx:grouping>
+	            </mx:GroupingCollection>
+	        </mx:dataProvider>
+	        <mx:columns>
+	            <mx:AdvancedDataGridColumn dataField="methodName" headerText="객체/메소드명" />
+	            <mx:AdvancedDataGridColumn labelFunction="{LFUtil.toNumeric('count')}" headerText="총요청수" width="100" textAlign="right" />
+	            <mx:AdvancedDataGridColumn labelFunction="{LFUtil.toNumeric('minMs')}" headerText="최소처리시간" width="150" textAlign="right"/>
+	            <mx:AdvancedDataGridColumn labelFunction="{LFUtil.toNumeric('maxMs')}" headerText="최대처리시간" width="150" textAlign="right"/>
+	            <mx:AdvancedDataGridColumn labelFunction="{LFUtil.toNumeric('averageMs')}" headerText="평균처리시간" width="150" textAlign="right"/>
+	            <mx:AdvancedDataGridColumn dataField="lastTime" headerText="최근접속시간" width="200" textAlign="center"/>
+	        </mx:columns>
+		</mx:AdvancedDataGrid>
+	</mx:HBox>
+	<mx:Spacer width="1%" />
+</mx:VBox>	
+</mx:Module>

@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mxeffects="com.adobe.ac.mxeffects.*" 
+    width="100%" 
+    alpha=".8" 
+    borderThickness="2"
+    backgroundColor="0xCCCCCC"
+    dropShadowEnabled="true" 
+    borderColor="black"
+    borderStyle="solid"
+    fontSize="12"
+    creationCompleteEffect="{EventEffect.iris}"
+    removedEffect="{EventEffect.iris}"
+    buttonMode="true" useHandCursor="true" 
+>   <!-- 마우스 손커서 옵션이다.  mouseChildren="false" : 드래그 때문에 요건 삭제 -->
+<mx:Script><![CDATA[
+	import mx.managers.CursorManager;
+	import erwins.util.effect.EventEffect;
+	import flexlib.scheduling.Timeline;
+	import mx.core.UIComponent;
+	import mx.managers.PopUpManager;
+	import mx.controls.Alert;
+
+protected var url:String;
+
+protected var fileName:String;
+protected var fileRef:FileReference = new FileReference();
+
+protected var successCallback:Function;
+protected var failCallback:Function;
+
+protected var args:Object;
+protected var filterList:Array;
+
+/** factory : filterList는 업로드에만 사용된다. 필터는 대소문자를 구분하지 않는다. */
+public static function upload(url:String, ... filterList ):FilecontrolPopup{
+	var instance:FilecontrolPopup = new UploadPopup();
+	instance.url = url;
+	instance.filterList = filterList;
+	return instance;	
+}
+/** factory : fileName은 다운로드에만 사용된다. */
+public static function download(url:String,fileName:String=null):FilecontrolPopup{
+	var instance:FilecontrolPopup = new DownloadPopup();
+	instance.url = url;
+	instance.fileName = fileName;
+	return instance;
+}
+
+protected function init():void{
+	Alert.show('init() 멤퍼펑션을 오버라이딩 하세요.');
+};
+
+public function success(successCallback:Function):FilecontrolPopup{
+	this.successCallback = successCallback;
+	return this;
+}
+
+public function fail(failCallback:Function):FilecontrolPopup{
+	this.failCallback = failCallback;
+	return this;
+}
+
+public function query(args:Object):FilecontrolPopup{
+	this.args = args;
+	return this;
+}
+
+public function pop(base:UIComponent):void{
+	PopUpManager.addPopUp(this,base,false);
+	PopUpManager.centerPopUp( this );
+	this.init();
+}        
+        
+]]></mx:Script>
+
+<mx:ProgressBar id="bar" mode="manual"  width="250" height="25" />
+    
+</mx:Panel>

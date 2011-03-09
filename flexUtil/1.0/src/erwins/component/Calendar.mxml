@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:DateField xmlns:mx="http://www.adobe.com/2006/mxml"
+    initialize="init()">
+	<mx:Script>
+		<![CDATA[
+			import mx.core.UITextField;
+			import mx.controls.Alert;
+			
+			private var me:DateField = this as DateField;
+			
+			/** 한글변환 및 삭제 기능을 추가해 준다. */
+			private function init(): void {
+				me.buttonMode = true;
+				me.dayNames = ["일","월","화","수","목","금","토"];
+				me.monthNames = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+				me.formatString = "YYYY년 MM월 DD일";
+				
+				me.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{
+					me.text="";
+				});
+				me.showToday = true;
+			}
+		]]>
+	</mx:Script>
+</mx:DateField>

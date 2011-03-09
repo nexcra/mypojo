@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+    width="100%" height="100%" close="remove()" showCloseButton="true"
+    alpha=".8" 
+    borderThickness="2"
+    dropShadowEnabled="true" 
+    backgroundColor="0x81FF5E"
+    borderColor="black"
+    borderStyle="solid" horizontalAlign="center"
+    fontSize="12"
+>
+<mx:Script><![CDATA[
+	import erwins.util.lib.Binder;
+	import mx.events.ItemClickEvent;
+	import mx.managers.PopUpManager;
+	import mx.core.UIComponent;
+
+public static function clickPopUp(base:UIComponent,target:UIComponent,title:String,text:String,width:int=0,height:int=0):void{
+	target.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{
+		TextAreaPopup.popUp(base,title,text,width,height);
+	});
+}
+
+public static function popUp(base:UIComponent,title:String,text:String,width:int=0,height:int=0):void{
+	var popWin:TextAreaPopup = new TextAreaPopup();
+	PopUpManager.addPopUp(popWin,base,false);
+	popWin.title = title;
+	popWin.text.htmlText = text;
+	if(height!=0) popWin.text.height = height;
+	if(width!=0) popWin.text.width = width;
+	PopUpManager.centerPopUp( popWin );
+	Binder.ctrlShift(popWin,function():void{
+		PopUpManager.removePopUp(popWin);
+	});
+	popWin.setFocus();
+}
+
+/** 걍만듬.. 실패작이다. ㅋㅋ htmlText을 escape하는게 낫다. */
+public static function pop(base:UIComponent):TextAreaPopup{
+	var popWin:TextAreaPopup = new TextAreaPopup();
+	PopUpManager.addPopUp(popWin,base,false);
+	PopUpManager.centerPopUp( popWin );
+	Binder.ctrlShift(popWin,function():void{
+		PopUpManager.removePopUp(popWin);
+	});
+	popWin.setFocus();
+	return popWin;
+}
+
+private function remove():void{
+	PopUpManager.removePopUp( this );
+}
+
+public function addTextLine(added:String):void{
+	this.text.htmlText = this.text.htmlText + '<br>' + added;
+}
+
+]]></mx:Script>
+		<mx:TextArea id="text" width="800" height="600" editable="false" horizontalScrollPolicy="auto" />
+</mx:TitleWindow>

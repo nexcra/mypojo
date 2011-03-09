@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+    width="100%" close="close()" showCloseButton="true"
+    alpha=".8" 
+    borderThickness="2"
+    backgroundColor="0xCCCCCC"
+    dropShadowEnabled="true" 
+    borderColor="black"
+    borderStyle="solid"
+    fontSize="12"
+    creationComplete="init()"
+>
+<mx:Script><![CDATA[
+	import erwins.util.lib.Binder;
+	import mx.controls.Alert;
+	import mx.events.ListEvent;
+	import mx.managers.PopUpManager;
+	import mx.core.UIComponent;
+
+	import mx.collections.ArrayCollection;
+	
+[Bindable] private var _list:ArrayCollection;
+[Bindable] private var _command:Function;
+
+public function set list(list:ArrayCollection):void { _list=  list; }
+public function set command(command:Function):void { _command=  command; }
+public var me:ListPopup = this as ListPopup;
+
+public function init():void {
+	
+	if(_command!=null){
+		var ok:Function = function():void{
+			var item:Object = thsList.selectedItem;
+			_command(item);
+		}
+		thsList.addEventListener(ListEvent.ITEM_CLICK,ok);
+		Binder.onEnter(thsList,ok);
+	}
+
+	thsList.setFocus();
+	thsList.selectedIndex = 0;
+}
+
+public function close():void {
+	PopUpManager.removePopUp(me);
+}
+
+/** 
+ * 외부의 접근이 가능하다.
+ * command를 래핑해준다.
+ * */
+public static function popUp(base:UIComponent,list:ArrayCollection,command:Function,title:String=null):void{
+	var popWin:ListPopup = new ListPopup();
+	PopUpManager.addPopUp(popWin,base,true);
+	PopUpManager.centerPopUp( popWin );
+	popWin.list = list;
+	if(title!=null) popWin.title = title;
+	//popWin.showCloseButton = true;
+	if(command!=null){
+		popWin.command = function(item:Object):void{
+			command(item);
+			popWin.close();
+		}	
+	}
+	
+}
+
+]]></mx:Script>
+
+    <mx:List id="thsList" dataProvider="{_list}" selectable="true" />
+</mx:TitleWindow>

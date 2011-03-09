@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mxeffects="com.adobe.ac.mxeffects.*" 
+    width="100%" 
+    alpha=".8" 
+    borderThickness="2"
+    backgroundColor="0xCCCCCC"
+    dropShadowEnabled="true" 
+    borderColor="black"
+    borderStyle="solid"
+    fontSize="12"
+    creationCompleteEffect="{EventEffect.iris}"
+    removedEffect="{EventEffect.iris}"
+    buttonMode="true" useHandCursor="true" 
+>   <!-- 마우스 손커서 옵션이다.  mouseChildren="false" : 드래그 때문에 요건 삭제 -->
+<mx:Script><![CDATA[
+	import mx.managers.CursorManager;
+	import erwins.util.effect.EventEffect;
+	import flexlib.scheduling.Timeline;
+	import mx.core.UIComponent;
+	import mx.managers.PopUpManager;
+	import mx.controls.Alert;
+
+protected var fileName:String;
+protected var fileRef:FileReference = new FileReference();
+protected var url:String;
+protected var successCallback:Function;
+protected var failCallback:Function;
+protected var args:Object;
+protected var filterList:Array;
+
+public static const UPLOAD:String = "upload";
+public static const DOWNLOAD:String = "download";
+
+protected function init():void{
+	Alert.show('init() 멤퍼펑션을 오버라이딩 하세요.');
+};
+
+public static function factory(mode:String):FilecontrolPopup{
+	if(mode == DOWNLOAD) return new DownloadPopup();
+	else if(mode == UPLOAD) return new UploadPopup();
+	else throw new Error(mode+" 는 정의되지 않았습니다.");
+}
+
+/**
+ * 실패시 작동되는 callback인 fail은 인자로 SecurityError를 받는다.
+ * 업로드시 fileName은???
+ * */
+public static function popup(mode:String,base:UIComponent,url:String,option:FileOption=null):void{
+	var popWin:FilecontrolPopup = factory(mode);
+	PopUpManager.addPopUp(popWin,base,false);
+	PopUpManager.centerPopUp( popWin );
+	popWin.url = url;
+	if(option!=null){
+		popWin.fileName = option.fileName;
+		popWin.args = option.args;
+		popWin.failCallback = option.failCallback;
+		popWin.successCallback = option.successCallback;
+		popWin.filterList = option.filterList;
+	}
+	popWin.init();
+}        
+        
+]]></mx:Script>
+
+<mx:ProgressBar id="bar" mode="manual"  width="250" height="25" />
+    
+</mx:Panel>

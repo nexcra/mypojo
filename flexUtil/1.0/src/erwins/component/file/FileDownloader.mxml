@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<erwins:DefaultTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:google="flexlib.containers.*"
+	xmlns:erwins="erwins.component.*" layout="vertical"
+    width="650" height="520" title="파일 다운로드 팝업"
+    creationComplete="init()" >
+
+<mx:Script>
+<![CDATA[
+	import erwins.component.ListPopup;
+	import erwins.component.file.FilecontrolPopup;
+	import mx.events.ListEvent;
+	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+	import mx.core.Application;
+	import com.adobe.utils.ArrayUtil;
+	
+	import mx.events.MenuEvent;
+	import mx.charts.CategoryAxis;
+	import mx.events.CloseEvent;
+	import mx.collections.ArrayCollection;
+	import mx.core.UIComponent;   
+	import mx.controls.Alert;
+	import mx.utils.StringUtil;
+	import mx.managers.PopUpManager;
+	
+import erwins.util.effect.*;
+import erwins.util.json.*;
+import erwins.util.http.*;
+import erwins.util.validate.*;
+import erwins.util.UILib.*;
+import erwins.util.lib.*;
+	
+private var _downUrl:String;
+private var _listUrl:String;
+private var _refreshUrl:String;
+[Bindable] private var _treeList:ArrayCollection;
+private var me:FileDownloader = this as FileDownloader;
+
+private var serverMediator:Mediator = new Mediator(me);
+/** 요건 각 버튼 조정 */
+private var clientMediator:Mediator = new Mediator(null,function():void{
+	var obj:Object = tree.selectedItem;
+	tree.expandItem(obj,!tree.isItemOpen(obj),true);
+	if(obj.isBranch){  //트리가 마지막인 지 구분하자.
+		downloadBtn.enabled = false;
+	}else{
+		downloadBtn.enabled = true;			
+	}
+});
+
+private function init():void{
+	var mediator:Mediator = new Mediator(me);
+	var ajax:Ajax = new Ajax(_listUrl);
+	ajax.setMediator(serverMediator);
+	ajax.send(null,function(json:Jsons):void{
+		_treeList = json.getArray();
+	});
+	
+	TooltipUtil.addStaticTooltip(help,"다운로드 사용 도움말",
+	"<p>1. 키보드로 트리의 이동이 가능합니다.</p>"+
+	"<p>2. 더블클릭시 다운로드 됩니다.</p>");
+	
+	var download:Function = function():void{
+		var item:Object = tree.selectedItem;
+		if(item.isBranch) return; 
+		FilecontrolPopup.download(_downUrl,item.label).query({hashCode:item.hashCode}).pop(me);
+	};	
+	tree.addEventListener(ListEvent.ITEM_DOUBLE_CLICK,function(e:ListEvent):void{ download();});
+	downloadBtn.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{ download(); });
+	refreshBtn.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{
+		var ajax:Ajax = new Ajax(_refreshUrl);
+		ajax.setMediator(serverMediator);
+		ajax.send(null,function(json:Jsons):void{
+			_treeList = json.getArray();
+		});
+	});
+	tree.addEventListener(ListEvent.ITEM_CLICK,function(event:ListEvent):void{
+		clientMediator.refresh();
+	});
+	
+	/** Folder내 array에서 파일을 검색한다. */
+	Binder.onEnter(searchFile,function():void{
+		var str:String = searchFile.text;
+		
+		if(str == ""){
+			Alerts.show("검색어를 입력해 주세요.");
+			return;
+		}
+	
+		var result:ArrayCollection =  new JsonParser(_treeList).scan(str);
+		
+		if(result.length==0){
+			Alerts.show(str + "으로 검색된 자료가 없습니다.");
+			return;
+		}
+		if(result.length==1){
+			
+			TreeUtil.select(tree,result.getItemAt(0));
+			clientMediator.refresh();
+		} 
+		else{
+			ListPopup.popUp(searchFile,result,function(item:Object):void{
+				TreeUtil.select(tree,item);
+				clientMediator.refresh();	
+			},"검색된 리스트 입니다.");
+		}
+	},searchBtn);
+}
+
+public static function popUp(base:UIComponent,listUrl:String,downUrl:String,refreshUrl:String):void{
+	var popWin:FileDownloader = new FileDownloader();
+	popWin._downUrl = downUrl;
+	popWin._listUrl = listUrl;
+	popWin._refreshUrl = refreshUrl;
+	PopUpManager.addPopUp(popWin,base,false);
+	PopUpManager.centerPopUp( popWin );	
+	popWin.setFocus();
+}
+   
+]]>
+</mx:Script>
+<mx:Panel title="다운로드 파일  >> {tree.selectedItem.label}" status="파일을 선택해 주세요" width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+	<mx:HBox id='body' width="98%" height="98%" horizontalAlign="center">
+		<mx:AdvancedDataGrid id="tree"  width="420" height="100%" doubleClickEnabled="true" >
+			<mx:dataProvider ><mx:HierarchicalData source="{_treeList}" /></mx:dataProvider>
+			<mx:columns>
+				<mx:AdvancedDataGridColumn headerText="파일명" dataField="label" />
+				<mx:AdvancedDataGridColumn headerText="용량" dataField="length" width="100" />
+			</mx:columns>
+		</mx:AdvancedDataGrid>
+		
+		<mx:VBox id="box" width="150" height="100%" horizontalAlign="center" verticalAlign="top">
+			<mx:LinkButton label="도움말" color="blue"  id="help" textDecoration="underline"  />
+			<erwins:Buttons id="downloadBtn" label="선택파일 다운로드" enabled="false" />
+			<erwins:Buttons id="refreshBtn" label="파일목록 새로고침"/>
+			<mx:Spacer height="20" />
+			<erwins:TextInputs id='searchFile' width="150" color="red" prompt="검색어를 입력하세요" />
+			<erwins:Buttons id="searchBtn" label="파일 이름 검색" duration="1000"/>
+		</mx:VBox>
+	</mx:HBox>
+</mx:Panel>	
+
+</erwins:DefaultTitleWindow>

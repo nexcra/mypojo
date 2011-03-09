@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TextArea xmlns:mx="http://www.adobe.com/2006/mxml"
+    initialize="init()">
+	<mx:Script>
+		<![CDATA[
+			import com.google.maps.Color;
+			import mx.core.UITextField;
+			import mx.controls.Alert;
+			
+			private var _toEnglish:Boolean = false;
+			
+			private function init(): void {
+				this.textField.alwaysShowSelection = true;
+				var me:TextArea = this;
+				this.imeMode = _toEnglish ? IMEConversionMode.ALPHANUMERIC_HALF : IMEConversionMode.KOREAN;
+				this.addEventListener(FocusEvent.FOCUS_IN,function(e:FocusEvent):void{
+					me.setStyle("backgroundColor",Color.YELLOW);
+					me.setStyle("fontWeight",FontStyle.BOLD);
+				});
+				this.addEventListener(FocusEvent.FOCUS_OUT,function(e:FocusEvent):void{
+					me.setStyle("backgroundColor",Color.WHITE);
+					me.setStyle("fontWeight",FontStyle.REGULAR);
+				});
+			}
+			/** 현재 선택된 text만을 리턴한다. */
+			public function get selectedText():String{
+				return this.text.substring(this.selectionBeginIndex,this.selectionEndIndex);
+			}
+			
+			/** 기본값을 영문으로~ ID입력이나 비밀번호 등등 */
+			public function set toEnglish(value:Boolean):void{
+				_toEnglish = value;
+			}			
+			
+		]]>
+	</mx:Script>
+</mx:TextArea>

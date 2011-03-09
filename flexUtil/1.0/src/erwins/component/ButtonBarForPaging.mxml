@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ButtonBar xmlns:mx="http://www.adobe.com/2006/mxml" horizontalGap="5" buttonMode="true" width="150" creationComplete="init()" >
+
+<mx:Script>
+<![CDATA[
+	import mx.controls.Button;
+	import erwins.util.lib.Colors;
+	import erwins.util.UILib.TooltipUtil;
+	import mx.managers.ToolTipManager;
+	import mx.controls.Alert;
+	import mx.core.UIComponent;
+	import mx.collections.ArrayCollection;
+	import mx.core.Container;
+	import mx.containers.Tile;
+	
+	/** 툴팁이  적용되는 버튼이다. 기본 컬러는 하늘색. */
+	private function init(): void {
+		var btn1:Button = Button(this.getChildren()[0]);
+		var btn2:Button = Button(this.getChildren()[1]);
+		
+		if(_label1) btn1.label = _label1;
+		if(_label2) btn2.label = _label2;
+		if(_tip1) TooltipUtil.addStaticTooltip(btn1,btn1.label,_tip1,_tipColor);
+		if(_tip2) TooltipUtil.addStaticTooltip(btn2,btn2.label,_tip2,_tipColor);
+			
+	}
+	
+	private var _tip1:String;
+	private var _tip2:String;
+	private var _label1:String;
+	private var _label2:String;
+	private var _tipColor:int = Colors.SKY;
+	
+	public function set label1(label1:String):void{
+		_label1 = label1;
+	}
+	public function set label2(label2:String):void{
+		_label2 = label2;
+	}
+	public function set tip1(tip1:String):void{
+		this._tip1 = tip1;
+	}
+	public function set tip2(tip2:String):void{
+		this._tip2 = tip2;
+	}
+	public function set tipColor(tipColor:int):void{
+		this._tipColor = tipColor;
+	}	
+
+	
+]]>
+</mx:Script>
+    <mx:dataProvider>
+        <mx:Array>
+            <mx:String>Before</mx:String>
+            <mx:String> Next </mx:String>
+        </mx:Array>
+    </mx:dataProvider>	
+</mx:ButtonBar>
