@@ -7,6 +7,22 @@ import erwins.util.tools.*
 
 /** 동적으로 메소드 변경 가능. */
 public class GMethodChange{
+	
+	class Person {
+		String name = "Fred"
+	 }
+	
+	/** 동적 메타클래스도 가능 */
+	@Test
+	public void test(){
+		def methodName = "Bob"
+		Person.metaClass."changeNameTo${methodName}" = {-> delegate.name = "Bob" }
+		def p = new Person()
+		assert "Fred" == p.name
+		p.changeNameToBob()
+		assert "Bob" == p.name
+	}
+	
 
 	/** 캐시  최적화가 아마 1.5 이후에 진행된듯하다. 1.5이전은 안해도 정상작동한다. */
     @Test
@@ -35,5 +51,15 @@ class SampleDomain{
 class SampleController{
 	def action = { new SampleDomain().sample() }
 }
+
+/**
+ * 아래의 엄청난 짓도 가능하다.. ㅋㅋ
+ * def codecs = classes.findAll { it.name.endsWith('Codec') }
+
+codecs.each { codec ->
+    Object.metaClass."encodeAs${codec.name-'Codec'}" = { codec.newInstance().encode(delegate) }
+    Object.metaClass."decodeFrom${codec.name-'Codec'}" = { codec.newInstance().decode(delegate) }
+}
+ */
  
 

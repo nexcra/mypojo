@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import erwins.util.root.PairObject;
+import erwins.util.vender.etc.Flex;
 
 
 /**
@@ -40,32 +41,32 @@ public class ListForMap<T> implements Iterable<Map<String,T>>{
 				}
 			}
 		}
-	}	
+	}
 	
-	/*
-	public void mergeByKey(String key,String mergeKey){
-		List<Map<String,T>> newList = new ArrayList<Map<String,T>>();
-		
-		T exist = null;
-		Map<String,T> currentMap = null;
-		int matchCount = 0;
-		
-		for(Map<String,T> each : list){
-			T keyValue = each.get(key); 
-			if(keyValue.equals(exist)){
-				currentMap.put(mergeKey+ ++matchCount, each.get(mergeKey));
+	/** 1:N 으로 받아온 Map데이터를 계층형 구조로 바꾼다.
+	 * 이 데이터는 keyField로  적절하게 정렬되어있어야 한다. */
+	@SuppressWarnings("unchecked")
+	public List<Map<String,Object>> toHierarchy(){
+		List<Map<String,Object>> newList = new ArrayList<Map<String,Object>>();
+		T point = (T)"";
+		for(Map<String,T> eachMap : list){
+			T keyValue = eachMap.get(keyField);
+			if(point.equals(keyValue)){
+				Map<String,Object> map = newList.get(newList.size()-1);
+				List<Map<String,T>> list = (List<Map<String, T>>) map.get(Flex.CHILDREN);
+				list.add(eachMap);
 			}else{
-				matchCount = 0;
-				currentMap = each;
-				exist = keyValue;
-				currentMap.put(mergeKey+ ++matchCount, currentMap.get(mergeKey));
-				currentMap.remove(mergeKey);
-				newList.add(currentMap);
+				Map<String,Object> map = new HashMap<String, Object>();
+				map.put(Flex.LABEL, keyValue);
+				List<Map<String,T>> list = new ArrayList<Map<String,T>>();
+				map.put(Flex.CHILDREN, list);
+				list.add(eachMap);
+				newList.add(map);
+				point = keyValue;
 			}
 		}
-		this.list = newList;
+		return newList;
 	}
-	*/
 	
 	/** iBatis 등에서 통계를 변환하는 목적. 이는 GROUP BY문장을 여러번 만들어야 하는 수고를 덜기 위함이다.
 	 * 정해진 PK를 기준으로 동일하다면 nameKey를 새로운 key로 대체하는 value를 생성한다.
@@ -101,8 +102,9 @@ public class ListForMap<T> implements Iterable<Map<String,T>>{
 	/*                                  이하 2개는 사용할지 미지수~                            */
 	/* ================================================================================== */
 	private String keyField;
-	public void setKeyField(String keyField) {
+	public ListForMap<T> setKeyField(String keyField) {
 		this.keyField = keyField;
+		return this;
 	}
 	
 	public Map<String, T> getByKey(T value){

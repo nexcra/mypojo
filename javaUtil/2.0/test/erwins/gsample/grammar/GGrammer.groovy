@@ -32,6 +32,30 @@ public class GGrammer{
 		assert "how deep is deep? $deep" == "how deep is deep? deeper and deepest"
     }
 	
+	/** 마지막 인자로 클로저가 들어가면  그 클로저를 외부로 뺄 수 있다. 매우 유용한 특성이다. */
+	def sample =  {a,b -> b(a)  }
+	@Test
+	public void last(){
+		assert sample('a', { return it} ) == 'a'
+		assert sample('a') {return it} == 'a'
+	}
+	
+	/** 멤버필드로 클로저를 담을 수 있다. 이런 형식은 지역변수로 등록이 불가능하다. (지역변수는 걍 {}로 등록)
+	 * 클로저 안에 다시 클로저가 들어갈 수 있다.  */
+	def localMethod() {
+		def localVariable = new java.util.Date()
+		def nestedClos = {
+			assert owner.class.name
+		}
+		nestedClos();
+		return { return localVariable }
+	}
+	@Test
+	public void innerMethod(){
+		  def clos = localMethod()
+		  clos()
+	}
+	
     /** 
      * ?연산자로 null피하기. ?가 nul을 만나면 즉시 null이 리턴됨.
      * toString시 예외 대신 null문자열이 리턴된다.  
@@ -112,6 +136,9 @@ public class GGrammer{
         assert [0,1,2,3] == [0,*range];
         def map = [a:1,b:2];
         assert [a:1,b:2,c:3] == [c:3,*:map]; //map은 *:map이다.
+		
+		//개념을 확실히 알아두자. (아래는 collect로도 가능)
+		assert [1, 3, 5] == ['a', 'few', 'words']*.size()
     }
 	
 	/**

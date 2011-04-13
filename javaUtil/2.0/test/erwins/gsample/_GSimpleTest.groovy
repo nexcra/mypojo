@@ -11,23 +11,18 @@ import org.junit.Test
 /** 그닥 좋지는 않다. */
 public class _GSimpleTest{
 	
-	class urlencoder implements IGroovyFreeMarkerPlugin {
-		String transform(Map params, String content) {
-				content + 'asd'
-		}
-	}	
+	class Person {
+		String name = "Fred"
+	 }
 	
-
-    @Test
-	public void gsql(){
-    	def tpl = '''
-		Hello, ${user.name}
-		this is a test ${user.name}'''
-		println 'asd'
-		def engine = new FreeMarkerTemplateEngine("D:/PROJECT/workspace/mysysbrain/test/erwins/gsample")
-		println 'asd'
-		def binding = ["user" : ["name":"cedric"]]
-		println engine.createTemplate(tpl).make(binding)
+	@Test
+	public void test(){
+		def methodName = "Bob"	
+		Person.metaClass."changeNameTo${methodName}" = {-> delegate.name = "Bob" }
+		def p = new Person()
+		assert "Fred" == p.name
+		p.changeNameToBob()
+		assert "Bob" == p.name
 	}
 }
 

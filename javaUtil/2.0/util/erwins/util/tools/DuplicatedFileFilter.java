@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import erwins.util.collections.MapForList;
 import erwins.util.collections.MapType;
 import erwins.util.lib.FileUtil;
+import erwins.util.lib.TextFileUtil;
 import erwins.util.lib.security.MD5;
 import erwins.util.vender.apache._Log;
 import erwins.util.vender.apache._LogFactory;
@@ -24,6 +25,7 @@ public class DuplicatedFileFilter{
 		Iterator<File> i = FileUtil.iterateFiles(directory,FileUtil.ALL_FILES);
 		while(i.hasNext()){
 			File each = i.next();
+			if(each.getAbsolutePath().endsWith(".svn-base")) continue; //SVN에 복제된 파일 무시.
 			String hash = MD5.getHashHexString(each);
 			map.add(hash, each);
 		}
@@ -38,6 +40,22 @@ public class DuplicatedFileFilter{
 				log.debug("Path : {0}", eachFile.getAbsolutePath());
 			}
 		}
+	}
+	
+	public void log(File file){
+		StringBuilder2 b = new StringBuilder2();
+		for(Entry<String,List<File>> each : map){
+			if(each.getValue().size() <= 1) continue;
+			b.append("Duplicated : ");
+			b.append(each.getValue().size());
+			b.append(" times");
+			b.appendLine(" times");
+			for(File eachFile : each.getValue()){
+				b.append("Path : ");
+				b.appendLine(eachFile.getAbsolutePath());
+			}
+		}
+		TextFileUtil.write(file, b.toString(), "UTF-8");
 	}
 	
 	/** 중복된거 삭제. 처음게 남고 나중에 들어온게 전부 삭제된다. */
