@@ -5,7 +5,6 @@ import java.io.File;
 
 import org.junit.Test;
 
-import erwins.test.MyAccount;
 import erwins.util.jdbc.JDBC;
 
 public class SqlGenerate{
@@ -18,7 +17,7 @@ public class SqlGenerate{
     @Test
     public void merge() throws Exception {
         //JDBC jdbc = new JDBC("121.161.186.117","1522","sysbrain","agent","agent");
-    	JDBC jdbc = JDBC.oracleInstance(MyAccount.HOST.IP, MyAccount.HOST.ORACLE_PORT,true, MyAccount.HOST.ORACLE_SID, "agent", "agent");
+    	JDBC jdbc = JDBC.oracleInstance("", "",true,"", "agent", "agent");
     	//JDBC jdbc = new JDBC("jdbc:sqlserver://192.168.1.156:1433;Databasename=agentDB","sa","agent",new SQLServerDriver());
         try {
 			//TableInfos g = new TableInfoForOracle(jdbc);

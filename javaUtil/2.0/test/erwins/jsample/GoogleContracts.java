@@ -5,7 +5,6 @@ import java.util.Map.Entry;
 
 import org.junit.Test;
 
-import erwins.test.MyAccount;
 import erwins.util.openApi.GoogleContract;
 import erwins.util.openApi.GoogleContract.ContractEntry;
 
@@ -14,7 +13,7 @@ public class GoogleContracts {
 
 	@Test
 	public void test(){
-		GoogleContract c = new GoogleContract(MyAccount.GOOGLE.ID, MyAccount.GOOGLE.PASS);
+		GoogleContract c = new GoogleContract("id","pass");
 		c.load();
 		System.out.println(c.getTitle());
 		

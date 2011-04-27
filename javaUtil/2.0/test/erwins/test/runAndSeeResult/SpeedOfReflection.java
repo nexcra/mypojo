@@ -8,8 +8,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import erwins.domain.board.Board;
-import erwins.domain.enums.SomeType;
+import erwins.gsample.GBean;
 import erwins.util.morph.Dissolver;
 import erwins.util.tools.StopWatch;
 
@@ -21,20 +20,20 @@ public class SpeedOfReflection{
     public void reflection() throws Exception {
         System.out.println(StopWatch.load(new Runnable(){
         	public void run() {
-        		Board board = new Board();
+        		GBean GBean = new GBean();
         		for(int i=0;i<1000000;i++){
-        			board.setTitle("sampleTata");
+        			GBean.setName("sampleTata");
         		}
         	}
         }));
         System.out.println(StopWatch.load(new Runnable(){
             public void run() {
-                Board board = new Board();
-                Class<?> clazz =  board.getClass();
+                GBean GBean = new GBean();
+                Class<?> clazz =  GBean.getClass();
                 for(int i=0;i<1000000;i++){
                     try {
                         Method m = clazz.getMethod("setTitle",String.class);
-                        m.invoke(board, "sampleTata");
+                        m.invoke(GBean, "sampleTata");
                     }
                     catch (Exception e) {
                         throw new RuntimeException(e);
@@ -51,10 +50,9 @@ public class SpeedOfReflection{
     	System.out.println(StopWatch.load(new Runnable(){
     		public void run() {
     			for(int i=0;i<100000;i++){
-    				Board board = new Board();
-    				board.setTitle("sampleTata");
-    				board.setContent("sampleTata");
-    				board.setSomeType(SomeType.CLIENT);
+    				GBean GBean = new GBean();
+    				GBean.setName("sampleTata");
+    				GBean.setCount(i);
     			}
     		}
     	}));
@@ -63,10 +61,9 @@ public class SpeedOfReflection{
     		public void run() {
     			for(int i=0;i<100000;i++){
     				final Map<String,Object> map = new HashMap<String,Object>(); //Map생성에는 그리 큰 부하가 걸리지 않는다.
-    				map.put("title", "sampleTata");
-    				map.put("content", "sampleTata");
-    				map.put("someType", "CLIENT");			
-    				Dissolver.instance().getBean(map, Board.class);
+    				map.put("name", "sampleTata");
+    				map.put("count", i);
+    				Dissolver.instance().getBean(map, GBean.class);
     			}
     		}
     	}));

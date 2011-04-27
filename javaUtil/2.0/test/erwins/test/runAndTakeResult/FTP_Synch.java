@@ -3,7 +3,6 @@ package erwins.test.runAndTakeResult;
 
 import org.junit.Test;
 
-import erwins.test.MyAccount;
 import erwins.util.vender.apache.Net;
 import erwins.util.vender.apache.NetRoot.FtpLog;
 
@@ -14,7 +13,7 @@ public class FTP_Synch{
     public void ftpSynch() throws Exception {
         Net m1 = new Net();
         try {
-            m1.connect(MyAccount.HOST.IP,MyAccount.HOST.FTP_PORT,MyAccount.HOST.FTP_ID,MyAccount.HOST.FTP_PASS);
+            m1.connect("",0,"","");
             m1.setPassive();
             //m1.setRoots("/system/file/open/music","D:/DATA/MUSIC").update();
             m1.setRoots("/SYSTEM/file/open/music","D:/DATA/MUSIC").updateLog();

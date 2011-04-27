@@ -6,7 +6,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import erwins.domain.book.Book;
+import erwins.gsample.GBean;
+
 
 @SuppressWarnings(value={ "cast","null"})
 public class Reference{
@@ -46,8 +47,8 @@ public class Reference{
         a=null;
         Assert.assertTrue(b != null);
         
-        Book A = new Book();
-        Book B = A;
+        GBean A = new GBean();
+        GBean B = A;
         A = null;
         Assert.assertTrue(B!=null);
     }
@@ -64,11 +65,11 @@ public class Reference{
         a= a.add(new BigDecimal("123"));
         Assert.assertTrue(a != b);
         
-        Book A = new Book();
+        /*Book A = new Book();
         Book B = A;
         A.setId(50);
         B.setId(100);
-        Assert.assertTrue(B==A);
+        Assert.assertTrue(B==A);*/
     }
     
     /**
