@@ -9,16 +9,9 @@ import erwins.util.jdbc.JDBC;
 
 public class SqlGenerate{
 	
-    public void merge2(){
-        //Poi poi = new Poi("D:/book1.xls");
-        //poi.uploadForOracle("test","128.1.63.213","epr","ECOUSER","ECOUSER");
-    }	
-    
     @Test
     public void merge() throws Exception {
-        //JDBC jdbc = new JDBC("121.161.186.117","1522","sysbrain","agent","agent");
     	JDBC jdbc = JDBC.oracleInstance("", "",true,"", "agent", "agent");
-    	//JDBC jdbc = new JDBC("jdbc:sqlserver://192.168.1.156:1433;Databasename=agentDB","sa","agent",new SQLServerDriver());
         try {
 			//TableInfos g = new TableInfoForOracle(jdbc);
         	//TableInfos g = new TableInfos(jdbc);

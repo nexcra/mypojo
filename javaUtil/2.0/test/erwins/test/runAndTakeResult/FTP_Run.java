@@ -29,7 +29,7 @@ public class FTP_Run{
     public void getLog() throws Exception {
         Net m1 = new Net();
         try {
-            m1.connect("210.104.107.18","weblogic","buweblogic");
+            m1.connect("","","");
             m1.setRoots("/nas/logs","D:/nas").downloadAll();
             m1.setRoots("/APP/bea/user_projects/domains/wcs/logs","D:/nas")
             .setAbleExtentions("log").setAbleNames("m2").setAllDirectory(false).downloadAll();
@@ -43,7 +43,7 @@ public class FTP_Run{
         
         Net m2 = new Net();
         try {
-            m2.connect("210.104.107.19","weblogic","buweblogic2");
+            m2.connect("","","");
             m2.setRoots("/APP/bea/user_projects/domains/wcs/logs","D:/nas")
             .setAbleExtentions("log").setAbleNames("m1").setAllDirectory(false).downloadAll();
         }
@@ -60,7 +60,7 @@ public class FTP_Run{
     public void getLog2() throws Exception {
         Net m1 = new Net();
         try {
-            m1.connect("128.1.1.61","custom","vPrlanf%");
+            m1.connect("","","%");
             m1.setRoots("/custom/ready/week","/nas/custom/ready").setAllDirectory(false).downloadAll();
             m1.setRoots("/custom/ready/week", "/custom/ready/week/keep").setAllDirectory(false).moveAll();
         }

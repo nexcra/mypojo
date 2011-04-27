@@ -9,11 +9,10 @@ import erwins.util.vender.apache.Poi;
 import erwins.util.vender.apache.PoiDownloader;
 import erwins.util.vender.apache.PoiUploader;
 
-public class DB_Poi {
+public class DB_Poi_Backup {
 
 	// @Test
 	public void backupTable() throws Exception {
-		//JDBC jdbc = new JDBC(MyAccount.HOST.IP, MyAccount.HOST.ORACLE_PORT, MyAccount.HOST.ORACLE_SID, "loms", "loms");
 		JDBC jdbc = JDBC.oracleInstance("", "",true, "", "loms", "loms");
 		Poi poi = new Poi();
 		PoiDownloader pd = new PoiDownloader(poi, jdbc);

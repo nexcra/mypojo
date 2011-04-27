@@ -13,6 +13,10 @@ import erwins.util.vender.apache.PoiSheetReaderRoot.StringColimnPoiCallback;
  * oracle uploader.. 간단 업로드/통계쿼리용.성능 구림.
  * 나중에 다시 만들자.
  * 온리 인설트와 인설트/업데이트를 구분하자.
+ * JDBC jdbc = JDBC.oracleInstance("", "",true, "", "loms", "loms");
+		jdbc.setDefaultTimeStampFormat();
+		PoiUploader up = new PoiUploader(new File("D:/asd.xls"), jdbc);
+		up.upload();
  */
 public class PoiUploader{
 	
