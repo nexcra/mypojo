@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.apache.ecs.html.Script;
 
-import erwins.domain.SystemInfo;
 import erwins.util.morph.HtmlOptionBuilder;
 import erwins.util.tools.DocParser;
 import erwins.util.vender.apache.RESTful;
@@ -55,14 +54,15 @@ public abstract class Naver{
     
     @SuppressWarnings("unused")
 	private static final String NAVER_NORMAL_KEY = "3826a877cfff565aa2f109ad9a9c121d";
-    private static final String NAVER_LOCAL_MAP_KEY = "ac7298e783b0c0ebced2520878d43c35";
+    //private static final String NAVER_LOCAL_MAP_KEY = "ac7298e783b0c0ebced2520878d43c35";
     private static final String NAVER_SERVER_MAP_KEY = "3bd776115c4d41a66793a69ae642865c";
     
     /**
      * 지정된 서버IP가 아니면 LOCAL Key를 , 지정된 서버이면 서버 key를 리턴한다.
      */    
     public static String getNaverMapKey(){
-        return SystemInfo.isServer() ? NAVER_SERVER_MAP_KEY : NAVER_LOCAL_MAP_KEY;
+        //return SystemInfo.isServer() ? NAVER_SERVER_MAP_KEY : NAVER_LOCAL_MAP_KEY;
+    	return NAVER_SERVER_MAP_KEY;
     }
     /**
      * 주소 변경시 일괄 적용 위함 

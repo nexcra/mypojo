@@ -254,12 +254,27 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 	}
 
 	/** 인스턴스의 필드중에서 해당하는 이름의 setter에 객체를 할당한다. */
+	@Deprecated
 	public static void setObject(Object instance, String fieldName, Object value) {
 		Class<?> clazz = instance.getClass();
 		Method setter = ReflectionUtil.toSetter(clazz, fieldName, value.getClass());
 		try {
 			setter.invoke(instance, value);
 		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	/** 위에꺼 대체? */
+	public static void setField(Object instance, String fieldName, Object value) {
+		setField(instance.getClass(),instance,fieldName,value);
+	}
+	@SuppressWarnings("rawtypes")
+	public static void setField(Class clazz,Object instance, String fieldName, Object value) {
+		try {
+			ReflectionUtil.setField(clazz.getField(fieldName), instance, value);
+		} catch (SecurityException e) {
+			throw new RuntimeException(e);
+		} catch (NoSuchFieldException e) {
 			throw new RuntimeException(e);
 		}
 	}

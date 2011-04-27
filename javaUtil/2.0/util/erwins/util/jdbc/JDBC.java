@@ -48,6 +48,10 @@ public class JDBC{
 		String url = MessageFormat.format(URL_ORACLE, ip,port,isSid?":":"/",sid);
 		return new JDBC(url,userId,pass,new OracleDriver());
 	}
+	public static JDBC oracleInstance(String ip,String sid,String userId,String pass){
+		String url = MessageFormat.format(URL_ORACLE, ip,"1521",":",sid);
+		return new JDBC(url,userId,pass,new OracleDriver());
+	}
 	
 	public JDBC(String url,String userId,String pass,Driver driver) {
 		try {
@@ -164,6 +168,19 @@ public class JDBC{
     	statement_oracle.execute();
     }
     
+    /** 대량insert 
+     * PreparedStatement를 재사용하기위해 사용한다. = > 나중에 배치로 변경 */
+    public void insert(String sql,List<Object[]> parameters) throws SQLException{
+    	PreparedStatement statement_oracle = connection_oracle.prepareStatement(sql);
+    	for(Object[] parameter : parameters){
+    		for(int i=0;i<parameter.length;i++){
+        		statement_oracle.setObject(i+1,parameter[i]);
+        	}
+        	statement_oracle.execute();	
+        	statement_oracle.clearParameters();
+    	}
+    }
+    
     public void execute(String sql) throws SQLException{
     	Statement statement_oracle = connection_oracle.createStatement();
     	if(statement_oracle.execute(sql)) throw new SQLException(sql+" is fail");
@@ -224,7 +241,7 @@ public class JDBC{
     	for (int i = 1; i <= columnCount; i++) {
     		String key = lookupColumnName(meta, i);
     		Object obj = getResultSetValue(rs, i);
-    		ReflectionUtil.setObject(one, key, obj);
+    		ReflectionUtil.setField(clazz,one, key, obj);
     	}
     	return one;
     }

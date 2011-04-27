@@ -11,7 +11,6 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.ecs.html.Script;
 import org.apache.ecs.wml.Img;
 
-import erwins.domain.SystemInfo;
 import erwins.util.lib.CharEncodeUtil;
 import erwins.util.lib.StringUtil;
 import erwins.util.vender.apache.RESTful;
@@ -26,14 +25,15 @@ public class Google{
     private static final String GOOGLE_MAP_URL = "http://maps.google.com/maps";
     private static final String GOOGLE_CHART_URL = "http://chart.apis.google.com/chart";
     private static final String GOOGLE_WEATHER_URL = "http://www.google.co.kr/ig/api";
-    private static final String GOOGLE_LOCAL_MAP_KEY = "ABQIAAAAbnojiUetDB2JPnAr7msMxhT2yXp_ZAY8_ufC3CFXhHIE1NvwkxSSUTahXG1TgB4AL-LL3DXVwdGvXg";
+    //private static final String GOOGLE_LOCAL_MAP_KEY = "ABQIAAAAbnojiUetDB2JPnAr7msMxhT2yXp_ZAY8_ufC3CFXhHIE1NvwkxSSUTahXG1TgB4AL-LL3DXVwdGvXg";
     private static final String GOOGLE_SERVER_MAP_KEY = "ABQIAAAAbnojiUetDB2JPnAr7msMxhQ0X3PD8M9p51GbyLnt4zg9AYh1ZBSqd86Pt0zb2S1bkxjecXYnIKuHhw";
     
     /**
      * 지정된 서버IP가 아니면 LOCAL Key를 , 지정된 서버이면 서버 key를 리턴한다.
      */
     public static String getGoogleMapKey(){
-        return SystemInfo.isServer() ? GOOGLE_SERVER_MAP_KEY : GOOGLE_LOCAL_MAP_KEY;
+        //return SystemInfo.isServer() ? GOOGLE_SERVER_MAP_KEY : GOOGLE_LOCAL_MAP_KEY;\
+    	return GOOGLE_SERVER_MAP_KEY;
     }
 
     /**

@@ -8,8 +8,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import erwins.domain.SystemInfo;
-
 /**
  * ex) script src="/js.cache?path=js" type="text/javascript" / 
  * <servlet>
@@ -26,7 +24,8 @@ import erwins.domain.SystemInfo;
 public class CacheServlet extends HttpServlet{
 
     /** 6시간 */
-    private int second = SystemInfo.isServer() ? 60*6 : 1;
+    //private int second = SystemInfo.isServer() ? 60*6 : 1;
+	private int second = 60*1;
     
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException{

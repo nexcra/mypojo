@@ -8,8 +8,6 @@ import java.sql.SQLException;
  */
 public class TableInfoForOracle extends TableInfos{
 	
-	//private static final String DICTIONARY_TABLE
-	
 	/** 세션동안 constraint를 중지하는  오라클 명령어 */
 	public static final String NO_CONSTRAINT = "alter session set constraint  = deferred";
 	/** 세션동안 constraint를 중지를 복구하는  오라클 명령어 */
@@ -26,7 +24,7 @@ public class TableInfoForOracle extends TableInfos{
         tables = jdbc.select(USER_TABLES,TableInfo.class);
         
         StringBuilder temp = new StringBuilder();
-        temp.append("SELECT M.COLUMN_NAME\"name\",");
+        temp.append("SELECT M.COLUMN_NAME\"name\",DATA_TYPE \"dataType\",");
         temp.append(" (select 'true'");
         temp.append("  from USER_CONS_COLUMNS A join USER_CONSTRAINTS B on A.CONSTRAINT_NAME = B.CONSTRAINT_NAME");
         temp.append("  where B.CONSTRAINT_TYPE = 'P'");
