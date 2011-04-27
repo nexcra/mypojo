@@ -55,7 +55,7 @@ public class TextFileReader{
                     if (line.length() == 0) continue;
                     while (line.endsWith("\\")) {
                         line = line.substring(0, line.length() - 1);
-                        line += br.readLine().trim();
+                        line += br.readLine().trim();// =>잠재적 오류이다. 수정하다. 
                     }
                 }
                 callback.process(line);
@@ -65,14 +65,8 @@ public class TextFileReader{
             throw new RuntimeException(ex);
         }
         finally {
-            if (isr != null) {
-                try {
-                    isr.close();
-                }
-                catch (IOException ex) {
-                    throw new RuntimeException(ex);        
-                }
-            }
+        	IOUtils.closeQuietly(isr);
+        	IOUtils.closeQuietly(br);
         }
     }
     

@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -263,12 +264,12 @@ public abstract class CollectionUtil  extends CollectionUtils{
         for(int i=0;i<maxSize;i++) list.add(new HashMap<String,String>());
         
         //변환작업
-        for(String key : map.keySet()){
-            List<String> thisList = map.get(key);
+        for(Entry<String,List<String>> entry : map.entrySet()){
+            List<String> thisList = entry.getValue();
             int thisSize = thisList.size();
             if(thisSize != maxSize) throw new IllegalArgumentException(maxSize + " : " +thisSize + "사이즈가 균일하지 않음");
             for(int i=0;i<thisSize;i++){
-                list.get(i).put(key,thisList.get(i));
+                list.get(i).put(entry.getKey(),thisList.get(i));
             }
         }
         

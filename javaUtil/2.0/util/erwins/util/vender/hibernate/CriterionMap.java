@@ -84,10 +84,10 @@ public class CriterionMap implements  Criterion{
 	/*                                    위임메소드                                                */
 	/* ================================================================================== */
     
-
+	/*
 	public boolean equals(Object obj) {
 		return body.equals(obj);
-	}
+	}*/
 	public TypedValue[] getTypedValues(Criteria arg0, CriteriaQuery arg1) throws HibernateException {
 		return body.getTypedValues(arg0, arg1);
 	}

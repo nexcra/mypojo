@@ -59,11 +59,13 @@ public class HqlBuilderMap implements HqlBuilder{
     
     /** 나중에 수정하기.. true / false로 */
     public HqlBuilderMap isNull(String field){
-        return isNull(field);
+        builder.isNull(field);
+        return this;
     }
     /** 나중에 수정하기.. true / false로 */
     public HqlBuilderMap isNotNull(String field){
-        return isNotNull(field);
+    	builder.isNotNull(field);
+    	return this; 
     }
     
     public HqlBuilderMap eq(String field){

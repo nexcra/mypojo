@@ -20,6 +20,10 @@ public abstract class  GenericAppEngineService<T extends EntityId<String>>{
 		return getDao().saveOrUpdate(entity);
 	}
 	@Transactional
+	public T saveOrMerge(T entity) {
+		return getDao().saveOrMerge(entity);
+	}
+	@Transactional
 	public void delete(String id) {
 		getDao().delete(id);
 	}

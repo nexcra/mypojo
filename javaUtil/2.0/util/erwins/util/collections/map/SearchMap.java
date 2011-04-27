@@ -28,6 +28,7 @@ import erwins.util.root.EntityHibernatePaging;
  * @author  erwins
  */
 
+@SuppressWarnings("serial")
 public class SearchMap extends RequestMap{
     
     protected static final int DEFAULT_PAGING_SIZE = 15;
@@ -489,7 +490,10 @@ public class SearchMap extends RequestMap{
         }
 
     }
-
+    @Override
+    public boolean equals(Object o) {
+		return theMap.equals(o);
+	}
     @Override
     public int hashCode() {
         return super.hashCode();

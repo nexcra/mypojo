@@ -212,7 +212,7 @@ public enum MathUtil {
      * Number를 Long으로 변환해서 계산한다. 편의용 메소드. 
      */
     public static BigDecimal getRate(Number sum, Number value,int p) {
-        return getRate(new BigDecimal(sum.longValue()),new BigDecimal(value.longValue()),p);
+        return getRate(new BigDecimal(sum.longValue()),new BigDecimal(value.longValue()),p,2);//2?
     }
     
     /**

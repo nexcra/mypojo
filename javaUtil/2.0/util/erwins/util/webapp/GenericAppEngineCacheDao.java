@@ -33,7 +33,7 @@ public abstract class GenericAppEngineCacheDao<T extends EntityId<String>>  exte
 	
 	@Override
 	public T saveOrUpdate(T entity) {
-		T t = getJdoTemplate().makePersistent(entity);
+		T t = super.saveOrUpdate(entity);
 		put(t);
 		return t;
 	}

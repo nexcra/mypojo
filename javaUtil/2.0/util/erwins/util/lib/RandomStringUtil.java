@@ -27,17 +27,17 @@ public class RandomStringUtil extends RandomStringUtils {
     public static String makeRandomSid() {
         int yy = DayUtil.YY.getIntValue();
         while (true) {
-            String bid = RandomStringUtils.randomNumeric(13);
-            int birth = Integer.parseInt(bid.substring(0,2));
-            if (StringUtil.isSid(bid)) {
-                int value = Integer.parseInt(String.valueOf(bid.charAt(6)));
+            String sid = RandomStringUtils.randomNumeric(13);
+            int birth = Integer.parseInt(sid.substring(0,2));
+            if (StringUtil.isSid(sid)) {
+                int value = Integer.parseInt(String.valueOf(sid.charAt(6)));
                 int age = yy - birth;
                 switch(value){
                     case 1: case 2: age += 100; break;
                     case 3: case 4: break;
                     default : continue;
                 }
-                if(age > 20 && age < 60) return bid;
+                if(age > 20 && age < 60) return sid;
             }
         }
     }

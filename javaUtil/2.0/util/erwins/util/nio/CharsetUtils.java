@@ -5,11 +5,12 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
-/** 스래드에 안전하지 않은듯? 인스턴스로 만들어주자. */
+/** 스래드에 안전하지 않은듯? 인스턴스로 만들어주자.
+ * ?? 이거 존재이유가? */
 public class CharsetUtils{
 	
-	private final Charset charset = Charset.forName("UTF-8");
-	private final CharsetDecoder decoder = charset.newDecoder();
+	public static final Charset UTF_8 = Charset.forName("UTF-8");
+	private final CharsetDecoder decoder = UTF_8.newDecoder();
 	//private final CharsetDecoder decoder2 = Charset.forName("EUC-KR").newDecoder();
 	//private final CharsetEncoder encoder = Charset.forName("EUC-KR").newEncoder();
 	
@@ -22,7 +23,7 @@ public class CharsetUtils{
 	}
 
 	public Charset getCharset() {
-		return charset;
+		return UTF_8;
 	}
 	
 	/*

@@ -62,7 +62,7 @@ public class MapToBeanTest {
 		DomainTest domain = m.build(map, DomainTest.class);
 		Validate.isTrue("이름".equals(domain.getName()));
 		Validate.isTrue(domain.getId()==null);
-		Validate.isTrue(new Long(55).equals(domain.getBigNumber()));
+		Validate.isTrue(Long.valueOf(55).equals(domain.getBigNumber()));
 		Validate.isTrue(new BigDecimal("548786.587867").equals(domain.getDecimal()));
 		Validate.isTrue("a".equals(domain.getSimpleList().get(0)));
 	}

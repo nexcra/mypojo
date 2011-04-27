@@ -66,6 +66,9 @@ public abstract class ChannelHelper{
 	public void remove(String key) {
 		map.remove(key);
 	}
+	public int size() {
+		return map.size();
+	}
 	
 	protected abstract String getMessageKey();
 	

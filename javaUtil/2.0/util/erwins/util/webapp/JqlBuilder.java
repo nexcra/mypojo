@@ -73,7 +73,7 @@ public class JqlBuilder{
 	private void append(String key,String type) {
 		if(!first.next()){
 			if(openOr !=null && openOr.next()) where.append(" && "); 
-			else where.append(" && ");
+			else where.append(" || ");
 			parameterInfo.append(" , ");
 		}
 		where.append(key);

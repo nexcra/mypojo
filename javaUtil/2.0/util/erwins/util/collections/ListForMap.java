@@ -93,9 +93,7 @@ public class ListForMap<T> implements Iterable<Map<String,T>>{
 	 * 물론 T가 틀리다면 오류가 날것이다. */
 	@SuppressWarnings("unchecked")
 	public void rownum(String keyName){
-		for(int i=0;i<list.size();i++){
-			list.get(i).put(keyName, (T)new Integer(i+1));
-		}
+		for(int i=0;i<list.size();i++) list.get(i).put(keyName, (T) Integer.valueOf(i+1));
 	}
 	
 	/* ================================================================================== */

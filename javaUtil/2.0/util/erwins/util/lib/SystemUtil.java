@@ -23,12 +23,8 @@ public abstract class SystemUtil extends SystemUtils{
         }
     }
     
-    
-    /**
-     * 좀더 정확한 값을 알기 위해?? 측정 직전에 GC한다. 
-     */
     public static Long nowUsedMemory(){
-        Runtime.getRuntime().gc();
+        //Runtime.getRuntime().gc(); 좀더 정확한 값을 알기 위해?? 측정 직전에 GC한다. => 쓸모없음
         return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
     public static String nowUsedMemoryStr(){

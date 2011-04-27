@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -548,8 +549,7 @@ public abstract class FileUtil extends FileUtils {
 	 * temp를 file로 변경한다.
 	 */
 	private static void changeFile(File file, File temp) {
-		if (file.isFile())
-			file.delete();
+		if (file.isFile()) delete(file);
 		if (!temp.renameTo(file))
 			throw new RuntimeException(MessageFormat.format("do not change file {0}", file.getAbsolutePath()));
 	}
@@ -587,6 +587,19 @@ public abstract class FileUtil extends FileUtils {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+	
+	/** 걍 래핑. -> 인메모리시 이걸쓰자. */
+	@SuppressWarnings("unchecked")
+	public static List<String> readLines(File file,String encoding){
+		try {
+			return FileUtils.readLines(file, encoding);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	public static List<String> readLines(File file){
+		return readLines(file,"UTF-8");
 	}
 
 }

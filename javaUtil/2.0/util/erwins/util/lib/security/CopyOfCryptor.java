@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.KeySpec;
@@ -23,14 +22,13 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.DESedeKeySpec;
 
-import org.apache.commons.codec.binary.Base64;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 /**
  * Cryptor 대신에 사용하자. 각종 옵션이 가능하도록 변경하였다.
- * ex) Cryptor c = new Cryptor().setMode(Mode.DESede).setEncode("euc-kr");
- * Base64 라이브러리를 sun패키지에서 apache껄로 바꿨다. 이게 더 나은듯.
  */
-public class Cryptor {
+public class CopyOfCryptor {
 	
 	public static enum Mode{
 		/** 일반 DES */
@@ -53,14 +51,14 @@ public class Cryptor {
 	
 	private Mode mode = Mode.DESede;
 	/** 기본값  DESede*/
-	public Cryptor setMode(Mode mode) {
+	public CopyOfCryptor setMode(Mode mode) {
 		this.mode = mode;
 		return this;
 	}
 
 	private String encode = "UTF-8";
 	/** 기본값 UTF-8  */
-	public Cryptor setEncode(String encode) {
+	public CopyOfCryptor setEncode(String encode) {
 		this.encode = encode;
 		return this;
 	}
@@ -70,12 +68,9 @@ public class Cryptor {
 	}
 	
 	public String encryptBase64(String str){
+		BASE64Encoder encoder = new BASE64Encoder();
 		byte[] raw = encrypt(str);
-        try {
-			return new String(Base64.encodeBase64(raw),encode);
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+        return encoder.encode(raw);
 	}
 	
 	/** 바이트만을 내보낸다. 이후 Base64등으로 문자화 하자. */
@@ -113,10 +108,11 @@ public class Cryptor {
 	}
 	
 	public String decryptBase64(String base64){
+		BASE64Decoder decoder = new BASE64Decoder();
 		byte[] raw;
 		try {
-			raw = Base64.decodeBase64(base64.getBytes(encode));
-		} catch (UnsupportedEncodingException e) {
+			raw = decoder.decodeBuffer(base64);
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
         return decrypt(raw);
@@ -225,7 +221,7 @@ public class Cryptor {
 	}	
 
 	/** 이 key를 사용하면 String 복호화의 경우 padding오류가 난다. 주의 */
-	public Cryptor generateKey(){
+	public CopyOfCryptor generateKey(){
 		KeyGenerator keygen = null;
 		try {
 			keygen = KeyGenerator.getInstance(mode.name());
@@ -237,13 +233,13 @@ public class Cryptor {
 	}
 	
 	/** 아무 문자나 막넣어도 키를 생성해준다. */
-	public Cryptor generateKeyByString(String stringForKey) {
+	public CopyOfCryptor generateKeyByString(String stringForKey) {
 		return generateKey(MD5.getHashHexString(stringForKey).substring(0,26));
 	}
 	
 	/** 문자열 단일 암호화는 이것으로 생성하자. ex)quantum.object@hotmail.com
 	 * DESede's key length must be 26  */
-	public Cryptor generateKey(String stringForKey) {
+	public CopyOfCryptor generateKey(String stringForKey) {
 		byte[] keydata = stringForKey.getBytes();
 		try {
 			KeySpec keySpec = getKeySpec(keydata);
@@ -256,7 +252,7 @@ public class Cryptor {
 	}
 
 	/** TripleDES 전용? */
-	public Cryptor writeKey(File f){
+	public CopyOfCryptor writeKey(File f){
 		try {
 			SecretKeyFactory keyfactory = SecretKeyFactory.getInstance(mode.name());
 			
@@ -279,7 +275,7 @@ public class Cryptor {
 	}
 
 	/** Read a TripleDES secret key from the specified file */
-	public Cryptor readKey(File f){
+	public CopyOfCryptor readKey(File f){
 		try {
 			DataInputStream in = new DataInputStream(new FileInputStream(f));
 			byte[] rawkey = new byte[(int) f.length()];
@@ -296,7 +292,7 @@ public class Cryptor {
 	}
 	
 	/** 걍 날로 저장한 Key를 읽어온다. */
-	public Cryptor readKeyForObject(File f){
+	public CopyOfCryptor readKeyForObject(File f){
 		try {
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
 			key = (SecretKey)in.readObject();

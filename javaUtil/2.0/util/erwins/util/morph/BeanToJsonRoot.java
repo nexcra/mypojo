@@ -242,9 +242,11 @@ public abstract class BeanToJsonRoot {
 	public static void escapeForFlex(JSON json){
 		if(json instanceof JSONObject){
 			JSONObject obj = (JSONObject)json;
-			for(Object key : obj.keySet()){
-				Object value = obj.get(key);
-				if(value instanceof String) obj.put(key, StringEscapeUtil.escapeXml2((String)value));
+			//for(Object key : obj.keySet()){
+			Iterable<Entry<Object,Object>> i = obj.entrySet();
+			for(Entry<Object,Object> entry : i){
+				Object value = entry.getValue();
+				if(value instanceof String) obj.put(entry.getKey(), StringEscapeUtil.escapeXml2((String)value));
 				else if(value instanceof JSON) escapeForFlex((JSON)value);
 			}
 		}else{
@@ -266,9 +268,10 @@ public abstract class BeanToJsonRoot {
 	public static void escapeForGoogleService(JSON json){
 		if(json instanceof JSONObject){
 			JSONObject obj = (JSONObject)json;
-			for(Object key : obj.keySet()){
-				Object value = obj.get(key);
-				if(value instanceof String) obj.put(key, StringEscapeUtil.escapeJavaScript((String)value));
+			Iterable<Entry<Object,Object>> i = obj.entrySet();
+			for(Entry<Object,Object> entry : i){
+				Object value = entry.getValue();
+				if(value instanceof String) obj.put(entry.getKey(), StringEscapeUtil.escapeJavaScript((String)value));
 				else if(value instanceof JSON) escapeForGoogleService((JSON)value);
 			}
 		}else{
