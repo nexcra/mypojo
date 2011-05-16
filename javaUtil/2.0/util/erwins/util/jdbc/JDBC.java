@@ -22,6 +22,7 @@ import oracle.jdbc.driver.OracleDriver;
 import erwins.util.collections.map.RequestMap;
 import erwins.util.exception.BusinessException;
 import erwins.util.lib.ReflectionUtil;
+import erwins.util.lib.StringUtil;
 import erwins.util.root.StringCallback;
 import erwins.util.tools.TextFileReader;
 
@@ -176,7 +177,15 @@ public class JDBC{
     		for(int i=0;i<parameter.length;i++){
         		statement_oracle.setObject(i+1,parameter[i]);
         	}
-        	statement_oracle.execute();	
+        	try {
+				statement_oracle.execute();
+			} catch (Exception e) {
+				String excutedSql = sql;
+				for(Object each : parameter){
+					excutedSql = excutedSql.replaceFirst("\\?", "'"+each.toString()+"'");
+				}
+				throw new SQLException(excutedSql,e);
+			}	
         	statement_oracle.clearParameters();
     	}
     }

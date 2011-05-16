@@ -10,30 +10,6 @@ import java.math.BigDecimal;
  */
 public abstract class StringCalculator {
     
-    /**
-     * inner static class 패턴 by Effective Java
-     */
-    public static abstract class Operation{
-        private final String name;
-        Operation(String name){ this.name = name;}
-        @Override public String toString(){return this.name;}
-        abstract BigDecimal eval(BigDecimal x,BigDecimal y);
-        
-        //사용자 정의 로직을 정의한다.
-        /**
-         * @uml.property  name="pLUS"
-         * @uml.associationEnd  
-         */
-        public static final Operation PLUS = new Operation("+"){
-            @Override BigDecimal eval(BigDecimal x,BigDecimal y) {return x.add(y);}
-        };
-    }
-    
-    public BigDecimal calculate(BigDecimal x,Operation op,BigDecimal y){
-        return op.eval(x, y);
-    }
-    
-    
     public static String Plus(String A, String B) {
         // A + B
         BigDecimal B_A = new BigDecimal(A.trim());

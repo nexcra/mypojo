@@ -77,12 +77,25 @@ public class Poi extends PoiRoot{
 	public Workbook getWorkbook(){
 		return this.wb;
 	}
+	public int getNumberOfSheets(){
+		return this.wb.getNumberOfSheets();
+	}
     
     // ===========================================================================================
     //                                     간편쓰기.
     // ===========================================================================================
     
     private HSSFSheet nowSheet;
+    
+    /** groovy땜에 하나 더 만듬 ㅠㅠ */
+    public void addSheet(String sheetname,List<String> titles){
+    	addSheet(sheetname,titles.toArray(new String[titles.size()]));
+    }
+    
+    /** 기존 만들어진 문서에 값만 변경할때 사용하자. */
+    public void setSheetAt(int index){
+    	nowSheet = wb.getSheetAt(index);
+    }
     
     /**
      * 1. 시트를 만들고 0번째 로우에 헤더를 만든다.
@@ -92,6 +105,7 @@ public class Poi extends PoiRoot{
     	nowSheet = wb.createSheet(sheetname);
         HSSFRow row ;
         for(String[] titles : titless){
+        	if(titles==null) continue; //groovy에서 ...에 1개만 넣으면 인식을 못한다. 대충 땜빵
             row = createNextRow();
             for(int j=0;j<titles.length;j++)
                 row.createCell(j).setCellValue(new HSSFRichTextString(titles[j]));    
@@ -131,24 +145,34 @@ public class Poi extends PoiRoot{
     /** 파일다운로드링크, 페이지 이동링크 등등 */
     public void addUrlHyperlink(int cellnum,String url){
     	HSSFRow row = currentRow();
-    	HSSFCell cell =  row.getCell(cellnum);
-    	HSSFHyperlink link = new HSSFHyperlink(HSSFHyperlink.LINK_URL);
-    	link.setAddress(url);
-    	cell.setHyperlink(link);
-    	pairs.add(new PoiCellPair(cell, LINKED));
+    	addHyperlink(row,cellnum, url,HSSFHyperlink.LINK_URL );
     }
-    
-    public void addHyperlink(int cellnum,String linkText){
-    	HSSFRow row = currentRow();
-    	HSSFCell cell =  row.getCell(cellnum);
-    	HSSFHyperlink link = new HSSFHyperlink(HSSFHyperlink.LINK_DOCUMENT);
+
+    /** 최종메소드 .  HSSFHyperlink을 넣어준다. */
+	private void addHyperlink(HSSFRow row,int cellnum, String linkText ,int linkType) {
+		HSSFCell cell =  row.getCell(cellnum);
+    	HSSFHyperlink link = new HSSFHyperlink(linkType);
     	link.setAddress(linkText);
     	cell.setHyperlink(link);
     	pairs.add(new PoiCellPair(cell, LINKED));
+	}
+	
+	/** 현재 로우에 링크달기 */
+    public void addHyperlink(int cellnum,String sheetName,String column,int rownum){
+    	HSSFRow row = currentRow();
+    	addHyperlink(row,cellnum, toLink(sheetName, column, rownum),HSSFHyperlink.LINK_DOCUMENT );
     }
     
-    public void addHyperlink(int cellnum,String sheetName,String column,int rownum){
-    	addHyperlink(cellnum,sheetName+"!"+column+rownum);
+    /** 특정 로우에 링크달기 */
+    public void addHyperlink(int rowNum,int cellnum,String sheetName,String column,int rownum){
+    	HSSFRow row = nowSheet.getRow(rowNum);
+    	addHyperlink(row,cellnum, toLink(sheetName, column, rownum),HSSFHyperlink.LINK_DOCUMENT );
+    }
+    
+    /** column link는 A ,B 이런식으로 네이밍된다. 
+     * ㅅㅂ.. 게다가 시트번호로는 또 안되네. */
+    private String toLink(String sheetName,String column,int rownum){
+    	return sheetName+"!"+column+rownum;
     }
     
     /** 객체지향이라서 가능한 문법~  */
@@ -158,11 +182,15 @@ public class Poi extends PoiRoot{
     	pairs.add(new PoiCellPair(cell, style));
     }
     
-    /** row를 만들고 i번째 컬럼 부터 value를 입력한다.? i는 왜넣었을까..ㅋ
-     * 무조건 텍스트로 변경된다.. 숫자는 알아서 쓸것. */
+    /** row를 만들고 i번째 컬럼 부터 value를 입력한다.? i는 왜넣었을까..ㅋ */
     public void addValues(int i,Object ... values){
         HSSFRow row = createNextRow();
-        for(Object each : values){
+        addValues(i, row, values);
+    }
+
+    /** 무조건 텍스트로 변경된다.. 숫자는 알아서 쓸것. */
+	private void addValues(int i, HSSFRow row, Object... values) {
+		for(Object each : values){
             String value = null;
             if(each==null) value="";
             else if(each instanceof Number){
@@ -174,7 +202,7 @@ public class Poi extends PoiRoot{
             else value = each.toString();
             row.createCell(i++).setCellValue(new HSSFRichTextString(value));
         }
-        /*
+		/*
         for(Object each : values){
             String value = null;
             if(each==null) value="";
@@ -185,6 +213,24 @@ public class Poi extends PoiRoot{
             row.createCell(i++).setCellValue(new HSSFRichTextString(value));
         }
         */
+	}
+    
+	/** 나중에 입력값이 아닌 셀타입에 따라 바뀌게 만들자. */
+    public void changeValues(int rowIndex,Object ... values){
+    	HSSFRow row = nowSheet.getRow(rowIndex);
+    	int i=0;
+    	for(Object each : values){
+            String value = null;
+            if(each==null) value="";
+            else if(each instanceof Number){
+            	Number number =  (Number)each;
+            	row.getCell(i).setCellValue(number.doubleValue());	
+            	continue;
+            }
+            else if(each instanceof Date) value = DayUtil.DATE.get((Date)each);
+            else value = each.toString();
+            row.getCell(i++).setCellValue(new HSSFRichTextString(value));
+        }
     }
     
     public void addValuesArray(Object[] values){

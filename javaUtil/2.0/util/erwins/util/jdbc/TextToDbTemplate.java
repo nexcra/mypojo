@@ -41,6 +41,7 @@ public abstract class TextToDbTemplate{
     }
     
     abstract protected Object[] lineToParameter(TableInfo info,String line);
+    /** 파일로 테이블을 가져온다. 파일 이름으로 테이블의 구분이 가능해야 한다. 이때 각종 데이터를 초기화할것 */
     abstract protected TableInfo fileToTable(File file);
 
 }

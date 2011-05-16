@@ -34,6 +34,7 @@ public class XmlParserUse{
         assert 'task' == plan.week[0].task[0].name()
         assert 'read XML chapter' == plan.week[0].task[0].'@title'
         assert plan.week.task.'@done'*.toInteger().sum() == 9
+		plan.week.task*.each { println it.'@done'  }
         
         assert plan.xx[0].name() == 'xx'
         assert plan.xx[0].@type == 'hidden'

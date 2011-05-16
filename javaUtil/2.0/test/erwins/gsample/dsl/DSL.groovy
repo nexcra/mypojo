@@ -58,6 +58,25 @@ public class DSL{
 		}
 	}
 	
+	/** 구글링한 빌더. 나중에 수정해서 사용해보자 */
+	@Test
+	void sqlBuilder(){
+		def sql = new SqlBuilder();
+		Select select = sql.select ("table1") {
+			join("table2", type: "INNER") {
+				using(table1: "col1", table2: "col1")
+			}
+			join("table3", type: "OUTER") {
+				using(table1: "col2", table2: "col2")
+				using(table1: "col3", table2: "col3")
+			}
+			where "table1.col1 = 'test'"
+			groupBy(table1: "col1", table2: "col1")
+			orderBy(table1: "col1", table2: "col1")
+		}
+		assert select.getSql() != "";
+	}
+	
 }
 
 final class Distance2 {

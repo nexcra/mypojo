@@ -41,7 +41,43 @@ public class StringUtil extends StringUtils {
 		}
 		buff.append(org.substring(in, size));
 		return buff.toString();
-	}	
+	}
+	
+	/** 각각 길이별로 문자열을 잘라낸다. Text가 일정길이로 나뉘어진 형식일때 유효하다.
+	 * org.length()+1 == nowLength; */
+	public static String[] splitEachLength(String org,int[] eachLength,int offset){
+		String[] result = new String[eachLength.length];
+		int nowLength = 0;
+		for(int i=0;i<eachLength.length;i++){
+			int length = eachLength[i];
+			result[i] = org.substring(nowLength, nowLength + length);
+			nowLength += length + offset;
+		}
+		return result;
+	}
+	/** 각각 길이별로 문자열을 잘라낸다. Text가 일정길이로 나뉘어진 형식일때 유효하다.
+	 * org.length()+1 == nowLength; */
+	public static String[] splitEachLength(String org,List<Integer> eachLength,int offset){
+		String[] result = new String[eachLength.size()];
+		int nowLength = 0;
+		int size = eachLength.size();
+		for(int i=0;i<size;i++){
+			int length = eachLength.get(i);
+			result[i] = org.substring(nowLength, nowLength + length);
+			nowLength += length + offset;
+		}
+		if(org.length() != (nowLength-1)) throw new RuntimeException(
+				"["+org.length()+"] / ["+(nowLength-1)+"] : Length is not match");
+		return result;
+	}
+	
+	public static void removeNullAndTrim(String[] strings){
+		for(int i=0;i<strings.length;i++){
+			String each = strings[i];
+			if(each==null) strings[i] = "";
+			else strings[i] = each.trim();
+		}
+	}
 
     /** size만큼 str과 seperator를 반복시킨다. */
     public static String iterateStr(String str,String seperator,int size) {
