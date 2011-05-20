@@ -4,6 +4,8 @@ package erwins.test.runAndSeeResult
 import org.cyberneko.html.parsers.SAXParser 
 import org.junit.Test;
 
+import erwins.util.vender.apache.GroovyMetaUtil;
+
 
 
 import static org.junit.Assert.*;
@@ -12,12 +14,7 @@ class SC2Rank {
 	
 	@Test
 	void test(){
-		HashMap.metaClass."plus" = { key,value ->
-			def org = delegate.get(key)
-			if(org==null) org = 0;
-			delegate.put key, org+value
-		}
-		HashMap.metaClass."plus" = { delegate.plus it , 1 }
+		GroovyMetaUtil.hashMap()
 		eachData '한국','kr', 1
 		eachData '북미','us', 1
 		eachData '남미','us', 2

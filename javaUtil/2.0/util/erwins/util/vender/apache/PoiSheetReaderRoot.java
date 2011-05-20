@@ -80,7 +80,7 @@ public abstract class PoiSheetReaderRoot{
     
     /** 전체가 빈 배열인지? */
     private static boolean isEmpty(String[] line) {
-    	for(String each : line) if(!each.equals("")) return false;
+    	for(String each : line) if( !StringUtil.isEmpty(each)) return false;
     	return true; 
     }
 

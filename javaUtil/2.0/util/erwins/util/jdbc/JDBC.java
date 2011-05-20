@@ -22,7 +22,6 @@ import oracle.jdbc.driver.OracleDriver;
 import erwins.util.collections.map.RequestMap;
 import erwins.util.exception.BusinessException;
 import erwins.util.lib.ReflectionUtil;
-import erwins.util.lib.StringUtil;
 import erwins.util.root.StringCallback;
 import erwins.util.tools.TextFileReader;
 

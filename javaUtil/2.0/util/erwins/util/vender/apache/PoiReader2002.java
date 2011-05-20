@@ -44,7 +44,7 @@ public class PoiReader2002 implements Iterable<PoiSheetReader2002>{
         }
 	}
 
-    public PoiSheetReader2002 get(int i) {
+    public PoiSheetReader2002 getAt(int i) {
     	return new PoiSheetReader2002(wb.getSheetAt(i));
     }
 

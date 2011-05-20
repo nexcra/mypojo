@@ -11,6 +11,7 @@ import erwins.util.openApi.Google;
 
 
 /** key를 String으로 고정하고 HttpServletRequest를 수용  */
+@SuppressWarnings("serial")
 public class RequestMap extends SimpleMap<String>{
     
     //protected _Log log = _LogFactory.instance(this.getClass());

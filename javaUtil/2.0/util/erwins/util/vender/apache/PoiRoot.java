@@ -309,9 +309,9 @@ public abstract class PoiRoot{
      * @author  Administrator
      */
     public class Merge{
-        private String[] lastValues = new String[100];
-        private Integer[] startRows = new Integer[100];
-        private Integer[] startKeyRows = new Integer[100];
+        private String[] lastValues = new String[1000];
+        private Integer[] startRows = new Integer[1000];
+        private Integer[] startKeyRows = new Integer[1000];
         private HSSFSheet sheet;
         private Row row;
         private Integer startCol;

@@ -236,7 +236,7 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     	else if(list.size()==1){
     		ID id = (ID)list.get(0);
     		Entity proxy = ReflectionUtil.newInstance(getPersistentClass());
-    		ReflectionUtil.setObject(proxy, EntityId.ID_NAME, id);
+    		ReflectionUtil.setField(proxy, EntityId.ID_NAME, id);
     		return proxy;
     	}
     	else throw new IllegalStateException(list.size()+" collection must be unique or zero size");

@@ -12,6 +12,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * XSSF를 읽을때 별도의 jar가 마니 필요하다~
+ * 나중에 이들을 인터페이스화 하자.
  */
 public class PoiReader implements Iterable<PoiSheetReader>{
     
@@ -40,8 +41,8 @@ public class PoiReader implements Iterable<PoiSheetReader>{
 			}
         }
 	}
-
-    public PoiSheetReader get(int i) {
+	
+    public PoiSheetReader getAt(int i) {
     	return new PoiSheetReader(wb.getSheetAt(i));
     }
 

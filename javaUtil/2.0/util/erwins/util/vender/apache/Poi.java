@@ -4,6 +4,7 @@ package erwins.util.vender.apache;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -233,6 +234,9 @@ public class Poi extends PoiRoot{
         }
     }
     
+    public void addValuesCollection(@SuppressWarnings("rawtypes") Collection values){
+    	addValues(0,values.toArray());
+    }
     public void addValuesArray(Object[] values){
     	addValues(0,values);
     }

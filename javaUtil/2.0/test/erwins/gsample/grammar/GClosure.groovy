@@ -64,6 +64,14 @@ public class GClosure{
 		quiet{ throw new RuntimeException("sample") }
 	}
 	
+	/** 요런거도 된다~ ㅋㅋ 참고 */
+	void tt(){
+		Collections.sort order, { a,b ->
+			if(a.size() == b.size()) return 0
+			return a.size() < b.size() ? 1  : -1
+		} as Comparator
+	}
+	
 	/**
 	 * 객체가 있을때만 사용 가능한 메소드 클로저. (.&로 표기)
 	 * 객체에 있는 메소드를 클로저로 분리/사용할 수 있다.

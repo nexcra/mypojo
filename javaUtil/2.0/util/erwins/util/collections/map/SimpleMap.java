@@ -549,11 +549,15 @@ public class SimpleMap<KEY> implements Map<KEY,Object>,Serializable{
 		return list;
     }
     
-    /** 정렬된 Iterator를 리턴한다. 귀찮아서..  */
-    public Iterator<Object> sortedItorator() {
+    public SortedMap<Object,Object> sortedMap() {
         SortedMap<Object,Object> sorted = new TreeMap<Object,Object>();
         sorted.putAll(this);
-        return sorted.values().iterator();
+        return sorted;
+    }    
+    
+    /** 정렬된 Iterator를 리턴한다. 귀찮아서..  */
+    public Iterator<Object> sortedItorator() {
+        return sortedMap().values().iterator();
     }    
     
     /** 간단 캐스팅용... 쓸일이 없다. Entry가 안되서 ㅠㅠ */
