@@ -12,7 +12,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * XSSF를 읽을때 별도의 jar가 마니 필요하다~
- * 나중에 이들을 인터페이스화 하자.
+ * Groovy가 주가되니깐 인터페이스화 안해도 될듯.
+ * 메모리 1G 기준  10M만 되도 읽기 힘들다.. ㅅㅂ  30M는 못읽음. ->  jxls이 그나마 조금 더 가볍다.
+ * ---> 대용량은 자동생성이 아닌 이상 txt나 csv로 변환해서 읽자.
  */
 public class PoiReader implements Iterable<PoiSheetReader>{
     
@@ -27,10 +29,12 @@ public class PoiReader implements Iterable<PoiSheetReader>{
     }
 
 	private void load(File file) {
+		
 		FileInputStream stream = null;
     	try {
     		stream = new FileInputStream(file);
             wb = new XSSFWorkbook(stream);
+    		//wb = new XSSFWorkbook(OPCPackage.open(stream));
         }
         catch (Exception e) {
             throw new RuntimeException(e);

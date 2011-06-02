@@ -92,6 +92,9 @@ public class Poi extends PoiRoot{
     public void addSheet(String sheetname,List<String> titles){
     	addSheet(sheetname,titles.toArray(new String[titles.size()]));
     }
+    public void qwe(){
+    	
+    }
     
     /** 기존 만들어진 문서에 값만 변경할때 사용하자. */
     public void setSheetAt(int index){
@@ -167,6 +170,11 @@ public class Poi extends PoiRoot{
     /** 특정 로우에 링크달기 */
     public void addHyperlink(int rowNum,int cellnum,String sheetName,String column,int rownum){
     	HSSFRow row = nowSheet.getRow(rowNum);
+    	addHyperlink(row,cellnum, toLink(sheetName, column, rownum),HSSFHyperlink.LINK_DOCUMENT );
+    }
+    /** 특정  시트의 특정 로우에 링크달기 */
+    public void addHyperlink(int index,int rowNum,int cellnum,String sheetName,String column,int rownum){
+    	HSSFRow row = wb.getSheetAt(index).getRow(rowNum);
     	addHyperlink(row,cellnum, toLink(sheetName, column, rownum),HSSFHyperlink.LINK_DOCUMENT );
     }
     

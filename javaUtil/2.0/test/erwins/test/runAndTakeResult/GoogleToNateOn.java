@@ -23,7 +23,7 @@ public class GoogleToNateOn{
     @Test
     public void change() throws Exception {
     	final StringBuilder b = new StringBuilder();
-		TextFileReader r = new TextFileReader();
+		TextFileReader r = new TextFileReader().setEncoding("UNICODE");
 		r.read(org, new StringArrayCallback(){
 			String temp = "";
 			@Override
@@ -42,11 +42,7 @@ public class GoogleToNateOn{
 					}
 				}
 			}
-			@Override  /** ,가 치환되어있지 않다.. 구글.. 이정도냐. */
-			protected String seperator() {
-				return ",";
-			}
-		},"UNICODE");
+		});
 		TextFileUtil.write(temp, b);
     }
     

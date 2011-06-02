@@ -10,7 +10,7 @@ public abstract class AccumulatorTemplit implements Counter{
     
     protected int threshold;
     protected int now = 0;
-    protected final Runnable command;
+    protected Runnable command;
     
     public AccumulatorTemplit(int threshold){
         this.threshold = threshold;

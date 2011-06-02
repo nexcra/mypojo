@@ -1,10 +1,19 @@
 package erwins.util.vender.apache
 
 
-import groovy.sql.GroovyRowResult;
+import erwins.util.lib.StringUtil
+import groovy.sql.GroovyRowResult
 
 /** SQLUtil은 싱글톤만 사용하니까 따로 뺐다.  */
 public class GroovyMetaUtil{
+	
+	public static void addMeta(){
+		hashMap()
+		file()
+		stringArray()
+		list()
+		groovyRowResult 'N/A'
+	}
 	
 	/** 이게 더 깔끔한듯 */
 	public static void hashMap(){
@@ -24,6 +33,14 @@ public class GroovyMetaUtil{
 			files.findAll { it.name.toString().endsWith(endsWith) }
 		}
 	}
+	public static void list(){
+		/** List<Map> 을 Map<List<Map>> 으로 변경 */
+		ArrayList.metaClass."toMap" = { key ->
+			def map = [:];
+			delegate.each { map.put it[key],it  }
+			return map
+		}
+	}
 	
 	/**
 	 * List<Map> 데이터들의 특정값 중복 체크. 
@@ -40,6 +57,14 @@ public class GroovyMetaUtil{
 		GroovyRowResult.metaClass."getNullSafe"  = { key ->
 			if(delegate.containsKey(key)) return delegate[key]
 			else return nullString
+		}
+	}
+	
+	public static void stringArray(){
+		String[].metaClass."insertSql"  = {tableName ->
+			def parameter = StringUtil.iterateStr( '?', ',', delegate.length)
+			def INSERT = "INSERT INTO $tableName ( ${delegate.join(',')} ) VALUES ( ${parameter} )"
+			return INSERT
 		}
 	}
 	

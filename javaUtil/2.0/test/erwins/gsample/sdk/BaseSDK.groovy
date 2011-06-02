@@ -12,7 +12,13 @@ import org.junit.Test
 
 import groovy.lang.Delegate;
 import groovy.lang.GroovyShellimport groovy.lang.Lazy;
+import groovy.transform.AutoClone;
+import groovy.transform.Canonical;
+import groovy.transform.InheritConstructors;
+import groovy.transform.ToString;
+import groovy.util.logging.Log;
 
+//@Log  이거면 멤버필드에 log가 자동추가
 public class BaseSDK{
     
 	/** file 자체 재귀함수가 있다... 그뿐. */
@@ -58,7 +64,8 @@ public class BaseSDK{
 		@Delegate private List list = []
 		@Delegate private Lock lock = new ReentrantLock()
 	}
-	@Test
+	/** ㅅㅂ map생성자 사라진듯? */
+	//@Test
 	public void delegate(){
 		def df = new SimpleDateFormat("yyyy/MM/dd")
 		
@@ -87,5 +94,66 @@ public class BaseSDK{
 		assert list instanceof Lock
 		assert list instanceof List
 	}
+	
+	/** 트램폴린 / 자체 재귀함수호출을 가능하게한다. */
+	@Test
+	public void trampoline(){
+		def factorial
+		factorial = { int n, BigInteger accu = 1G ->
+			if (n < 2) return accu
+			factorial.trampoline(n - 1, n * accu) //재귀호출을 한다.
+		}
+		factorial = factorial.trampoline()
+		
+		assert factorial(1)    == 1
+		assert factorial(3)    == 1 * 2 * 3
+	}
+	/** 클로저끼리 링크가 가능하다 */
+	@Test
+	public void closureComposition(){
+		def plus2  = { it + 2 }
+		def times3 = { it * 3 }
+		
+		def times3plus2 = plus2 << times3
+		assert times3plus2(3) == 11
+		assert times3plus2(4) == plus2(times3(4))
+	}
+	/** 클로저 실행을 캐싱할 수 있다. */
+	@Test
+	public void memoization(){
+		//def plus = { a, b -> sleep 1000; a + b }.memoize()
+		def plus = { a, b -> sleep 100; a + b }.memoize()
+		assert plus(1, 2) == 3 // after 1000ms
+		assert plus(1, 2) == 3 // return immediately
+		assert plus(2, 2) == 4 // after 1000ms
+		assert plus(2, 2) == 4 // return immediately
+	}
+	/** etc  */
+	@Test
+	public void etc(){
+		//자동으로 자식객체까지 클론된다.
+		Person p = new Person()  
+		//as~~~  테스트 생략 (귀찮아)
+		
+		//toString하면 생성자처렴 보여준다
+		Person2 p2 = new Person2(name: 'Pete', age: 15)
+		println p2
+		assert p2.toString() == 'erwins.gsample.sdk.Person2(name:Pete, age:15)'
+		
+	}
+}
+
+@AutoClone
+class Person {
+	String first, last
+	List favItems
+	Date since
+}
+
+@InheritConstructors // 상위생성자를 자동생성
+@ToString(includeNames = true, includeFields = true)
+class Person2 {
+	String name
+	int age
 }
 

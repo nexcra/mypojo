@@ -1,6 +1,8 @@
 
 package erwins.util.counter;
 
+import groovy.lang.Closure;
+
 
 
 /**
@@ -9,6 +11,7 @@ package erwins.util.counter;
 public class Accumulator extends AccumulatorTemplit{
 	
 	private ThreashHoldRun threashHoldRun;
+	private Closure closure;
 	private int count = 0;
 	
 	public Accumulator(int threshold, ThreashHoldRun threashHoldRun) {
@@ -21,9 +24,10 @@ public class Accumulator extends AccumulatorTemplit{
 	}
     
     public Accumulator(int threshold, Runnable command) {
-        super(threshold, command);
+    	super(threshold);
+    	if(command instanceof Closure)this.closure = (Closure)command;	
+    	else this.command = command; 
     }
-
     public Accumulator(int threshold) {
         super(threshold);
     }
@@ -38,7 +42,8 @@ public class Accumulator extends AccumulatorTemplit{
             now = 0;
             count++;
             if(command!=null) command.run();
-            if(threashHoldRun!=null) threashHoldRun.run(count);
+            else if(threashHoldRun!=null) threashHoldRun.run(count);
+            else if(closure!=null) closure.call(count);
             return false;
         }
         return true;

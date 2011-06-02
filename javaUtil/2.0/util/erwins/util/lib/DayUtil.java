@@ -18,6 +18,9 @@ public enum DayUtil{
     
     /** yyyy/MM/dd */
     DATE_SIMPLE(new SimpleDateFormat("yyyy/MM/dd")),
+    
+    /** yyyy/MM/dd */
+    DATE_SIMPLE_FILE(new SimpleDateFormat("yyyy_MM_dd")),
 
     /** yyyy년MM월dd일HH시mm분 */
     DATE(new SimpleDateFormat("yyyy년MM월dd일-HH시mm분")),

@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.apache.commons.collections.map.ListOrderedMap;
+
 
 /**
  * 이하의 간단 버전이다.
@@ -19,10 +21,12 @@ public class MapForKeyList<K,T> implements Iterable<Entry<K, List<T>>>,Serializa
 	
 	private Map<K,List<T>> map;
 	
+	@SuppressWarnings("unchecked")
 	public MapForKeyList(MapType type){
 		switch(type){
 		case Hash :  map = new HashMap<K,List<T>>(); break;
 		case Tree :  map = new TreeMap<K,List<T>>(); break;
+		case ListOrderd :  map = new ListOrderedMap(); break;
 		}
 	}
 	

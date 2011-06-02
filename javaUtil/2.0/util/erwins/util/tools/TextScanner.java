@@ -17,6 +17,7 @@ import erwins.util.root.StringCallback;
 /** 
  * 간이!! 스캐너 이다. 
  * 프로그램 내부로직에 사용하지 말것!
+ * -> 병맛난다.. Groovy가 있으니 필요없음
  * */
 public class TextScanner{
     private Log log = LogFactory.getLog(this.getClass());

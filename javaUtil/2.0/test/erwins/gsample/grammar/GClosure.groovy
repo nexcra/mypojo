@@ -33,6 +33,10 @@ public class GClosure{
         //커리 사용 : 말그대로 기본 들어가는 반찬..
         def adder2 = adder.curry(2);  
         assert adder2(4) == 6 ;
+		
+		def divide = { a, b -> a / b }
+		def halver = divide.rcurry(2) //역커리도 가능(오른쪽부터)
+		assert halver(8) == 4
         
         //클로저 생성. 이게 이해가 안되면 문제가 있다.
         def a = foo(1);
@@ -42,7 +46,7 @@ public class GClosure{
         
         //메소드 내에서도 선언이 가능하다.
         def qqq = {q,w->return { q=q+1; w=w+1; q+w+it};}
-        def temp = qqq(3,4);
+        def temp = qqq(3,4); 
         assert temp(1) == 10;
         assert temp(2) == 13;
         assert temp(10) == 23;
@@ -95,19 +99,19 @@ public class GClosure{
         // 메소드 클로저의 배열화! 중요!!  일반적으로 반복되는 배열을 collect하지만 요기서는 클로저를 collect해보자.
 		// 특이하게, qq에 클로저가 파라메터로 들어가야 하지만,이는 대신에 collect에 들어간 클로저로 대체된다. 
 		// 내부적으로 클로저는 여러번 호출됨으로 배열과 같은 효과를 지닌다.
-        assert this.&domain.collect{it*2} == [4, 6, 8, 10, 12] ;
+        assert this.&domain.collect{it*2} == [4, 6, 8, 10, 12] ; //ㅅㅂ..여기의 collect는 훼이크
     }
 	
 	/** 이 메소드는 클로저화 되어 collect될 수 있다.
 	 * 아래는 [1..5]*.each{ c(it+1) }와 동일한 표현이다. */
 	def domain(c){
-	    [1..5]*.each{c it+1};  
+	    [1..5]*.each{c it+1};
 	}
 }
 
 
 /** 클로저 사용지 자동으로 오버로딩을 인식한다. */
-class MultiMethodSample {
+class MultiMethodSample { 
     int mysteryMethod (String value) {
         return value.length()
     }

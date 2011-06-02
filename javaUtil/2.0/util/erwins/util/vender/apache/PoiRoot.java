@@ -1,9 +1,12 @@
 
 package erwins.util.vender.apache;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,6 +15,7 @@ import java.util.List;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFComment;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -22,10 +26,9 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
-
-import erwins.util.collections.map.SimpleMap;
 
 /**
  * POI가 너무 길어서 나눔
@@ -61,10 +64,6 @@ public abstract class PoiRoot{
     
     /**  헤더길이 :  시트초기화시 설정된다. */
     protected List<Integer> headerRowCount = new ArrayList<Integer>();;
-    
-    /** 정렬에 사용되는 내가 정한 한글+영문의 폰트 크기 */
-    protected static final short font11 = 600;
-    //private static final short font10 = 550;
     
     /** 코멘트에 사용된다. 묻지마.. 나도 몰라. */
     protected HashMap<Integer,HSSFPatriarch> patriarchMap = new HashMap<Integer,HSSFPatriarch>();    
@@ -173,6 +172,9 @@ public abstract class PoiRoot{
     public HSSFWorkbook getWb(){
         return wb;
     }    
+    public void writeProtectWorkbook(String password,String username){
+    	wb.writeProtectWorkbook(password, username);
+    }    
     
     // ===========================================================================================
     //                                    method
@@ -191,39 +193,65 @@ public abstract class PoiRoot{
         for(PoiCellPair each : pairs) each.accept();
     }
     
+    /** 실제 써야할때 수정해서 쓰자 */
+    protected static void addPickture( HSSFWorkbook wb,HSSFSheet sheet,File file){
+    	Drawing patriarch = sheet.getDrawingPatriarch();
+    	if(patriarch==null) patriarch = sheet.createDrawingPatriarch();
+
+        HSSFClientAnchor anchor  = new HSSFClientAnchor(0,0,0,255,(short)1,4,(short)2,4);
+        anchor.setAnchorType( 2 );//??
+        patriarch.createPicture(anchor, loadPicture(wb, file ));
+    }
+
+    /** 어디서 주워온거 */
+    protected static int loadPicture(HSSFWorkbook wb , File file){
+        int pictureIndex;
+        FileInputStream fis = null;
+        ByteArrayOutputStream bos = null;
+
+        try {
+            try {
+				fis = new FileInputStream( file);
+				bos = new ByteArrayOutputStream( );
+				int c;
+				while ( (c = fis.read()) != -1) {
+				    bos.write( c );
+				}
+				pictureIndex = wb.addPicture( bos.toByteArray(), HSSFWorkbook.PICTURE_TYPE_JPEG  );
+			} catch (FileNotFoundException e) {
+				throw new RuntimeException(e);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+        } finally {
+        	IOUtils.closeQuietly(bos);
+        	IOUtils.closeQuietly(fis);
+        }
+        return pictureIndex;
+    }
     /**
-     * 4글자 이상인 헤더칸에 맞추어 열 조정 
-     * 개별 체크로.. 부하가 약간 있을 수 있음.
-     * sheet1.autoSizeColumn((short)5); //한글이라그런기? 약간 작게 설정된다.
+     * 직접 조절하다가 API로 변경
      */    
     private void wrapSheet(int index){
+    	int headerRowLength = headerRowCount.get(index);
         HSSFSheet sheet =  wb.getSheetAt(index);
-        SimpleMap<Integer> map = new SimpleMap<Integer>();
-        
         for (Iterator<Row> rows = sheet.rowIterator(); rows.hasNext(); ) {
             Row thisRow = rows.next();
             for (Iterator<Cell> cells = thisRow.cellIterator(); cells.hasNext(); ) {
                 Cell thisCell=  cells.next();
-                if(thisCell.getCellType()==Cell.CELL_TYPE_STRING){
-                	String value = thisCell.getRichStringCellValue().getString();
-                    int length = value.length();
-                    //map.putMaxInteger(thisCell.getCellNum(), length);  //????????????
-                    map.putMaxInteger(thisCell.getColumnIndex(), length);  //임시변통 테스트 안해봄	
-                }
-                if(thisRow.getRowNum() < headerRowCount.get(index)){
+                if(thisRow.getRowNum() < headerRowLength){
                     thisCell.setCellStyle(HEADER);
                 }else{
-                    thisCell.setCellStyle(BODY);                
+                    //thisCell.setCellStyle(BODY);                
+                	thisCell.setCellStyle(BODY_Left);
                 }
             }
         }
-        for(Object key : map.keySet()){
-            Integer sho = (Integer)key;
-            Integer length = map.getInteger(key);
-            if(length > 20) length = 20; //맥스 제한..
-            if(length > 4)
-                sheet.setColumnWidth(sho,length * font11); //한글 한글자당 550정도?
-        }
+        int size =  sheet.getRow(0).getLastCellNum();
+        //자동 사이즈 조정 : ㄴ이놈은 데이터가 다 들어간 뒤 적용해줘야 하는듯 하다.
+        for(int i=0;i<size;i++) sheet.autoSizeColumn(i);
+        //고정영역 조정 : 취향이 아니라면 설정하지 말자.
+        sheet.createFreezePane(0, headerRowLength);
     }
     
     /**
@@ -291,15 +319,16 @@ public abstract class PoiRoot{
     public void setAlignment(){
         HEADER.setAlignment((short)2);
         HEADER.setVerticalAlignment((short)1);
-        BODY.setAlignment((short)2);
-        BODY.setVerticalAlignment((short)1);
+        //BODY.setAlignment((short)2);
+        //BODY.setVerticalAlignment((short)1);
+        BODY_Left.setAlignment((short)1);
+        BODY_Left.setVerticalAlignment((short)1);
     }    
     
     /**
      * 해당 시트의 가로/세로를 머지한다.
-     * Wrap 이전에 호출되어야 한다. 
-     * ex) poi.getMerge(2).setAbleRow(0,1).merge();
-     * ex2) .setAbleRow(0,1).setAbleKeyCol(0,0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18).setAbleCol(1) .merge();
+     * Wrap 이전?에 호출되어야 한다. 
+     * ex) p.getMerge(1).setAbleRow(0).setAbleCol(0).merge();
      */
     public Merge getMerge(int index){
         return new Merge(wb.getSheetAt(index));         

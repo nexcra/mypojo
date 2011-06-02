@@ -44,30 +44,36 @@ public class StringUtil extends StringUtils {
 	}
 	
 	/** 각각 길이별로 문자열을 잘라낸다. Text가 일정길이로 나뉘어진 형식일때 유효하다.
-	 * org.length()+1 == nowLength; */
+	 * org.length()+1 == nowLength;
+	 * 마지막열은 길이값 무시하도록 추가. (trim()때문에..) */
 	public static String[] splitEachLength(String org,int[] eachLength,int offset){
 		String[] result = new String[eachLength.length];
 		int nowLength = 0;
 		for(int i=0;i<eachLength.length;i++){
 			int length = eachLength[i];
-			result[i] = org.substring(nowLength, nowLength + length);
+			int subLength = nowLength + length;
+			if(org.length() < subLength) result[i] = org.substring(nowLength, eachLength.length);
+			else result[i] = org.substring(nowLength, subLength);
 			nowLength += length + offset;
 		}
 		return result;
 	}
 	/** 각각 길이별로 문자열을 잘라낸다. Text가 일정길이로 나뉘어진 형식일때 유효하다.
-	 * org.length()+1 == nowLength; */
+	 * org.length()+1 == nowLength;
+	 * 마지막열은 길이값 무시하도록 추가. (trim()때문에..) */
 	public static String[] splitEachLength(String org,List<Integer> eachLength,int offset){
 		String[] result = new String[eachLength.size()];
 		int nowLength = 0;
 		int size = eachLength.size();
 		for(int i=0;i<size;i++){
 			int length = eachLength.get(i);
-			result[i] = org.substring(nowLength, nowLength + length);
+			int subLength = nowLength + length;
+			if(org.length() < subLength) result[i] = org.substring(nowLength, org.length());
+			else result[i] = org.substring(nowLength, subLength);
 			nowLength += length + offset;
 		}
-		if(org.length() != (nowLength-1)) throw new RuntimeException(
-				"["+org.length()+"] / ["+(nowLength-1)+"] : Length is not match");
+		//if(org.length() != (nowLength-1)) throw new RuntimeException(
+				//"["+org.length()+"] / ["+(nowLength-1)+"] : Length is not match");
 		return result;
 	}
 	

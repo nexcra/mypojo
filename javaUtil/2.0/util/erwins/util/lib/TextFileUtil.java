@@ -100,13 +100,13 @@ public class TextFileUtil{
 		final StringBuilder b = new StringBuilder(); 
 		while(i.hasNext()){
 			File each = i.next();
-			new TextFileReader().read(each,new StringCallback() {
+			new TextFileReader().setEncoding(encode).read(each,new StringCallback() {
 				@Override
 				public void process(String line) {
 					b.append(line);
 					b.append("\r\n");
 				}
-			},encode);
+			});
 		}
 		FileUtil.writeStr(b,out);
 	}

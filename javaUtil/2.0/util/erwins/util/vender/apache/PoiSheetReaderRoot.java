@@ -72,12 +72,12 @@ public abstract class PoiSheetReaderRoot{
     		Iterator<Cell> cells = eachRow.iterator();
     		while(cells.hasNext()){
     			Cell eachCell = cells.next();
-    			line[eachCell.getColumnIndex()] = toString(eachCell);
+    			line[eachCell.getColumnIndex()] = cellToString(eachCell);
     		}
     		if(!isEmpty(line)) callback.readRow(line);
     	}
 	}
-    
+	
     /** 전체가 빈 배열인지? */
     private static boolean isEmpty(String[] line) {
     	for(String each : line) if( !StringUtil.isEmpty(each)) return false;
@@ -89,14 +89,18 @@ public abstract class PoiSheetReaderRoot{
      * CELL_TYPE_NUMERIC의 경우 double임으로 2 => 2.0 이런식으로 바뀐다.
      * BigDecimal로 변경함으로 성능 문제시 교체하자.
      */
-    private static String toString(Cell cell) {
+    protected static String cellToString(Cell cell) {
         if (cell == null) return "";
-        switch (cell.getCellType()) {
-            case Cell.CELL_TYPE_NUMERIC:
-                return new BigDecimal(cell.getNumericCellValue()).toString();
-            default:
-            	return cell.getRichStringCellValue().getString().trim();
-        }
+        try {
+			switch (cell.getCellType()) {
+			    case Cell.CELL_TYPE_NUMERIC:
+			        return new BigDecimal(cell.getNumericCellValue()).toString();
+			    default:
+			    	return cell.getRichStringCellValue().getString().trim();
+			}
+		} catch (IllegalStateException e) {
+			return e.getMessage() + ""; //null방지
+		}
     }
     
 }
