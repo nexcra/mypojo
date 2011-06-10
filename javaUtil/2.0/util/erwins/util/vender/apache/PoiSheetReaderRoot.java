@@ -2,20 +2,24 @@
 package erwins.util.vender.apache;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
 import erwins.util.lib.StringUtil;
+import groovy.lang.Closure;
 
 /**
  * POI 패키지의 HSSF를 편리하게.. 헤더칸은 1칸 이라고 일단 고정 사각 박스를 예쁘게 채울려면 반드시 null에 ""를 채워 주자~
  * @author  erwins(my.pojo@gmail.com)
  */
-public abstract class PoiSheetReaderRoot{
+public abstract class PoiSheetReaderRoot implements Iterable<String[]>{
     
     public static interface StringArrayPoiCallback{
     	public void readRow(String[] line);
@@ -101,6 +105,69 @@ public abstract class PoiSheetReaderRoot{
 		} catch (IllegalStateException e) {
 			return e.getMessage() + ""; //null방지
 		}
+    }
+    
+    @SuppressWarnings("rawtypes")
+	public void read(final Closure init){
+    	read(null,init);
+    }
+    
+    /** Groovy용
+     * Closure를 사용함으로 조낸 느리긴 하다.   */
+    @SuppressWarnings(value={ "unchecked","rawtypes"})
+    public void read(final Closure init,final Closure callback){
+    	boolean first = true;
+    	String[] column = null;
+    	int columnLength = 0;
+    	
+    	Iterator<String[]> iterator =  iterator();
+    	while(iterator.hasNext()){
+    		String[] line = iterator.next();
+    		if(first){
+    			column = new String[line.length];
+    			for(int i=0;i<line.length;i++) column[i] = line[i]==null ? "" : line[i]; 
+    			first = false;
+    			if(init!=null) init.call(new Object[]{column});
+    			columnLength = column.length;
+    			continue;
+    		}
+    		int lineLength =  line.length; //길이가 줄어들 수 있다. 
+    		if(columnLength < lineLength)  lineLength = columnLength; //컬럼보다 더 길게 들어온 데이터는 무시한다.
+    		Map<Object,String> result = new ListOrderedMap();
+    		for(int i=0;i<lineLength;i++){
+    			result.put(column[i],line[i] == null ? "" : line[i].trim());
+    		}
+    		callback.call(result);
+    	}
+    }
+    
+    /** 걍 귀찮아서 복사했다..  */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public List read(){
+    	List list = new ArrayList();
+    	boolean first = true;
+    	String[] column = null;
+    	int columnLength = 0;
+    	
+    	Iterator<String[]> iterator =  iterator();
+    	while(iterator.hasNext()){
+    		String[] line = iterator.next();
+    		if(first){
+    			column = new String[line.length];
+    			for(int i=0;i<line.length;i++) column[i] = line[i]==null ? "" : line[i]; 
+    			first = false;
+    			columnLength = column.length;
+    			continue;
+    		}
+    		int lineLength =  line.length; //길이가 줄어들 수 있다. 
+    		if(columnLength < lineLength)  lineLength = columnLength; //컬럼보다 더 길게 들어온 데이터는 무시한다.
+    		Map<Object,String> result = new ListOrderedMap();
+    		for(int i=0;i<lineLength;i++){
+    			result.put(column[i],line[i] == null ? "" : line[i].trim());
+    		}
+    		list.add(result);
+    	}
+    	return list;
     }
     
 }

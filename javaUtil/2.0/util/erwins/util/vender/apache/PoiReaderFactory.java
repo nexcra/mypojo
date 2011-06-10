@@ -26,7 +26,7 @@ public abstract class PoiReaderFactory{
 		//if(!f.exists()) f = new File(f.getAbsolutePath()+".");
 		String name = f.getName();
 		if(name.endsWith(".xlsx")) return new PoiReader(f); 
-		else if(name.endsWith(".xlsx")) return new PoiReader2002(f);
+		else if(name.endsWith(".xls")) return new PoiReader2002(f);
 		else return new PoiReader(f); //없으면 걍 최신버전이라고 간주.
 	}
     

@@ -52,8 +52,12 @@ public class StringUtil extends StringUtils {
 		for(int i=0;i<eachLength.length;i++){
 			int length = eachLength[i];
 			int subLength = nowLength + length;
-			if(org.length() < subLength) result[i] = org.substring(nowLength, eachLength.length);
-			else result[i] = org.substring(nowLength, subLength);
+			try {
+				if(org.length() < subLength) result[i] = org.substring(nowLength, eachLength.length);
+				else result[i] = org.substring(nowLength, subLength);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 			nowLength += length + offset;
 		}
 		return result;

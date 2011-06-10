@@ -1,21 +1,18 @@
 
 package erwins.util.vender.apache;
 
-import groovy.lang.Closure;
-
 import java.util.Iterator;
-import java.util.Map;
 
-import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 /**
  * POI 패키지의 HSSF를 편리하게.. 헤더칸은 1칸 이라고 일단 고정 사각 박스를 예쁘게 채울려면 반드시 null에 ""를 채워 주자~
+ * 모든 셀이 빈공간이라면 여백으로 간주하고 스킵한다.
  * @author  erwins(my.pojo@gmail.com)
  */
-public class PoiSheetReader extends PoiSheetReaderRoot implements Iterable<String[]>{
+public class PoiSheetReader extends PoiSheetReaderRoot{
     
 	protected XSSFSheet sheet;
     
@@ -23,52 +20,18 @@ public class PoiSheetReader extends PoiSheetReaderRoot implements Iterable<Strin
     	this.sheet = sheet;
     }
     
+    /** 
+     * 시트 이름이 XSSFSheet객체에 있는게 아니라 WB에 있다. ㅅㅂ.
+     * */
     public String getSheetName(){
     	return sheet.getSheetName();
     }
 	
-    /** 
-     * 시트 이름이 XSSFSheet객체에 있는게 아니라 WB에 있다. ㅅㅂ.
-     * 모든 셀이 빈공간이라면 여백으로 간주하고 스킵한다.
-     * */
+    /** 쓸모없다 */
     public void read(StringArrayPoiCallback callback){
     	Iterator<Row> rows = sheet.iterator();
     	readEach(callback, rows);
     }
-    
-    public void read(final Closure init){
-    	read(null,init);
-    }
-    
-    /** Groovy용
-     * Closure를 사용함으로 조낸 느리긴 하다.   */
-    @SuppressWarnings(value={ "unchecked"})
-    public void read(final Closure init,final Closure callback){
-    	boolean first = true;
-    	String[] column = null;
-    	int columnLength = 0;
-    	
-    	Iterator<String[]> iterator =  iterator();
-    	while(iterator.hasNext()){
-    		String[] line = iterator.next();
-    		if(first){
-    			column = new String[line.length];
-    			for(int i=0;i<line.length;i++) column[i] = line[i]==null ? "" : line[i]; 
-    			first = false;
-    			if(init!=null) init.call(new Object[]{column});
-    			columnLength = column.length;
-    			continue;
-    		}
-    		int lineLength =  line.length; //길이가 줄어들 수 있다. 
-    		if(columnLength < lineLength)  lineLength = columnLength; //컬럼보다 더 길게 들어온 데이터는 무시한다.
-    		Map<Object,String> result = new ListOrderedMap();
-    		for(int i=0;i<lineLength;i++){
-    			result.put(column[i],line[i] == null ? "" : line[i].trim());
-    		}
-    		callback.call(result);
-    	}
-    }
-    
     
 	@Override
 	public Iterator<String[]> iterator() {

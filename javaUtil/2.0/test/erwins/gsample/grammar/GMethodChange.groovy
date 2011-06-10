@@ -21,20 +21,6 @@ public class GMethodChange{
 		assert "Fred" == p.name
 		p.changeNameToBob()
 		assert "Bob" == p.name
-		
-		//샘플
-		Sql.metaClass."list"  = { delegate.rows(it.toString())  } //GString이 들어와도 정상작동하게 변경
-		//이하는 오라클에서만 동작
-		Sql.metaClass."paging"  = { sql,pageSize,pageNo -> 
-			int startNo = pageSize * (pageNo-1) +1;
-			int endNo = pageSize * pageNo;
-			delegate.list("SELECT * FROM (SELECT inner.*,ROWNUM \"PAGE_RN\" FROM ( $sql ) inner) WHERE PAGE_RN BETWEEN $startNo AND $endNo")
-		}
-		Sql.metaClass."countForOracle"  = { 
-			delegate.list('SELECT * FROM user_tables').each { 
-				println "$it.TABLE_NAME : "+db.list("select count(*) from $it.TABLE_NAME")[0]['COUNT(*)'] 
-			}
-		}
 	}
 	
 

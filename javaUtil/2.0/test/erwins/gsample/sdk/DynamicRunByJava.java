@@ -14,7 +14,8 @@ import org.junit.Test;
 
 public class DynamicRunByJava {
 
-    /** 그루비 조각을 스크립트처럼 사용 가능. */
+    /** 그루비 조각을 스크립트처럼 사용 가능.
+     * 한번 파싱만 하고 변수만 대입도 가능 */
     @Test 
     public void shell() {
         GroovyShell shell = new GroovyShell();

@@ -33,12 +33,38 @@ public class GroovyMetaUtil{
 			files.findAll { it.name.toString().endsWith(endsWith) }
 		}
 	}
+	
+	/** 이외 유용한것들
+	 * min / max / split / sort / sum / unique
+	 * assert [0:[2,4,6], 1:[1,3,5]] == [1,2,3,4,5,6].groupBy { it % 2 }
+	 *   */
 	public static void list(){
 		/** List<Map> 을 Map<List<Map>> 으로 변경 */
 		ArrayList.metaClass."toMap" = { key ->
 			def map = [:];
 			delegate.each { map.put it[key],it  }
 			return map
+		}
+		/** 그냥 split은 true / false 구조로 무조건 2개로 나눈다. 이는 그것을 개량한것이다.
+		* separator이 true로 나올때마다 하나의 리스트를 추가한다.
+		* List<List>의 구조를 가진다. 첫번째 separator는 무조건 true가 나와야 한다. */
+	   ArrayList.metaClass."splitByFirst" = { separator ->
+		   def result = []
+		   def nowList
+		   delegate.each {
+			   if(separator(it)){
+				   nowList = []
+				   result << nowList
+			   }
+			   nowList << it
+		   }
+		   return result
+	   }
+		ArrayList.metaClass."containsAny" = { value ->
+			delegate.findAll { it==value }.size() > 0
+		}
+		ArrayList.metaClass."containsAny" = { key, value ->
+		delegate.findAll { it[key]==value }.size() > 0
 		}
 	}
 	
@@ -57,6 +83,17 @@ public class GroovyMetaUtil{
 		GroovyRowResult.metaClass."getNullSafe"  = { key ->
 			if(delegate.containsKey(key)) return delegate[key]
 			else return nullString
+		}
+	}
+	/** 추가하진 않는다. 나중에 하든지 하자. */
+	public static void string(){
+		String.metaClass.swapCase = {
+			def sb = new StringBuffer()
+			delegate.each {
+				sb << (Character.isUpperCase(it as char) ? Character.toLowerCase(it as char) : 
+						Character.toUpperCase(it as char))
+			}
+			sb.toString()
 		}
 	}
 	

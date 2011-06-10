@@ -2,7 +2,10 @@
 package erwins.util.lib;
 
 import java.math.BigDecimal;
-import java.text.*;
+import java.text.DecimalFormat;
+import java.text.Format;
+import java.text.MessageFormat;
+import java.text.NumberFormat;
 
 import erwins.util.valueObject.Won;
 
@@ -84,6 +87,13 @@ public enum FormatUtil {
      */
     public static String toShorten(String str, int maxCount, String shorter) {
         return (str.length() > maxCount) ? str.substring(0, maxCount) + shorter : str;
+    }
+    
+    /** 소문자로 바꿔준다~ 체크는 안함 귀찮.. 
+     * 97 ~ 122 : a~z --> 0부터 시작
+		65 ~ 90   : A ~ Z*/
+    public static String intToAlpha(int i) {
+    	return new String(new char[]{(char)(i+97)});
     }
 
     /**

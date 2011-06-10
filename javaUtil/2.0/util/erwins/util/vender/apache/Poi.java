@@ -4,10 +4,12 @@ package erwins.util.vender.apache;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFHyperlink;
@@ -92,9 +94,6 @@ public class Poi extends PoiRoot{
     public void addSheet(String sheetname,List<String> titles){
     	addSheet(sheetname,titles.toArray(new String[titles.size()]));
     }
-    public void qwe(){
-    	
-    }
     
     /** 기존 만들어진 문서에 값만 변경할때 사용하자. */
     public void setSheetAt(int index){
@@ -152,7 +151,7 @@ public class Poi extends PoiRoot{
     	addHyperlink(row,cellnum, url,HSSFHyperlink.LINK_URL );
     }
 
-    /** 최종메소드 .  HSSFHyperlink을 넣어준다. */
+    /** ex) db.eachWithIndex { k,i -> p.addHyperlink i+1, 0, k.TABLE_NAME, 'A', 1 } */
 	private void addHyperlink(HSSFRow row,int cellnum, String linkText ,int linkType) {
 		HSSFCell cell =  row.getCell(cellnum);
     	HSSFHyperlink link = new HSSFHyperlink(linkType);
@@ -200,16 +199,17 @@ public class Poi extends PoiRoot{
     /** 무조건 텍스트로 변경된다.. 숫자는 알아서 쓸것. */
 	private void addValues(int i, HSSFRow row, Object... values) {
 		for(Object each : values){
-            String value = null;
-            if(each==null) value="";
-            else if(each instanceof Number){
+            if(each instanceof Number){
             	Number number =  (Number)each;
             	row.createCell(i++).setCellValue(number.doubleValue());	
-            	continue;
+            }else{
+            	String value = null;
+                if(each==null) value="";
+                else if(each instanceof Date) value = DayUtil.DATE.get((Date)each);
+                else value = each.toString();
+                row.createCell(i++).setCellValue(new HSSFRichTextString(value));	
             }
-            else if(each instanceof Date) value = DayUtil.DATE.get((Date)each);
-            else value = each.toString();
-            row.createCell(i++).setCellValue(new HSSFRichTextString(value));
+            
         }
 		/*
         for(Object each : values){
@@ -224,7 +224,8 @@ public class Poi extends PoiRoot{
         */
 	}
     
-	/** 나중에 입력값이 아닌 셀타입에 따라 바뀌게 만들자. */
+	/** 나중에 입력값이 아닌 셀타입에 따라 바뀌게 만들자.
+	 *  -> 이거 수정해야함 */
     public void changeValues(int rowIndex,Object ... values){
     	HSSFRow row = nowSheet.getRow(rowIndex);
     	int i=0;
@@ -254,18 +255,28 @@ public class Poi extends PoiRoot{
     	addValues(0,values);
     }
     
-    /** 컬럼 순서같은건 없다. 간단메소드로서 사용에 주의할것. */
+    /** 컬럼 순서같은건 없다. 간단메소드로서 사용에 주의할것.
+     * Collection인 컬럼은 무시한다. */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void setListedMap(String sheetname,List<Map> list){
 		if(list.size()==0) return;
-		String[] colums = (String[]) list.get(0).keySet().toArray(new String[list.get(0).keySet().size()]);
+		//String[] colums = (String[]) list.get(0).keySet().toArray(new String[list.get(0).keySet().size()]);
+		List colList = new ArrayList();
+		Map sample = list.get(0);
+		for(Object o : sample.entrySet()){
+			Entry e = (Entry)o;
+			if(e.getValue() instanceof Collection) continue;
+			colList.add(e.getKey());
+		}
+		String[] colums = (String[]) colList.toArray(new String[colList.size()]);
 		this.addSheet(sheetname, colums);
 		
 		for(Map each : list){
-			String[] values = new String[colums.length]; 
+			Object[] values = new Object[colums.length]; 
 			for(int i=0;i<colums.length;i++){
 				Object value = each.get(colums[i]);
-				values[i] = value == null? "" : value.toString() ;
+				if(value instanceof Collection) continue;
+				values[i] = value == null? "" : value ;
 			}
 			this.addValuesArray(values);
 		}

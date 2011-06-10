@@ -117,6 +117,7 @@ public abstract class PoiRoot{
         BODY_Right.setFont(font);
         BODY_Right.setAlignment((short)3);        
         BODY_Right.setVerticalAlignment((short)1);
+        //BODY_Number.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0.00")); // 나중에 사용하자.
         
         BODY_RED = buildStyle(RED_FONT, null);
         BODY_RED.setAlignment((short)2);
@@ -185,12 +186,13 @@ public abstract class PoiRoot{
      * 각 행을 실선을 둘러싼다.
      * 가장 긴 열에 맞추어 정렬한다.
      */
-    public void wrap(){
+    public PoiRoot wrap(){
         int sheetLength = wb.getNumberOfSheets();
         for(int i=0;i<sheetLength;i++){            
             wrapSheet(i);
         }
         for(PoiCellPair each : pairs) each.accept();
+        return this;
     }
     
     /** 실제 써야할때 수정해서 쓰자 */
@@ -242,8 +244,9 @@ public abstract class PoiRoot{
                 if(thisRow.getRowNum() < headerRowLength){
                     thisCell.setCellStyle(HEADER);
                 }else{
+                	if(thisCell.getCellType()==Cell.CELL_TYPE_NUMERIC) thisCell.setCellStyle(BODY_Right);
+                	else thisCell.setCellStyle(BODY_Left);
                     //thisCell.setCellStyle(BODY);                
-                	thisCell.setCellStyle(BODY_Left);
                 }
             }
         }
@@ -543,6 +546,7 @@ public abstract class PoiRoot{
     
     /** 엑셀시트를 파일로 변경한다. */
     public static void write(String fileName, HSSFWorkbook workbook){
+    	if(fileName.indexOf(".") < 0) fileName += ".xls";
         write(new File(fileName), workbook);
     }
     
