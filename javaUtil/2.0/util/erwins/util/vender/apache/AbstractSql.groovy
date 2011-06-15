@@ -14,6 +14,7 @@ public abstract class AbstractSql{
 	public list(it){ db.rows(it.toString())}
 	/** 한개만 리턴 */
 	public one(it){ list(it)[0]}
+	public oneValue(it){ list(it)[0].iterator().next().value}
 	/** tables.each { it['COUNT'] = db.count(it.TABLE_NAME) } 요런식으로 활용하자 */
 	public count(tableName){ one("select COUNT(*) as COUNT from $tableName ")['COUNT']}
 }

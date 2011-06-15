@@ -8,7 +8,6 @@ import erwins.util.lib.StringUtil;
 
 
 /** 
- * 
  * 기본 로그팩토리에 편의메소드 추가
  * */
 public abstract class LogFactory2{
@@ -18,17 +17,11 @@ public abstract class LogFactory2{
 	}
 	
 	public static interface Log2  extends Log{
-
 		public abstract void trace(String format, Object... args);
-
 		public abstract void debug(String format, Object... args);
-
 		public abstract void info(String format, Object... args);
-
 		public abstract void warn(String format, Object... args);
-
 		public abstract void error(String format, Object... args);
-
 	}
 	
 	/** 아파치 로그에 템플릿 파라메터를 추가했다. */
@@ -37,6 +30,7 @@ public abstract class LogFactory2{
 		private DefaultLog(Log log){
 			this.log = log;
 		}
+		
 		@Override
 		public void trace(String format,Object ... args){
 			if(!log.isTraceEnabled()) return;
@@ -150,11 +144,6 @@ public abstract class LogFactory2{
 		public void warn(Object arg0) {
 			log.warn(arg0);
 		}
-		
-		
-		
-
-		
 	}
 
 }

@@ -26,6 +26,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -195,22 +196,21 @@ public abstract class PoiRoot{
         return this;
     }
     
-    /** 실제 써야할때 수정해서 쓰자 */
-    protected static void addPickture( HSSFWorkbook wb,HSSFSheet sheet,File file){
+    /** new HSSFClientAnchor(0,0,200,100,(short)1,1,(short)5,7) 의 경우
+	 * 1:1 ~ 5:7 칸의 범위에 이미지가 형성되며 여기서 xy좌표에 +-가 된다.
+	 * 즉 이미지의 실제 사이즈를 잘 알아야 이 값을 조정할 수 있다. */
+    public void addImage(HSSFSheet sheet,ClientAnchor anchor,File file){
     	Drawing patriarch = sheet.getDrawingPatriarch();
     	if(patriarch==null) patriarch = sheet.createDrawingPatriarch();
-
-        HSSFClientAnchor anchor  = new HSSFClientAnchor(0,0,0,255,(short)1,4,(short)2,4);
         anchor.setAnchorType( 2 );//??
-        patriarch.createPicture(anchor, loadPicture(wb, file ));
+        patriarch.createPicture(anchor, loadPicture(file ));
     }
 
     /** 어디서 주워온거 */
-    protected static int loadPicture(HSSFWorkbook wb , File file){
+    protected int loadPicture(File file){
         int pictureIndex;
         FileInputStream fis = null;
         ByteArrayOutputStream bos = null;
-
         try {
             try {
 				fis = new FileInputStream( file);

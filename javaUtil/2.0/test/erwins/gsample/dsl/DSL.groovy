@@ -77,6 +77,22 @@ public class DSL{
 		assert select.getSql() != "";
 	}
 	
+	/** 새로 추가된 신개념 DSL~ 직관적이고 멋지다.  */
+	@Test
+	void test2(){
+		def please =  { action ->
+			[the: { what ->
+					[of: { n ->
+							action(what(n))
+						}]
+				}]
+		}
+		def show = { it }
+		def square_root = { Math.sqrt(it) }
+		def qwe = please show the square_root of 100             // equivalent to: please(show).the(square_root).of(100)
+		assert qwe == 10.0
+	}
+	
 }
 
 final class Distance2 {

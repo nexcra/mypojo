@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFHyperlink;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -222,6 +223,13 @@ public class Poi extends PoiRoot{
             row.createCell(i++).setCellValue(new HSSFRichTextString(value));
         }
         */
+	}
+	
+	public void addImage(HSSFClientAnchor anchor,File file){
+		addImage(nowSheet,anchor,file);
+	}
+	public void addImage(HSSFClientAnchor anchor,String file){
+		addImage(nowSheet,anchor,new File(file));
 	}
     
 	/** 나중에 입력값이 아닌 셀타입에 따라 바뀌게 만들자.
