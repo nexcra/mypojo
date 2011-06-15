@@ -301,6 +301,13 @@ public abstract class FileUtil extends FileUtils {
 		}
 		return result;
 	}
+	
+	/** 디렉토리를 통째로 압축. 한글안되~~~~~~~~~~ ㅅㅂ ㅅㅂ ㅅㅂ ㅅㅂ  */
+	public static void zip(File dir) {
+		if(!dir.isDirectory()) throw new RuntimeException("input is not directory");
+		File newZip = new File(dir.getParentFile(),dir.getName()+".zip");
+		zip(newZip,dir.listFiles());
+	}
 
 	/** 자바 기본패키지로 압축한다. 폴더 인식 안된다. 한글은 안됨. '.'으로 시작하는거 패스. */
 	public static void zip(File zip, File... files) {

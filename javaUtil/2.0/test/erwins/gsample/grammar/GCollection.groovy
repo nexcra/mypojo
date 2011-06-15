@@ -38,7 +38,7 @@ public class GCollection{
 		
 		def myMap = [a:1, b:2, c:3]
 		assert myMap.entrySet() instanceof Collection
-		assert myMap.any   {entry -> entry.value > 2  }
+		assert myMap.any   {entry -> entry.value > 2  }  //이거 존나좋긔
 		assert myMap.every {entry -> entry.key   < 'd'}
 	}
 	

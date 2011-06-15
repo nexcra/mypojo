@@ -1,12 +1,17 @@
-package erwins.util.vender.apache
+package erwins.util.groovy
 
 
+import java.io.File
+
+import erwins.util.collections.MapForList
+import erwins.util.collections.MapType
 import erwins.util.lib.StringUtil
+import erwins.util.lib.security.MD5
 import groovy.sql.GroovyRowResult
 
 /** SQLUtil은 싱글톤만 사용하니까 따로 뺐다.  */
 public class GroovyMetaUtil{
-	
+
 	public static void addMeta(){
 		hashMap()
 		file()
@@ -14,26 +19,32 @@ public class GroovyMetaUtil{
 		list()
 		groovyRowResult 'N/A'
 	}
-	
+
 	/** 이게 더 깔끔한듯 */
 	public static void hashMap(){
-		HashMap.metaClass."plus" = { key,value ->
+		HashMap.metaClass."plus" = { key,value=1 ->
 			def org = delegate.get(key)
 			if(org==null) org = 0;
 			delegate.put key, org+value
 		}
-		HashMap.metaClass."plus" = { delegate.plus it , 1 }
 	}
-	
+
 	public static void file(){
 		/** 해당 확장자의 파일을 모두 가져온다 */
-		File.metaClass."listAll" = {endsWith ->
+		File.metaClass."listAll" = {endsWith = null ->
 			def files = [];
 			delegate.eachFileRecurse{if(it.file) files << it};
-			files.findAll { it.name.toString().endsWith(endsWith) }
+			if(endsWith==null) files
+			else files.findAll { it.name.endsWith(endsWith) }
+		}
+		/**  파일 이름에 관계없이 동일파일을 Hash기준으로 알려준다. */
+		File.metaClass."duplicated" = {endsWith = null ->
+			MapForList<File> map = new MapForList<File>(MapType.ListOrderd);
+			delegate.listAll(endsWith).each { map.add MD5.getHashHexString(it.name), it  }
+			return map
 		}
 	}
-	
+
 	/** 이외 유용한것들
 	 * min / max / split / sort / sum / unique
 	 * assert [0:[2,4,6], 1:[1,3,5]] == [1,2,3,4,5,6].groupBy { it % 2 }
@@ -46,28 +57,22 @@ public class GroovyMetaUtil{
 			return map
 		}
 		/** 그냥 split은 true / false 구조로 무조건 2개로 나눈다. 이는 그것을 개량한것이다.
-		* separator이 true로 나올때마다 하나의 리스트를 추가한다.
-		* List<List>의 구조를 가진다. 첫번째 separator는 무조건 true가 나와야 한다. */
-	   ArrayList.metaClass."splitByFirst" = { separator ->
-		   def result = []
-		   def nowList
-		   delegate.each {
-			   if(separator(it)){
-				   nowList = []
-				   result << nowList
-			   }
-			   nowList << it
-		   }
-		   return result
-	   }
-		ArrayList.metaClass."containsAny" = { value ->
-			delegate.findAll { it==value }.size() > 0
-		}
-		ArrayList.metaClass."containsAny" = { key, value ->
-		delegate.findAll { it[key]==value }.size() > 0
+		 * separator이 true로 나올때마다 하나의 리스트를 추가한다.
+		 * List<List>의 구조를 가진다. 첫번째 separator는 무조건 true가 나와야 한다. */
+		ArrayList.metaClass."splitByFirst" = { separator ->
+			def result = []
+			def nowList
+			delegate.each {
+				if(separator(it)){
+					nowList = []
+					result << nowList
+				}
+				nowList << it
+			}
+			return result
 		}
 	}
-	
+
 	/**
 	 * List<Map> 데이터들의 특정값 중복 체크. 
 	 * 이후 map.findAll { it.value==1 } 등을 사용하자. -> 테스트 필요
@@ -77,7 +82,7 @@ public class GroovyMetaUtil{
 		list.each{ map.plus it[key]}
 		return map
 	}
-	
+
 	/** 미칠듯이 편하다. 이거 굿! */
 	public static void groovyRowResult(nullString){
 		GroovyRowResult.metaClass."getNullSafe"  = { key ->
@@ -90,13 +95,13 @@ public class GroovyMetaUtil{
 		String.metaClass.swapCase = {
 			def sb = new StringBuffer()
 			delegate.each {
-				sb << (Character.isUpperCase(it as char) ? Character.toLowerCase(it as char) : 
+				sb << (Character.isUpperCase(it as char) ? Character.toLowerCase(it as char) :
 						Character.toUpperCase(it as char))
 			}
 			sb.toString()
 		}
 	}
-	
+
 	public static void stringArray(){
 		String[].metaClass."insertSql"  = {tableName ->
 			def parameter = StringUtil.iterateStr( '?', ',', delegate.length)
@@ -104,9 +109,5 @@ public class GroovyMetaUtil{
 			return INSERT
 		}
 	}
-	
-	
-	
-	
 }
 

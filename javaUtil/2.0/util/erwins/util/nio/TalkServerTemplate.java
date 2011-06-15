@@ -15,8 +15,6 @@ import java.util.Iterator;
 
 import erwins.util.exception.BusinessException;
 import erwins.util.root.Shutdownable;
-import erwins.util.vender.apache._Log;
-import erwins.util.vender.apache._LogFactory;
 
 
 /** 나중에 소스참고를 위해 범용적인 부분을 나눈다. 
@@ -24,7 +22,6 @@ import erwins.util.vender.apache._LogFactory;
 public abstract class TalkServerTemplate implements Shutdownable {
 	
 	private Selector selector;
-	protected _Log log = _LogFactory.instance(this.getClass());
 	
 	/** ServerSocketChannel은 OP_ACCEPT만 지원한다. */
 	public TalkServerTemplate(int port){
@@ -53,7 +50,7 @@ public abstract class TalkServerTemplate implements Shutdownable {
 				int ignore = 0;
 				while(!Thread.currentThread().isInterrupted()){
 					try {
-						log.debug("{0} : wait..",waitCount++);
+						//log.debug("{0} : wait..",waitCount++);
 						selector.select();
 						Iterator<SelectionKey> it = selector.selectedKeys().iterator();
 						while(it.hasNext()){
@@ -64,7 +61,7 @@ public abstract class TalkServerTemplate implements Shutdownable {
 							it.remove();
 						}
 					} catch (CancelledKeyException e) {
-						log.debug("{0} ignored input data",ignore);
+						//log.debug("{0} ignored input data",ignore);
 					} catch (ClosedChannelException e) {
 						throw new RuntimeException(e);
 					} catch (IOException e) {
@@ -75,7 +72,7 @@ public abstract class TalkServerTemplate implements Shutdownable {
 							message = util.decode(readBuffer);
 						} catch (Exception e1) { //무시한다.
 						}
-						log.error("[{0}] : Malformed message from client", message);
+						//log.error("[{0}] : Malformed message from client", message);
 					}
 				}
 			}
@@ -95,7 +92,7 @@ public abstract class TalkServerTemplate implements Shutdownable {
 		SocketChannel client = ch.accept();
 		client.configureBlocking(false);
 		client.register(selector, SelectionKey.OP_READ);
-		log.debug("new Accept registered");
+		//log.debug("new Accept registered");
 	}	
 	
 	private final CharsetUtils util = new CharsetUtils();

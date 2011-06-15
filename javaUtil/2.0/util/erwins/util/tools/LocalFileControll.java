@@ -10,14 +10,14 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 
 import erwins.util.lib.FileUtil;
 import erwins.util.lib.StringUtil;
-import erwins.util.vender.apache._Log;
-import erwins.util.vender.apache._LogFactory;
 
 /** 로컬 파일들을 일괄삭제, 이동 시킬때 사용한다. 
- * 추가된 파일들은 모두 명령 메소드에거 실행된다. 주의!*/
+ * 추가된 파일들은 모두 명령 메소드에거 실행된다. 주의!
+ *  => Groovy가 있음으로 이제 삭제
+ * */
 public class LocalFileControll{
 	
-	protected _Log log = _LogFactory.instance(this.getClass());
+	//protected _Log log = _LogFactory.instance(this.getClass());
 	
 	private List<File> list = new ArrayList<File>();
 	
@@ -70,7 +70,7 @@ public class LocalFileControll{
 	public void remove(boolean real){
 		for(File each : list){
 			if(real) FileUtil.delete(each);
-			log.debug("[{0}] is deleted", each.getAbsolutePath());
+			//log.debug("[{0}] is deleted", each.getAbsolutePath());
 		}		
 	}
     

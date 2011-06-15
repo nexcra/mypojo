@@ -4,7 +4,7 @@ package erwins.test.runAndSeeResult
 import org.cyberneko.html.parsers.SAXParser 
 import org.junit.Test;
 
-import erwins.util.vender.apache.GroovyMetaUtil;
+import erwins.util.groovy.GroovyMetaUtil;
 
 
 
