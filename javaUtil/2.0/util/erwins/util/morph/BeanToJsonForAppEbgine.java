@@ -11,6 +11,8 @@ import net.sf.json.JSONObject;
 
 import org.hibernate.Hibernate;
 
+import com.google.appengine.api.datastore.Text;
+
 import erwins.util.lib.ReflectionUtil;
 import erwins.util.root.DomainObject;
 import erwins.util.root.EntityId;
@@ -20,6 +22,19 @@ import erwins.util.root.Singleton;
  */
 @Singleton
 public class BeanToJsonForAppEbgine extends BeanToJson {
+	
+	/** 500자 이상의 데이터는 Text로 해야한다. */
+	public static final BeanToJSONConfigFetcher TEXT = new BeanToJSONBaseConfig(new Class[]{Text.class},
+			new BeanToJSONConfigFetcher() {
+		@Override
+		public boolean fetch(Object instance,Field field, JSONObject map) {
+			Text value =(Text) ReflectionUtil.getField(field, instance); 
+			if(value!=null){
+				map.put(field.getName(),value.getValue());
+			}
+			return true;
+		}
+	});
 
 	public static BeanToJson create() {
 		final BeanToJson theInstance = new BeanToJson();
@@ -37,6 +52,7 @@ public class BeanToJsonForAppEbgine extends BeanToJson {
 				return true;
 	    	}
 	    }));
+		theInstance.addConfig(TEXT);
 		theInstance.addConfig(VALUE_OBJECT);
 		theInstance.addConfig(PAIR_OBJECT);
 		//theInstance.addConfig(ENUM_OBJECT);
