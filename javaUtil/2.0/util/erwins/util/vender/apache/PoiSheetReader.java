@@ -1,10 +1,13 @@
 
 package erwins.util.vender.apache;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 /**
@@ -27,6 +30,37 @@ public class PoiSheetReader extends PoiSheetReaderRoot{
     	return sheet.getSheetName();
     }
 	
+    /** 테스트용 
+     * Cell c = pr[0].getCell(4,7)
+		println c.getStringCellValue()
+		CellStyle s = c.getCellStyle() 
+		println s.getFillBackgroundColor()*/
+    public Cell getCell(int r,int c){
+    	return sheet.getRow(r).getCell(c);
+    }
+    
+    /** 머지한 부분은 최초 좌상단 데이터 말고는 다 널로 들어간다.
+     * 따라서 이 메소드로 머지한부분에도 값을 채워준다.*/
+    public List<String[]> readAsMerge(){
+    	Iterator<String[]> rows = iterator();
+    	List<String[]> list = new ArrayList<String[]>();
+    	while(rows.hasNext()) list.add(rows.next());
+    	int length = sheet.getNumMergedRegions();
+    	for(int i=0;i<length;i++){
+    		CellRangeAddress ad =  sheet.getMergedRegion(i);
+    		String data = null;
+    		for(int colNum=ad.getFirstColumn(); colNum<ad.getLastColumn()+1; colNum++){
+        		for(int rowNum=ad.getFirstRow(); rowNum<ad.getLastRow()+1; rowNum++){
+        			if(data==null) data =  list.get(rowNum)[colNum];
+        			else{
+        				list.get(rowNum)[colNum] = data;
+        			}
+        		}
+    		}
+    	}
+    	return list;
+    }
+    
     /** 쓸모없다 */
     public void read(StringArrayPoiCallback callback){
     	Iterator<Row> rows = sheet.iterator();
@@ -44,7 +78,9 @@ public class PoiSheetReader extends PoiSheetReaderRoot{
 			@Override
 			public String[] next() {
 				Row eachRow = rows.next();
-	    		String[] line = new String[eachRow.getLastCellNum()]; 
+				int cellNum = eachRow.getLastCellNum();
+				if(cellNum == -1) return new String[0]; //빈라인이면 -1이 오는듯
+	    		String[] line = new String[cellNum]; 
 	    		Iterator<Cell> cells = eachRow.iterator();
 	    		while(cells.hasNext()){
 	    			Cell eachCell = cells.next();

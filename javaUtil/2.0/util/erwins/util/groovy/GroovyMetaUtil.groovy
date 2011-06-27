@@ -3,6 +3,8 @@ package erwins.util.groovy
 
 import java.io.File
 
+import org.apache.commons.collections.map.ListOrderedMap
+
 import erwins.util.collections.MapForList
 import erwins.util.collections.MapType
 import erwins.util.lib.StringUtil
@@ -13,7 +15,7 @@ import groovy.sql.GroovyRowResult
 public class GroovyMetaUtil{
 
 	public static void addMeta(){
-		hashMap()
+		map()
 		file()
 		stringArray()
 		list()
@@ -21,12 +23,17 @@ public class GroovyMetaUtil{
 	}
 
 	/** 이게 더 깔끔한듯 */
-	public static void hashMap(){
+	public static void map(){
 		HashMap.metaClass."plus" = { key,value=1 ->
 			def org = delegate.get(key)
 			if(org==null) org = 0;
 			delegate.put key, org+value
 		}
+		ListOrderedMap.metaClass."merge" = { map, keys ->
+			keys.each { delegate.put it,map[it]  }
+			return delegate
+		}
+		
 	}
 
 	public static void file(){
@@ -70,6 +77,29 @@ public class GroovyMetaUtil{
 				nowList << it
 			}
 			return result
+		}
+		/** List<Map> 인 구조에서 특정 key로 데이터를 분류한다.
+		 * 분류된 데이터는 당근 Map<List<Map>> 이 된다  */
+		ArrayList.metaClass."splitByKey" = { key ->
+			def map = new MapForList()
+			delegate.each { map.add it[key], it}
+			return map
+		}
+		/** List<Map> 인 구조에서 특정 key로 데이터를 정렬한다 */
+		ArrayList.metaClass."sortKey" = { key ->
+			delegate.sort {a,b -> a[key].compareTo(b[key])}
+			return delegate
+		}
+		/** List<Map> 인 구조에서 현제 데이터와 이전 데이터를 비교하고싶을때 사용한다.
+		 * 새로운 List를 리턴한다 */
+		ArrayList.metaClass."interval" = { key , beforeKey ->
+			def before
+			delegate.each {
+				if(before!=null) it[beforeKey] = before[key]
+				before = it
+			}
+			delegate.remove 0
+			return delegate
 		}
 	}
 

@@ -87,7 +87,6 @@ public abstract class PoiSheetReaderRoot implements Iterable<String[]>{
     	for(String each : line) if( !StringUtil.isEmpty(each)) return false;
     	return true; 
     }
-
   
     /**
      * CELL_TYPE_NUMERIC의 경우 double임으로 2 => 2.0 이런식으로 바뀐다.

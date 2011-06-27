@@ -14,7 +14,7 @@ class SC2Rank {
 	
 	@Test
 	void test(){
-		GroovyMetaUtil.hashMap()
+		GroovyMetaUtil.map()
 		eachData '한국','kr', 1
 		eachData '북미','us', 1
 		eachData '남미','us', 2

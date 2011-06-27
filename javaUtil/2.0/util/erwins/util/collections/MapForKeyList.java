@@ -43,6 +43,10 @@ public class MapForKeyList<K,T> implements Iterable<Entry<K, List<T>>>,Serializa
 	public List<T> get(K key){
 		return map.get(key);
 	}
+	/** Groovy용. 이놈은 타입이 딱맞아야 한다(Object로 안됨) ㅅㅂ.  */
+	public List<T> getAt(String key){
+		return map.get(key);
+	}
 	
 	/** 각 key당 중복된 item은 들어갈 수 없다. */
 	public MapForKeyList<K,T> addUnique(K key,T item){

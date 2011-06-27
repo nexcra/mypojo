@@ -224,13 +224,17 @@ public enum DayUtil{
      * 두 객체간의 사간차를 String 시분초로 리턴한다.
      */
     public static int[] betweenTime(Date start, Date end) {
-        long diffSecond = (end.getTime() - start.getTime())/1000;
-        int h = (int)diffSecond / 60/60;
-        diffSecond = diffSecond - h * 60 * 60;
-        int mm = (int)diffSecond / 60;
-        int ss = (int)diffSecond % 60;
-        return new int[]{h,mm,ss};
+        return toTimeArray(end.getTime() - start.getTime());
     }
+
+	private static int[] toTimeArray(long time) {
+		long second = time/1000;
+        int h = (int)second / 60/60;
+        second = second - h * 60 * 60;
+        int mm = (int)second / 60;
+        int ss = (int)second % 60;
+        return new int[]{h,mm,ss};
+	}
     
     public static final String[] WEEK_KOREAN = {"일","월","화","수","목","금","토"}; 
     

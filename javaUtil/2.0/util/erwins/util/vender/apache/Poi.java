@@ -196,21 +196,39 @@ public class Poi extends PoiRoot{
         HSSFRow row = createNextRow();
         addValues(i, row, values);
     }
+    
+    /** ROUNDUP( A@+B@,2) 이런식으로\
+     * 추가적인 내용은 확장해서 쓰자. 
+     * */
+    public static class PoiFormula{
+    	private final String formula;
+    	public PoiFormula(String formula) {this.formula = formula ;}
+    	public String toFormula(int rowNum){
+    		String value = formula.replaceAll("@-1",String.valueOf(rowNum-1));
+    		return value.replaceAll("@",String.valueOf(rowNum));
+    	}
+    }
 
-    /** 무조건 텍스트로 변경된다.. 숫자는 알아서 쓸것. */
+    /** 최종메소드?  숫자와 문자는 구분한다. 뿌잉뿌잉~! */
 	private void addValues(int i, HSSFRow row, Object... values) {
 		for(Object each : values){
             if(each instanceof Number){
             	Number number =  (Number)each;
-            	row.createCell(i++).setCellValue(number.doubleValue());	
+            	row.createCell(i++).setCellValue(number.doubleValue());
+            }else if(each instanceof PoiFormula){
+            	String name = row.getSheet().getSheetName();
+            	int index = wb.getSheetIndex(name);
+            	int count = headerRowCount.get(index);
+            	PoiFormula pf = (PoiFormula) each;
+            	String formula = pf.toFormula(row.getRowNum()+count);
+            	row.createCell(i++).setCellFormula(formula);
             }else{
             	String value = null;
                 if(each==null) value="";
                 else if(each instanceof Date) value = DayUtil.DATE.get((Date)each);
                 else value = each.toString();
-                row.createCell(i++).setCellValue(new HSSFRichTextString(value));	
+                row.createCell(i++).setCellValue(new HSSFRichTextString(value));
             }
-            
         }
 		/*
         for(Object each : values){

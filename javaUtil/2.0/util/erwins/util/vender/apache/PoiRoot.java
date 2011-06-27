@@ -241,10 +241,12 @@ public abstract class PoiRoot{
             Row thisRow = rows.next();
             for (Iterator<Cell> cells = thisRow.cellIterator(); cells.hasNext(); ) {
                 Cell thisCell=  cells.next();
+                int thisCellType = thisCell.getCellType();
                 if(thisRow.getRowNum() < headerRowLength){
                     thisCell.setCellStyle(HEADER);
                 }else{
-                	if(thisCell.getCellType()==Cell.CELL_TYPE_NUMERIC) thisCell.setCellStyle(BODY_Right);
+                	if(thisCellType==Cell.CELL_TYPE_NUMERIC) thisCell.setCellStyle(BODY_Right);
+                	else if(thisCellType==Cell.CELL_TYPE_FORMULA) thisCell.setCellStyle(BODY_Right);
                 	else thisCell.setCellStyle(BODY_Left);
                     //thisCell.setCellStyle(BODY);                
                 }

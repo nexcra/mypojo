@@ -16,6 +16,9 @@ public class MapForList<T> extends MapForKeyList<String,T> implements Serializab
 	public MapForList(MapType type) {
 		super(type);
 	}
+	public MapForList() {
+		super(MapType.Hash);
+	}
 	
     
 }

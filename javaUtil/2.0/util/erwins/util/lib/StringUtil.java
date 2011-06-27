@@ -152,7 +152,8 @@ public class StringUtil extends StringUtils {
      * 첫번째 패턴까지의 문자열을 리턴한다. ex) getFirst("12345\qqq\asd","\") => 12345
      */
     public static String getFirst(String str, String pattern) {
-        return str.substring(0, str.indexOf(pattern));
+    	int index = str.indexOf(pattern);
+    	return index == -1 ? str : str.substring(0,index);
     }
     
     /**
@@ -166,9 +167,12 @@ public class StringUtil extends StringUtils {
 
     /**
      * 마지막 패턴 이후로의 문자열을 리턴한다. ex) getFirst("12345\qqq\asd","\") => asd
+     * 매치 실패시 그대로 리턴
      */
     public static String getLast(String str, String pattern) {
-        return str.substring(str.lastIndexOf(pattern) + 1);
+    	int index = str.lastIndexOf(pattern);
+    	if(index==-1) return str;
+        return str.substring(index + 1);
     }
 
     /**
