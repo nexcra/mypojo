@@ -1,9 +1,13 @@
 package erwins.util.groovy
 
 
-import erwins.util.lib.FormatUtil;
-import erwins.util.lib.StringUtil;
-import erwins.util.vender.apache.Poi;
+import java.sql.SQLException
+
+import erwins.util.counter.Counter
+import erwins.util.counter.SimpleCounter;
+import erwins.util.lib.FormatUtil
+import erwins.util.lib.StringUtil
+import erwins.util.vender.apache.Poi
 import groovy.sql.Sql
 /** 표준형인 date는 년월일만 지원한다. 오라클타입을 TimeStamp로 해야한다.
  * 강제로 date를 TimeStamp로 변경하려면 -Doracle.jdbc.V8Compatible=true 를 JVM옵션으로 주면된다. (v1.9~)
@@ -15,8 +19,32 @@ public class OracleSql extends AbstractSql implements Iterable{
 	public static OracleSql instance(ip,sid,id,pass){
 		OracleSql oracleSql = new OracleSql()
 		oracleSql.db = Sql.newInstance("jdbc:oracle:thin:@$ip:1521:$sid",id,pass,'oracle.jdbc.driver.OracleDriver');
-		//db.connection.autoCommit = false
+		oracleSql.db.connection.autoCommit = false
 		return oracleSql;
+	}
+	
+	/** 이 안에서 작업하자. */
+	public OracleSql transaction(Closure closure){
+		try{
+			closure()
+			db.commit()
+		}catch (Exception e) {
+			db.rollback()
+			e.printStackTrace()
+		}
+	}
+	
+	/** 중복을 무시하고 저장한다. 간편하게 작업하기위한용으로 오남용 금지 */
+	public int insertIgnoreDuplication(sql,list){
+		int duplicated = 0
+		try{
+			db.executeInsert sql, list
+		}catch(SQLException e){
+			if(e.message.toString().startsWith('ORA-00001: 무결성 제약 조건')) duplicated++
+			else throw e
+		}
+		return duplicated;
+		
 	}
 	
 	/** 테이블정보가 담긴다 */
