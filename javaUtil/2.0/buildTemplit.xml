@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="templit" xmlns:artifact="antlib:org.apache.maven.artifact.ant" >
+	
+	<!-- 대부분 공통으로 사용되는 default를 정의해준다. -->
+	<property name="default.web" value="WebContent/WEB-INF" />
+	<property name="default.dir" value="WebContent/WEB-INF/lib" />
+	<property name="default.classes" value="WebContent/WEB-INF/classes" />
+	<tstamp description="백업스탬프 등에 사용되는 일자/시각"><format property="sysTime" pattern="yyyy-MM-dd-[HH-mm]"/></tstamp>
+	<tstamp description="백업스탬프 등에 사용되는 일자"><format property="sysDate" pattern="yyyy-MM-dd"/></tstamp>
+	
+	<!-- ================================================================================================== -->
+	<!-- target 시작 -->
+	<!-- ================================================================================================== -->		
+	
+	<property name="temp.dir" location="/antTemp" description="OS의 기본 경로이다. 종료후 삭제된다." />
+	
+	<!--
+	<artifact:dependencies pathId="dependency.classpath">
+		<dependency groupId="org.hibernate" artifactId="hibernate" version="3.2.5.ga" />
+	</artifact:dependencies>
+	<target name="maven" >
+			<property name="class.path" refid="dependency.classpath" />
+		<echo>${class.path}</echo>
+	</target>
+	-->
+	<macrodef name="changeJar" description="jar를 만든 후 temp에 있는 모든 jar를 toDir로 overwrite한다. ">
+			<attribute name="name"/>
+			<attribute name="classPath"/>
+			<attribute name="pakage"/>
+			<attribute name="toDir"/>
+		<sequential>
+			<mkdir dir="${temp.dir}"/>
+			<jar destfile="${temp.dir}/@{name}" basedir="@{classPath}" >
+				<include name="@{pakage}/**/*.class"/>
+				<include name="@{pakage}/**/*.js"/>
+				<include name="@{pakage}/**/*.jpg"/>
+				<include name="@{pakage}/**/*.png"/>
+			</jar>
+			<copy file="${temp.dir}/@{name}" todir="@{toDir}" overwrite="yes" />
+		</sequential>
+	</macrodef>
+	
+	<!-- =============== 인증서용 =================== -->
+	<property name="this.keystore" location="${temp.dir}/keystore" description="수정X" />
+	<property name="this.keyName" value="ErwinsKeyStore" description="수정X" />
+	<property name="this.storepass" value="qwer1234" description="수정X" />
+	<property name="this.alias" value="ErwinsJar" description="수정X" />
+	
+	
+	<macrodef name="buildSignedJar" description="Signed Jar 파일들을 생성합니다. 인증서 필요.">
+			<attribute name="jarName"/>
+			<attribute name="orgDir"/>
+			<attribute name="toDir"/>
+		<sequential>
+			<mkdir dir="${temp.dir}"/>
+			<delete file="@{toDir}/@{jarName}.jar" />
+			<signjar signedjar="@{toDir}/@{jarName}.jar"  jar="@{orgDir}/@{jarName}.jar" alias="${this.alias}" 
+				keystore="${this.keystore}/${this.keyName}" storepass="${this.storepass}" />
+		</sequential>
+	</macrodef>
+	
+	<target name="generateKey" description="JAR인증을 위한 Key를 생성합니다.">
+		
+		<mkdir dir="${this.keystore}"/>
+		
+		<exec dir="${this.keystore}" executable="keytool">
+			<arg value="-genkey" />
+			<arg value="-alias" />
+			<arg value="${this.alias}" />
+			<arg value="-keystore" />
+			<arg value="${this.keyName}" />
+			<arg value="-keypass" />
+			<arg value="${this.storepass}" />
+			<arg value="-storepass" />
+			<arg value="${this.storepass}" />
+			<arg value="-dname" />
+			<arg value="cn=Sin Sng Han, o=erwins.com, l=Inchon, s=Jeolla, C=Korea" />
+		</exec>
+			
+		<exec dir="${this.keystore}" executable="keytool">
+			<arg value="-selfcert" />
+			<arg value="-alias" />
+			<arg value="${this.alias}" />
+			<arg value="-keystore" />
+			<arg value="${this.keyName}" />
+			<arg value="-keypass" />
+			<arg value="${this.storepass}" />
+			<arg value="-storepass" />
+			<arg value="${this.storepass}" />
+			<arg value="-dname" />
+			<arg value="cn=Sin Sng Han, o=erwins.com, l=Inchon, s=Jeolla, C=Korea" />
+		</exec>		
+		
+	</target>	
+	
+    <target name="javadoc" description="자바독을 생성하고 압축합니다. 중간에 멈춤.">
+        <javadoc access="private"   locale="ko_KR" encoding="UTF-8" docencoding="UTF-8" charset="UTF-8"
+        	author="true"  classpathref="classpath2"
+        	destdir="D:\PROJECT\workspace\erwins\doc" doctitle="erwinsDoc" nodeprecated="false" 
+        	nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" 
+        	packagenames="erwins.util.**" source="1.5" sourcepath="D:\PROJECT\workspace\erwins\src" 
+        	splitindex="true" use="true" version="true"/>
+    	<zip destfile="D:\PROJECT\workspace\erwins\doc\erwinsDoc.zip" compress="true" >
+			<fileset dir="D:\PROJECT\workspace\erwins\doc"/>
+		</zip>
+    </target>
+	
+	<!-- 상당히 이상하다 ㅠㅠ 못쓰겟네. 클래스패스 추가하는것도 이상하고.. -->	
+    <target name="junit" description="JUnit..">
+		<junit haltonfailure="true" printsummary="true" >
+			<classpath refid="classAll" />
+			<formatter type="brief" usefile="false" />
+			<test  name="erwins.test.AllTests"/>
+		</junit> 
+    </target>
+	
+	<path id="classAll">
+		<fileset dir="D:\PROJECT\workspace\erwins\WebContent\WEB-INF\classes" includes="*.class" />
+		<fileset dir="D:\PROJECT\workspace\erwins\WebContent\WEB-INF\lib" includes="*.jar"/>
+		<fileset dir="D:\PROJECT\workspace\_jar\java" includes="servlet-api.jar,jsp-api.jar"/>
+		<fileset dir="C:\Program Files\Java\jdk1.6.0_03\lib" includes="*.jar" />
+	</path>		
+
+	<!--
+	<target name="wait" >
+		<waitfor maxwait="10" maxwaitunit="second" timeoutproperty="server.missing">
+			<socket port="21" server="218.156.67.18"/>
+		</waitfor>
+		<fail if="server.missing">서버를 찾을수 없습니다.</fail>
+		<echo> =============== 연결 ================ </echo>
+	</target> -->
+	<!-- <sleep minutes="5" seconds="-15"/> 4분 15초 동안 슬립 -->
+	
+	<!--  파일 삭제 이동 등등
+	<delete dir="${pc.dir.root}/${workProject.name}/${templit.script}/${myPage.script.name1}"/>
+	<delete dir="${pc.dir.root}/${workProject.name}/${templit.script}/${myPage.script.name2}"/>		
+	<copy todir="${pc.dir.root}/${workProject.name}/${templit.script}" >
+	    <fileset dir="${pc.dir.root}/${myPage.name}/${templit.script}" >
+			<include name="${myPage.script.name1}/**/*.js" />
+	        <include name="${myPage.script.name2}/**/*.js" />
+		</fileset>
+	</copy> -->	
+	
+</project>
+
