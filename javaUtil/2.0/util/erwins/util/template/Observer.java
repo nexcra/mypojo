@@ -7,7 +7,6 @@ import java.util.*;
 
 /**
  * Observer패턴시 사용하는 컨테이너 입니다. 많아지면 enum으로 관리하세요
- * @author erwins(my.pojo@gmail.com)
  */
 public class Observer{
     

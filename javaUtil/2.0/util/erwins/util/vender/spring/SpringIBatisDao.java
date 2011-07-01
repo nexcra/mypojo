@@ -13,7 +13,6 @@ import erwins.util.counter.Counter;
 /**
  * iBatis용 dao
  * 전체 재작성 할것!
- * @author erwins(my.pojo@gmail.com)
  **/
 @Deprecated
 public class SpringIBatisDao extends SqlMapClientDaoSupport{

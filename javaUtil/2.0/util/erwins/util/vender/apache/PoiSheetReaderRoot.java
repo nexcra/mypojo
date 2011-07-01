@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 
 import erwins.util.lib.StringUtil;
@@ -17,7 +18,6 @@ import groovy.lang.Closure;
 
 /**
  * POI 패키지의 HSSF를 편리하게.. 헤더칸은 1칸 이라고 일단 고정 사각 박스를 예쁘게 채울려면 반드시 null에 ""를 채워 주자~
- * @author  erwins(my.pojo@gmail.com)
  */
 public abstract class PoiSheetReaderRoot implements Iterable<String[]>{
     
@@ -91,13 +91,17 @@ public abstract class PoiSheetReaderRoot implements Iterable<String[]>{
     /**
      * CELL_TYPE_NUMERIC의 경우 double임으로 2 => 2.0 이런식으로 바뀐다.
      * BigDecimal로 변경함으로 성능 문제시 교체하자.
+     * DateUtil 의 is~~ 시리즈가 완벽하게 작동하지 않는다. 따라서 안되는 부분은 DateUtil.getJavaDate(cell.getNumericCellValue() 를 사용
+     * DateUtil -> XSSF에서도 이게 통하는지는 의문.. . 걍 time을 일단은 문자로 넘겨준다.
+     * 나증에 Object 로 이동하도록 변경하자
      */
-    protected static String cellToString(Cell cell) {
+    protected String cellToString(Cell cell) {
         if (cell == null) return "";
         try {
 			switch (cell.getCellType()) {
 			    case Cell.CELL_TYPE_NUMERIC:
-			        return new BigDecimal(cell.getNumericCellValue()).toString();
+			    	if(DateUtil.isCellDateFormatted(cell)) return String.valueOf(cell.getDateCellValue().getTime());
+			    	else return new BigDecimal(cell.getNumericCellValue()).toString();
 			    default:
 			    	return cell.getRichStringCellValue().getString().trim();
 			}
@@ -140,7 +144,15 @@ public abstract class PoiSheetReaderRoot implements Iterable<String[]>{
     	}
     }
     
-    /** 걍 귀찮아서 복사했다..  */
+    public List<String[]> list(){
+    	List<String[]> list = new ArrayList<String[]>();
+    	Iterator<String[]> iterator =  iterator();
+    	while(iterator.hasNext()){
+    		list.add(iterator.next());
+    	}
+    	return list;
+    }
+    
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public List read(){
     	List list = new ArrayList();

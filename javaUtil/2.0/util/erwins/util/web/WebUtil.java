@@ -22,7 +22,6 @@ import erwins.util.tools.TextFileReader;
 
 /**
  * 각종 비동기 Http통신에 필요한 도구 모음.
- * @author erwins(my.pojo@gmail.com)
  */
 public abstract class WebUtil {
 	

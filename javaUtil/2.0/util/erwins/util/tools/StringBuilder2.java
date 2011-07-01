@@ -2,10 +2,6 @@ package erwins.util.tools;
 
 import org.apache.commons.io.IOUtils;
 
-
-/**
- * @author erwins(my.pojo@gmail.com)
- */
 public class StringBuilder2{
 
     private final StringBuilder the = new StringBuilder();

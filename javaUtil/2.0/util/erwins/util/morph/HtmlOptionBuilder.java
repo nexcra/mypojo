@@ -20,7 +20,6 @@ import erwins.util.root.Pair;
 
 /**
  * 아파치 ECS의 Option 래핑한다. 반드시 라벨 고려해서 만들것.
- * @author erwins(my.pojo@gmail.com)
  */
 public class HtmlOptionBuilder {
 

@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 
 /**
  * 중량을 나타낸다.
- * @author erwins(my.pojo@gmail.com)
  */
 public class Weight extends Numerical{
 

@@ -17,7 +17,6 @@ import erwins.util.root.Pair.PairEnum;
 /**
  * Pair이지만 Enum이 아닐경우 nullSafeGet()을 오버라이딩 하자.
  * 이 클래스는 모두가 불변 객체일때만 사용해야 한다.
- * @author erwins(my.pojo@gmail.com)
  */
 public abstract class GenericPairUserType<T extends Pair> implements UserType{
 

@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 /**
  * 금액을 나타낸다. 
  * Long.MAX_VALUE(9223372036854775807)를 넘을 수 없다.
- * @author erwins(my.pojo@gmail.com)
  */
 public class Won{
     

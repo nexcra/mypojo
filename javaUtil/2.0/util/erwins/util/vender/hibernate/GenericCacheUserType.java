@@ -14,7 +14,6 @@ import erwins.util.root.EntityId;
 /**
  * 1개의 컬럼이 1개의 객체(프로퍼티는 여러개일 수 있음)와 매핑될 경우 사용
  * HQL에서 사용할 수는 없음.
- * @author erwins(my.pojo@gmail.com)
  */
 public abstract class GenericCacheUserType<T extends EntityId<ID>,ID extends Serializable> extends GenericRootUserType {
 	

@@ -33,7 +33,6 @@ import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
  * POI가 너무 길어서 나눔
- * @author  erwins(my.pojo@gmail.com)
  */
 public abstract class PoiRoot{
 	
@@ -302,14 +301,13 @@ public abstract class PoiRoot{
     }
     
     /**
-     * 특정 시트의 X,Y로 부터 셀을 리턴
+     * 특정 시트의 X,Y로 부터 셀을 리턴 각 번호는 다들 0부터 시작한다.
      */
-    public Cell findCell(int sheetInd,int x,int y){
-        HSSFSheet sheet = wb.getSheetAt(sheetInd);
-        Row row = sheet.getRow(y);
-        if(row==null) row = sheet.createRow(y);
-        Cell cell = row.getCell(x);
-        if(cell==null) cell = row.createCell((short)x);
+    public Cell findCell(int sheetIndex,int rowNum,int colNum){
+        HSSFSheet sheet = wb.getSheetAt(sheetIndex);
+        Row row = sheet.getRow(rowNum);
+        if(row==null) return null;
+        Cell cell = row.getCell(colNum);
         return cell;
     }
  

@@ -16,7 +16,6 @@ import erwins.util.vender.apache.RESTful;
 
 /**
  * 네이버의 각종 API에 관한 결과를 래핑한다.
- * @author erwins(my.pojo@gmail.com)
  */
 public abstract class Naver{
 

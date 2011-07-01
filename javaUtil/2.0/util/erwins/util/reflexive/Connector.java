@@ -22,7 +22,6 @@ import erwins.util.root.TreeObject;
  * 1. 부모를 먼저 지정해 주자.  DB등에 당연히 부모키가 존재할것. Enum이라면 connector.setChildren(Menu.values()) 등
  * 2. 자식을 지정해 주자. connector.setChildren();
  * 3. 자식을 소팅해 주자. connector.orderSiblings();
- * @author erwins(my.pojo@gmail.com)
  */
 public class Connector<ID extends Serializable,T extends Connectable<ID,T>> {
     

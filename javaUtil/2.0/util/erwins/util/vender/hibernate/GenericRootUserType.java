@@ -10,7 +10,6 @@ import org.hibernate.usertype.UserType;
 /**
  * 1개의 컬럼이 1개의 객체(프로퍼티는 여러개일 수 있음)와 매핑될 경우 사용
  * 조건에 따라 HQL에서 사용할 수는 없음.
- * @author erwins(my.pojo@gmail.com)
  */
 public abstract class GenericRootUserType implements UserType {
 	

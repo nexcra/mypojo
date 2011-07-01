@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 /**
  * 간단한 String을 조합해 계산이 가능하다.
  * 절대로 비지니스 로직에 사용하지 말것.
- * @author erwins(my.pojo@gmail.com)
  */
 public abstract class StringCalculator {
     

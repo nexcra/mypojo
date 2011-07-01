@@ -34,7 +34,6 @@ import erwins.util.root.StringCallback;
  * 표준파서 사용시 Stream을 그대로 부어서 제작하면 encode오류가 난다. ㅠㅠ 이유는 몰라염 내공이 부족하구나.
  * 따라서 getResponseBodyAsString()으로 String변환(즉 UTF-8)했다가 stream으로 바꾸어 준다.
  * 근데 위방법도 같은 XP장비의 톰캣에서 에러가 난다..  그래서 파서를 하나 만들었다.
- * @author erwins(my.pojo@gmail.com)
  */
 public class RESTful{
     

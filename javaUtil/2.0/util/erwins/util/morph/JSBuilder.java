@@ -19,7 +19,6 @@ import erwins.util.vender.etc.Flex;
  * 입력(String) : 다수의 요청 문자열은 기본 |로 잘라낸다.
  * 리턴 : json에 요청 문자열을 key로 한 hash에 배열로 담긴다. 
  * 추가 사항은 클로저를 등록해서 사용하자. (동적으로 추가가 가능하다.) 
- * @author erwins(my.pojo@gmail.com)
  */
 @Singleton
 public class JSBuilder{

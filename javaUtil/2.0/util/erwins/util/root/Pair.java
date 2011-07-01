@@ -5,7 +5,6 @@ import java.io.Serializable;
 
 /**
  * Hibernate를 이용해서 Db에 저장되는 Enum 등에 사용된다.
- * @author     erwins(my.pojo@gmail.com)
  */
 public interface Pair extends Serializable{
 	

@@ -20,7 +20,6 @@ import erwins.util.root.Singleton;
 
 /**
  * 자료를 복사한다.
- * @author erwins(my.pojo@gmail.com)
  */
 @Singleton
 public class Duplicator{

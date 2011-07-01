@@ -9,8 +9,6 @@ import erwins.util.lib.DayUtil;
  * 암호화 , 복호화, Base64, 해쉬화 , 해쉬값 검증 등의 작업 Base64란 2진 데이터를, 문자코드에 영향을 받지 않는 공통
  * ASCII 영역의 문자들로만 이루어진 일련의 문자열로 바꾸는 방식을 가리키는 개념으로서,간단히 64진수로 보면 됩니다. 오라일리의 jar가
  * 필요하다..
- * 
- * @author erwins(my.pojo@gmail.com)
  */
 public abstract class MD5s extends MD5{
 

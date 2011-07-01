@@ -21,7 +21,6 @@ import erwins.util.lib.StringUtil;
  * ex)1 .. ftpClient.changeWorkingDirectory("/public"); boolean result = ftpClient.makeDirectory("oops"); // /public/oops 절대경로를 적지 않아도 된다
  * @since  2009-05-15 테스트 완료
  * http://www.takeone.pe.kr/94 참고.
- * @author  erwins(my.pojo@gmail.com)
  */
 public abstract class NetRoot {
     

@@ -7,7 +7,6 @@ import java.util.HashMap;
 /**
  * 메모리가 남아돌때 쓰세요.
  * JVM과 설정에 따라 다르겠지만.. 1초 정도 안쓰니까 슝 GC되버림.  이런게 있다 정도?
- * @author erwins(my.pojo@gmail.com)
  */
 public class SoftMap<ID,V>{
 

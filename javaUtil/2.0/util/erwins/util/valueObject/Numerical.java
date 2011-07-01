@@ -7,7 +7,6 @@ import erwins.util.lib.FormatUtil;
 
 /**
  * 숫자형 객체를 나타낸다.
- * @author  erwins(my.pojo@gmail.com)
  */
 public abstract class Numerical{
     

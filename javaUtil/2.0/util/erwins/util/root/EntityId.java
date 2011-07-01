@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 /**
  * Entity의 interface
- * @author erwins(my.pojo@gmail.com)
  */
 public interface EntityId<ID extends Serializable> extends Serializable,DomainObject{
     

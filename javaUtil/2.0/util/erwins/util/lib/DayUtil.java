@@ -12,7 +12,6 @@ import erwins.util.valueObject.ShowTime;
 
 /**
  * 년도, 일자 등의 처리. singleton
- * @author     erwins(my.pojo@gmail.com)
  */
 public enum DayUtil{
     

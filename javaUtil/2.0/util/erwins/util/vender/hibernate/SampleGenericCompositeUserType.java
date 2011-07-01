@@ -16,7 +16,6 @@ import erwins.util.root.Pair;
 /**
  * 범용 객체 매핑기.  캐싱 객체 사용시 오버라이딩해서 사용할것.
  * HQL에서 사용할 수는 없음.
- * @author erwins(my.pojo@gmail.com)
  */
 public class SampleGenericCompositeUserType<T extends Pair> implements CompositeUserType ,ParameterizedType{
 

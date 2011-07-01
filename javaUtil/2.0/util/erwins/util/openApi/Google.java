@@ -18,7 +18,6 @@ import erwins.util.vender.apache.RESTful;
 
 /**
  * GoogleWeather를 래핑한다.
- * @author erwins(my.pojo@gmail.com)
  */
 public class Google{
     

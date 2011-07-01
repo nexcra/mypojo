@@ -1,17 +1,16 @@
 package erwins.test.runAndSeeResult
 
 
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import static org.junit.Assert.*
 
-import org.junit.Test;
+import java.util.concurrent.CyclicBarrier
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
-import erwins.util.lib.RandomStringUtil;
-import erwins.util.tools.StopWatch;
+import org.junit.Test
 
-
-import static org.junit.Assert.*;
+import erwins.util.lib.RandomStringUtil
+import erwins.util.tools.StopWatch
 
 /** 멀티스래드에 대한 속도를 측정한다.. 조낸 쪼금 빨라지네 쩝..
  * 멀티코어에서 돌려보고싶당~ */
@@ -20,6 +19,7 @@ class SpeedOfMultiThread {
 	@Test
 	void test(){
 		/** 입력수에 시간이 정비례하는 작업클로저를 정의한다. */
+		
 		def fn = { [1 .. it]*.inject(0){ sum,e -> sum += RandomStringUtil.makeRandomSid().toLong() }[0] }
 		
 		def c = 500

@@ -8,7 +8,6 @@ import org.hibernate.cfg.Configuration;
 
 /**
  * 스프링이 없을 때 사용하자.
- * @author erwins(my.pojo@gmail.com)
  */
 public class HibernateUtil {
 

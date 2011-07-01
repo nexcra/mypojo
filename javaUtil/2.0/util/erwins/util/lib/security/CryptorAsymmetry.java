@@ -12,7 +12,6 @@ import erwins.util.lib.FileUtil;
 
 /**
  * 비대칭키. 부분 확인. 확장 후 싱글톤으로 운영하자.
- * @author erwins(my.pojo@gmail.com)
  */
 public class CryptorAsymmetry {
 

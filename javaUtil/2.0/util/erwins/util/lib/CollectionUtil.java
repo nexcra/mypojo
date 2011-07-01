@@ -18,8 +18,6 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Collection과 Array에 관한 Util이다. java.util.EnumSet을 잘 활용할것! 경고!!! T ... items 에
  * 배열이 오면 배열로 인식하지만 collection이 올 경우 하나의 T로 인식해 버린다. 주의
- * 
- * @author erwins(my.pojo@gmail.com)
  */
 public abstract class CollectionUtil extends CollectionUtils {
 	

@@ -45,7 +45,6 @@ import erwins.util.valueObject.ValueObject;
  * !!! 사용자 정의 Code를 자동으로 받게 변경
  * 
  * ==> 2010.12 이거 쓰기 싫다.. ㅅㅂ.
- * @author erwins(my.pojo@gmail.com)
  */
 @Singleton
 @SuppressWarnings(value={"unchecked","rawtypes"})

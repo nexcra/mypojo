@@ -8,7 +8,6 @@ import erwins.util.lib.FormatUtil;
 
 /**
  * 금액을 나타낸다. BigDecimal을 delegate한다.
- * @author  erwins(my.pojo@gmail.com)
  */
 public class Money{
 

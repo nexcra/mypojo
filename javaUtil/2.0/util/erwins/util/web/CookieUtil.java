@@ -8,7 +8,6 @@ import erwins.util.collections.map.RequestMap;
 
 /**
  * 쿠키~
- * @author erwins(my.pojo@gmail.com)
  **/
 public class CookieUtil{
     

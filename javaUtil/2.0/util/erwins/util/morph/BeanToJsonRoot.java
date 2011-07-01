@@ -26,7 +26,6 @@ import erwins.util.valueObject.ValueObject;
  * Object로 서버사이드의 JsonObject를 생성한다. +로 사용자정의 필터를 추가한 버전이다. FCKEditor의 경우 json으로
  * 데이터를 박을려면 escape를 하면 안된다. 그러나 다른 일반적인 HTML에 박이는 데이터의 경우 escape를 반드시 해야 한다.
  * toString옵션에 1을 주면 들여쓰기 한다. 참고.
- * @author erwins(my.pojo@gmail.com)
  */
 @Singleton
 @SuppressWarnings({ "unchecked", "rawtypes" })

@@ -27,10 +27,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import erwins.util.collections.map.RequestMap;
 import erwins.util.lib.DayUtil;
 import erwins.util.lib.StringUtil;
+import groovy.lang.Closure;
 
 /**
  * POI 패키지의 HSSF를 편리하게.. 헤더칸은 1칸 이라고 일단 고정 사각 박스를 예쁘게 채울려면 반드시 null에 ""를 채워 주자~
- * @author  erwins(my.pojo@gmail.com)
  */
 public class Poi extends PoiRoot{
 	
@@ -252,6 +252,7 @@ public class Poi extends PoiRoot{
     
 	/** 나중에 입력값이 아닌 셀타입에 따라 바뀌게 만들자.
 	 *  -> 이거 수정해야함 */
+	@Deprecated
     public void changeValues(int rowIndex,Object ... values){
     	HSSFRow row = nowSheet.getRow(rowIndex);
     	int i=0;
@@ -268,6 +269,20 @@ public class Poi extends PoiRoot{
             row.getCell(i++).setCellValue(new HSSFRichTextString(value));
         }
     }
+	
+	/** ex) p.changeDate 0, 4, 1, { it+10 } */
+	@SuppressWarnings("rawtypes")
+	public void changeDate(int sheetIndex,int rowNum,int colNum, Closure closure){
+		Cell cell = findCell(sheetIndex, rowNum, colNum);
+		Date value = (Date) closure.call(cell.getDateCellValue());
+		cell.setCellValue(value);
+	}
+	@SuppressWarnings("rawtypes")
+	public void changeValue(int sheetIndex,int rowNum,int colNum, Closure closure){
+		Cell cell = findCell(sheetIndex, rowNum, colNum);
+		if(cell.getCellType()==Cell.CELL_TYPE_NUMERIC) cell.setCellValue((Double)closure.call(cell.getNumericCellValue())); 
+		else if(cell.getCellType()==Cell.CELL_TYPE_STRING) cell.setCellValue( (String) closure.call(cell.getRichStringCellValue().getString()));
+	}
     
     public void addValuesCollection(@SuppressWarnings("rawtypes") Collection values){
     	addValues(0,values.toArray());

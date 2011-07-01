@@ -13,7 +13,6 @@ import erwins.util.root.Singleton;
  * File로 캐싱하는 Object입니다. NAS에 파일을 넣어주세요.
  * 싱글톤 입니다. (싱글톤은 상속해서 구현 or 스프링을 사용하세요)
  * 응???? 이거 머지. 왜만들었지?
- * @author erwins(my.pojo@gmail.com)
  */
 @Singleton
 public abstract class FOManagerTemplit<T extends Serializable> implements UpdateAble{

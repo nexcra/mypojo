@@ -8,7 +8,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * StringEscapeUtils를 확장한 추가 인코더
- * @author erwins(my.pojo@gmail.com)
  */
 public abstract class StringEscapeUtil extends StringEscapeUtils {
 
