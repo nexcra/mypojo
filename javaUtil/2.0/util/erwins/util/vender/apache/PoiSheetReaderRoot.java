@@ -72,7 +72,9 @@ public abstract class PoiSheetReaderRoot implements Iterable<String[]>{
 	protected void readEach(StringArrayPoiCallback callback, Iterator<Row> rows) {
 		while(rows.hasNext()){
     		Row eachRow = rows.next();
-    		String[] line = new String[eachRow.getLastCellNum()]; 
+    		int size = eachRow.getLastCellNum();
+    		if(size==-1) continue;
+    		String[] line = new String[size]; 
     		Iterator<Cell> cells = eachRow.iterator();
     		while(cells.hasNext()){
     			Cell eachCell = cells.next();

@@ -3,8 +3,8 @@ package erwins.util.groovy
 
 import java.sql.SQLException
 
-import erwins.util.counter.Counter
-import erwins.util.counter.SimpleCounter;
+import org.apache.poi.hssf.record.formula.functions.T
+
 import erwins.util.lib.FormatUtil
 import erwins.util.lib.StringUtil
 import erwins.util.vender.apache.Poi
@@ -15,7 +15,7 @@ import groovy.sql.Sql
  * table의 스키마를 담기위해 별도의 class로 변경했다.
  * 그루비 리절트로우의 경우 전체 리스트맵을 모두 바꾸면 정상변경되나 일부만 바뀌면 해당 프로퍼티를 찾을 수 없다는 메세지가 나온다. 주의! */
 public class OracleSql extends AbstractSql implements Iterable{
-	
+
 	public static OracleSql instance(ip,sid,id,pass){
 		OracleSql oracleSql = new OracleSql()
 		oracleSql.db = Sql.newInstance("jdbc:oracle:thin:@$ip:1521:$sid",id,pass,'oracle.jdbc.driver.OracleDriver');
@@ -23,30 +23,16 @@ public class OracleSql extends AbstractSql implements Iterable{
 		return oracleSql;
 	}
 	
-	/** 이 안에서 작업하자. */
-	public OracleSql transaction(Closure closure){
-		try{
-			closure()
-			db.commit()
-		}catch (Exception e) {
-			db.rollback()
-			e.printStackTrace()
-		}
-	}
-	
-	/** 중복을 무시하고 저장한다. 간편하게 작업하기위한용으로 오남용 금지 */
-	public int insertIgnoreDuplication(sql,list){
-		int duplicated = 0
-		try{
-			db.executeInsert sql, list
-		}catch(SQLException e){
-			if(e.message.toString().startsWith('ORA-00001: 무결성 제약 조건')) duplicated++
+	/** 사용자 정의 */
+	def exceptionHandler
+	/** 디폴트로 중복은 무시한다. */
+	protected void exceptionHandle(Exception e,String sql,List param){
+		if(exceptionHandler==null){
+			if(e.message.toString().startsWith('ORA-00001: 무결성 제약 조건')) println ("중복예외이나 무시 : " + param)
 			else throw e
-		}
-		return duplicated;
-		
+		}else exceptionHandler(e)
 	}
-	
+
 	/** 테이블정보가 담긴다 */
 	List tables = []
 	public Iterator iterator(){
@@ -65,7 +51,7 @@ public class OracleSql extends AbstractSql implements Iterable{
 		tables.each { it['columns'] =  columns(it.TABLE_NAME)}
 		return this
 	}
-	
+
 	/** SEARCH_CONDITION과 KEY를 세팅해준다. */
 	public OracleSql loadColumnKey(){
 		tables.each { columnsKey(it.TABLE_NAME,it.columns) }
@@ -80,7 +66,7 @@ public class OracleSql extends AbstractSql implements Iterable{
 	/* ================================================================================== */
 	/*                                Util                                                */
 	/* ================================================================================== */
-	
+
 	public columns(TABLE_NAME){
 		def sql = """
 			SELECT a.TABLE_NAME,a.COLUMN_NAME,COMMENTS,'' as KEY,DATA_TYPE,DATA_LENGTH,DATA_PRECISION,DATA_SCALE,'' as SEARCH_CONDITION
@@ -109,7 +95,12 @@ public class OracleSql extends AbstractSql implements Iterable{
 		columns(TABLE_NAME).each { map.put it.COLUMN_NAME , it }
 		return map
 	}
-	
+	/** header 순서로 찾아와야 한다. */
+	public columnComment(TABLE_NAME,header){
+		def c = this.getAt(TABLE_NAME).columns
+		return header.collect{ h ->  c.find { it['COLUMN_NAME'] == h }['COMMENTS']   }
+	}
+
 	/** 내부적으로 select를 한번 더 중첩한다.  이경우 중첩되는 컬럼 이름이 강제치환된다. 주의! 
 	 * 따라서 단순 샘플자료를 추출한 목적이라면 이거대신 걍 rownum을 사용하자. */
 	public paging(sql,pageSize,pageNo){
@@ -119,32 +110,32 @@ public class OracleSql extends AbstractSql implements Iterable{
 	/* ================================================================================== */
 	/*                                STATIC                                              */
 	/* ================================================================================== */
-	
-	
+
+
 	/** 오라클에서 사용하는 페이징으로 바꿔준다. */
 	public static String toOraclePaging(sql,pageSize,pageNo){
 		int startNo = pageSize * (pageNo-1) +1;
 		int endNo = pageSize * pageNo;
 		return "SELECT * FROM (SELECT inner.*,ROWNUM \"PAGE_RN\" FROM ( $sql ) inner) WHERE PAGE_RN BETWEEN $startNo AND $endNo"
 	}
-	
+
 	/* ================================================================================== */
 	/*                                Simple                                              */
 	/* ================================================================================== */
-	
+
 	/** DB의 내용을 xls로 옮긴다. (임시용이다. 대용량은 txt로 처리하자)
 	 * 실DB의 일정분량만을 테스트DB로 이관할때 사용하였다.  batchSize * maxSize 가 전체수 */
 	public dbToXls(file,batchSize,maxSize,where = ''){
 		loadInfo(where).loadCount().loadColumn()
 		tables.each { tableToXls(file,batchSize,maxSize,it)}
 	}
-	
+
 	private void tableToXls(file,batchSize,maxSize,table){
 		for(int i=1;i<maxSize+1;i++){
 			println "$table.TABLE_NAME : $i 번째 파일 처리중"
 			def list = paging "select * from $table.TABLE_NAME ",batchSize,i
 			if(list.size()==0) continue
-			Poi p = new Poi()
+				Poi p = new Poi()
 			p.setListedMap table.TABLE_NAME, list
 			p.wrap()
 			def fileCount = StringUtil.leftPad(i.toString(),4,'0')
@@ -152,7 +143,7 @@ public class OracleSql extends AbstractSql implements Iterable{
 			if(list.size() < batchSize) return
 		}
 	}
-	
+
 	/** 컬럼 정보를 한 시트에 모두 담는다. */
 	public dbInfo(fileName,where = ''){
 		Poi p = new Poi()
@@ -163,7 +154,7 @@ public class OracleSql extends AbstractSql implements Iterable{
 		int tableCount = 1
 		tables.each {
 			if(it.TABLE_NAME.startsWith('BIN')) return
-			def colums = it.columns
+				def colums = it.columns
 			def conSql = """
 				SELECT aa.TABLE_NAME,COLUMN_NAME,CONSTRAINT_TYPE,SEARCH_CONDITION
 				FROM USER_CONS_COLUMNS aa join USER_CONSTRAINTS bb on aa.CONSTRAINT_NAME = bb.CONSTRAINT_NAME
@@ -184,7 +175,7 @@ public class OracleSql extends AbstractSql implements Iterable{
 		p.getMerge(1).setAbleRow(0).setAbleCol(0).merge();
 		p.write(fileName)
 	}
-	
+
 	/** ex) db.sqlJoin(['AFFILIATION','AIR_METAR_JUN','AWS_AIR']) */
 	public sqlJoin(joinTables){
 		def select = 'SELECT '
@@ -209,7 +200,17 @@ public class OracleSql extends AbstractSql implements Iterable{
 		}
 		println select + from + '\nWHERE ~~'
 	}
-	
+
+	/** 테이즐정보를 로드해서 columnNames을 생략할 수 있게 해준다. Map안의 데이터중 컬럼과 매핑되는것만 insert한다.
+	 * ex) println db.insert('도메인정의서',PoiReaderFactory.instance(ROOT+'KMA_DA_도메인정의서_v1.72')[1].read()) \
+	 * 근데 이거 쓸일이 거의 없는듯. 망함. */
+	public int insert(TABLE_NAME,List listMap){
+		def columns = columns(TABLE_NAME)
+		columnsKey(TABLE_NAME,columns)
+		def columnNames  = columns.collect { it.COLUMN_NAME }
+		return insertListMap(TABLE_NAME,columnNames,listMap)
+	}
+
 	/** iBatis등으로 개발할때 활용하자. */
 	public sqlIBatis(TABLE_NAME){
 		def sql = """
@@ -218,36 +219,11 @@ public class OracleSql extends AbstractSql implements Iterable{
 			ON a.COLUMN_NAME = b.COLUMN_NAME AND a.TABLE_NAME = b.TABLE_NAME
 			WHERE a.TABLE_NAME = '$TABLE_NAME'  ORDER BY COLUMN_ID """
 		def cn = list(sql).collect { it.COLUMN_NAME }
-		def insert = "INSERT INTO $TABLE_NAME (" + cn.join(',') + ')\nVALUES ('+ cn.collect { ':'+it}.join(',')  +')'
-		def update = "UPDATE $TABLE_NAME SET " + cn.collect { it + ' = :'+it}.join(',') + '\nWHERE ID = :ID'
-		def select = 'SELECT ' + cn.collect{'a.'+it}.join(',') + "\nFROM $TABLE_NAME a \nWHERE ~~ ORDER BY ~~"
-		println '==INSERT==\n'+insert
-		println '\n==UPDATE==\n'+update
-		println '\n==SELECT==\n'+select
+		println "INSERT INTO $TABLE_NAME (" + cn.join(',') + ') VALUES ('+ cn.collect { ':'+it}.join(',')  +')'
+		println "INSERT INTO $TABLE_NAME (" + cn.join(',') + ') VALUES ('+ cn.collect { '#{'+it+'}'}.join(',')  +')'
+		println "INSERT INTO $TABLE_NAME (" + cn.join(',') + ') VALUES ('+ cn.collect { '?' }.join(',')  +')'
+		println "UPDATE $TABLE_NAME SET " + cn.collect { it + ' = :'+it}.join(',') + ' WHERE ID = :ID'
+		println 'SELECT ' + cn.collect{'a.'+it}.join(',') + "\nFROM $TABLE_NAME a \nWHERE ~~ ORDER BY ~~"
 	}
-	
-	/**
-	 *  엑셀 등을 읽어서 대량 insert할때 사용한다. -> 메모리 문제로 사용안함.  추후 수정
-		Sql.metaClass."insertList"  = { tableName,colimnNames,parameterList ->
-			def parameter = StringUtil.iterateStr( '?', ',', colimnNames.length)
-			def INSERT = "INSERT INTO $tableName ( ${colimnNames.join(',')} ) VALUES ( ${parameter} )"
-			
-			def (success,duplicated) = [0, 0]
-			parameterList.each {
-				try{
-					executeInsert INSERT.toString(), it
-					success++
-				}catch(SQLException e){
-					if(e.message.toString().startsWith('ORA-00001: 무결성 제약 조건')) duplicated++
-					else{
-						println it
-						throw e
-					}
-				}
-			}
-			return [success, duplicated]
-		}
-	 */
 
-	
 }

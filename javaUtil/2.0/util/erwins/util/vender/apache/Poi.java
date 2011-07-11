@@ -13,7 +13,9 @@ import java.util.Map.Entry;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
+import org.apache.poi.hssf.usermodel.HSSFComment;
 import org.apache.poi.hssf.usermodel.HSSFHyperlink;
+import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -177,6 +179,42 @@ public class Poi extends PoiRoot{
     	HSSFRow row = wb.getSheetAt(index).getRow(rowNum);
     	addHyperlink(row,cellnum, toLink(sheetName, column, rownum),HSSFHyperlink.LINK_DOCUMENT );
     }
+    /** Groovy용 간단 링크달기. 쿨하니깐 성능따윈 신걍쓰지 않는다.
+     * 각각의 리스트로부터 동일한 값이 있는 걸 매핑시킨다. */
+    @SuppressWarnings("rawtypes")
+	public void addHyperlink(List<Map> list,List<Map> target,String orgKey,String targetKey,int linkCell,String sheetName,String linkedCell){
+    	int headerSize = headerRowCount.get(wb.getSheetIndex(nowSheet.getSheetName()));
+    	for(int i=0;i<list.size();i++){
+    		Object value = list.get(i) .get(orgKey);
+    		for(int j=0;j<target.size();j++){
+    			Object targetValue = target.get(j).get(targetKey);
+    			if(value==null || targetValue==null ) continue;
+    			if(!value.equals(targetValue) ) continue;
+    			addHyperlink(i+headerSize,linkCell,sheetName,linkedCell,j+headerSize+1); //headerSize가 동일하다고 일단 가정
+    			break;
+    		}
+    	}
+    }
+    
+    @SuppressWarnings("rawtypes")
+	public void addHyperlink(List<Map> list,List<Map> target,String orgKey,String targetKey,int linkCell,String sheetName){
+    	addHyperlink(list, target, orgKey, targetKey, linkCell, sheetName,"A");
+    }
+    
+    
+    /** 그루비용으로 급조 */
+    public void setHeaderComments(List<String> comments){
+        HSSFPatriarch patr = getOrCreatePatriarch(nowSheet);
+        Row row = nowSheet.getRow(0);
+        for(short i=0;i<row.getLastCellNum();i++){
+        	Cell cell = row.getCell(i);
+        	String commentString = comments.get(i);
+        	if(commentString==null) continue;
+            HSSFComment comment = patr.createComment(new HSSFClientAnchor(0, 0, 0, 0, (short)4, 2, (short) 7, 6)); //의미불명
+            comment.setString(new HSSFRichTextString(commentString)); 
+            cell.setCellComment(comment);
+        }
+    }    
     
     /** column link는 A ,B 이런식으로 네이밍된다. 
      * ㅅㅂ.. 게다가 시트번호로는 또 안되네. */

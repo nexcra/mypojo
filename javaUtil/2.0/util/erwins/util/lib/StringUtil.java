@@ -2,6 +2,7 @@
 package erwins.util.lib;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.Iterator;
@@ -619,7 +620,12 @@ public class StringUtil extends StringUtils {
     	private RequestMap counter = new RequestMap();
     	
     	public void addCount(File file){
-    		String txt = TextFileUtil.read(file).toString();
+    		String txt;
+			try {
+				txt = FileUtil.readFileToString(file);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
     		addCount(txt);
     	}
     	

@@ -7,6 +7,7 @@ import org.apache.commons.collections.map.ListOrderedMap
 
 import erwins.util.collections.MapForList
 import erwins.util.collections.MapType
+import erwins.util.lib.CollectionUtil
 import erwins.util.lib.StringUtil
 import erwins.util.lib.security.MD5
 import groovy.sql.GroovyRowResult
@@ -30,10 +31,42 @@ public class GroovyMetaUtil{
 			delegate.put key, org+value
 		}
 		ListOrderedMap.metaClass."merge" = { map, keys ->
-			keys.each { delegate.put it,map[it]  }
+			keys.each {
+				if(!map.containsKey(it)) return
+				delegate.put it,map[it] 
+			}
 			return delegate
 		}
-		
+		/** 맵의 키값만 변경한다. 자동DB인설트 등에 사용하자. 
+		 * keyMap = [원래키 : 바꿀키]*/
+		ListOrderedMap.metaClass."mapping" = {Map keyMap ->
+			def newMap = new ListOrderedMap()
+			keyMap.each {
+				newMap[it.value] = delegate[it.key]
+			}
+			return newMap
+		}
+		/** 각 키값들을 DB에 들어가는 구조로 바꾼다. 
+		 * 도메인 명칭(접미) -> 도메인_명칭 */
+		ListOrderedMap.metaClass."toUnderscore" = {
+			def newMap = new ListOrderedMap()
+			delegate.each {
+				def key = StringUtil.getUnderscore(it.key).replaceAll(/\(.*\)/, '').replaceAll(' ','_')
+				newMap[key] = delegate[it.key]
+			}
+			return newMap
+		}
+		/** 맵의 키값만 변경한다. 자동DB인설트 등에 사용하자.
+		* keyMap = [원래키 순서대로,,]*/
+		def mapping =  {List keyList ->
+			def newMap = new ListOrderedMap()
+			keyList.each {
+				newMap[it] = delegate[it]
+			}
+			return newMap
+		}
+		ListOrderedMap.metaClass."mapping" = mapping
+		GroovyRowResult.metaClass."mapping"  = mapping
 	}
 
 	public static void file(){
@@ -63,6 +96,23 @@ public class GroovyMetaUtil{
 			delegate.each { map.put it[key],it  }
 			return map
 		}
+		ArrayList.metaClass."toUnderscore" = { key ->
+			delegate.collect { it.toUnderscore() }
+		}
+		/** List<Map> 을 Map<List<Map>> 으로 변경 */
+		ArrayList.metaClass."mapping" = {String key ->
+			def mapList = new MapForList(MapType.ListOrderd) //일단 기본정렬순으로
+			delegate.each { mapList.add it[key],it  }
+			return mapList
+		}
+		ArrayList.metaClass."mapping" = {List keys ->
+			def mapList = new MapForList(MapType.ListOrderd) //일단 기본정렬순으로
+			delegate.each {
+				def key = keys.collect { k -> it[k]  }.join('|')
+				mapList.add key,it
+			}
+			return mapList
+		}
 		/** 그냥 split은 true / false 구조로 무조건 2개로 나눈다. 이는 그것을 개량한것이다.
 		 * separator이 true로 나올때마다 하나의 리스트를 추가한다.
 		 * List<List>의 구조를 가진다. 첫번째 separator는 무조건 true가 나와야 한다. */
@@ -80,14 +130,20 @@ public class GroovyMetaUtil{
 		}
 		/** List<Map> 인 구조에서 특정 key로 데이터를 분류한다.
 		 * 분류된 데이터는 당근 Map<List<Map>> 이 된다  */
-		ArrayList.metaClass."splitByKey" = { key ->
+		ArrayList.metaClass."splitByKey" = {key ->
 			def map = new MapForList()
 			delegate.each { map.add it[key], it}
 			return map
 		}
 		/** List<Map> 인 구조에서 특정 key로 데이터를 정렬한다 */
-		ArrayList.metaClass."sortKey" = { key ->
+		ArrayList.metaClass."sortKey" = {String key ->
 			delegate.sort {a,b -> a[key].compareTo(b[key])}
+			return delegate
+		}
+		/** List<Map> 인 구조에서 특정 key로 데이터를 정렬한다 */
+		ArrayList.metaClass."sortKey" = {List keys ->
+			def comparator = CollectionUtil.mapComparator(keys)
+			Collections.sort(delegate,comparator);
 			return delegate
 		}
 		/** List<Map> 인 구조에서 현제 데이터와 이전 데이터를 비교하고싶을때 사용한다.

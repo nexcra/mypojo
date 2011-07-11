@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import erwins.util.lib.FileUtil;
 import erwins.util.lib.StringUtil;
-import erwins.util.lib.TextFileUtil;
 import erwins.util.tools.TextFileReader;
 import erwins.util.tools.TextFileReader.StringArrayCallback;
 import erwins.util.tools.TextFileReader.StringMapCallback;
@@ -43,7 +42,7 @@ public class GoogleToNateOn{
 				}
 			}
 		});
-		TextFileUtil.write(temp, b);
+		FileUtil.writeStr(b, temp);
     }
     
     /** 업로드 가능한 양식으로 바꿔준다. 이걸로 네이트에 업로드 ㄱㄱ */
@@ -62,7 +61,7 @@ public class GoogleToNateOn{
 				b.append("\r\n");
 			}
 		});
-		TextFileUtil.write(result, b,"EUC-KR");
+		FileUtil.writeStr(b, result,"EUC-KR");
 		FileUtil.delete(org);
 		FileUtil.delete(temp);
     }

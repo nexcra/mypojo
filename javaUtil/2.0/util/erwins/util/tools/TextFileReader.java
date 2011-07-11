@@ -16,10 +16,10 @@ import erwins.util.root.StringCallback;
 import groovy.lang.Closure;
 
 /**
- * 복잡한 예외처리 등을 할 수 없지만 간단한거 할때 좋다.
- * 아오.. 엑셀보다 백만배 정도 빠르다. ㅅㅂ.  
+ * 스트리밍 읽기를 지원한다.
+ * 대용량에 사용하자.
  */
-@SuppressWarnings(value={"unchecked"})
+@SuppressWarnings(value={"unchecked","rawtypes"})
 public class TextFileReader{
 	
 	/** 엑셀로 받아온 대용량 데이터는 탭으로 변환해 처리하자. */
@@ -28,7 +28,7 @@ public class TextFileReader{
     /** 디폴트로  UTF_8을 사용한다. */
     private String encoding = "UTF-8";
     
-    public TextFileReader(){}
+	public TextFileReader(){}
     public TextFileReader(String encoding) { this.encoding = encoding;}
     public TextFileReader setEncoding(String encoding) { this.encoding = encoding; return this;}
 
@@ -115,7 +115,7 @@ public class TextFileReader{
 		protected void init(String[] line){};
     }
     
-    /** Groovy용이다.  */
+    /** Groovy용이다. 근데 그루비 쓸정도면 걍 스트리밍으로 안읽는게 더 나은듯 . 고로 이 api는 망했다 */
     public void read(File file,String columnSeparator,final Closure init, final Closure callback){
 		read(file,new StringMapCallback(columnSeparator){
 			@Override
@@ -128,7 +128,7 @@ public class TextFileReader{
 			}
         });
     }
-    public void read(File file,String columnSeparator,final Closure callback){
+	public void read(File file,String columnSeparator,final Closure callback){
     	read(file,columnSeparator,null,callback);
     }
     public void read(File file,final Closure callback){
@@ -139,10 +139,9 @@ public class TextFileReader{
 			}
 		});
     }
-    
     /** 
      * 간단한 스캐너 이다. root를 기준으로 모든 파일을 읽어 line을 반환한다.
-     * text가 아니면 오류가 날듯..
+     * text가 아니면 오류가 날듯. ㅋㅋ
      * */
     public static void scan(File folder,StringCallback callback){
         FolderIterator i =  new FolderIterator(folder);

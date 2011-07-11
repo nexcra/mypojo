@@ -2,6 +2,7 @@
 package erwins.util.lib.security;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.crypto.SecretKey;
 
@@ -12,7 +13,6 @@ import org.junit.Test;
 
 import erwins.util.exception.Check;
 import erwins.util.lib.FileUtil;
-import erwins.util.lib.TextFileUtil;
 import erwins.util.lib.security.Cryptor.Mode;
 
 public class SecurityTest{
@@ -60,7 +60,7 @@ public class SecurityTest{
 		String en = new Cryptor().generateKey(key).encryptBase64(orgText);
 		String de = new Cryptor().generateKey(key).decryptBase64(en);
 		Validate.isTrue(de.equals(orgText));
-	}	
+	}
 	
     @Test  /** 파일도 통으로 암호화 가능 */
     public void cryptFile(){
@@ -71,7 +71,12 @@ public class SecurityTest{
     	Cryptor cryptor = new Cryptor().setMode(Mode.DESede).readKey(fileKeyDESede);
     	cryptor.encrypt(org, sealed);
     	cryptor.decrypt(sealed, unsealed);
-    	Check.isTrue(TextFileUtil.read(org).toString().equals(TextFileUtil.read(unsealed).toString()));
+    	
+    	try {
+			Check.isTrue(FileUtil.readFileToString(org).equals(FileUtil.readFileToString(unsealed)));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
     	Check.isTrue(org.delete());
 		Check.isTrue(sealed.delete());
 		Check.isTrue(unsealed.delete());

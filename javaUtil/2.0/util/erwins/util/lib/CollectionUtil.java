@@ -41,7 +41,7 @@ public abstract class CollectionUtil extends CollectionUtils {
 		return list;
 	}
 
-	/** Groovy등에서 사용 */
+	
 	@SuppressWarnings("rawtypes")
 	public static Comparator<Map> mapComparator(final String key) {
 		Comparator<Map> c = new Comparator<Map>() {
@@ -54,9 +54,26 @@ public abstract class CollectionUtil extends CollectionUtils {
 	}
 	
 	/** Groovy등에서 사용 */
-	@SuppressWarnings({ "rawtypes" })
-	public static void sortByKey(List<Map> list, final String key) {
-		Collections.sort(list, mapComparator(key));
+	@SuppressWarnings("rawtypes")
+	public static Comparator<Map> mapComparator(final List<String >keys) {
+		Comparator<Map> c = new Comparator<Map>() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public int compare(Map o1, Map o2) {
+				int compare = 0;
+				for(String key : keys){
+					Comparable e1 = (Comparable)o1.get(key);
+					Comparable e2 = (Comparable)o2.get(key);
+					if(e1==null && e2==null) compare = 0;
+					else if(e1==null) compare = 1;
+					else if(e2==null) compare = -1;
+					else compare = e1.compareTo(e2);
+					if(compare!=0) break;
+				}
+				return compare;
+			}
+		};
+		return c;
 	}
 
 	/**

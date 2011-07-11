@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -66,7 +67,16 @@ public abstract class PoiRoot{
     protected List<Integer> headerRowCount = new ArrayList<Integer>();;
     
     /** 코멘트에 사용된다. 묻지마.. 나도 몰라. */
-    protected HashMap<Integer,HSSFPatriarch> patriarchMap = new HashMap<Integer,HSSFPatriarch>();    
+    protected Map<String,HSSFPatriarch> patriarchMap = new HashMap<String,HSSFPatriarch>();    
+    
+    protected HSSFPatriarch getOrCreatePatriarch(HSSFSheet sheet){
+    	HSSFPatriarch patr = patriarchMap.get(sheet.getSheetName());
+    	if(patr==null){
+    		patr = sheet.createDrawingPatriarch();
+    		patriarchMap.put(sheet.getSheetName(), patr);
+    	}
+    	return patr; 
+    }
     
     protected FileInputStream stream;
     
@@ -277,25 +287,19 @@ public abstract class PoiRoot{
             }
         }
     }
-
     
     /**
      * 특정 시트의 특정 컬럼에 코멘트 추가
      * <br> 입력 순으로 1.시트 2.로우 3.컬럼... 
      */
     public void setComments(String str,int sheetInd,int rowNum,int ... columns){
-        
         HSSFSheet sheet = wb.getSheetAt(sheetInd);
-        HSSFPatriarch patr = patriarchMap.get(sheetInd);        
-        if(patr == null) patr = sheet.createDrawingPatriarch();
-        patriarchMap.put(sheetInd, patr);
-        
+        HSSFPatriarch patr = getOrCreatePatriarch(sheet);
         Row row = sheet.getRow (rowNum);
         for (int column : columns) {
             Cell cell = row.getCell(column);
             HSSFComment comment = patr.createComment(new HSSFClientAnchor(0, 0, 0, 0, (short)4, 2, (short) 7, 6));
             comment.setString(new HSSFRichTextString(str)); 
-            //comment1.setAuthor("한국환경자원공사");
             cell.setCellComment(comment);
         }
     }
