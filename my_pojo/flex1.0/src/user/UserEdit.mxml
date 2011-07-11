@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<erwins:DefaultTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:google="flexlib.controls.*" 
+	xmlns:tt="agentState.*" 
+	xmlns:erwins="erwins.component.*" layout="absolute"
+    width="760" height="150" title="사용자 수정/삭제"
+    creationComplete="init()"
+    resize="true"
+>
+
+<mx:Script>
+<![CDATA[
+	import com.adobe.serialization.json.JSON;
+	import com.adobe.serialization.json.JSONEncoder;
+	import erwins.component.mdi.MDIFactory;
+	import com.nhn.maps.errors.InitError;
+	import mx.events.FlexEvent;
+	import mx.events.ListEvent;
+	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+	import mx.core.Application;
+	
+	import mx.events.MenuEvent;
+	import mx.charts.CategoryAxis;
+	import mx.events.CloseEvent;
+	import mx.collections.ArrayCollection;
+	import mx.core.UIComponent;   
+	import mx.controls.Alert;
+	import mx.utils.StringUtil;
+	import mx.managers.PopUpManager;
+import erwins.util.effect.*;
+import erwins.util.json.*;
+import erwins.util.http.*;
+import erwins.util.validate.*;
+import erwins.util.UILib.*;
+import erwins.util.lib.*;
+	
+public var _callback:Function;
+[Bindable] public var _user:Object;
+private var me:UserEdit = this as UserEdit;
+private var mediator:Mediator = new Mediator(me);
+
+private function init():void{
+	EventEffect.mouseoverGlow(nickname);
+	deleteBtn.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{
+		Alerts.confirm(function():void{
+			var ajax:Ajax = new Ajax(Domain.user().remove());
+			ajax.setMediator(mediator);
+			ajax.send({removeId:_user.id},function(json:Jsons):void{
+				json.result( function(message:String):void{
+					_callback(message);
+					remove();
+				});
+			});	
+		});
+	});
+	var save:Function = function(e:MouseEvent=null):void{
+		var val:Validator = new Validator();
+		try{
+			if(_user!=null) val.param["id"] = _user.id;
+			val.param["googleEmail"] = _user.googleEmail;
+			val.add(nickname).isNotEmpty("별칭을 입력해 주세요.");
+		}catch(e:MalformedError){
+			e.resolve();
+			return;
+		}
+		
+		var ajax:Ajax = new Ajax(Domain.user().save());
+		ajax.setMediator(mediator);
+		ajax.send({save:val.toJson()},function(json:Jsons):void{
+			json.result( function(message:String):void{
+				_callback(message);
+				remove();
+			});
+		});
+	};
+	saveBtn.addEventListener(MouseEvent.CLICK,save);
+	
+	TooltipUtil.addStaticTooltip(gmailHelp,"구글 E-mail","로그인 등에 사용할 구글의 Gmail 계정을 입력해 주세요.");
+	Binder.ctrlShift(me,save);
+	
+	if(_user==null) return; //이하는 신규입력에서는 작동 안함.
+	
+	Jsons.update(me,_user);
+}
+
+/** book : 디폴트로 세팅될 객체. 이게 있으면 수정, 없으면 신규작성 */
+public static function popUp(base:UIComponent,callback:Function,user:Object=null):void{
+	var popWin:UserEdit = new UserEdit();
+	PopUpManager.addPopUp(popWin,base,false);
+	popWin._user = user;
+	popWin._callback = callback
+	PopUpManager.centerPopUp( popWin );	
+	popWin.setFocus();
+}
+   
+]]>
+</mx:Script>
+	<mx:Panel title="사원 정보" width="740" height="100%" dropShadowEnabled="true" 
+    		borderColor="black" headerColors="RED" borderStyle="inset" >
+		<mx:Grid width="100%" horizontalAlign="center" verticalAlign="middle" >
+			<mx:GridRow>
+				<mx:GridItem verticalAlign="middle"><mx:Label text="별칭(nickName)"/></mx:GridItem>
+				<mx:GridItem verticalAlign="middle" colSpan="3"><erwins:TextInputs id="nickname" width="250" maxChars="25" prompt="필수입력." /></mx:GridItem>
+				<mx:GridItem verticalAlign="middle"><mx:Label id="gmailHelp" text="Google E-mail" textDecoration="underline"/></mx:GridItem>
+				<mx:GridItem verticalAlign="middle" colSpan="3"><mx:Label id="googleEmail" /> </mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow>
+				<mx:GridItem verticalAlign="middle" colSpan="8" horizontalAlign="right">
+					<erwins:Buttons id="saveBtn" label="저장" /><erwins:Buttons id="deleteBtn" label="삭제" color="red" />
+				</mx:GridItem>
+			</mx:GridRow>	
+		</mx:Grid>
+	</mx:Panel>
+</erwins:DefaultTitleWindow>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()" >
+<mx:Script><![CDATA[
+	import erwins.util.UILib.MenuUtil;
+	import mx.collections.ArrayCollection;
+
+private var _max:int = 5;
+
+public function init():void{
+	var now:Date = new Date();
+	var year:Number =  now.fullYear;
+	var list:ArrayCollection = new ArrayCollection();
+	for(var i:int=0;i<_max;i++){
+		list.addItem({label:year-i+"년",value:year-i});	
+	}
+	
+	if(_isAll){
+		this.rowCount = _max+1;
+		this.dataProvider = MenuUtil.defaultOption(list,"=전체=","label");
+		this.selectedIndex = 1;
+	} else{
+		this.rowCount = _max;
+		this.dataProvider = list;
+	} 
+	 	
+}
+
+
+private var _isAll:Boolean = false;
+
+public function set defaultAll(isAll:Boolean):void{
+	this._isAll = isAll;
+}
+	
+
+]]></mx:Script>
+	
+</mx:ComboBox>

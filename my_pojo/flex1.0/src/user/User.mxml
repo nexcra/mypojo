@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="1100" height="600"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off" backgroundColor="white"
+	xmlns:erwins="erwins.component.*" applicationComplete="init()" >
+<mx:Style source="/config/css/config.css"/>
+<mx:Script>
+<![CDATA[
+	import erwins.component.file.FilecontrolPopup;
+	import erwins.component.file.DownloadPopup;
+	import mx.controls.Image;
+	import mx.events.ScrollEventDetail;
+	import mx.events.ScrollEvent;
+	import mx.controls.scrollClasses.ScrollBar;
+	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+	import mx.controls.Button;
+	import mx.charts.events.ChartItemEvent;
+	import mx.controls.dataGridClasses.DataGridColumn;
+	import mx.core.IUIComponent;
+	import mx.effects.easing.Bounce;
+	import mx.core.UIComponent;
+	import mx.events.DataGridEvent;
+	import mx.events.ToolTipEvent;
+	import mx.events.CloseEvent;
+	import mx.events.ItemClickEvent;
+	import mx.events.ListEvent;
+	import mx.collections.ArrayCollection;
+	import mx.utils.*;
+	import mx.controls.Alert;
+	import mx.managers.PopUpManager;
+
+import erwins.util.effect.*;
+import erwins.util.json.*;
+import erwins.util.http.*;
+import erwins.util.validate.*;
+import erwins.util.UILib.*;
+import erwins.util.lib.*;
+
+private var me:User = this as User;
+
+[Bindable] private var _list:ArrayCollection = new ArrayCollection();
+[Bindable] public var paging:Paging;
+
+private function init():void{
+	
+	var mediator:Mediator = new Mediator(me,function():void{
+		paging.renew(_list);
+	});
+	
+	paging = new Paging(function(callback:Function=null):void{
+		var params:Object = new Object();
+		params.pageNo = paging.nowPageNo;
+		 
+		var ajax:Ajax = new Ajax(Domain.user().search());
+		ajax.setMediator(mediator);
+		ajax.send(params,function(json:Jsons):void{
+			_list = json.getArray();
+			if(callback!=null) callback();
+			mediator.refresh();
+		});
+	},mediator);
+	
+	paging.addMouseWheelAction(sheet);
+	paging.addListener(pagingBtn,searchBtn);
+
+	xlsBtn.addEventListener(MouseEvent.CLICK,function(event:MouseEvent):void{
+		FilecontrolPopup.download(Domain.user().download(),"사용자정보.xls").pop(me);
+	});
+	
+	sheet.addEventListener(ListEvent.ITEM_DOUBLE_CLICK,function(event:ListEvent):void{
+		UserEdit.popUp(me,function(message:String):void{
+			result.message = message;
+			paging.search();
+		},sheet.selectedItem);
+	});
+	
+	TooltipUtil.addStaticTooltip(help,"사용자 정보 도움말",
+	"<p>1. 팝업창에서 Ctrl + Shift를 입력하면 '저장'버튼 클릭과 동일한 효과입니다.</p>"+
+	"<p>2. 이 정보가 있어야 각 사용자는 로그인 할 수 있으며, 다른 자료의 등록이 가능합니다.</p>");
+	
+	paging.search();
+}
+
+]]>
+</mx:Script>
+
+
+<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="top">
+	<mx:HBox width="100%" horizontalAlign="right" height="40" verticalAlign="middle" >
+		<erwins:ResultLabel id="result" />
+		<mx:LinkButton label="도움말" color="blue"  id="help" textDecoration="underline"  />
+		<mx:Label text="현재페이지: " fontSize="15"/>
+		<erwins:NumberRoller value="{paging.nowPageNo}" />
+		<erwins:Buttons id="searchBtn" label="검색" duration="1000" />
+        <erwins:ButtonBarForPaging width="180" id="pagingBtn" buttonStyleName="simpleButton" label1="이전자료" label2="다음자료"
+			tip1="Shift/Ctrl를 누른채로 클릭하면 5칸씩 뒤로 이동합니다." tip2="Shift를 누른채로 클릭하면 5칸씩 앞으로 이동합니다." />
+		<mx:Spacer width="5" height="100%" />
+		<erwins:Buttons id="xlsBtn" label="엑셀 다운로드" color="blue" />
+		<mx:Spacer width="5" height="100%" />
+	</mx:HBox>
+	<mx:AdvancedDataGrid id="sheet" width="100%" height="520" dataProvider="{_list}"
+			doubleClickEnabled="true" allowMultipleSelection="true" >
+		<mx:columns>
+			<mx:AdvancedDataGridColumn dataField="rownum" headerText="NO" width="50" textAlign="center" sortable="false"/>
+			<mx:AdvancedDataGridColumn dataField="nickname" headerText="닉네임" textAlign="left" sortable="false" />
+			<mx:AdvancedDataGridColumn dataField="googleEmail" headerText="Google E-mail" width="200" textAlign="left" sortable="false" />
+			<mx:AdvancedDataGridColumn dataField="createDate" headerText="등록일" width="190" textAlign="center" sortable="false" />
+			<mx:AdvancedDataGridColumn dataField="updateDate" headerText="수정일" width="190" textAlign="center" sortable="false" />
+		</mx:columns>
+	</mx:AdvancedDataGrid>
+</mx:VBox>
+</mx:Application>

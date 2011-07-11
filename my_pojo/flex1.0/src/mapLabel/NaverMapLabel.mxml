@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:erwins="erwins.component.*"
+	 layout="absolute" width="100%" height="100%" 
+	creationComplete="init()">
+
+<mx:Script><![CDATA[
+	import mx.managers.SystemManager;
+	import erwins.util.json.Jsons;
+	import com.nhn.maps.interfaces.IPoint;
+	import erwins.util.lib.Sets;
+	import erwins.util.lib.Js;
+	import erwins.openApi.NaverMapHelper;
+	import mx.events.ListEvent;
+	import erwins.util.UILib.TooltipUtil;
+	import erwins.util.lib.Alerts;
+	import erwins.util.UILib.MenuUtil;
+	import erwins.util.UILib.ContextMenuUtil;
+	import com.nhn.maps.overlays.NPlaceMark;
+	import com.nhn.maps.overlays.NInfoWindow;
+	import com.nhn.maps.utils.NCoordTrans;
+	import com.nhn.maps.overlays.Overlay;
+	import com.nhn.maps.events.NMarkEvent;
+	import com.nhn.maps.NPoint;
+	import com.nhn.maps.overlays.NMark;
+	import com.nhn.maps.overlays.NMarkParams;
+	import mx.controls.Alert;
+	import com.nhn.maps.controls.NMapBtns;
+    import com.nhn.maps.NMap;
+    import com.nhn.maps.NCoordType;
+    import com.nhn.maps.NLatLng;
+    import com.nhn.maps.events.NMapEvent;
+    import com.nhn.maps.controls.NIndexMap;
+    import com.nhn.maps.controls.NZoomControl;
+    import com.nhn.maps.enums.HorizontalAlignment;
+    import com.nhn.maps.enums.VerticalAlignment; 
+    
+/** 121.161.186.117:8080/ */
+//private static const KEY:String = "3bd776115c4d41a66793a69ae642865c";
+/** my-pojo.appspot.com/    */
+private static const KEY:String = "c0c388b32b2d39416c3dd1463f8cbf05";
+    
+    
+[Bindable] private var me:NaverMapLabel = this as NaverMapLabel;
+private var appWidth:int = me.width;
+[Bindable] private var naver:NaverMapHelper;
+
+[Bindable] private var now:NLatLng;
+
+private function init():void{
+	naver = new NaverMapHelper();
+	var nMap:NMap = naver.instance(mapContainer,Domain.isServer() ? KEY : null);
+	naver.config(Domain.mapLabel().search(),Domain.mapLabel().save(),Domain.mapLabel().remove());
+	naver.saveCallback = function(data:Object):void{
+		result.message = "마커[" + data["label"] + "]가 저장되었습니다.";
+	}
+	naver.removeCallback = function():void{
+		result.message = "마커가 삭제되었습니다.";
+	}
+	naver.defaultBuild(function():void{
+		nMap.addEventListener(NMapEvent.MOUSE_MOVE,function(e:NMapEvent):void{
+			now = e.args as NLatLng;
+		});
+	    
+		ContextMenuUtil.addMenu(me,"현재 위치에 DB에 저장되는 Marker를 등록합니다4.",function():void{
+			naver.newMarker(now);
+		});
+		ContextMenuUtil.addMenu(me,"마커목록 ON / OFF",function():void{
+			listToggle();
+		},true);
+		
+		/** URL에 입력된 정보에 따라 초기값을 세팅해 준다.  id로 찾거나 좌표로 찾거나 둘중 하나이다. */
+		var request:Object = Js.getJavascriptObject("requestParameter");
+		var id:String = request["id"];
+		if(id!=null){
+			var item:Object = getByKey(naver._markerList.toArray(),"id",id);
+			if(item==null){
+				Alert.show("입력하신 ID["+id+"]는 등록되지 않았습니다.","경고!");
+				return;
+			}
+			var itemPoint:NLatLng = new NLatLng(item.lat,item.lng);
+			nMap.setCenter(itemPoint);
+		}else{
+			var zoom:String = request["zoom"];
+			var lat:String = request["lat"];
+			var lng:String = request["lng"];
+			var mapType:String = request["mapType"];
+			if(zoom==null || lat==null || lng==null) return;
+			nMap.setCenterAndZoom(new NLatLng(Number(lat),Number(lng)),Number(zoom));
+			nMap.mapType = mapType;
+		}
+	});
+	makers.addEventListener(ListEvent.ITEM_CLICK,function():void{
+		TooltipUtil.addPanelToolTip(makers,"label","description");
+		var item:Object = makers.selectedItem;
+		var itemPoint:NLatLng = new NLatLng(item.lat,item.lng);
+		nMap.setCenter(itemPoint);
+	});
+	
+	urlBtn.setTooptip("현재 화면을 URL을 클립보드로 복사합니다. <br>이 주소를 브라우저에 붙여넣기 하면 현재의 위치정보를 다른 사용자와 공유할 수 있습니다.");
+	urlBtn.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{
+		var url:String = "http://";
+		if(Domain.isServer()) url+="my-pojo.appspot.com";
+		else url+="localhost:8888";
+		var zoom:int = nMap.getZoom();
+		var point:IPoint = nMap.getCenter();
+		var mapType:String = nMap.mapType;
+		var param:Object = {zoom:zoom,mapType:mapType,lat:point.y,lng:point.x};
+		System.setClipboard(url + "/rest/mapLabel/page?"+Jsons.serialize(param));
+		result.message = "클립보드에 URL이 저장되었습니다. Ctrl+V로 붙여넣기 하세요.";
+	});
+}
+
+public static function getByKey(array:Array,key:String,value:String):Object{
+	for each(var item:Object in array) if(item[key]==value) return item;
+	return null;
+}
+
+private function listToggle():void{
+	list.visible = !list.visible;
+}
+
+]]></mx:Script>
+    
+<mx:UIComponent id="mapContainer" width="100%" height="100%"/>
+<erwins:ResultLabel id="result" x="{me.width-420}" y="20" width="500" textAlign="right" />
+<mx:TitleWindow x="10" y="10" alpha="0.7" title="현재 경위도" width="120" horizontalAlign="right" >
+	<mx:Label text="{now.lat}" textAlign="right" /> <mx:Label text="{now.lng}" textAlign="right" />
+</mx:TitleWindow>
+<erwins:Buttons id="urlBtn" label="현재위치 URL복사" x="{me.width-360}" y="15" />
+<mx:TitleWindow id="list" x="{me.width-200}" y="290" alpha="0.7" title="마커 목록" width="180" height="300" showCloseButton="true" close="listToggle()">
+	<mx:AdvancedDataGrid id="makers" width="100%" height="100%" dataProvider="{naver._markerList}" >
+		<mx:columns>
+			<erwins:AdvancedDataGridColimns dataField="googleUserName" headerText="등록자" textAlign="right" width="60" />
+			<erwins:AdvancedDataGridColimns dataField="label" headerText="라벨"  />
+		</mx:columns>
+	</mx:AdvancedDataGrid>
+</mx:TitleWindow>
+	
+</mx:Application>

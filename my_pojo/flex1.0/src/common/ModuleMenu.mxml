@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" width="100%" creationComplete="init()" backgroundColor="white"  >
+<mx:Script><![CDATA[
+	import mx.controls.menuClasses.MenuBarItem;
+	import mx.containers.Box;
+	import mx.core.UIComponent;
+	import mx.events.FlexEvent;
+	import mx.events.IndexChangedEvent;
+	import mx.events.ListEvent;
+	import com.adobe.serialization.json.JSONParseError;
+	import com.adobe.serialization.json.JSON;
+	import mx.events.MenuEvent;
+	import mx.controls.Menu;
+	import mx.events.ItemClickEvent;
+	import mx.managers.CursorManager;
+	import mx.modules.ModuleManager;
+	import mx.modules.IModuleInfo;
+	import mx.events.ModuleEvent;
+	import mx.modules.ModuleLoader;
+	import mx.containers.VBox;
+	import mx.controls.Alert;
+    import mx.managers.PopUpManager;
+    import mx.collections.ArrayCollection;
+    
+import erwins.util.effect.*;
+import erwins.util.json.*;
+import erwins.util.http.*;
+import erwins.util.validate.*;
+import erwins.util.UILib.*;
+import erwins.util.lib.*;
+
+private var _keyField:String;
+private var _preFix:String;
+private var me:ModuleMenu = this as ModuleMenu;
+
+public function set dataProvider(list:ArrayCollection):void{
+	menu.dataProvider = list;
+}
+public function set keyField(keyField:String):void{
+	_keyField = keyField;
+}
+public function set preFix(preFix:String):void{
+	_preFix = preFix;
+}
+public function load(item:Object):void{
+	var url:String = item[_keyField];
+	if(url==null) return;
+	loader.url =  _preFix + url;
+}
+    	
+public function init():void{
+	MenuUtil.click(menu,load);
+}
+
+]]></mx:Script>
+	<mx:HBox width="100%">
+		<mx:MenuBar id="menu" fontSize="14" fontWeight="bold" buttonMode="true"  />
+		<mx:HBox id="extentionBox" horizontalAlign="right" width="100%" />	
+	</mx:HBox>
+	
+	<mx:ModuleLoader id="loader" width="100%" height="100%" />
+	
+</mx:VBox>

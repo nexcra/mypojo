@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()" >
+<mx:Script><![CDATA[
+	import erwins.util.lib.Alerts;
+	import erwins.util.UILib.MenuUtil;
+	import erwins.util.lib.Sets;
+	import mx.collections.ArrayCollection;
+
+private static const LIST:ArrayCollection = new ArrayCollection([
+	{label:"01월",value:1},
+	{label:"02월",value:2},
+	{label:"03월",value:3},
+	{label:"04월",value:4},
+	{label:"05월",value:5},
+	{label:"06월",value:6},
+	{label:"07월",value:7},
+	{label:"08월",value:8},
+	{label:"09월",value:9},
+	{label:"10월",value:10},
+	{label:"11월",value:11},
+	{label:"12월",value:12},
+]);
+
+public function init():void{
+	if(_isAll){
+		this.rowCount = 13;
+		this.dataProvider = MenuUtil.defaultOption(LIST,"=전체=","label");;
+	} else{
+		this.rowCount = 12;
+		this.dataProvider = LIST;
+	} 
+	
+	var now:Date = new Date();
+	var month:Number =  now.month + 1;
+	this.selectedItem = Sets.getByKey(this.dataProvider.toArray(),"value",month);
+	
+}
+
+private var _isAll:Boolean = false;
+
+public function set defaultAll(isAll:Boolean):void{
+	this._isAll = isAll;
+}
+	
+
+]]></mx:Script>
+	
+</mx:ComboBox>

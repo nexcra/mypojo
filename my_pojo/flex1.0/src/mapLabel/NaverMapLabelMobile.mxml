@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="100%" height="100%"
+	xmlns:erwins="erwins.component.*" creationComplete="init()" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+
+<mx:Script><![CDATA[
+	import com.nhn.maps.NMapType;
+	import mx.managers.SystemManager;
+	import erwins.util.json.Jsons;
+	import com.nhn.maps.interfaces.IPoint;
+	import erwins.util.lib.Sets;
+	import erwins.util.lib.Js;
+	import erwins.openApi.NaverMapHelper;
+	import mx.events.ListEvent;
+	import erwins.util.UILib.TooltipUtil;
+	import erwins.util.lib.Alerts;
+	import erwins.util.UILib.MenuUtil;
+	import erwins.util.UILib.ContextMenuUtil;
+	import com.nhn.maps.overlays.NPlaceMark;
+	import com.nhn.maps.overlays.NInfoWindow;
+	import com.nhn.maps.utils.NCoordTrans;
+	import com.nhn.maps.overlays.Overlay;
+	import com.nhn.maps.events.NMarkEvent;
+	import com.nhn.maps.NPoint;
+	import com.nhn.maps.overlays.NMark;
+	import com.nhn.maps.overlays.NMarkParams;
+	import mx.controls.Alert;
+	import com.nhn.maps.controls.NMapBtns;
+    import com.nhn.maps.NMap;
+    import com.nhn.maps.NCoordType;
+    import com.nhn.maps.NLatLng;
+    import com.nhn.maps.events.NMapEvent;
+    import com.nhn.maps.controls.NIndexMap;
+    import com.nhn.maps.controls.NZoomControl;
+    import com.nhn.maps.enums.HorizontalAlignment;
+    import com.nhn.maps.enums.VerticalAlignment; 
+    
+/** 121.161.186.117:8080/    */
+//private static const KEY:String = "3bd776115c4d41a66793a69ae642865c";    
+/** my-pojo.appspot.com/    */
+private static const KEY:String = "c0c388b32b2d39416c3dd1463f8cbf05";    
+    
+private var me:UIComponent= this as UIComponent;
+[Bindable] private var naver:NaverMapHelper;
+
+[Bindable] private var now:NLatLng;
+
+private var locationClick:Function;
+
+private function init():void{
+	naver = new NaverMapHelper();
+	var nMap:NMap = naver.instance(mapContainer,Domain.isServer() ? KEY : null);
+	naver.config(Domain.mapLabel().search(),Domain.mapLabel().save(),Domain.mapLabel().remove());
+	naver.defaultBuild(function():void{
+		//nMap.setZoom();
+	},false,false);
+	
+	locationClick = function(e:MouseEvent):void{
+		var item:Object = e.currentTarget.getRepeaterItem();
+		var itemPoint:NLatLng = new NLatLng(item.lat,item.lng);
+		nMap.setZoom(2);
+		nMap.setCenter(itemPoint);
+		toggleBtn.selected = false;
+		locationList.visible = toggleBtn.selected;
+	};
+	
+	optionBtn.addEventListener(MouseEvent.CLICK,function():void{
+		mapTypeBtn.visible = optionBtn.selected;
+		zoomUpBtn.visible = optionBtn.selected;
+		zoomDownBtn.visible = optionBtn.selected;
+	});
+	toggleBtn.addEventListener(MouseEvent.CLICK,function():void{
+		locationList.visible = toggleBtn.selected;
+	});
+	
+	mapTypeBtn.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{
+		nMap.mapType = mapTypeBtn.selected ? NMapType.HYBRID : NMapType.NORMAL;
+	});	
+	zoomUpBtn.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{
+		var zoomLevel:uint = nMap.getZoom();
+		if(zoomLevel==1){
+			result.message = "더이상 확대할 수 없습니다.";
+			return;	
+		}
+		nMap.setZoom(nMap.getZoom()-1);
+	});	
+	zoomDownBtn.addEventListener(MouseEvent.CLICK,function(e:MouseEvent):void{
+		var zoomLevel:uint = nMap.getZoom();
+		if(zoomLevel==11){
+			result.message = "더이상 축소할 수 없습니다.";
+			return;	
+		}
+		nMap.setZoom(nMap.getZoom()+1);
+	});
+}
+
+]]></mx:Script>
+    
+<mx:UIComponent id="mapContainer" width="790" height="340" />
+<erwins:ResultLabel id="result" x="150" y="20" width="500" textAlign="left" />
+<erwins:Buttons x="680" y="10" id="optionBtn" label="옵션설정" toggle="true" fontWeight="bold" width="100" height="100" fontSize="16" />
+<erwins:Buttons x="680" y="120" id="toggleBtn" label="리스트" toggle="true" fontWeight="bold" width="100" height="100" fontSize="16" />
+
+<erwins:Buttons x="10" y="10" id="mapTypeBtn" label="지도변경" toggle="true" fontWeight="bold" width="100" height="100" fontSize="16" visible="false" />
+<erwins:Buttons x="10" y="250" id="zoomUpBtn" label="+" fontWeight="bold" width="80" height="80" fontSize="16" visible="false" />
+<erwins:Buttons x="100" y="250" id="zoomDownBtn" label="-" fontWeight="bold" width="80" height="80" fontSize="16" visible="false" />
+
+
+<mx:Tile id="locationList" direction="horizontal" borderStyle="inset" horizontalGap="10" verticalGap="15"  width="680" height="340"
+             color="0x323232" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10" visible="false">
+	<mx:Repeater id="rp" dataProvider="{naver._markerList}">
+		<mx:Button height="80" width="120"  label="{rp.currentItem.label}" click="{locationClick(event)}"/>
+	</mx:Repeater>
+</mx:Tile>
+
+</mx:Application>

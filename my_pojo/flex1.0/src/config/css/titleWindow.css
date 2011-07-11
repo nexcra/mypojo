@@ -1,0 +1,4 @@
+TitleWindow{
+    creationCompleteEffect: onEffect;
+    removedEffect : offEffect;
+}

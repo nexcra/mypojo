@@ -1,0 +1,26 @@
+/* CSS file */
+Application{
+	fontSize:12;
+}
+
+/*
+Alert{
+	fontWeight: bold;
+    creationCompleteEffect: onEffect;
+}*/
+
+.alertTitle{
+	color:#ffffff;
+	fontWeight:bold;
+}
+Alert{
+    backgroundColor:#E3E3E3;
+    /* backgroundAlpha: 0.8; */
+    color: #323232;
+    borderColor: #000000;
+    borderAlpha: 0.7;
+    headerHeight:20;
+    themeColor: #848484;
+    titleStyleName:alertTitle;
+    
+}
