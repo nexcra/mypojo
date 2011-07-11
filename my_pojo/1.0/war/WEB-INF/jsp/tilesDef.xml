@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN" "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+
+<tiles-definitions>
+
+	<definition name="/root" template="/WEB-INF/jsp/template/layout.jsp">
+		<put-attribute name="header" value="/WEB-INF/jsp/template/header.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/template/footer.jsp" />
+		<put-attribute name="config" value="/WEB-INF/jsp/template/config.jsp" />
+		<put-attribute name="script" value="/WEB-INF/jsp/template/script.jsp" />
+		<put-attribute name="body" value="/WEB-INF/jsp/index.jsp" />
+	</definition>
+	
+	<!-- 
+	<definition name="_wide" template="/WEB-INF/jsp/template/layout_wide.jsp">
+		<put-attribute name="header" value="/WEB-INF/jsp/template/header.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/template/footer.jsp" />
+		<put-attribute name="config" value="/WEB-INF/jsp/template/config.jsp" />
+		<put-attribute name="script" value="/WEB-INF/jsp/template/script.jsp" />
+		<put-attribute name="body" value="/WEB-INF/jsp/index.jsp" />
+	</definition>
+	 -->
+	
+	<!-- 자동확장 사용. mobile / 이하의 모든 자료는 이것을 적용받는다.-->
+	<definition name="_mobile" template="/WEB-INF/jsp/template/layout_mobile.jsp">
+		<put-attribute name="config" value="/WEB-INF/jsp/template/config.jsp" />
+		<put-attribute name="script" value="/WEB-INF/jsp/template/script.jsp" />
+		<put-attribute name="body" value="/WEB-INF/jsp/index.jsp" />
+	</definition>
+	
+	<!-- 	
+	<definition name="file" extends="/root">
+		<put-attribute name="body" value="/WEB-INF/jsp/file/file.jsp" />
+	</definition>
+	 -->
+
+
+</tiles-definitions>

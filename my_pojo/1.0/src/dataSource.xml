@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+
+	<bean id="persistenceManagerFactory"
+		class="org.springframework.orm.jdo.LocalPersistenceManagerFactoryBean">
+		<property name="jdoProperties">
+			<props>
+				<prop key="javax.jdo.PersistenceManagerFactoryClass">
+					org.datanucleus.store.appengine.jdo.DatastoreJDOPersistenceManagerFactory
+				</prop>
+				<prop key="javax.jdo.option.ConnectionURL">appengine</prop>
+				<prop key="javax.jdo.option.NontransactionalRead">true</prop>
+				<prop key="javax.jdo.option.NontransactionalWrite">true</prop>
+				<prop key="javax.jdo.option.RetainValues">true</prop>
+				<prop key="datanucleus.appengine.autoCreateDatastoreTxns">true</prop>
+			</props>
+		</property>
+	</bean>
+
+
+</beans>

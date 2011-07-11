@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dwr="http://www.directwebremoting.org/schema/spring-dwr"
+	xmlns:dwra="http://www.directwebremoting.org/schema/spring-dwr-annotations"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	   http://www.directwebremoting.org/schema/spring-dwr
+       http://www.directwebremoting.org/schema/spring-dwr-2.0.xsd
+	   http://www.directwebremoting.org/schema/spring-dwr-annotations
+	   http://www.directwebremoting.org/schema/spring-dwr-annotations.xsd ">
+
+	<!-- ================================================================================================================== -->
+	<!-- HandlerMapping -->
+	<!-- ================================================================================================================== -->
+	<!-- 필터를 거치지 않는, 로그인 관련 콘트롤러를 여기에 놓는다. -->
+	<!-- 
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping"
+		p:order="1">
+		<property name="mappings">
+			<props>
+				<prop key="/openid/result">openidResultController</prop>
+			</props>
+		</property>
+	</bean>
+	 -->
+	<!-- 여기들어오는 모든 메소드는 인터셉터에 의해 기본 인증을 거치며, ThreadLocal에 저장된다. -->
+	<!-- 여기서도 찾지 못하면 404에러 대신 defaultHandler를 사용한다. -->
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"
+		p:order="2">
+		<property name="defaultHandler" ref="error404Controller"></property>
+		<property name="interceptors">
+			<list>
+				<ref bean="sessionInfoInterceptor" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- ================================================================================================================== -->
+	<!-- 리졸버 세팅 -> Tiles 세팅 / 약간 변형해서 사용. -->
+	<!-- ================================================================================================================== -->
+
+	<!-- 
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver" p:order="2"> 
+			<property name="prefix" value="/WEB-INF/jsp/" /> <property name="suffix" value=".jsp" /> 
+	</bean>
+	 -->
+
+	<!-- 
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver" p:order="2">
+		<property name="mappedHandlers">
+			<props>
+				<prop key="TypeMismatchException">mis</prop>
+			</props>
+		</property>
+		<property name="defaultErrorView" value="error/default"></property>
+	</bean>
+	 -->
+
+	<!-- 나중에 popup페이지 등 추가 -->
+	<bean id="normalPage" class="erwins.util.vender.tiles2.TilesUrlBasedViewResolver" p:order="1">
+		<property name="viewClass" value="erwins.util.vender.tiles2.DynamicTilesView" />
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+		<property name="tilesDefinitionName" value="root" />
+		<property name="tilesBodyAttributeName" value="body" />
+		<property name="tilesDefinitionDelimiter" value="/" />
+	</bean>
+	<bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer"  >
+		<property name="definitions">
+			<list>
+				<value>/WEB-INF/jsp/tilesDef.xml</value>
+			</list>
+		</property>
+	</bean>
+
+</beans>

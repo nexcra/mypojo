@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cronentries>
+  <cron>
+    <url>/rest/none/ping</url>
+    <description>application ping</description>
+    <schedule>every 1 minutes</schedule>
+	</cron>
+</cronentries>
