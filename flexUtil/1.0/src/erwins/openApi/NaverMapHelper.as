@@ -17,6 +17,8 @@ package erwins.openApi{
 	import erwins.util.http.Ajax;
 	import erwins.util.http.Mediator;
 	import erwins.util.json.Jsons;
+	import erwins.util.lib.Alerts;
+	import erwins.util.lib.Strings;
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.UIComponent;
@@ -25,7 +27,9 @@ package erwins.openApi{
 	public class NaverMapHelper{
 		
 		/** localhost/ */
-		private static const LOCAL_KEY:String = "ac7298e783b0c0ebced2520878d43c35";
+		//private static const LOCAL_KEY:String = "ac7298e783b0c0ebced2520878d43c35";
+		/** localhost:8888/ */
+		private static const LOCAL_KEY:String = "e8d10145ca755e01a4c2945d567fb567";
 		
 		private var me:NaverMapHelper = this as NaverMapHelper;
 		private var _container:UIComponent;
@@ -148,8 +152,9 @@ package erwins.openApi{
 		        marker.addEventListener(NMarkEvent.MOUSE_OVER, function(event:NMarkEvent):void {
 		            var markerPoint:NLatLng = event.args as NLatLng;
 		            infoWindow.showWindow();
-		            ///이 멍청한 마커는  HTML을 지원하면서도  \n이 있어야 칸넘김으로 인식된다.
-		            infoWindow.set(markerPoint, markerData.description);
+		            
+		            ///이 멍청한 마커는  HTML을 지원하면서도  \n이 있어야 칸넘김으로 인식된다. 따라서 ||를 \n대신 쓴다.
+		            infoWindow.set(markerPoint,Strings.replaceAll(markerData.description,'||','\n'));
 		            infoWindow.updatePoint();
 		        });
 				marker.addEventListener(NMarkEvent.MOUSE_OUT, function(event:NMarkEvent):void {

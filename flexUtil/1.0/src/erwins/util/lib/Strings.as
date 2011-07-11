@@ -15,6 +15,11 @@ package erwins.util.lib{
 				else sum+= 1;
 			}
 			return sum;
+		}
+		
+		/** 양키의 간이 변환기 ㅋㅋ 쎈스 넘치는군 */
+		public static function replaceAll(value:String,target:String,replaced:String):String{
+			return value.split(target).join(replaced);
 		}		
 		
 		/** HTML제거.  */
