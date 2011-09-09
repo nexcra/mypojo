@@ -1,4 +1,5 @@
 
+<%@page import="erwins.webapp.myApp.admin.Career"%>
 <%@page import="erwins.webapp.myApp.admin.AdminController"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
@@ -8,7 +9,7 @@ $(function() {
 		$.send('/rest/admin/refresh',null,function(message){
 			refreshBtn.button("option", "label", "캐시가 삭제되었습니다");
 		},refreshBtn);
-	});	
+	});
 });
 </script>
 <input id="refreshBtn" type="button" >
@@ -28,5 +29,8 @@ $(function() {
 	<input type="file" name="sysUser">
 	<input type="submit" value="Submit">
 </form>
+</div>
+<div>
+<%=Career.career()%>
 </div>
 
