@@ -18,11 +18,11 @@ import erwins.webapp.myApp.Current;
 import erwins.webapp.myApp.GoogleUserEntity;
 import erwins.webapp.myApp.RootEntity;
 
-@SuppressWarnings("serial")
 @PersistenceCapable(identityType=IdentityType.APPLICATION)
 public class MapLaebl implements RootEntity<MapLaebl>,Serializable,GoogleUserEntity{
 
-    @PrimaryKey
+	private static final long serialVersionUID = 1L;
+	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.IDENTITY)
 	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
     private String id;

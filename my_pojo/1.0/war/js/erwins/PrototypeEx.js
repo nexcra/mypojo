@@ -46,6 +46,12 @@ Date.prototype.format = function(pattern) {
 	});
 }
 
+/** 현제 객체에 count만큼의 날자를 더한다. */ 
+Date.prototype.plusDate = function(count) {
+	this.setDate(this.getDate()+count);
+	return this;
+}
+
 /**
  * 마지막 일자를 반환한다. Usage: date.getLastDate()
  */

@@ -15,11 +15,10 @@ import javax.jdo.annotations.PrimaryKey;
 
 import erwins.webapp.myApp.RootEntity;
 
-@SuppressWarnings("serial")
 @PersistenceCapable(identityType=IdentityType.APPLICATION)
 public class GoogleUser implements RootEntity<GoogleUser>,Serializable{
 	
-	//private static final long serialVersionUID = -1860646969953562965L;
+	private static final long serialVersionUID = 1;
 	public static final String ROLE_USER = "user";
 	public static final String ROLE_ADMIN = "admin";
 	
@@ -40,6 +39,8 @@ public class GoogleUser implements RootEntity<GoogleUser>,Serializable{
 	private Date createDate;
 	@Persistent
 	private Date updateDate;
+	@Persistent
+	private Date lastAccess;
 	@NotPersistent
 	private Set<String> roles = new HashSet<String>();
 	@NotPersistent
@@ -109,15 +110,18 @@ public class GoogleUser implements RootEntity<GoogleUser>,Serializable{
 	public int getRownum() {
 		return rownum;
 	}
-
-
-
 	public void setRownum(int rownum) {
 		this.rownum = rownum;
 	}
 
 
 
+	public Date getLastAccess() {
+		return lastAccess;
+	}
+	public void setLastAccess(Date lastAccess) {
+		this.lastAccess = lastAccess;
+	}
 	@Override
 	public int compareTo(GoogleUser o) {
 		int order = nickname.compareTo(o.getNickname());

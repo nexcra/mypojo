@@ -5,4 +5,9 @@
     <description>application ping</description>
     <schedule>every 1 minutes</schedule>
 	</cron>
+  <cron>
+  	<url>/rest/none/weather</url>
+    <description>weather ping</description>
+    <schedule>every day 22:30</schedule> <!-- 07:30 세팅시 오후 4:30분에 들어옴. 9시간차. -->
+  </cron>
 </cronentries>

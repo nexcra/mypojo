@@ -33,6 +33,8 @@ public class DefaultController {
 	public static String LOGIN_URL; 
 	public static String LOGOUT_URL;
 	
+	
+	@Autowired private OpenApiContainer openApiContainer;
 	@Autowired private UserService userService;
 	@Autowired private ChannelComponent channelHelper;
 	@Autowired private GoogleUserService googleUserService;
@@ -66,6 +68,12 @@ public class DefaultController {
 	@RequestMapping("none/ping")
 	public View ping() {
 		return new AjaxView("ping");
+	}
+	@RequestMapping("none/weather")
+	public View weather() {
+		String rain =  openApiContainer.weatherIsRain();
+		if(!StringUtil.isEmpty(rain)) GoogleXMPP.send(Config.ADMIN_ID[0],rain);
+		return new AjaxView("weather");
 	}
 	
 	/** 이놈은 비로그인 시에도 사용되어야 한다. 구글인증 때문에 조금 특이하게 변경된 경우  */

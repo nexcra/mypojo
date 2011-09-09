@@ -1,5 +1,6 @@
 package erwins.webapp.myApp.common.xmpp;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
@@ -14,10 +15,18 @@ import erwins.webapp.myApp.AjaxView;
 @Controller
 public class XMPPController {
 	
+	@Resource GoogleTalkBotForAppEngine googleTalkBot;
+	
 	@RequestMapping("/_ah/xmpp/message/chat/")
 	public View userStatistics(HttpServletRequest req) {
 		Message msg = GoogleXMPP.parse(req);
-		GoogleXMPP.send(msg.getFromJid(), msg.getBody() + " : 명령어가 리턴되었습니다. 아직 미지원 기능입니다.");
+		googleTalkBot.parseAndSend(msg.getFromJid().getId(),msg.getBody());
+		return new AjaxView(""); //무시된다.
+	}
+	
+	@RequestMapping("none/n")
+	public View test(HttpServletRequest req) {
+		googleTalkBot.parseAndSend("my.pojo","a 0.3");
 		return new AjaxView(""); //무시된다.
 	}
 }
