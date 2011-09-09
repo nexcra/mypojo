@@ -334,6 +334,15 @@ public class Poi extends PoiRoot{
     	addValues(0,values);
     }
     
+    public Poi addColumnWidth(int columnIndex,int width){
+    	poiCellWidths.add(new PoiCellWidth(nowSheet,columnIndex,width));
+    	return this;
+    }
+    public Poi addColumnWidth(int sheetIndex,int columnIndex,int width){
+    	poiCellWidths.add(new PoiCellWidth(wb.getSheetAt(sheetIndex),columnIndex,width));
+    	return this;
+    }
+    
     /** 컬럼 순서같은건 없다. 간단메소드로서 사용에 주의할것.
      * Collection인 컬럼은 무시한다. */
 	@SuppressWarnings({ "unchecked", "rawtypes" })

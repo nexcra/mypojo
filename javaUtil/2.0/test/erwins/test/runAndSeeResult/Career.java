@@ -25,15 +25,14 @@ public class Career {
         int after = DayUtil.betweenDate(gisa,now );
         System.out.println("기사이후 경력인정일 : "+ after );
         
-        int sum = army + before + after;
-        System.out.println("협회 인정 합산경력일 : "+ sum );
-        System.out.println("협회 인정 경력 : "+FormatUtil.DOUBLE2.get(sum / 365.0) + "년");
-        
         int sum2 = 741 + before*2 + after;
-        System.out.println("협회 비인정 경력 : "+FormatUtil.DOUBLE2.get(sum2 / 365.0) + "년");
+        System.out.println("총 경력 : "+FormatUtil.DOUBLE2.get(sum2 / 365.0) + "년");
+        
+        int sum = army + before + after;
+        System.out.println("협회 인정(기사자격증) 경력일 : "+ sum );
+        System.out.println("협회 인정(기사자격증) 경력 : "+FormatUtil.DOUBLE2.get(sum / 365.0) + "년");
         
         int needDay = 365 * 7 - sum;
-        
         System.out.println("고급 되는일자 : "+DayUtil.DATE_SIMPLE.add(needDay));
         
     }

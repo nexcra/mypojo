@@ -157,6 +157,19 @@ public class StringUtil extends StringUtils {
     	return index == -1 ? str : str.substring(0,index);
     }
     
+    public static String[] getFirstOf(String str, String pattern) {
+    	String[] temp = new String[2];
+        int index = str.indexOf(pattern);
+        if (index == -1){
+        	temp[0] = str; 
+        	temp[1] = str; 
+        	return temp;
+        }
+        temp[0] = str.substring(0, index);
+        temp[1] = str.substring(index + 1);
+        return temp;
+    }
+    
     /**
      * 첫번째 패턴 이후로의 문자열을 리턴한다. 
      * ex) getFirstAfter("12345\qqq\asd","\") => qqq\asd

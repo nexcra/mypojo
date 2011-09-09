@@ -17,7 +17,7 @@ public class GoogleContracts {
 		c.load();
 		System.out.println(c.getTitle());
 		
-		for(Entry<String, List<ContractEntry>> each : c.getContracts()){
+		for(Entry<String, List<ContractEntry>> each : c.getContracts().entrySet()){
 			System.out.println("===== "+each.getKey());
 			for(ContractEntry entry : each.getValue()){
 				System.out.println(entry.getName());

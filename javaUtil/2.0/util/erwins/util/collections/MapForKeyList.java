@@ -2,11 +2,11 @@ package erwins.util.collections;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.collections.map.ListOrderedMap;
@@ -15,9 +15,10 @@ import org.apache.commons.collections.map.ListOrderedMap;
 /**
  * 이하의 간단 버전이다.
  * private Map<T,List<File>> map = new HashMap<T,List<File>>();
+ * Map을 구현하도록 바꿨다. (JSTL때문에)
  */
 @SuppressWarnings("serial")
-public class MapForKeyList<K,T> implements Iterable<Entry<K, List<T>>>,Serializable{
+public class MapForKeyList<K,T> implements Map<K,List<T>> ,Serializable{
 	
 	private Map<K,List<T>> map;
 	
@@ -40,7 +41,7 @@ public class MapForKeyList<K,T> implements Iterable<Entry<K, List<T>>>,Serializa
 		return this;
 	}
 	
-	public List<T> get(K key){
+	public List<T> get(Object key){
 		return map.get(key);
 	}
 	/** Groovy용. 이놈은 타입이 딱맞아야 한다(Object로 안됨) ㅅㅂ.  */
@@ -59,10 +60,61 @@ public class MapForKeyList<K,T> implements Iterable<Entry<K, List<T>>>,Serializa
 		list.add(item);
 		return this;
 	}
+	
+	/* ================================================================================== */
+	/*                          이하 위임                                                          */
+	/* ================================================================================== */
+	
+	public void clear() {
+		map.clear();
+	}
 
-	@Override
-	public Iterator<Entry<K, List<T>>> iterator() {
-		return map.entrySet().iterator();
+	public boolean containsKey(Object key) {
+		return map.containsKey(key);
+	}
+
+	public boolean containsValue(Object value) {
+		return map.containsValue(value);
+	}
+
+	public Set<Entry<K, List<T>>> entrySet() {
+		return map.entrySet();
+	}
+
+	public boolean equals(Object o) {
+		return map.equals(o);
+	}
+
+	public int hashCode() {
+		return map.hashCode();
+	}
+
+	public boolean isEmpty() {
+		return map.isEmpty();
+	}
+
+	public Set<K> keySet() {
+		return map.keySet();
+	}
+
+	public List<T> put(K key, List<T> value) {
+		return map.put(key, value);
+	}
+
+	public void putAll(Map<? extends K, ? extends List<T>> m) {
+		map.putAll(m);
+	}
+
+	public List<T> remove(Object key) {
+		return map.remove(key);
+	}
+
+	public int size() {
+		return map.size();
+	}
+
+	public Collection<List<T>> values() {
+		return map.values();
 	}
 	
     

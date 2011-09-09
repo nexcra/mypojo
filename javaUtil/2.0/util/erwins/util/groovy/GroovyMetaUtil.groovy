@@ -2,6 +2,7 @@ package erwins.util.groovy
 
 
 import java.io.File
+import java.text.DecimalFormat
 
 import org.apache.commons.collections.map.ListOrderedMap
 
@@ -21,6 +22,38 @@ public class GroovyMetaUtil{
 		stringArray()
 		list()
 		groovyRowResult 'N/A'
+	}
+	
+	public static void number(){
+		DecimalFormat wonFormat = new DecimalFormat("#0");
+		/** 간이 한글 처리기  */
+		BigDecimal.metaClass."won" = {
+			def result = ''
+			def str = wonFormat.format(delegate)
+			if(str.startsWith('-')){
+				str = str.substring(1, str.length());
+				result += '-'
+			}
+			if(str.length() > 8){
+				result+= str.substring(0,str.length()-8)+'억'
+				str = str.substring(str.length()-8,str.length())
+			}
+			if(str.length() > 4){
+				result+= str.substring(0,str.length()-4)+'만'
+				str = str.substring(str.length()-4,str.length())
+			}
+			return result+str+'원'
+		}
+		DecimalFormat format = new DecimalFormat("0,000");
+		BigDecimal.metaClass."format" = { f = format ->
+		return f.format(delegate);
+		}
+		Long.metaClass."format" = { f=format ->
+			return f.format(delegate);
+		}
+		Integer.metaClass."format" = { f=format ->
+			return f.format(delegate);
+		}
 	}
 
 	/** 이게 더 깔끔한듯 */

@@ -18,7 +18,7 @@ public abstract class Check extends Validate{
 	 * 사용자가 정확한 값을 입력했는가?
 	 */
 	public static void isPositive(Number count, String message) {
-		if (count != null && count.intValue() > 0) return;
+		if (count != null && count.doubleValue() > 0) return;
 		throw new BusinessException(message);
 	}
 

@@ -1,6 +1,38 @@
 package erwins.util.openApi
 
-/** 낄낄~ 깔끔하구나. */
+/** 낄낄~ 깔끔하구나. 대충 아래의 구조
+ * <?xml version="1.0"?>
+<xml_api_reply version="1">
+<weather module_id="0" tab_id="0" mobile_row="0" mobile_zipped="1" row="0" section="0" >
+	<forecast_information>
+		<city data="seoul"/>
+		<postal_code data="seoul"/>
+		<latitude_e6 data=""/>
+		<longitude_e6 data=""/>
+		<forecast_date data="2011-07-14"/>
+		<current_date_time data="2011-07-14 07:59:54 +0000"/>
+		<unit_system data="SI"/>
+		</forecast_information>
+		<current_conditions>
+			<condition data="흐림"/>
+			<temp_f data="75"/>
+			<temp_c data="24"/>
+			<humidity data="습도: 89%"/>
+			<icon data="/ig/images/weather/cloudy.gif"/>
+			<wind_condition data="바람: 북동풍, 3 km/h"/>
+		</current_conditions>
+		<forecast_conditions>
+			<day_of_week data="목"/>
+			<low data="23"/>
+			<high data="24"/>
+			<icon data="/ig/images/weather/thunderstorm.gif"/>
+			<condition data="강우(천둥, 번개 동반)"/>
+			</forecast_conditions>
+		<forecast_conditions>
+			~~~
+		</forecast_conditions>
+	</weather>
+</xml_api_reply>*/
 public class GoogleXmlParser{
     
     private static final String url = 'http://www.google.co.kr';
@@ -10,6 +42,13 @@ public class GoogleXmlParser{
     public GoogleXmlParser(String xml){
         plan = new XmlParser().parseText(xml);
     }
+	
+	def static rains = ['비','우']
+	
+	public isRain(){
+		def casts =  plan.weather[0].forecast_conditions.collect { [ weather : it.condition[0].@data,dayOfWeek:it.day_of_week[0].@data]  }
+		return casts.findAll { rains.any{ a -> it.weather.contains(a) }   }.collect { "$it.dayOfWeek : $it.weather"  }.join('\r')
+	}
     
     /** 오늘부터 4일간의 간략 일기예보를 리턴한다. */
     public String[] simpleCast(){

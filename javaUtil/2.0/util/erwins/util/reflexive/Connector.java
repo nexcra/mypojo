@@ -154,6 +154,34 @@ public class Connector<ID extends Serializable,T extends Connectable<ID,T>> {
     }
     
     // ===========================================================================================
+    //                                   별도기능
+    // ===========================================================================================
+    /** current는 최종노드이다. current의 상위로 올라가면서 target과 돵일한지 비교한다.  */
+    public boolean isContain(T current,T target) {
+		boolean on = false;
+    	T t = current;
+    	while(t!=null){
+    		if(target == t){
+    			on = true;
+    			break;
+    		}
+    		t = t.getParent();
+    	}
+		return on;
+	}
+
+    public int getLevel(T target) {
+		int i=1;
+    	T t = target;
+    	while(t.getParent()!=null){
+    		t = t.getParent();
+    		i++;
+    	}
+		return i;
+	}    
+    
+    
+    // ===========================================================================================
     //                                   html생성 관련
     // ===========================================================================================
     

@@ -1,11 +1,15 @@
 package erwins.util.collections;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
+
+import org.apache.commons.collections.map.ListOrderedMap;
 
 
 
@@ -13,14 +17,17 @@ import java.util.TreeMap;
  * 이하의 간단 버전이다. Map<String,Map<String,T>>
  */
 
-public class MapForMap<T> implements Iterable<Entry<String, Map<String,T>>>{
+@SuppressWarnings("serial")
+public class MapForMap<T> implements Map<String, Map<String,T>>,Serializable{
 	
 	private Map<String,Map<String,T>> body;
 
+	@SuppressWarnings("unchecked")
 	public MapForMap(MapType type){
 		switch(type){
 		case Hash :  body = new HashMap<String,Map<String,T>>(); break;
 		case Tree :  body = new TreeMap<String,Map<String,T>>(); break;
+		case ListOrderd :  body = new ListOrderedMap(); break;
 		}
 	}
 	
@@ -46,10 +53,69 @@ public class MapForMap<T> implements Iterable<Entry<String, Map<String,T>>>{
 		}
 	}
 
-	@Override
 	public Iterator<Entry<String, Map<String, T>>> iterator() {
 		return body.entrySet().iterator();
 	}
+
+	public int size() {
+		return body.size();
+	}
+
+	public boolean isEmpty() {
+		return body.isEmpty();
+	}
+
+	public boolean containsKey(Object key) {
+		return body.containsKey(key);
+	}
+
+	public boolean containsValue(Object value) {
+		return body.containsValue(value);
+	}
+
+	public Map<String, T> get(Object key) {
+		return body.get(key);
+	}
+
+	public Map<String, T> put(String key, Map<String, T> value) {
+		return body.put(key, value);
+	}
+
+	public Map<String, T> remove(Object key) {
+		return body.remove(key);
+	}
+
+	public void putAll(Map<? extends String, ? extends Map<String, T>> m) {
+		body.putAll(m);
+	}
+
+	public void clear() {
+		body.clear();
+	}
+
+	public Set<String> keySet() {
+		return body.keySet();
+	}
+
+	public Collection<Map<String, T>> values() {
+		return body.values();
+	}
+
+	public Set<java.util.Map.Entry<String, Map<String, T>>> entrySet() {
+		return body.entrySet();
+	}
+
+	public boolean equals(Object o) {
+		return body.equals(o);
+	}
+
+	public int hashCode() {
+		return body.hashCode();
+	}
+	
+	
+
+	
 	
     
 }

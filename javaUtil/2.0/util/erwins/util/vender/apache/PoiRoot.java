@@ -201,6 +201,7 @@ public abstract class PoiRoot{
         for(int i=0;i<sheetLength;i++){            
             wrapSheet(i);
         }
+        for(PoiCellWidth each : poiCellWidths) each.accept();
         for(PoiCellPair each : pairs) each.accept();
         return this;
     }
@@ -272,6 +273,7 @@ public abstract class PoiRoot{
      * 강제 컬럼 너비 조정. 타이틀 화면 등의 컬럼이 강제 조정될때 사용.
      * wrap이 적용된 후 사용하자. 600*50정도 사이즈면 화면을 가득 채운다.
      */
+    @Deprecated
     public void setColumnWidth(int index,int col,int size){
         wb.getSheetAt(index).setColumnWidth(col,size);
     }
@@ -341,9 +343,6 @@ public abstract class PoiRoot{
         return new Merge(wb.getSheetAt(index));         
     }    
     
-    /**
-     * @author  Administrator
-     */
     public class Merge{
         private String[] lastValues = new String[1000];
         private Integer[] startRows = new Integer[1000];
@@ -358,9 +357,24 @@ public abstract class PoiRoot{
         private Integer[] ableCol;
         private Integer keyCol;
         private Integer[] ableKeyCol;
+        private Map<Integer,Integer[]> with = new HashMap<Integer, Integer[]>();
         
         public Merge(HSSFSheet sheet){
             this.sheet = sheet;
+        }
+        
+        public Merge setWithMerge(Integer tergerIndex,Integer ... colIndexs){
+        	with.put(tergerIndex, colIndexs);
+        	return this;
+        }
+        
+        /**머지된 컬럼은 자동조정이 되지 않는다. 따라서 가본값을 준다. 
+         * 보통 10으로 주면 됨 */
+        public void merge(int isAdjust){
+        	for(Integer each : ableCol){
+        		poiCellWidths.add(new PoiCellWidth(this.sheet,each,600*isAdjust));	
+        	}
+        	merge();
         }
         
         public void merge(){
@@ -411,7 +425,7 @@ public abstract class PoiRoot{
         }
         
         /**
-         * 이전 값과 비교하여 merge를 결정한다. 
+         * 이전 값과 비교하여 merge를 결정한다.  가로 머지이다.. 이름 ㅅㅂ같이 지었네.. ㅈㅅ. ㅋㅋ
          */
 		private void mergeCol(int rowIndex, int colIndex, String value) {
             if(!isColMergeAble(rowIndex)) return;
@@ -470,15 +484,27 @@ public abstract class PoiRoot{
                 if(!rows.hasNext()){  //마지막일경우 발동
                     //sheet.addMergedRegion(new Region(startRows[colIndex],(short)colIndex,rowIndex,(short)(colIndex)));
                 	sheet.addMergedRegion(new CellRangeAddress(startRows[colIndex],rowIndex,colIndex,colIndex));
+                	mergeWith(rowIndex, colIndex);
                     startRows[colIndex] = null;
                 }                
             }else if(startRows[colIndex] != null){
                 //sheet.addMergedRegion(new Region(startRows[colIndex],(short)(colIndex),rowIndex-1,(short)(colIndex)));
             	sheet.addMergedRegion(new CellRangeAddress(startRows[colIndex],rowIndex-1,(colIndex),colIndex));
+            	mergeWith(rowIndex-1, colIndex);
                 startRows[colIndex] = null;
             }
             lastValues[colIndex] = value;
         }
+
+		private void mergeWith(int rowIndex, int colIndex) {
+			Integer[] withs = with.get(colIndex);
+			if(withs==null) return;
+			for (Integer integer : withs) {
+				System.err.println(startRows[colIndex]);
+				System.err.println(rowIndex);
+				sheet.addMergedRegion(new CellRangeAddress(startRows[colIndex],rowIndex,integer,integer));
+			}				
+		}
 
         /**
          * 머지 가능한 열을 입력한다.헤더만 할 경우 헤더 로우를 입력한다.
@@ -503,7 +529,7 @@ public abstract class PoiRoot{
         public Merge setAbleCol(Integer ... ableCol) {
             this.ableCol = ableCol;
             return this;
-        }  
+        }
     }
     
     // ===========================================================================================
@@ -562,8 +588,8 @@ public abstract class PoiRoot{
     
     /** 일괄 wrap 후 부분적으로 셀을 초기화해주기 위해 사용한다. */
     protected static class PoiCellPair{
-    	private Cell cell;
-    	private CellStyle cellStyle;
+    	private final Cell cell;
+    	private final CellStyle cellStyle;
     	protected PoiCellPair(Cell cell,CellStyle cellStyle){
     		this.cell = cell;
     		this.cellStyle = cellStyle;
@@ -572,6 +598,25 @@ public abstract class PoiRoot{
     	public void accept(){
     		cell.setCellStyle(cellStyle);
     	}
-    }    
+    }
+    
+    protected List<PoiCellWidth> poiCellWidths = new ArrayList<PoiCellWidth>();
+    
+    /** 일괄 wrap 후 부분적으로 컬럼너비를 조절하기 위해서 사용된다.
+     * 머지된 컬럼은 오토사이징이 안되서 이렇게 해준다.   600*50정도 사이즈면 화면을 가득 채운다. */
+    protected static class PoiCellWidth{
+    	private final HSSFSheet sheet;
+    	private final int columnIndex;
+    	private final int width;
+    	protected PoiCellWidth(HSSFSheet sheet,int columnIndex,int width){
+    		this.sheet = sheet;
+    		this.columnIndex = columnIndex;
+    		this.width = width;
+    	}
+    	/** 개별 시트 너비 조정 */
+    	public void accept(){
+    		sheet.setColumnWidth(columnIndex, width);
+    	}
+    }
     
 }

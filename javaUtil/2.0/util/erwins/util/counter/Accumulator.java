@@ -8,6 +8,7 @@ import groovy.lang.Closure;
 /**
  * 숫자를 누적시키다 초기화 시키는 커뮬레이터.
  */
+@SuppressWarnings("rawtypes")
 public class Accumulator extends AccumulatorTemplit{
 	
 	private ThreashHoldRun threashHoldRun;
@@ -53,5 +54,8 @@ public class Accumulator extends AccumulatorTemplit{
 	public int count() {
 		return now;
 	}    
+    public int totalCount() {
+    	return count * threshold + now;
+    }    
 
 }

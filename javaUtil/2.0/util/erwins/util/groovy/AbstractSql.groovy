@@ -1,6 +1,10 @@
 package erwins.util.groovy
 
 
+import java.sql.Timestamp
+
+import erwins.util.counter.Accumulator
+import erwins.util.counter.Accumulator.ThreashHoldRun
 import groovy.lang.Closure
 import groovy.sql.Sql
 
@@ -84,20 +88,22 @@ public abstract class AbstractSql{
 	/** 디비 스키마 기준으로 엑셀 내용을 insert할때 사용된다. Map에 잡데이터가 들어가있어도 해당 컬럼만 입력된다.  */
 	public int insertListMap(tableName,columnNames,List listMap){
 		def insertSql = "INSERT INTO $tableName (" + columnNames.join(',') + ') VALUES ('+ columnNames.collect { '?' }.join(',')  +')'
-		int i = 0
+		def ac = new Accumulator(10000,{ println it * 10000 } as ThreashHoldRun);
+		int success=0
 		withTransaction {
 			listMap.each { map ->
-				def param = columnNames.collect { map[it] }
+				def param = columnNames.collect { map[it] instanceof Date ? new Timestamp(map[it].getTime()) : map[it] } //Date는지원하지 않는다.
 				try{
 					db.executeInsert(insertSql, param)
+					success++
 				}catch(e){
 					exceptionHandle(e,insertSql,param)
 				}
-				i++
+				ac.next()
 			}
 		}
-		println "테이블 ${tableName}에 $i 건의 데이터가 입력되었습니다 "
-		return i
+		println "테이블 ${tableName}에 $success 건의 데이터가 입력되었습니다 "
+		return ac.count()
 	}
 
 	/** Map 내용 전체가 입력된다. 

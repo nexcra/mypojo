@@ -1,13 +1,15 @@
 package erwins.util.groovy
 
 
-import java.sql.SQLException
+import java.sql.Timestamp
 
 import org.apache.poi.hssf.record.formula.functions.T
 
 import erwins.util.lib.FormatUtil
 import erwins.util.lib.StringUtil
+import erwins.util.tools.TextFile
 import erwins.util.vender.apache.Poi
+import erwins.util.vender.apache.PoiReaderFactory
 import groovy.sql.Sql
 /** 표준형인 date는 년월일만 지원한다. 오라클타입을 TimeStamp로 해야한다.
  * 강제로 date를 TimeStamp로 변경하려면 -Doracle.jdbc.V8Compatible=true 를 JVM옵션으로 주면된다. (v1.9~)
@@ -124,7 +126,8 @@ public class OracleSql extends AbstractSql implements Iterable{
 	/* ================================================================================== */
 
 	/** DB의 내용을 xls로 옮긴다. (임시용이다. 대용량은 txt로 처리하자)
-	 * 실DB의 일정분량만을 테스트DB로 이관할때 사용하였다.  batchSize * maxSize 가 전체수 */
+	 * 실DB의 일정분량만을 테스트DB로 이관할때 사용하였다.  batchSize * maxSize 가 전체수 
+	 * ex) db.dbToXls ROOT, 500, 2, " and TABLE_NAME = 'AGR_AGRI_DAY' "*/
 	public dbToXls(file,batchSize,maxSize,where = ''){
 		loadInfo(where).loadCount().loadColumn()
 		tables.each { tableToXls(file,batchSize,maxSize,it)}
@@ -206,24 +209,103 @@ public class OracleSql extends AbstractSql implements Iterable{
 	 * 근데 이거 쓸일이 거의 없는듯. 망함. */
 	public int insert(TABLE_NAME,List listMap){
 		def columns = columns(TABLE_NAME)
+		if(columns.size()==0) throw new RuntimeException("테이블 $TABLE_NAME 를 찾을 수 없습니다.")
+		listMap.each {
+			it.each{
+				def key = it.key
+				def col = columns.find { it['COLUMN_NAME'] == key  }
+				if(col==null) throw new RuntimeException("자료의 $key 컬럼을 DB스키마에서 찾을 수 없습니다")
+				it.value = stringToOracleType(col['DATA_TYPE'],it.value)
+			}
+		}
 		columnsKey(TABLE_NAME,columns)
 		def columnNames  = columns.collect { it.COLUMN_NAME }
 		return insertListMap(TABLE_NAME,columnNames,listMap)
 	}
+	
+	/** 그루비 입력시 반드시 옵션 확인!!!  
+	 * 24시간 체계를 사용한다. 00시~ 23시
+	 * hh로 포매팅한다면 12시와 00시를 구분하지 못한다. */
+	public def format = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //오렌지 디폴트
+	
+	private Object stringToOracleType(String oracleType,String value){
+		if(value==null || value=='') return null
+		if(oracleType=='DATE') return new Timestamp(format.parse(value).getTime());
+		return value
+	}
 
 	/** iBatis등으로 개발할때 활용하자. */
-	public sqlIBatis(TABLE_NAME){
-		def sql = """
-			SELECT '' as KEY,a.COLUMN_NAME,COMMENTS,DATA_TYPE,DATA_LENGTH,DATA_PRECISION,DATA_SCALE,'' as SEARCH_CONDITION
-			FROM user_tab_columns a JOIN USER_COL_COMMENTS b
-			ON a.COLUMN_NAME = b.COLUMN_NAME AND a.TABLE_NAME = b.TABLE_NAME
-			WHERE a.TABLE_NAME = '$TABLE_NAME'  ORDER BY COLUMN_ID """
-		def cn = list(sql).collect { it.COLUMN_NAME }
-		println "INSERT INTO $TABLE_NAME (" + cn.join(',') + ') VALUES ('+ cn.collect { ':'+it}.join(',')  +')'
-		println "INSERT INTO $TABLE_NAME (" + cn.join(',') + ') VALUES ('+ cn.collect { '#{'+it+'}'}.join(',')  +')'
-		println "INSERT INTO $TABLE_NAME (" + cn.join(',') + ') VALUES ('+ cn.collect { '?' }.join(',')  +')'
-		println "UPDATE $TABLE_NAME SET " + cn.collect { it + ' = :'+it}.join(',') + ' WHERE ID = :ID'
-		println 'SELECT ' + cn.collect{'a.'+it}.join(',') + "\nFROM $TABLE_NAME a \nWHERE ~~ ORDER BY ~~"
+	public printIBatis(TABLE_NAME){
+		def columns = columns(TABLE_NAME)
+		columnsKey(TABLE_NAME,columns)
+		def cn = columns.collect { it.COLUMN_NAME }
+		//println "INSERT INTO $TABLE_NAME (" + cn.join(',') + ') VALUES ('+ cn.collect { ':'+it}.join(',')  +')'
+		println "INSERT INTO $TABLE_NAME (" + cn.join(',') + ') VALUES ('+ cn.collect { '#'+StringUtil.getCamelize(it)+'#'}.join(',')  +')'
+		//println "UPDATE $TABLE_NAME SET " + cn.collect { it + ' = :'+it}.join(',') + ' WHERE ID = :ID'
+		println "UPDATE $TABLE_NAME SET " + cn.collect { it + ' = '+'#'+StringUtil.getCamelize(it)+'#'}.join(',') + ' WHERE ID = :ID'
+		println 'SELECT ' + cn.collect{'a.'+it}.join(',') + " FROM $TABLE_NAME a "
+		
+		def pks = columns.findAll { it['KEY'] == 'PK' }.collect { it.COLUMN_NAME }
+		def nonPks = columns.findAll { it['KEY'] != 'PK' }.collect { it.COLUMN_NAME }
+		def sql  = "MERGE INTO $TABLE_NAME USING dual ON ( " + pks.collect { it + ' = '+'#'+StringUtil.getCamelize(it)+'#' }.join(' AND ')  + " )\n"
+		sql += "WHEN matched THEN UPDATE SET " + nonPks.collect { it + ' = '+'#'+StringUtil.getCamelize(it)+'#' }.join(',') + '\n'
+		sql += "WHEN NOT matched THEN INSERT (" + cn.join(',') + ') VALUES ('+ cn.collect { '#'+StringUtil.getCamelize(it)+'#'}.join(',')  +')'
+		println sql 
+	}
+	
+	/*MERGE INTO DB_CTRL_SMS_WARN USING dual ON ( MONG_CLAU_CD = :mongClauCd AND WARN_RNK = :warnRnk)
+	WHEN matched THEN UPDATE SET TSHD_CNT = :tshdCnt
+	WHEN NOT matched THEN
+	INSERT (MONG_CLAU_CD,WARN_RNK,TSHD_CNT) VALUES (:mongClauCd,:warnRnk,:tshdCnt)*/
+	
+	public static def JAVA_TYPE = ['NUMBER':'BigDecimal','DATE':'Date','VARCHAR2':'String','CHAR':'String']
+	public static def SIMPLE_TYPE = ['NUMBER':'Num','DATE':'Date','VARCHAR2':'VC2','CHAR':'Char']
+	
+	/** java 도메인 객체 기본생성 */
+	public printJava(TABLE_NAME){
+		def cols = columns(TABLE_NAME)
+		def cn = cols.collect { it.COLUMN_NAME }
+		println StringUtil.getCamelize(TABLE_NAME).capitalize()
+		cols.each {
+			def type = JAVA_TYPE[it['DATA_TYPE']]
+			if(type=='BigDecimal' && it['DATA_SCALE']==0) type ='Long'
+			def name = StringUtil.getCamelize(it['COLUMN_NAME'])
+			println "/** $it.COMMENTS */"
+			println "private $type $name;"
+		}
+	}
+	
+	/** 해당 디렉토리의 모든 텍스트/엑셀 파일을 DB로 입력한다.
+	 * 파일이름 = 테이블명, 헤더=컬럼명 이다 
+	 * 다 입력되면 완료 디렉토리로 파일을 이동시킨다.
+	 * 
+	 * => 나중에 별도 객체로 빼고 조건을 클로저화 하자. */
+	public simpleInsert(dir,toDir,errorDir=null){
+		if(dir instanceof String) dir = new File(dir)
+		if(toDir instanceof String) toDir = new File(toDir)
+		if(!toDir.exists()) toDir.mkdirs()
+		def tf = new TextFile()
+		dir.listFiles().each {
+			try{
+				def name = StringUtil.getFirst(it.name, '.');
+				println "$name 시작"
+				def list
+				if(it.name.toUpperCase().endsWith('.TXT')) list = tf.readAsMap(it)
+				else list =   PoiReaderFactory.instance(it)[0].read()
+				println "$name 로드완료 : size = ${list.size()}"
+				insert(name, list)
+				assert it.renameTo(new File(toDir,it.name))
+			}catch(e){
+				if(errorDir==null) throw e
+				else{
+					println e.message
+					if(errorDir instanceof String) errorDir = new File(errorDir)
+					if(!errorDir.exists()) errorDir.mkdirs()
+					assert it.renameTo(new File(errorDir,it.name))
+				}
+			}
+			
+		}
 	}
 
 }

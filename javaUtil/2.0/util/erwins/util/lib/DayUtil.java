@@ -12,6 +12,7 @@ import erwins.util.valueObject.ShowTime;
 
 /**
  * 년도, 일자 등의 처리. singleton
+ * 10년의 차이는  long으로 315532800000 이다.
  */
 public enum DayUtil{
     
@@ -161,6 +162,15 @@ public enum DayUtil{
     	cal.setLenient(false);
     	cal.set(year,month-1,day,h,m,0);
     	return cal;
+    }
+    
+    /** 월 입력으로 Date를 구할때 사용된다. */
+    public static Date getDate(int year, int month) {
+    	if(month > 12){
+    		year += month / 12;
+    		month = month % 12;
+    	}
+    	return getCalendar(year,month,1,0,0).getTime();
     }
     
     /** Date로 Calendar를 생성한다. */
