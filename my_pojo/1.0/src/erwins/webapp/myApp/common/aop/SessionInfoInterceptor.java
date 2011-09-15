@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.google.appengine.api.users.UserService;
 
 import erwins.util.lib.CollectionUtil;
+import erwins.util.lib.StringUtil;
 import erwins.util.web.WebUtil;
 import erwins.webapp.myApp.Config;
 import erwins.webapp.myApp.Current;
@@ -68,6 +69,9 @@ public class SessionInfoInterceptor implements HandlerInterceptor {
 			//최초 관리자가 로그인할 경우 user가 null이다. 그때를 위해 널체크를 해준다.
 			if(user!=null && CollectionUtil.isEqualsAny(Config.ADMIN_ID, mailAddress)) user.addRoles(GoogleUser.ROLE_ADMIN);
 			info.setUser(user);
+			req.setAttribute("nickname", user.getNickname());
+			req.setAttribute("googleEmail", user.getGoogleEmail());
+			req.setAttribute("roles",StringUtil.join(user.getRoles(),",") );
 		}
 		info.setMenu(Menu.getMenuByStartWith(requestedUrl));
 		

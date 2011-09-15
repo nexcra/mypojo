@@ -26,6 +26,9 @@ public enum Menu implements Connectable<String,Menu>,Acceptor<Menu>{
 	rest("ROOT","",null),
 	index("대문","대문",rest),
 	none("NONE","로그인없이 사용가능기능모음",rest),
+	
+	//여기부터 실제 메뉴
+	mtgo("매직더게더링","매직 더 개더링 온라인",rest),
 	translator("간단변환기","MD5, 암호화 등 각종 간단변환",rest),
 	mapLabel("맵라벨","지도에 간단한 표식 가능",rest),
 	user("사용자 관리","구글로 들어온 사용자의 보기",rest,GoogleUser.ROLE_USER),
