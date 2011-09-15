@@ -15,6 +15,13 @@ html, body {
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js"></script>
 <link type="text/css" href="/js/jQueryUI/css/ui-lightness/jquery-ui-1.8.5.custom.css" rel="stylesheet" />
 
+<!-- EXT-JS  -->
+<script src="/js/extjs/ext-all.js" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="/js/extjs/resources/css/ext-all.css" />
+
+<script src="/js/extjs/custom/example.js" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="/js/extjs/custom/example.css" />
+
 <!-- JSON 유틸 (구글 푸시서버 사용)  -->
 <script src="/js/douglascrockford-JSON-js-633fe5a/json_parse.js" type="text/javascript"></script>
 <script src="/js/douglascrockford-JSON-js-633fe5a/json2.js" type="text/javascript"></script>

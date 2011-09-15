@@ -6,7 +6,6 @@
 
 	<definition name="/root" template="/WEB-INF/jsp/template/layout.jsp">
 		<put-attribute name="header" value="/WEB-INF/jsp/template/header.jsp" />
-		<put-attribute name="footer" value="/WEB-INF/jsp/template/footer.jsp" />
 		<put-attribute name="config" value="/WEB-INF/jsp/template/config.jsp" />
 		<put-attribute name="script" value="/WEB-INF/jsp/template/script.jsp" />
 		<put-attribute name="body" value="/WEB-INF/jsp/index.jsp" />
