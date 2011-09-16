@@ -1,18 +1,43 @@
 package erwins.webapp.myApp.mtgo;
+import java.io.Serializable;
 import java.math.BigDecimal;
 
+import javax.jdo.annotations.Extension;
+import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.IdentityType;
+import javax.jdo.annotations.NotPersistent;
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
 
-public class Card {
-	private String cardName;
-	private String type;
-	private String rarity;
-	private String cost;
-	private String price;
-	private Integer quantity;
-	private String edition;
-	private Integer matchSize; //이름으로 검색된 카드 판본수
-	private String url;
+import erwins.util.root.DomainObject;
+import erwins.util.root.EntityId;
+
+@SuppressWarnings("serial")
+@PersistenceCapable(identityType = IdentityType.APPLICATION)
+public class Card implements Serializable,DomainObject,EntityId<String>{
 	
+	@PrimaryKey
+	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+	@Extension(vendorName = "datanucleus", key = "gae.encoded-pk", value = "true")
+	private String id;
+	@Persistent
+	private String cardName;
+	@Persistent
+	private String type;
+	@Persistent
+	private String rarity;
+	@Persistent
+	private String cost;
+	@Persistent
+	private String price;
+	@Persistent
+	private String edition;
+	@Persistent
+	private Integer matchSize; //이름으로 검색된 카드 판본수
+	@Persistent
+	private String url;
+	@NotPersistent
 	private BigDecimal money; //단순히 계산하기위한 용도임
 	
 	public String getCardName() {
@@ -32,12 +57,6 @@ public class Card {
 	}
 	public void setPrice(String price) {
 		this.price = price;
-	}
-	public Integer getQuantity() {
-		return quantity;
-	}
-	public void setQuantity(Integer quantity) {
-		this.quantity = quantity;
 	}
 	public String getCost() {
 		return cost;
@@ -75,8 +94,12 @@ public class Card {
 	public void setMatchSize(Integer matchSize) {
 		this.matchSize = matchSize;
 	}
-	
-	
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
 	
 	
 }

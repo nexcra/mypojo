@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.View;
 
 import erwins.util.morph.MapToBean;
-import erwins.util.morph.RequestToMap;
 import erwins.util.web.WebUtil;
 import erwins.webapp.myApp.AjaxView;
 import erwins.webapp.myApp.Current;
+import erwins.webapp.myApp.RequestToMapForApp;
 import erwins.webapp.myApp.RootController;
 import erwins.webapp.myApp.user.SessionInfo;
 
@@ -26,6 +26,7 @@ public class MapLabelController extends RootController{
 	
 	@Autowired private MapLabelService mapLabelService ; 
 	@Autowired private MapToBean mapToBean;
+	@Autowired private RequestToMapForApp requestToMap;
 	
 	@RequestMapping("/page")
 	public String page(HttpServletRequest req) {
@@ -46,7 +47,7 @@ public class MapLabelController extends RootController{
     public View save(HttpServletRequest req) {
     	SessionInfo info = Current.getInfo();
     	info.constraintLogin();
-    	MapLaebl suser = mapToBean.build(new RequestToMap(req).getMap(), MapLaebl.class);
+    	MapLaebl suser = mapToBean.build(requestToMap.toMap(req), MapLaebl.class);
     	suser.setGoogleUserId(info.getUser().getId());
     	suser = mapLabelService.saveOrMerge(suser);
     	return new AjaxView(suser.getId());

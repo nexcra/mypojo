@@ -7,8 +7,9 @@ import erwins.util.web.ResponseOutConfig;
 
 public class AjaxView extends AbstractAjaxView{
 	
-	private static final BeanToJson beanToJson = BeanToJsonForAppEbgine.create();
+	public static final BeanToJson beanToJson = BeanToJsonForAppEbgine.create();
 	private static final ResponseOutConfig config = new ResponseOutConfig();
+	
 	static{
 		config.setXmlEscape(true);
 	}

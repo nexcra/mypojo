@@ -18,6 +18,7 @@ Ext.onReady(function() {
 		items : [
 			{text:'<b>영감님의 테스트 서버입니다</b>',handler: function(){ window.location = '/'; },tooltip: 'Add user'}
 			,'-'
+			,{text:'매직더게더링',handler: function(){ window.location = '/rest/mtgo/page'; } }
 			,{text:'테스트페이지',handler: function(){ window.location = '/rest/none/test'; } }
 			,{text:'간단변환기',handler: function(){ window.location = '/rest/translator/page'; } }
 			,{text:'맵라벨',handler: function(){ window.location = '/rest/mapLabel/page'; } }

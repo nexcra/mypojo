@@ -200,6 +200,34 @@ var Tool = {
 		}
 	},
 	/**
+	 * Object의 구성 요소를 출력한다.2
+	 */
+	getInfo: function(obj){
+		var str = '';
+		if(obj instanceof Object){
+			for(var oo in obj){
+				str+= oo + '  :  ' + obj[oo] + '\n'
+			}
+			alert(str);
+		}else{
+			alert("Object가 아님.");
+		}
+	},
+	/**
+	 * Object의 구성 요소를 출력한다.3
+	 */
+	getRecords: function(obj){
+		var str = '';
+		if(obj instanceof Object){
+			for(var oo in obj){
+				str+= oo + ' / ';
+			}
+			alert(str);
+		}else{
+			alert("Object가 아님.");
+		}
+	},
+	/**
 	 * MSE 6.0버전이면 true를 리턴한다. 
 	 */
 	isMSE6: function(name){
