@@ -46,6 +46,10 @@ public class SessionInfo{
 	public void constraintLogin() {
 		if(!isLogin()) throw new LoginRequiredException();
 	}
+	public void setGoogleId(GoogleUserEntity entity) {
+		constraintLogin();
+		entity.setGoogleUserId(getUser().getId());
+	}
 	public void constraintByAdmin() {
 		constraintLogin();
 		if(!isRoleAble(GoogleUser.ROLE_ADMIN)) throw new BusinessException("관리자 권한만 가능합니다.");

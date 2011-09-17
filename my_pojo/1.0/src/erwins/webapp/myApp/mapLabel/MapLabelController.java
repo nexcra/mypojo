@@ -45,10 +45,9 @@ public class MapLabelController extends RootController{
     /**  관리자 권한을 고려하지 않고 만든다.  */
     @RequestMapping("/save")
     public View save(HttpServletRequest req) {
-    	SessionInfo info = Current.getInfo();
-    	info.constraintLogin();
     	MapLaebl suser = mapToBean.build(requestToMap.toMap(req), MapLaebl.class);
-    	suser.setGoogleUserId(info.getUser().getId());
+    	SessionInfo info = Current.getInfo();
+    	info.setGoogleId(suser);
     	suser = mapLabelService.saveOrMerge(suser);
     	return new AjaxView(suser.getId());
     }

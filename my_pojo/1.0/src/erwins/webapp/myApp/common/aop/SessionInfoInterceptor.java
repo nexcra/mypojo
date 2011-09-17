@@ -61,17 +61,19 @@ public class SessionInfoInterceptor implements HandlerInterceptor {
 			if( !SystemInfo.isServer() && mailAddress.equals("qq")) mailAddress = Config.ADMIN_ID[0]; //테스트용 간단로그인 
 			GoogleUser user = googleUserService.getByGoogleMail(mailAddress);
 			
-			if(sessionBean.isFirst()) { //세션을 사용해서 최근접속을 캐치하자.
-				user.setLastAccess(new Date());
-				sessionBean.setFirst(false);
-				googleUserService.saveOrUpdate(user);
+			if(user!=null){
+				if(sessionBean.isFirst()) { //세션을 사용해서 최근접속을 캐치하자.
+					user.setLastAccess(new Date());
+					sessionBean.setFirst(false);
+					googleUserService.saveOrUpdate(user);
+				}
+				//최초 관리자가 로그인할 경우 user가 null이다. 그때를 위해 널체크를 해준다.
+				if(user!=null && CollectionUtil.isEqualsAny(Config.ADMIN_ID, mailAddress)) user.addRoles(GoogleUser.ROLE_ADMIN);
+				info.setUser(user);
+				req.setAttribute("nickname", user.getNickname());
+				req.setAttribute("googleEmail", user.getGoogleEmail());
+				req.setAttribute("roles",StringUtil.join(user.getRoles(),",") );
 			}
-			//최초 관리자가 로그인할 경우 user가 null이다. 그때를 위해 널체크를 해준다.
-			if(user!=null && CollectionUtil.isEqualsAny(Config.ADMIN_ID, mailAddress)) user.addRoles(GoogleUser.ROLE_ADMIN);
-			info.setUser(user);
-			req.setAttribute("nickname", user.getNickname());
-			req.setAttribute("googleEmail", user.getGoogleEmail());
-			req.setAttribute("roles",StringUtil.join(user.getRoles(),",") );
 		}
 		info.setMenu(Menu.getMenuByStartWith(requestedUrl));
 		

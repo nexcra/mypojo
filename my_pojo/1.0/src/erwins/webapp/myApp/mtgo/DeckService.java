@@ -21,12 +21,12 @@ public class DeckService extends GenericAppEngineService<Deck>{
     }
     
     @Transactional
-    public void updateWinRate(String id,boolean isWin,boolean isMinus){
+    public Deck updateWinRate(String id,boolean isWin,boolean isMinus){
     	Deck server = deckDao.getById(id);
-    	if(isWin){
-    		
-    		server.getWin();	
-    	}
+    	int count = isMinus ? -1 : 1;
+    	if(isWin) server.setWin(server.getWin()+count);
+    	else server.setLose(server.getLose()+count);
+    	return server;
     }
 
 	@Override
