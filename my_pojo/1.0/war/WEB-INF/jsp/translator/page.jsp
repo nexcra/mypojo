@@ -31,7 +31,7 @@ $(function() {
 </script>	
 <br>
 <form id="form" >
-<table border="1">
+<table>
 	<thead>
 		<tr>
 			<th>이름</th>
