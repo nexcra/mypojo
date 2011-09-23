@@ -28,13 +28,13 @@ public class Deck implements RootEntity<Deck>, Serializable, GoogleUserEntity {
 	private String id;
 
 	@Persistent
-	private List<String> cardIds;
-	@Persistent
-	private List<Integer> quantitys;
+	private List<Card> cards;
 	@Persistent
 	private String type;
 	@Persistent
 	private String name;
+	@Persistent
+	private String description;
 	@Persistent
 	private List<String> colors;
 	@Persistent
@@ -144,27 +144,6 @@ public class Deck implements RootEntity<Deck>, Serializable, GoogleUserEntity {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	public List<String> getCards() {
-		return cardIds;
-	}
-	public void setCards(List<String> cards) {
-		this.cardIds = cards;
-	}
-	public List<Integer> getQuantitys() {
-		return quantitys;
-	}
-
-	public void setQuantitys(List<Integer> quantitys) {
-		this.quantitys = quantitys;
-	}
-	public List<String> getCardIds() {
-		return cardIds;
-	}
-
-	public void setCardIds(List<String> cardIds) {
-		this.cardIds = cardIds;
-	}
-
 	public BigDecimal getSumOfPrice() {
 		return sumOfPrice;
 	}
@@ -172,6 +151,23 @@ public class Deck implements RootEntity<Deck>, Serializable, GoogleUserEntity {
 	public void setSumOfPrice(BigDecimal sumOfPrice) {
 		this.sumOfPrice = sumOfPrice;
 	}
+	
+	public List<Card> getCards() {
+		return cards;
+	}
+
+	public void setCards(List<Card> cards) {
+		this.cards = cards;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	@Override
 	public int compareTo(Deck o) {
 		return type.compareTo(o.type);
@@ -190,6 +186,7 @@ public class Deck implements RootEntity<Deck>, Serializable, GoogleUserEntity {
 		setColors(client.colors);
 		setName(client.name);
 		setType(client.type);
+		setDescription(client.description);
 	}
 	
 

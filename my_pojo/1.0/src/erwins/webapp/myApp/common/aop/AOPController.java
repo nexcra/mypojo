@@ -7,6 +7,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.View;
 
 import erwins.util.exception.BusinessException;
 import erwins.util.exception.LoginRequiredException;
@@ -61,13 +62,13 @@ public class AOPController{
     
 	/** 일반적으로 AjaxView이지만, 예외의 경우 ModelAndView나 void가 올 수 있다. */
     @Around("execution(public org.springframework.web.servlet.View || void erwins.webapp.myApp..*Controller*.*(..))")    
-    public AbstractAjaxView ajaxCall(ProceedingJoinPoint joinPoint){
+    public View ajaxCall(ProceedingJoinPoint joinPoint){
     	log.debug("ajax AOP start");
-    	AbstractAjaxView view;
+    	View view;
     	SessionInfo info = Current.getInfo();
 		try {
 			validate(info);
-			view = (AjaxView)joinPoint.proceed();
+			view = (View)joinPoint.proceed();
 		} catch (LoginRequiredException e) {
 			view = new AjaxView("이 기능은 로그인 하셔야 합니다.").isFail();
 		} catch (BusinessException e) {
@@ -77,7 +78,7 @@ public class AOPController{
 			e.printStackTrace();
 			view = new AjaxView(e.getMessage()).isFail();
 		}
-		if(view!=null) view.addObject(GoogleUser.class.getSimpleName(), info.getUser());
+		if(view!=null && view instanceof AbstractAjaxView) ((AbstractAjaxView)view).addObject(GoogleUser.class.getSimpleName(), info.getUser());
 		log.debug("ajax AOP end");
         return view;
     }

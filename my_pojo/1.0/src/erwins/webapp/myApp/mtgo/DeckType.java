@@ -7,8 +7,8 @@ import erwins.util.root.Pair;
 
 public enum DeckType implements Pair{
 	standard,
-	extended,
-	legacy;
+	classic,
+	legacy,pauper;
 
 	@Override
 	public String getValue() {

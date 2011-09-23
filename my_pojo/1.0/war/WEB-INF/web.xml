@@ -10,6 +10,7 @@
 	<security-constraint>
 		<web-resource-collection>
 			<url-pattern>/rest/user/*</url-pattern>
+			<url-pattern>/rest/mtgo/*</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>*</role-name>

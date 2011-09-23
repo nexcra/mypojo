@@ -17,7 +17,7 @@ public class DeckDao extends GenericAppEngineDao<Deck>{
 		return  findAll(ORDER);
 	}
 	
-	public Collection<Deck> getByGoogleUserId(String googleUserId){
+	public Collection<Deck> findByGoogleUserId(String googleUserId){
 		Collection<Deck> result = getJdoTemplate().find(getPersistentClass(),"googleUserId == PgoogleUserId","String PgoogleUserId",googleUserId);
 		return result;
 	}

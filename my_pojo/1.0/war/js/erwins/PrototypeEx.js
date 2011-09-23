@@ -365,7 +365,7 @@ String.prototype.isNumeric = function(){
 String.prototype.isAlpha = function() {
 	var ignores = arguments.length > 0 ? arguments[0] : "";
 	var pattern = new RegExp("^[a-zA-Z]+$", "");
-	return pattern.test(this.strip(ignores));
+	return pattern.test(this);
 }
 
 /**
@@ -375,7 +375,7 @@ String.prototype.isAlpha = function() {
 String.prototype.isAlphaNumeric = function() {
 	var ignores = arguments.length > 0 ? arguments[0] : "";
 	var pattern = new RegExp("^[0-9a-zA-Z]+$", "");
-	return pattern.test(this.strip(ignores));
+	return pattern.test(this);
 }
 
 /**

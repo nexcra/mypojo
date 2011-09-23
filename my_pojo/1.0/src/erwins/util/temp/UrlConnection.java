@@ -22,7 +22,6 @@ public class UrlConnection{
 		
 	}
 	
-	
 	public String doGet(String urlString) {
 		try {
 			URL url = new URL(urlString);

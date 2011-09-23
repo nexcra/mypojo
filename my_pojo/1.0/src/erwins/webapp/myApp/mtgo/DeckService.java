@@ -1,7 +1,9 @@
 
 package erwins.webapp.myApp.mtgo;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,13 @@ public class DeckService extends GenericAppEngineService<Deck>{
     	return deckDao.findAll();
     }
     
+    public List<Card> getCardList(String id){
+    	Deck server = deckDao.getById(id);
+    	List<Card> loaded = new ArrayList<Card>();
+    	loaded.addAll(server.getCards());
+    	return server.getCards();
+    }
+    
     @Transactional
     public Deck updateWinRate(String id,boolean isWin,boolean isMinus){
     	Deck server = deckDao.getById(id);
@@ -28,10 +37,22 @@ public class DeckService extends GenericAppEngineService<Deck>{
     	else server.setLose(server.getLose()+count);
     	return server;
     }
+    
+    /** 무조건 다 지우고 새로 입력한다 */
+    @Transactional
+    public void updadteCard(String id,List<Card> list){
+    	Deck server = deckDao.getById(id);
+    	server.setCards(list);
+    }
 
 	@Override
 	protected GenericAppEngineDao<Deck> getDao() {
 		return deckDao;
 	}
+
+	public Collection<Deck> findByGoogleUserId(String googleUserId) {
+		return deckDao.findByGoogleUserId(googleUserId);
+	}
+	
 
 }

@@ -4,23 +4,23 @@ import java.math.BigDecimal;
 
 import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import erwins.util.root.DomainObject;
-import erwins.util.root.EntityId;
+import erwins.webapp.myApp.RootEntity;
 
-@SuppressWarnings("serial")
-@PersistenceCapable(identityType = IdentityType.APPLICATION)
-public class Card implements Serializable,DomainObject,EntityId<String>{
+@PersistenceCapable
+public class Card implements RootEntity<Card>, Serializable{
+	
+	private static final long serialVersionUID = 1L;
 	
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 	@Extension(vendorName = "datanucleus", key = "gae.encoded-pk", value = "true")
 	private String id;
+	
 	@Persistent
 	private String cardName;
 	@Persistent
@@ -34,11 +34,13 @@ public class Card implements Serializable,DomainObject,EntityId<String>{
 	@Persistent
 	private String edition;
 	@Persistent
-	private Integer matchSize; //이름으로 검색된 카드 판본수
-	@Persistent
 	private String url;
+	@Persistent
+	private Integer quantity;
 	@NotPersistent
 	private BigDecimal money; //단순히 계산하기위한 용도임
+	@NotPersistent
+	int rownum;
 	
 	public String getCardName() {
 		return cardName;
@@ -88,18 +90,37 @@ public class Card implements Serializable,DomainObject,EntityId<String>{
 	public void setEdition(String edition) {
 		this.edition = edition;
 	}
-	public Integer getMatchSize() {
-		return matchSize;
+	public Integer getQuantity() {
+		return quantity;
 	}
-	public void setMatchSize(Integer matchSize) {
-		this.matchSize = matchSize;
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
 	}
+	@Override
 	public String getId() {
 		return id;
 	}
+	@Override
 	public void setId(String id) {
 		this.id = id;
 	}
-	
+	@Override
+	public int compareTo(Card o) {
+		int order = cardName.compareTo(o.cardName);
+		return order;
+	}
+	public int getRownum() {
+		return rownum;
+	}
+	public void setRownum(int rownum) {
+		this.rownum = rownum;
+	}
+	@Override
+	public void initValue() {
+	}
+	@Override
+	public void mergeByClientValue(Card client) {
+		
+	}
 	
 }

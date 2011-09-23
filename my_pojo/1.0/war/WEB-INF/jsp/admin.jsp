@@ -13,7 +13,8 @@ $(function() {
 });
 </script>
 <input id="refreshBtn" type="button" >
-<a href="/rest/admin/user/download" class="lintButton">사용자정보 다운</a>
+<a href="/_ah/admin" class="lintButton">어드민</a>
+<a href="/rest/admin/trx/download" class="lintButton">TRX정보 다운</a>
 <a href="/rest/admin/trx/download" class="lintButton">TRX정보 다운</a>
 
 <div>
