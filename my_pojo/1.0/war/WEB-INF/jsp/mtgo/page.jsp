@@ -24,12 +24,20 @@ Ext.onReady(function() {
     	var data = record.data;
         return winRateCal(data);
     }
+    var decknameRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
+    	var data = record.data;
+    	var type = data.type;
+    	var label = data.name;
+    	if(type=='standard') label = '<span style="color:blue;font-weight:bold;" >'+label+'</span>';
+    	else if(type=='pauper') label = '<span style="color:red;" >'+label+'</span>';
+        return label
+    }
 	var deckGrid = Ext.create('Ext.grid.Panel', {
 		store:deckStore,stateful: true,stateId: 'stateGrid',
         flex:1,width: '100%',border:false,autoScroll:true,
         columns: [
             {text : '타입',width : 80,dataIndex: 'type'},
-            {text : '덱이름',flex : 1,dataIndex: 'name'},
+            {text : '덱이름',flex : 1,renderer :decknameRenderer},
             {text : '비고',width : 150,dataIndex: 'description'},
             {text : '덱컬러',width : 70,dataIndex: 'colors'},
             {text : '가격($)',width : 60,dataIndex: 'sumOfPrice',align:'right'},
@@ -47,17 +55,27 @@ Ext.onReady(function() {
         viewConfig: {stripeRows: true}
     });
 	
+	var cardnameRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
+    	var data = record.data;
+    	var rarity = data.rarity;
+    	var label = data.cardName;
+    	if(rarity=='Mythic') label = '<span style="color:red;font-weight:bold;" >'+label+'</span>';
+    	else if(rarity=='Rare') label = '<span style="color:blue;font-weight:bold;" >'+label+'</span>';
+    	else if(rarity=='Uncommon') label = '<span style="color:gray;" >'+label+'</span>';
+        return label
+    }
+	
 	var cardGrid = Ext.create('Ext.grid.Panel', {
 		store:cardStore,flex:1,width: 800,border:false,autoScroll:true,
         columns: [
-            {text : '카드이름',flex : 1,dataIndex: 'cardName'},
-            {text : '수량',width : 40,dataIndex: 'quantity',align:'right'},
-            {text : '타입',width : 80,dataIndex: 'type',align:'center'},
-            {text : '희귀도',width : 70,dataIndex: 'rarity',align:'center'},
-            {text : '발비',width : 60,dataIndex: 'cost',align:'right'},
-            {text : '가격($)',width : 60,dataIndex: 'price',align:'right'},
-            {text : '에디션',width : 90,dataIndex: 'edition',align:'center'},
-            {text : 'URL',width : 150,dataIndex: 'url'}
+            {text : '카드이름',flex : 1,renderer :cardnameRenderer},
+            {text : '수량',width : 40,dataIndex: 'quantity',align:'center'},
+            {text : '타입',width : 150,dataIndex: 'type'},
+            {text : '희귀도',width : 70,dataIndex: 'rarity'},
+            {text : '발비',width : 50,dataIndex: 'cost'},
+            {text : '가격($)',width : 50,dataIndex: 'price',align:'right'},
+            {text : '에디션',width : 200,dataIndex: 'edition'}
+            //{text : 'URL',width : 150,dataIndex: 'url'}
         ],
         dockedItems: [{
             xtype: 'toolbar',
@@ -65,11 +83,25 @@ Ext.onReady(function() {
                 {text:'증가/감소',enableToggle: true,id:'isMinus'},'-',
 		        {text:'<span style="color:blue;font-weight:bold;" >win</span>',id:'winBtn',disabled: true,handler: function(){updateCount(true);}},
 		        {text:'<span style="color:red;font-weight:bold;" >lose</span>',id:'loseBtn',disabled: true,handler: function(){updateCount(false);}},'-',
-				{id:'deckUpdateBtn',disabled:true,text:'덱 수정/삭제',tooltip:'이미 생성된 덱의 정보를 수정한다.',handler:function(){ newDeckWinToggle(currentData); }}
+				{id:'deckUpdateBtn',disabled:true,text:'덱 수정/삭제',tooltip:'이미 생성된 덱의 정보를 수정한다.',handler:function(){ newDeckWinToggle(currentData); }},'-',
+				{id:'deckCalBtn',disabled:true,text:'덱 가격산정',tooltip:'업로드된 덱의 가격을 산정한다.',handler:function(){
+					$.send('/rest/mtgo/deckCal',{id:currentData.id},function(message){
+	            		Ext.example.msg('덱 가격산정',message);
+	            		refresh();
+	        		});
+				}}
             ]
         }],
-        viewConfig: {stripeRows: true}
+        viewConfig: {stripeRows: true},
+        listeners : {   ///아오~~ 몰라서 걍 일케 진행
+        	'cellclick' : function(grid,index,cellIndex,e){ // do something }
+        		if(cellIndex !=0) return;
+        		var url = e.data.url;
+        		window.open(url,"카드","width=900px,height=500px");
+        	}
+		}
     });
+	//cardGrid.itemdblclick();
 	
 	// 좌하단부 작업. 이름만 바꿔준다
 	var updateDeckRateinfo = function(){ Ext.getCmp('deckName').setText('<b>'+currentData.name+'</b>'); }
@@ -84,6 +116,7 @@ Ext.onReady(function() {
         Ext.getCmp('winBtn').setDisabled(selectedRecord.length === 0);
         Ext.getCmp('loseBtn').setDisabled(selectedRecord.length === 0);
         Ext.getCmp('deckUpdateBtn').setDisabled(selectedRecord.length === 0);
+        Ext.getCmp('deckCalBtn').setDisabled(selectedRecord.length === 0);
         Ext.getCmp('deckUpload.deckFile').setDisabled(selectedRecord.length === 0);
     }
 	deckGrid.getSelectionModel().on('selectionchange',selectionchange );
