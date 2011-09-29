@@ -56,6 +56,14 @@ public class MTGOController extends RootController {
 		Collections.sort(cards);
 		return new AjaxView(cards);
 	}
+	
+	
+	@RequestMapping("/deckCal")
+	public View deckCal(HttpServletRequest req) {
+		String id = req.getParameter("id");
+		deckService.deckCal(id);
+		return new AjaxView("정상적으로 덱이 업데이트 되었습니다");
+	}
 
 	@RequestMapping("/save")
 	public View save(HttpServletRequest req) {

@@ -1,6 +1,7 @@
 
 package erwins.webapp.myApp.mtgo;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,6 +28,16 @@ public class DeckService extends GenericAppEngineService<Deck>{
     	List<Card> loaded = new ArrayList<Card>();
     	loaded.addAll(server.getCards());
     	return server.getCards();
+    }
+    
+    public void deckCal(String id){
+    	Deck server = deckDao.getById(id);
+    	new MTGO().loadCard(server.getCards());
+    	BigDecimal sum = BigDecimal.ZERO;
+    	for(Card each : server.getCards()){
+    		if(each.getMoney()!=null) sum = sum.add(each.getMoney());
+    	}
+    	server.setSumOfPrice(sum);
     }
     
     @Transactional
