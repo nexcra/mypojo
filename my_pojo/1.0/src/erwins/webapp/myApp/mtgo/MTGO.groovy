@@ -31,9 +31,8 @@ class MTGO{
 				if(list.size()==0) list = htmlList.findAll { it.name.contains(cardName)  } //뒷문자 매칭이 안되면 풀매칭. ex) Life/Death
 				
 				list = list.collect { findDetail(it) }
-				def avgHalf = list.sum{it.money} / list.size() / 2  //평균가의 절반 이하는 이벤트 카드로 보고 제외한다.
-				def oneCard = list.findAll { it.money > avgHalf  }.  min { it.money }
-				
+				//def avgHalf = list.sum{it.money} / list.size() / 2  //평균가의 절반 이하는 이벤트 카드로 보고 제외한다.
+				def oneCard = list.findAll { it.money != 0.01 }.  min { it.money } //0.01이 아닌걸로 수정
 				card.type = oneCard.type;
 				card.cost = oneCard.cost;
 				card.edition = oneCard.edition;

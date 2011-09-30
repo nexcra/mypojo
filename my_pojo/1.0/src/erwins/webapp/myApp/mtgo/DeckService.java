@@ -35,7 +35,10 @@ public class DeckService extends GenericAppEngineService<Deck>{
     	new MTGO().loadCard(server.getCards());
     	BigDecimal sum = BigDecimal.ZERO;
     	for(Card each : server.getCards()){
-    		if(each.getMoney()!=null) sum = sum.add(each.getMoney());
+    		if(each.getMoney()!=null){
+    			BigDecimal carmSum = each.getMoney().multiply(new BigDecimal(each.getQuantity()));
+    			sum = sum.add(carmSum);
+    		}
     	}
     	server.setSumOfPrice(sum);
     }
