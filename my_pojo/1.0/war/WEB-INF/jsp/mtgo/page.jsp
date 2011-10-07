@@ -12,7 +12,9 @@ Ext.onReady(function() {
         fields: ['id','type','name','win','lose','colors','sumOfPrice','description']
     });
     var cardStore = new Ext.data.JsonStore({
-    	fields: ['cardName','type','rarity','cost','price','edition','matchSize','url','quantity']
+    	//fields: ['cardName','type','rarity','cost','price','edition','matchSize','url','quantity']
+    	fields: ['cardName','type','rarity','cost','edition','matchSize','url','quantity'
+    	         ,{name: 'price', sortDir: 'ASC', sortType: 'asInt', type: 'int'}]
     });
     var winRateCal = function(data){
     	if(data.win==0) return 0+'%';
