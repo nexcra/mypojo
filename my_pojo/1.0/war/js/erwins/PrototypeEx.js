@@ -562,4 +562,12 @@ String.prototype.getExt = function(arg) {
 String.prototype.eq = function(arg) {
 	return this.toUpperCase() == arg.toUpperCase();
 }
+
+/** span태그를 입혀서 리턴한다.
+Ext.js에서 사용한다. */
+String.prototype.toSpan = function(color,isBold){
+	var list = ['color:'+color+';']; 
+	if(isBold) list.push('font-weight:bold;');
+	return '<span style="'+list.join('')+'" >'+this+'<span>';
+}
  

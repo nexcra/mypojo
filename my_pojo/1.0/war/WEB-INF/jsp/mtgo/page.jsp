@@ -13,39 +13,63 @@ Ext.onReady(function() {
     });
     var cardStore = new Ext.data.JsonStore({
     	//fields: ['cardName','type','rarity','cost','price','edition','matchSize','url','quantity']
-    	fields: ['cardName','type','rarity','cost','edition','matchSize','url','quantity'
-    	         ,{name: 'price', sortDir: 'ASC', sortType: 'asInt', type: 'int'}]
+    	fields: ['rownum','cardName','type','rarity','cost','edition','matchSize','url','quantity'
+    	         ,{name: 'price', sortDir: 'DESC', sortType: 'asFloat', type: 'double'}]
     });
     var winRateCal = function(data){
     	if(data.win==0) return 0+'%';
     	var rate = data.win / (data.win + data.lose);
     	rate = Math.round(rate*100*100)/100;
-        return  rate +'%';
+        return  rate ;
     }
-    var winRate =  function(val,metaData,record,rowIndex,colIndex,store,view) {
+    var winRateRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
     	var data = record.data;
-        return winRateCal(data);
+    	var rate = winRateCal(data);
+    	if(rate > 70) return  (rate+'%').toSpan('red',true);
+    	else if(rate > 60) return  (rate+'%').toSpan('blue',true);
+    	else if(rate > 50) return  (rate+'%').toSpan('green');
+    	else return  rate+'%';
     }
     var decknameRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
     	var data = record.data;
     	var type = data.type;
     	var label = data.name;
-    	if(type=='standard') label = '<span style="color:blue;font-weight:bold;" >'+label+'</span>';
-    	else if(type=='pauper') label = '<span style="color:red;" >'+label+'</span>';
+    	if(type=='standard') label = label.toSpan('blue',true);
+    	else if(type=='pauper') label = label.toSpan('red');
         return label
+    }
+    var W = '<span style="background:white;color:black">&nbsp;W&nbsp;<span>';
+    var U = '<span style="background:blue;color:white">&nbsp;U&nbsp;<span>';
+    var B = '<span style="background:black;color:white">&nbsp;B&nbsp;<span>';
+    var R = '<span style="background:red;color:white">&nbsp;R&nbsp;<span>';
+    var G = '<span style="background:green;color:white">&nbsp;G&nbsp;<span>';
+    var deckcolorRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
+    	var data = record.data;
+    	var colors = data.colors;
+    	var label = [];
+    	for(var i=0;i<colors.length;i++){
+    		var c = colors[i];
+    		if(c=='W') label.push(W);
+    		else if(c=='U') label.push(U);
+    		else if(c=='B') label.push(B);
+    		else if(c=='R') label.push(R);
+    		else if(c=='G') label.push(G);
+    	}
+        return label.join('');
     }
 	var deckGrid = Ext.create('Ext.grid.Panel', {
 		store:deckStore,stateful: true,stateId: 'stateGrid',
         flex:1,width: '100%',border:false,autoScroll:true,
         columns: [
+            {text : '번호',width : 30,dataIndex: 'rownum',align:'right'},
             {text : '타입',width : 80,dataIndex: 'type'},
             {text : '덱이름',flex : 1,renderer :decknameRenderer},
             {text : '비고',width : 150,dataIndex: 'description'},
-            {text : '덱컬러',width : 70,dataIndex: 'colors'},
+            {text : '덱컬러',width : 80,renderer:deckcolorRenderer,align:'center'},
             {text : '가격($)',width : 60,dataIndex: 'sumOfPrice',align:'right'},
             {text : '승',width : 40,dataIndex: 'win',align:'right'},
             {text : '패',width : 40,dataIndex: 'lose',align:'right'},
-            {text : '승율',width : 60,renderer :winRate,align:'right'}
+            {text : '승율',width : 60,renderer :winRateRenderer,align:'right'}
         ],
         dockedItems: [{
             xtype: 'toolbar',
@@ -61,9 +85,9 @@ Ext.onReady(function() {
     	var data = record.data;
     	var rarity = data.rarity;
     	var label = data.cardName;
-    	if(rarity=='Mythic') label = '<span style="color:red;font-weight:bold;" >'+label+'</span>';
-    	else if(rarity=='Rare') label = '<span style="color:blue;font-weight:bold;" >'+label+'</span>';
-    	else if(rarity=='Uncommon') label = '<span style="color:gray;" >'+label+'</span>';
+    	if(rarity=='Mythic') label = label.toSpan('red',true);
+    	else if(rarity=='Rare') label = label.toSpan('blue',true);
+    	else if(rarity=='Uncommon') label = label.toSpan('green',true);
         return label
     }
 	
@@ -81,13 +105,16 @@ Ext.onReady(function() {
         ],
         dockedItems: [{
             xtype: 'toolbar',
-            items: [{text:'<b>덱이름</b>',id:'deckName'},'->',
+            items: [{text:'<b>덱이름</b>',id:'deckName'},'->',{text:'',id:'loadingMessage'},
                 {text:'증가/감소',enableToggle: true,id:'isMinus'},'-',
 		        {text:'<span style="color:blue;font-weight:bold;" >win</span>',id:'winBtn',disabled: true,handler: function(){updateCount(true);}},
 		        {text:'<span style="color:red;font-weight:bold;" >lose</span>',id:'loseBtn',disabled: true,handler: function(){updateCount(false);}},'-',
 				{id:'deckUpdateBtn',disabled:true,text:'덱 수정/삭제',tooltip:'이미 생성된 덱의 정보를 수정한다.',handler:function(){ newDeckWinToggle(currentData); }},'-',
 				{id:'deckCalBtn',disabled:true,text:'덱 가격산정',tooltip:'업로드된 덱의 가격을 산정한다.',handler:function(){
+					var loadingMessage = '카드의 가격 정보를 가져오는중입니다. 잠시 기다려주세요 '.toSpan('red',true);
+            		Ext.getCmp('loadingMessage').setText(loadingMessage);
 					$.send('/rest/mtgo/deckCal',{id:currentData.id},function(message){
+						Ext.getCmp('loadingMessage').setText();
 	            		Ext.example.msg('덱 가격산정',message);
 	            		refresh();
 	        		});
@@ -123,10 +150,15 @@ Ext.onReady(function() {
     }
 	deckGrid.getSelectionModel().on('selectionchange',selectionchange );
 	
+	/** 덱 승리/패배 펑션 */
 	var updateCount = function(isWin){
+		var loadingMessage = '덱 정보를 업데이트중입니다... 잠시 기다려주세요 '.toSpan('red',true);
+    	Ext.getCmp('loadingMessage').setText(loadingMessage);
     	var param = {id:currentData.id,isWin:isWin,isMinus:Ext.getCmp('isMinus').pressed};
-    	$.send('/rest/mtgo/updateWinRate',param,function(message){
-    		Ext.example.msg('업데이트','덱 정보가 수정되었습니다');
+    	$.send('/rest/mtgo/updateWinRate',param,function(deckInfo){
+    		Ext.getCmp('loadingMessage').setText();
+    		var msg = isWin ? '승리'.toSpan('blue',true) : '패배'.toSpan('red',true);
+    		Ext.example.msg(deckInfo.name + ' : '+msg,'승패 : ' + deckInfo.win +'/'+ deckInfo.lose );
     		refresh(currettSelection);
     		updateDeckRateinfo();
     	});	
@@ -138,6 +170,8 @@ Ext.onReady(function() {
 			{xtype: 'textfield',id:'deckUpload.id',name: 'id',anchor:'100%',hidden:true},
 			{xtype: 'filefield',id:'deckUpload.deckFile',name: 'deckFile',buttonOnly: true,hideLabel: true,buttonText: '덱 업로드',width : '100%',disabled:true,
             listeners: {'change': function(fb, v){
+            		var loadingMessage = '덱 정보를 업로드중입니다. 잠시 기다려주세요 '.toSpan('red',true);
+            		Ext.getCmp('loadingMessage').setText(loadingMessage);
             		Ext.getCmp('deckUpload.id').setValue(currentData.id);
                 	var form = this.up('form').getForm();
                 	form.submit({
@@ -145,10 +179,12 @@ Ext.onReady(function() {
 	                	success: function(form, action) { 
 	                		refresh();
 	                		Ext.example.msg('업데이트','덱 리스트가 갱신되었습니다');
+	                		Ext.getCmp('loadingMessage').setText();
 	                	},
 	                	failure: function(form, action) { //실패로 나온다.. 걍 쓰자 ㅅㅂ 
 	                		refresh();
 	                		Ext.example.msg('업데이트','덱 리스트가 갱신되었습니다');
+	                		Ext.getCmp('loadingMessage').setText();
 	                	}
                     });}}}
 			]
@@ -231,8 +267,11 @@ Ext.onReady(function() {
     	});	
     }
     var refreshCard = function(){
+    	var loadingMessage = '카드 정보를 로딩중입니다... 잠시 기다려주세요 '.toSpan('red',true);
+    	Ext.getCmp('loadingMessage').setText(loadingMessage);
     	$.send('/rest/mtgo/cardList',{id:currentData.id},function(message){
     		cardStore.loadData(message);
+    		Ext.getCmp('loadingMessage').setText();
     	});	
     }
     refresh();

@@ -106,7 +106,9 @@ public class Card implements RootEntity<Card>, Serializable{
 	}
 	@Override
 	public int compareTo(Card o) {
-		int order = cardName.compareTo(o.cardName);
+		if(price==null || o.price==null) return 0;
+		int order = new BigDecimal(price).compareTo(new BigDecimal(o.price)) * -1;
+		if(order==0) order = cardName.compareTo(o.cardName); 
 		return order;
 	}
 	public int getRownum() {

@@ -1,7 +1,6 @@
 package erwins.webapp.myApp.mtgo;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +43,11 @@ public class MTGOController extends RootController {
 	@RequestMapping("/list")
 	public View list(HttpServletRequest req) {
 		SessionInfo info = Current.getInfo();
-		Collection<Deck> list = deckService.findByGoogleUserId(info.getUser().getId());
-		CollectionUtil.sort((List<Deck>)list);
+		List<Deck> list = (List<Deck>)deckService.findByGoogleUserId(info.getUser().getId());
+		CollectionUtil.sort(list);
+		for(int i=0;i<list.size();i++){
+			list.get(i).setRownum(i+1);
+		}
 		return new AjaxView(list);
 	}
 	
