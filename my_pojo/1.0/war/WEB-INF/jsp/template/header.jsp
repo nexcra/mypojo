@@ -7,6 +7,14 @@
 Ext.require([ 'Ext.panel.Panel', 'Ext.Action', 'Ext.button.Button', 'Ext.window.MessageBox'
               ,'Ext.tip.*']);
 
+/** 공용 메소드 */
+var send = function(obj,callback){
+	$.send('/rest/none/channel/chat',obj,function(message){
+		//여기서 message는 전달받은 사람 수
+		if(callback!=null) callback(message);
+	});
+}
+
 Ext.onReady(function() {
 	Ext.QuickTips.init();
 	var tb = Ext.create('Ext.toolbar.Toolbar', {
@@ -28,9 +36,6 @@ Ext.onReady(function() {
 			,'-'
 		]
 	});
-	
-	//채팅서버 관련
-	var dialog = $( "#dialog" ).dialog({ autoOpen: false });
 	/*
 	$.bindEnter(chatSend,messageInput,function(){
 		$.send('/rest/none/channel/chat',{message:messageInput.attr("value")},function(message){
@@ -39,7 +44,7 @@ Ext.onReady(function() {
 		},chatSend);
 	});*/
 	var doChat = function(){
-		$.send('/rest/none/channel/chat',{message:inputField.value},function(message){
+		send({type:'chat',message:inputField.value},function(message){
 			inputField.setValue('');
 			helpMessage.setValue('[' + message + '] : 명에게 메세지 전송');
 		});
@@ -57,8 +62,13 @@ Ext.onReady(function() {
 					helpMessage.setValue('푸시서비스에 오류. 재연결 필요시 F5를 눌러주세요');
 				});
 			}
-			GoogleAppEngine.start(token,function(message){
-				dialog.append("<p>"+message.message+"</p>").dialog('open');
+			GoogleAppEngine.start(token,function(result){
+				var type = result.type;
+				if(type == 'chatLogin') Ext.example.msg('채팅 접속자 발견' ,result.nickname+'님 께서 로그인하셨습니다');
+				else if(type == 'chat') Ext.example.msg('메세지 from : ' + result.nickname ,result.message);
+				else if(type == 'mtgoRandomDeck'){
+					Ext.example.msg(result.nickname+'님의 랜덤덱 선택','랜덤으로 지정한 덱수 : '+result.size+'<br><br><b>'+result.message+'</b>');
+				}
 			});
 			accessBtn.hide();
 			inputField.show();
@@ -90,8 +100,4 @@ Ext.onReady(function() {
 </script>
 
 <div id='headerToolbarDiv' ></div>
-
-<div id="dialog" title="서버로부터의 메세지" style="font-size: 70%;" ></div>
-
-
 

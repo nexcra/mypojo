@@ -568,6 +568,16 @@ Ext.js에서 사용한다. */
 String.prototype.toSpan = function(color,isBold){
 	var list = ['color:'+color+';']; 
 	if(isBold) list.push('font-weight:bold;');
-	return '<span style="'+list.join('')+'" >'+this+'<span>';
+	return '<span style="'+list.join('')+'" >'+this+'</span>';
+}
+String.prototype.toBold = function(){
+	return '<b>'+this+'</b>';
+}
+
+/** Java의 MessageFormat을 따라한다. */
+String.prototype.format = function(list) {
+	var message = this;
+	for(var i=0;i<list.length;i++) message = message.replaceAll('{'+i+'}',list[i]);
+	return message;
 }
  

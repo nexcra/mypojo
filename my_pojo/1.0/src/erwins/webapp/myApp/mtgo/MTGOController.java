@@ -45,9 +45,6 @@ public class MTGOController extends RootController {
 		SessionInfo info = Current.getInfo();
 		List<Deck> list = (List<Deck>)deckService.findByGoogleUserId(info.getUser().getId());
 		CollectionUtil.sort(list);
-		for(int i=0;i<list.size();i++){
-			list.get(i).setRownum(i+1);
-		}
 		return new AjaxView(list);
 	}
 	

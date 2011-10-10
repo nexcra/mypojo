@@ -4,7 +4,9 @@ import java.lang.reflect.Field;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 
+import net.sf.json.JSONObject;
 import net.sf.json.util.JSONUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,15 +95,33 @@ public class DefaultController {
 		return new AjaxView("OK");
 	}
 	
+	private static final String CHAT = "chat";
+	private static final String CHAT_LOGIN = "chatLogin";
+	private static final String MTGO_RANDOM_DECK = "mtgoRandomDeck";
+	
 	@RequestMapping("none/channel/chat")
-	public View channelChat(@RequestParam(defaultValue="...") String message) {
+	public View channelChat(@RequestParam(defaultValue="...") String message,@RequestParam String type,
+			HttpServletRequest req) {
 		SessionInfo info = Current.getInfo(); 
 		info.constraintLogin();
 		GoogleUser user = info.getUser();
-		String token = channelHelper.getOrCreateToken(user.getId());
-		channelHelper.broadcastSimpleMessage(token,"["+user.getNickname()+"] : "+message);
-		GoogleXMPP.send(Config.ADMIN_ID[0], message);
-		return new AjaxView(String.valueOf(channelHelper.size()));
+		String token = channelHelper.getOrCreateToken(user.getId()); //???? 이거 왜있지 ㅋㅋㅋ
+		
+		JSONObject json = new JSONObject();
+		json.put("nickname",user.getNickname());
+		
+		if(type.equals(CHAT)){
+			json.put("type",CHAT);
+			json.put("message", message);
+			channelHelper.broadcastJson(user.getId(), json);
+		}else if(type.equals(MTGO_RANDOM_DECK)){
+			json.put("type",MTGO_RANDOM_DECK);
+			json.put("message", message);
+			json.put("size", req.getParameter("size"));
+			channelHelper.broadcastJson(user.getId(), json);
+		}
+		//GoogleXMPP.send(Config.ADMIN_ID[0], message);
+		return new AjaxView(String.valueOf(channelHelper.size()-1));
 	}
 	
 	@RequestMapping("none/channel/create")
@@ -110,7 +130,11 @@ public class DefaultController {
 		info.constraintLogin();
 		GoogleUser user = info.getUser();
 		String token = channelHelper.getOrCreateToken(user.getId());
-		channelHelper.broadcastSimpleMessage(token,"[{0}]님께서 접속하셨습니다", info.getUser().getNickname());
+		
+		JSONObject json = new JSONObject();
+		json.put("nickname",user.getNickname());
+		json.put("type",CHAT_LOGIN);
+		channelHelper.broadcastJson(user.getId(), json);
 		return new AjaxView(token);
 	}
 	

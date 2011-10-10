@@ -5,6 +5,8 @@
 <script type="text/javascript">
 Ext.require([ '*' ]);
 Ext.onReady(function() {
+	
+	// ============================= 덱리스트 ===================================
 	var currentData;
 	var currettSelection; //API를 더 숙지할 필요가 있다
 	
@@ -38,6 +40,7 @@ Ext.onReady(function() {
     	else if(type=='pauper') label = label.toSpan('red');
         return label
     }
+    
     var W = '<span style="background:white;color:black">&nbsp;W&nbsp;<span>';
     var U = '<span style="background:blue;color:white">&nbsp;U&nbsp;<span>';
     var B = '<span style="background:black;color:white">&nbsp;B&nbsp;<span>';
@@ -58,10 +61,10 @@ Ext.onReady(function() {
         return label.join('');
     }
 	var deckGrid = Ext.create('Ext.grid.Panel', {
-		store:deckStore,stateful: true,stateId: 'stateGrid',
+		store:deckStore,stateful: true,stateId: 'stateGrid',selModel: Ext.create('Ext.selection.CheckboxModel'),
         flex:1,width: '100%',border:false,autoScroll:true,
         columns: [
-            {text : '번호',width : 30,dataIndex: 'rownum',align:'right'},
+			Ext.create('Ext.grid.RowNumberer'),
             {text : '타입',width : 80,dataIndex: 'type'},
             {text : '덱이름',flex : 1,renderer :decknameRenderer},
             {text : '비고',width : 150,dataIndex: 'description'},
@@ -74,12 +77,21 @@ Ext.onReady(function() {
         dockedItems: [{
             xtype: 'toolbar',
             items: ['<b>덱리스트</b>','->',
+                {text:'랜덤덱 선택',handler:function(){
+                	var selection = deckGrid.getSelectionModel().getSelection();
+                	var randomInt = Math.floor(Math.random() * selection.length);
+                	var selectedDeck = selection[randomInt].data;
+                	Ext.example.msg('랜덤댁 선택',selectedDeck.name.toSpan('red',true)+'<br><br>'+selectedDeck.description);
+                	send({type:'mtgoRandomDeck',message:selectedDeck.name,size:selection.length});
+                }},
                 {text:'리스트 새로고침',handler:function(){ refresh(); }},
                 {text:'신규덱등록',tooltip:'새로운 덱을 생성한다',handler:function(){ newDeckWinToggle(); }}
             ]
         }],
         viewConfig: {stripeRows: true}
     });
+	
+	// ============================= 카드 리스트 ===================================
 	
 	var cardnameRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
     	var data = record.data;
@@ -130,73 +142,8 @@ Ext.onReady(function() {
         	}
 		}
     });
-	//cardGrid.itemdblclick();
 	
-	// 좌하단부 작업. 이름만 바꿔준다
-	var updateDeckRateinfo = function(){ Ext.getCmp('deckName').setText('<b>'+currentData.name+'</b>'); }
-	
-	var selectionchange = function(sm, selectedRecord) {
-        if (selectedRecord.length) {
-        	currettSelection = selectedRecord;
-        	currentData = selectedRecord[0].data;
-        	updateDeckRateinfo();
-        	refreshCard();
-        }
-        Ext.getCmp('winBtn').setDisabled(selectedRecord.length === 0);
-        Ext.getCmp('loseBtn').setDisabled(selectedRecord.length === 0);
-        Ext.getCmp('deckUpdateBtn').setDisabled(selectedRecord.length === 0);
-        Ext.getCmp('deckCalBtn').setDisabled(selectedRecord.length === 0);
-        Ext.getCmp('deckUpload.deckFile').setDisabled(selectedRecord.length === 0);
-    }
-	deckGrid.getSelectionModel().on('selectionchange',selectionchange );
-	
-	/** 덱 승리/패배 펑션 */
-	var updateCount = function(isWin){
-		var loadingMessage = '덱 정보를 업데이트중입니다... 잠시 기다려주세요 '.toSpan('red',true);
-    	Ext.getCmp('loadingMessage').setText(loadingMessage);
-    	var param = {id:currentData.id,isWin:isWin,isMinus:Ext.getCmp('isMinus').pressed};
-    	$.send('/rest/mtgo/updateWinRate',param,function(deckInfo){
-    		Ext.getCmp('loadingMessage').setText();
-    		var msg = isWin ? '승리'.toSpan('blue',true) : '패배'.toSpan('red',true);
-    		Ext.example.msg(deckInfo.name + ' : '+msg,'승패 : ' + deckInfo.win +'/'+ deckInfo.lose );
-    		refresh(currettSelection);
-    		updateDeckRateinfo();
-    	});	
-	}
-	
-	var uploadPanel = Ext.create('Ext.form.Panel', {
-        frame: true,height : 40,width : '100%',bodyPadding: '2 2 0',
-        items: [
-			{xtype: 'textfield',id:'deckUpload.id',name: 'id',anchor:'100%',hidden:true},
-			{xtype: 'filefield',id:'deckUpload.deckFile',name: 'deckFile',buttonOnly: true,hideLabel: true,buttonText: '덱 업로드',width : '100%',disabled:true,
-            listeners: {'change': function(fb, v){
-            		var loadingMessage = '덱 정보를 업로드중입니다. 잠시 기다려주세요 '.toSpan('red',true);
-            		Ext.getCmp('loadingMessage').setText(loadingMessage);
-            		Ext.getCmp('deckUpload.id').setValue(currentData.id);
-                	var form = this.up('form').getForm();
-                	form.submit({
-                        url: '/rest/mtgo/upload',waitMsg: '파일 업로드 중입니다....',
-	                	success: function(form, action) { 
-	                		refresh();
-	                		Ext.example.msg('업데이트','덱 리스트가 갱신되었습니다');
-	                		Ext.getCmp('loadingMessage').setText();
-	                	},
-	                	failure: function(form, action) { //실패로 나온다.. 걍 쓰자 ㅅㅂ 
-	                		refresh();
-	                		Ext.example.msg('업데이트','덱 리스트가 갱신되었습니다');
-	                		Ext.getCmp('loadingMessage').setText();
-	                	}
-                    });}}}
-			]
-    });
-	
-	/** margins은 순서대로 상우하좌 이다. (시계방향) 하단 30을 줘야 ㅅㅂ 와꾸가 맞는다. 아마 헤더부분 때문인듯 */
-	var viewport = Ext.create('Ext.Viewport', {
-		layout : 'border',renderTo:'here',
-		items : [ {region : 'west',align : 'stretch',pack : 'start',width : 650,margins : '5 5 30 5',layout : 'vbox',items : [deckGrid]}, 
-		          {region : 'center',margins : '5 5 5 0' ,items : [uploadPanel,cardGrid] }]
-	});
-
+	// ============================= 덱 수정삭제 팝업 ===================================
     var deckTypeCombo = Ext.create('Ext.form.field.ComboBox', {
     	id:'deck.type',fieldLabel: '덱타입',displayField: 'label',valueField: 'value',anchor:'100%',queryMode: 'local',name:'type',
         store: new Ext.data.JsonStore({ fields: ['value','label'],data: <%= DeckType.JSON %>})
@@ -259,7 +206,65 @@ Ext.onReady(function() {
 	    		Ext.getCmp('deleteBtn').setDisabled(false);
 	    	}
 	    }
+    }	
+	
+	// ============================= 이벤트 ===================================
+
+	/** 덱리스트 클릭 */
+	var selectionchange = function(sm, selectedRecord) {
+        if (selectedRecord.length==1) {
+        	currettSelection = selectedRecord;
+        	currentData = selectedRecord[0].data;
+        	Ext.getCmp('deckName').setText('<b>'+currentData.name+'</b>');
+        	refreshCard();
+        }
+        Ext.getCmp('winBtn').setDisabled(selectedRecord.length === 0);
+        Ext.getCmp('loseBtn').setDisabled(selectedRecord.length === 0);
+        Ext.getCmp('deckUpdateBtn').setDisabled(selectedRecord.length === 0);
+        Ext.getCmp('deckCalBtn').setDisabled(selectedRecord.length === 0);
+        Ext.getCmp('deckUpload.deckFile').setDisabled(selectedRecord.length === 0);
     }
+	deckGrid.getSelectionModel().on('selectionchange',selectionchange );
+	
+	/** 덱 승리/패배 펑션 */
+	var updateCount = function(isWin){
+		var loadingMessage = '덱 정보를 업데이트중입니다... 잠시 기다려주세요 '.toSpan('red',true);
+    	Ext.getCmp('loadingMessage').setText(loadingMessage);
+    	var param = {id:currentData.id,isWin:isWin,isMinus:Ext.getCmp('isMinus').pressed};
+    	$.send('/rest/mtgo/updateWinRate',param,function(deckInfo){
+    		Ext.getCmp('loadingMessage').setText();
+    		var msg = isWin ? '승리'.toSpan('blue',true) : '패배'.toSpan('red',true);
+    		Ext.example.msg(deckInfo.name + ' : '+msg,'승패 : ' + deckInfo.win +'/'+ deckInfo.lose );
+    		refresh(currettSelection);
+    	});	
+	}
+	
+	var uploadPanel = Ext.create('Ext.form.Panel', {
+        frame: true,height : 40,width : '100%',bodyPadding: '2 2 0',
+        items: [
+			{xtype: 'textfield',id:'deckUpload.id',name: 'id',anchor:'100%',hidden:true},
+			{xtype: 'filefield',id:'deckUpload.deckFile',name: 'deckFile',buttonOnly: true,hideLabel: true,buttonText: '덱 업로드',width : '100%',disabled:true,
+            listeners: {'change': function(fb, v){
+            		var loadingMessage = '덱 정보를 업로드중입니다. 잠시 기다려주세요 '.toSpan('red',true);
+            		Ext.getCmp('loadingMessage').setText(loadingMessage);
+            		Ext.getCmp('deckUpload.id').setValue(currentData.id);
+                	var form = this.up('form').getForm();
+                	form.submit({
+                        url: '/rest/mtgo/upload',waitMsg: '파일 업로드 중입니다....',
+	                	success: function(form, action) { 
+	                		refresh();
+	                		Ext.example.msg('업데이트','덱 리스트가 갱신되었습니다');
+	                		Ext.getCmp('loadingMessage').setText();
+	                	},
+	                	failure: function(form, action) { //실패로 나온다.. 걍 쓰자 ㅅㅂ 
+	                		refresh();
+	                		Ext.example.msg('업데이트','덱 리스트가 갱신되었습니다');
+	                		Ext.getCmp('loadingMessage').setText();
+	                	}
+                    });}}}
+			]
+    });
+	
     var refresh = function(selection){
     	$.send('/rest/mtgo/list',newDeckForm.getValues(),function(message){
     		deckStore.loadData(message);
@@ -274,6 +279,16 @@ Ext.onReady(function() {
     		Ext.getCmp('loadingMessage').setText();
     	});	
     }
+    
+	// ============================= 빌드 ===================================
+	
+	/** margins은 순서대로 상우하좌 이다. (시계방향) 하단 30을 줘야 ㅅㅂ 와꾸가 맞는다. 아마 헤더부분 때문인듯 */
+	var viewport = Ext.create('Ext.Viewport', {
+		layout : 'border',renderTo:'here',
+		items : [ {region : 'west',align : 'stretch',pack : 'start',width : 650,margins : '5 5 30 5',layout : 'vbox',items : [deckGrid]}, 
+		          {region : 'center',margins : '5 5 5 0' ,items : [uploadPanel,cardGrid] }]
+	});
+    
     refresh();
 });
 	
