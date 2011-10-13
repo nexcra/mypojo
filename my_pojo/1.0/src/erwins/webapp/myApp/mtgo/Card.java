@@ -30,15 +30,13 @@ public class Card implements RootEntity<Card>, Serializable{
 	@Persistent
 	private String cost;
 	@Persistent
-	private String price;
+	private BigDecimal price;
 	@Persistent
 	private String edition;
 	@Persistent
 	private String url;
 	@Persistent
 	private Integer quantity;
-	@NotPersistent
-	private BigDecimal money; //단순히 계산하기위한 용도임
 	@NotPersistent
 	int rownum;
 	
@@ -53,12 +51,6 @@ public class Card implements RootEntity<Card>, Serializable{
 	}
 	public void setUrl(String url) {
 		this.url = url;
-	}
-	public String getPrice() {
-		return price;
-	}
-	public void setPrice(String price) {
-		this.price = price;
 	}
 	public String getCost() {
 		return cost;
@@ -78,12 +70,6 @@ public class Card implements RootEntity<Card>, Serializable{
 	public void setRarity(String rarity) {
 		this.rarity = rarity;
 	}
-	public BigDecimal getMoney() {
-		return money;
-	}
-	public void setMoney(BigDecimal money) {
-		this.money = money;
-	}
 	public String getEdition() {
 		return edition;
 	}
@@ -96,6 +82,13 @@ public class Card implements RootEntity<Card>, Serializable{
 	public void setQuantity(Integer quantity) {
 		this.quantity = quantity;
 	}
+	
+	public BigDecimal getPrice() {
+		return price;
+	}
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
 	@Override
 	public String getId() {
 		return id;
@@ -107,7 +100,7 @@ public class Card implements RootEntity<Card>, Serializable{
 	@Override
 	public int compareTo(Card o) {
 		if(price==null || o.price==null) return 0;
-		int order = new BigDecimal(price).compareTo(new BigDecimal(o.price)) * -1;
+		int order = price.compareTo(o.price) * -1;
 		if(order==0) order = cardName.compareTo(o.cardName); 
 		return order;
 	}

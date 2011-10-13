@@ -32,14 +32,13 @@ class MTGO{
 				
 				list = list.collect { findDetail(it) }
 				//def avgHalf = list.sum{it.money} / list.size() / 2  //평균가의 절반 이하는 이벤트 카드로 보고 제외한다.
-				def oneCard = list.findAll { it.money != 0.01 }.  min { it.money } //0.01이 아닌걸로 수정
+				def oneCard = list.findAll { it.price != 0.01 }.  min { it.price } //0.01이 아닌걸로 수정
 				card.type = oneCard.type;
 				card.cost = oneCard.cost;
 				card.edition = oneCard.edition;
 				card.rarity = oneCard.rarity;
 				card.price = oneCard.price;
 				card.url = oneCard.url;
-				card.money = oneCard.money;
 			}catch(e){
 				println e
 			}
@@ -57,10 +56,9 @@ class MTGO{
 		card.type = table.TR[2].TD[1].text().replaceAll(" ", "")
 		card.edition = table.TR[5].TD[1].text().replaceAll(" ", "")
 		card.rarity = table.TR[6].TD[1].text().replaceAll(" ", "")
-		card.price = priceText
 		card.url = ROOT_URL+map.url
-		if(priceText.trim()=='') card.money =  new BigDecimal('0.01') //가격표시가 되어있지 않으면 0.01로 간주한다.(이벤트일듯)
-		else card.money = new BigDecimal( priceText )
+		if(priceText.trim()=='') card.price =  new BigDecimal('0.01') //가격표시가 되어있지 않으면 0.01로 간주한다.(이벤트일듯)
+		else card.price = new BigDecimal( priceText )
 		return card
 	}
 }

@@ -40,12 +40,17 @@ Ext.onReady(function() {
     	else if(type=='pauper') label = label.toSpan('red');
         return label
     }
+    var descriptionRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
+    	var data = record.data;
+    	metaData.tdAttr = 'data-qtip="'+data.description+'"'
+        return val
+    }
     
-    var W = '<span style="background:white;color:black">&nbsp;W&nbsp;<span>';
-    var U = '<span style="background:blue;color:white">&nbsp;U&nbsp;<span>';
-    var B = '<span style="background:black;color:white">&nbsp;B&nbsp;<span>';
-    var R = '<span style="background:red;color:white">&nbsp;R&nbsp;<span>';
-    var G = '<span style="background:green;color:white">&nbsp;G&nbsp;<span>';
+    var W = '<span style="background:white;color:black;font-weight:bold;">&nbsp;W&nbsp;</span>';
+    var U = '<span style="background:blue;color:white;font-weight:bold;">&nbsp;U&nbsp;</span>';
+    var B = '<span style="background:black;color:white;font-weight:bold;">&nbsp;B&nbsp;</span>';
+    var R = '<span style="background:red;color:white;font-weight:bold;">&nbsp;R&nbsp;</span>';
+    var G = '<span style="background:green;color:white;font-weight:bold;">&nbsp;G&nbsp;</span>';
     var deckcolorRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
     	var data = record.data;
     	var colors = data.colors;
@@ -67,8 +72,8 @@ Ext.onReady(function() {
 			Ext.create('Ext.grid.RowNumberer'),
             {text : '타입',width : 80,dataIndex: 'type'},
             {text : '덱이름',flex : 1,renderer :decknameRenderer},
-            {text : '비고',width : 150,dataIndex: 'description'},
-            {text : '덱컬러',width : 80,renderer:deckcolorRenderer,align:'center'},
+            {text : '비고',width : 180,dataIndex: 'description',renderer:descriptionRenderer},
+            {text : '덱컬러',width : 85,renderer:deckcolorRenderer,align:'right'},
             {text : '가격($)',width : 60,dataIndex: 'sumOfPrice',align:'right'},
             {text : '승',width : 40,dataIndex: 'win',align:'right'},
             {text : '패',width : 40,dataIndex: 'lose',align:'right'},
@@ -85,6 +90,7 @@ Ext.onReady(function() {
                 	send({type:'mtgoRandomDeck',message:selectedDeck.name,size:selection.length});
                 }},
                 {text:'리스트 새로고침',handler:function(){ refresh(); }},
+                {id:'deckUpdateBtn',disabled:true,text:'덱 수정/삭제',tooltip:'이미 생성된 덱의 정보를 수정한다.',handler:function(){ newDeckWinToggle(currentData); }},
                 {text:'신규덱등록',tooltip:'새로운 덱을 생성한다',handler:function(){ newDeckWinToggle(); }}
             ]
         }],
@@ -104,15 +110,15 @@ Ext.onReady(function() {
     }
 	
 	var cardGrid = Ext.create('Ext.grid.Panel', {
-		store:cardStore,flex:1,width: 800,border:false,autoScroll:true,
+		store:cardStore,flex:1,width: 660,border:false,autoScroll:true,
         columns: [
-            {text : '카드이름',flex : 1,renderer :cardnameRenderer},
+            {text : '카드이름',flex : 1,dataIndex: 'name',renderer :cardnameRenderer},
             {text : '수량',width : 40,dataIndex: 'quantity',align:'center'},
-            {text : '타입',width : 150,dataIndex: 'type'},
+            {text : '타입',width : 140,dataIndex: 'type'},
             {text : '희귀도',width : 70,dataIndex: 'rarity'},
             {text : '발비',width : 50,dataIndex: 'cost'},
             {text : '가격($)',width : 50,dataIndex: 'price',align:'right'},
-            {text : '에디션',width : 200,dataIndex: 'edition'}
+            {text : '에디션',width : 130,dataIndex: 'edition'}
             //{text : 'URL',width : 150,dataIndex: 'url'}
         ],
         dockedItems: [{
@@ -121,7 +127,6 @@ Ext.onReady(function() {
                 {text:'증가/감소',enableToggle: true,id:'isMinus'},'-',
 		        {text:'<span style="color:blue;font-weight:bold;" >win</span>',id:'winBtn',disabled: true,handler: function(){updateCount(true);}},
 		        {text:'<span style="color:red;font-weight:bold;" >lose</span>',id:'loseBtn',disabled: true,handler: function(){updateCount(false);}},'-',
-				{id:'deckUpdateBtn',disabled:true,text:'덱 수정/삭제',tooltip:'이미 생성된 덱의 정보를 수정한다.',handler:function(){ newDeckWinToggle(currentData); }},'-',
 				{id:'deckCalBtn',disabled:true,text:'덱 가격산정',tooltip:'업로드된 덱의 가격을 산정한다.',handler:function(){
 					var loadingMessage = '카드의 가격 정보를 가져오는중입니다. 잠시 기다려주세요 '.toSpan('red',true);
             		Ext.getCmp('loadingMessage').setText(loadingMessage);
@@ -277,7 +282,7 @@ Ext.onReady(function() {
     	$.send('/rest/mtgo/cardList',{id:currentData.id},function(message){
     		cardStore.loadData(message);
     		Ext.getCmp('loadingMessage').setText();
-    	});	
+    	});
     }
     
 	// ============================= 빌드 ===================================
@@ -285,7 +290,7 @@ Ext.onReady(function() {
 	/** margins은 순서대로 상우하좌 이다. (시계방향) 하단 30을 줘야 ㅅㅂ 와꾸가 맞는다. 아마 헤더부분 때문인듯 */
 	var viewport = Ext.create('Ext.Viewport', {
 		layout : 'border',renderTo:'here',
-		items : [ {region : 'west',align : 'stretch',pack : 'start',width : 650,margins : '5 5 30 5',layout : 'vbox',items : [deckGrid]}, 
+		items : [ {region : 'west',align : 'stretch',pack : 'start',width : 780,margins : '5 5 30 5',layout : 'vbox',items : [deckGrid]}, 
 		          {region : 'center',margins : '5 5 5 0' ,items : [uploadPanel,cardGrid] }]
 	});
     
