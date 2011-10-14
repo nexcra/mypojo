@@ -170,7 +170,10 @@ public class Deck implements RootEntity<Deck>, Serializable, GoogleUserEntity {
 
 	@Override
 	public int compareTo(Deck o) {
-		if(sumOfPrice==null || o.sumOfPrice==null) return type.compareTo(o.type);
+		if(sumOfPrice==null || o.sumOfPrice==null){
+			if(type==null || o.type==null) return 0;
+			return type.compareTo(o.type);
+		}
 		int order = sumOfPrice.compareTo(o.sumOfPrice) * -1;
 		return order;
 	}

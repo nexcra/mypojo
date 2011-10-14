@@ -71,9 +71,9 @@ Ext.onReady(function() {
         columns: [
 			Ext.create('Ext.grid.RowNumberer'),
             {text : '타입',width : 80,dataIndex: 'type'},
+            {text : '덱컬러',width : 85,renderer:deckcolorRenderer,align:'right'},
             {text : '덱이름',flex : 1,renderer :decknameRenderer},
             {text : '비고',width : 180,dataIndex: 'description',renderer:descriptionRenderer},
-            {text : '덱컬러',width : 85,renderer:deckcolorRenderer,align:'right'},
             {text : '가격($)',width : 60,dataIndex: 'sumOfPrice',align:'right'},
             {text : '승',width : 40,dataIndex: 'win',align:'right'},
             {text : '패',width : 40,dataIndex: 'lose',align:'right'},
@@ -101,9 +101,11 @@ Ext.onReady(function() {
 	
 	var cardnameRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
     	var data = record.data;
+    	var imgTag = "<img src='"+ data.imageUrl +"' >";
+    	metaData.tdAttr = 'data-qtip="'+imgTag+'"'
     	var rarity = data.rarity;
     	var label = data.cardName;
-    	if(rarity=='Mythic') label = label.toSpan('red',true);
+    	if(rarity=='Mythic Rare') label = label.toSpan('red',true);
     	else if(rarity=='Rare') label = label.toSpan('blue',true);
     	else if(rarity=='Uncommon') label = label.toSpan('green',true);
         return label
@@ -143,7 +145,8 @@ Ext.onReady(function() {
         	'cellclick' : function(grid,index,cellIndex,e){ // do something }
         		if(cellIndex !=0) return;
         		var url = e.data.url;
-        		window.open(url,"카드","width=900px,height=500px");
+        		window.open(url,"카드","width=660px,height=580px");
+        		//window.open(e.data.imageUrl,"카드","width=660px,height=580px");
         	}
 		}
     });

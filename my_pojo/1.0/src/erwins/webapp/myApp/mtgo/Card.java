@@ -36,6 +36,8 @@ public class Card implements RootEntity<Card>, Serializable{
 	@Persistent
 	private String url;
 	@Persistent
+	private String imageUrl;
+	@Persistent
 	private Integer quantity;
 	@NotPersistent
 	int rownum;
@@ -116,6 +118,12 @@ public class Card implements RootEntity<Card>, Serializable{
 	@Override
 	public void mergeByClientValue(Card client) {
 		
+	}
+	public String getImageUrl() {
+		return imageUrl;
+	}
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 	
 }

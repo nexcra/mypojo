@@ -32,7 +32,8 @@ public class DeckService extends GenericAppEngineService<Deck>{
     
     public void deckCal(String id){
     	Deck server = deckDao.getById(id);
-    	new MTGO().loadCard(server.getCards());
+    	//new MTGO().loadCard(server.getCards());
+    	TcgPlayer.loadCard(server.getCards());
     	BigDecimal sum = BigDecimal.ZERO;
     	for(Card each : server.getCards()){
     		if(each.getPrice()!=null){

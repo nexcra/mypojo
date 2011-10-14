@@ -4,6 +4,8 @@ package erwins.webapp.myApp.mtgo
 
 import static org.junit.Assert.*
 
+
+
 import org.cyberneko.html.parsers.SAXParser
 
 import erwins.util.lib.StringEscapeUtil
@@ -11,6 +13,7 @@ import erwins.util.lib.StringUtil
 import erwins.util.temp.UrlConnection
 import erwins.util.tools.GroovyXml
 
+/** 카드 업데이트가 느려서 이제 안씀 */
 class MTGO{
 
 	def static final ROOT_URL = 'http://findmagiccards.com'
