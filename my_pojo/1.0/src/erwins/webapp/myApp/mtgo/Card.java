@@ -9,6 +9,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import erwins.util.temp.StringTemp;
 import erwins.webapp.myApp.RootEntity;
 
 @PersistenceCapable
@@ -101,23 +102,17 @@ public class Card implements RootEntity<Card>, Serializable{
 	}
 	@Override
 	public int compareTo(Card o) {
-		if(price==null || o.price==null) return 0;
-		int order = price.compareTo(o.price) * -1;
-		if(order==0) order = cardName.compareTo(o.cardName); 
+		int order = 0;
+		order = StringTemp.compareWith(order, price, o.price, false);
+		order = StringTemp.compareWith(order, cardName, o.cardName, true);
 		return order;
 	}
+	
 	public int getRownum() {
 		return rownum;
 	}
 	public void setRownum(int rownum) {
 		this.rownum = rownum;
-	}
-	@Override
-	public void initValue() {
-	}
-	@Override
-	public void mergeByClientValue(Card client) {
-		
 	}
 	public String getImageUrl() {
 		return imageUrl;

@@ -1,8 +1,8 @@
-<!-- Indices written at Thu, 13 Oct 2011 07:57:10 UTC -->
+<!-- Indices written at Fri, 21 Oct 2011 06:08:59 UTC -->
 
 <datastore-indexes>
 
-    <!-- Used 13 times in query history -->
+    <!-- Used 18 times in query history -->
     <datastore-index kind="Card" ancestor="true" source="auto">
         <property name="cards_INTEGER_IDX" direction="asc"/>
     </datastore-index>

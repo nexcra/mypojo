@@ -13,7 +13,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import erwins.webapp.myApp.Current;
+import erwins.util.temp.StringTemp;
 import erwins.webapp.myApp.GoogleUserEntity;
 import erwins.webapp.myApp.RootEntity;
 
@@ -170,28 +170,10 @@ public class Deck implements RootEntity<Deck>, Serializable, GoogleUserEntity {
 
 	@Override
 	public int compareTo(Deck o) {
-		if(sumOfPrice==null || o.sumOfPrice==null){
-			if(type==null || o.type==null) return 0;
-			return type.compareTo(o.type);
-		}
-		int order = sumOfPrice.compareTo(o.sumOfPrice) * -1;
+		int order = 0;
+		order = StringTemp.compareWith(order, type, o.type, true);
+		order = StringTemp.compareWith(order, name, o.name,true);
 		return order;
-	}
-
-	@Override
-	public void initValue() {
-		Date date = new Date();
-		setUpdateDate(date);
-		if(id==null) setCreateDate(date);		
-	}
-
-	@Override
-	public void mergeByClientValue(Deck client) {
-		Current.getInfo().constraintByUser(this);
-		setColors(client.colors);
-		setName(client.name);
-		setType(client.type);
-		setDescription(client.description);
 	}
 	
 

@@ -19,18 +19,18 @@ Ext.onReady(function() {
     	         ,{name: 'price', sortDir: 'DESC', sortType: 'asFloat', type: 'double'}]
     });
     var winRateCal = function(data){
-    	if(data.win==0) return 0+'%';
+    	if(data.win==0) return 0;
     	var rate = data.win / (data.win + data.lose);
     	rate = Math.round(rate*100*100)/100;
         return  rate ;
     }
     var winRateRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
     	var data = record.data;
-    	var rate = winRateCal(data);
-    	if(rate > 70) return  (rate+'%').toSpan('red',true);
-    	else if(rate > 60) return  (rate+'%').toSpan('blue',true);
-    	else if(rate > 50) return  (rate+'%').toSpan('green');
-    	else return  rate+'%';
+    	var rate = winRateCal(data)+'';
+    	if(rate > 70) return  rate.toSpan('red',true);
+    	else if(rate > 60) return  rate.toSpan('blue',true);
+    	else if(rate > 50) return  rate.toSpan('green');
+    	else return  rate;
     }
     var decknameRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
     	var data = record.data;
@@ -81,9 +81,20 @@ Ext.onReady(function() {
         ],
         dockedItems: [{
             xtype: 'toolbar',
-            items: ['<b>덱리스트</b>','->',
+            items: ['<b>덱리스트</b>',{id:'userName',text:''},'-',
+				{id:'myDeckBtn',text:'내덱보기',handler:function(){
+					userIdForDeckList = '';
+					refresh();
+				}},
+				{id:'otherDeckBtn',text:'다른사람덱보기',handler:function(){ 
+					$.send('/rest/user/search',null,function(message){
+			    		userStore.loadData(message);
+			    		userSearchWin.show();
+			    	});
+				}},'-','->',
                 {text:'랜덤덱 선택',handler:function(){
                 	var selection = deckGrid.getSelectionModel().getSelection();
+                	if(selection.length==0) return;
                 	var randomInt = Math.floor(Math.random() * selection.length);
                 	var selectedDeck = selection[randomInt].data;
                 	Ext.example.msg('랜덤댁 선택',selectedDeck.name.toSpan('red',true)+'<br><br>'+selectedDeck.description);
@@ -110,9 +121,9 @@ Ext.onReady(function() {
     	else if(rarity=='Uncommon') label = label.toSpan('green',true);
         return label
     }
-	
+	//660
 	var cardGrid = Ext.create('Ext.grid.Panel', {
-		store:cardStore,flex:1,width: 660,border:false,autoScroll:true,
+		store:cardStore,flex:1,width: 660,height:690,  border:true,autoScroll:true,
         columns: [
             {text : '카드이름',flex : 1,dataIndex: 'name',renderer :cardnameRenderer},
             {text : '수량',width : 40,dataIndex: 'quantity',align:'center'},
@@ -214,23 +225,25 @@ Ext.onReady(function() {
 	    		Ext.getCmp('deleteBtn').setDisabled(false);
 	    	}
 	    }
-    }	
+    }
 	
 	// ============================= 이벤트 ===================================
-
 	/** 덱리스트 클릭 */
 	var selectionchange = function(sm, selectedRecord) {
+		var disabled = true;
         if (selectedRecord.length==1) {
         	currettSelection = selectedRecord;
         	currentData = selectedRecord[0].data;
         	Ext.getCmp('deckName').setText('<b>'+currentData.name+'</b>');
         	refreshCard();
+        	disabled = false;
         }
-        Ext.getCmp('winBtn').setDisabled(selectedRecord.length === 0);
-        Ext.getCmp('loseBtn').setDisabled(selectedRecord.length === 0);
-        Ext.getCmp('deckUpdateBtn').setDisabled(selectedRecord.length === 0);
-        Ext.getCmp('deckCalBtn').setDisabled(selectedRecord.length === 0);
-        Ext.getCmp('deckUpload.deckFile').setDisabled(selectedRecord.length === 0);
+        if(userIdForDeckList != '') disabled = true;
+        Ext.getCmp('winBtn').setDisabled(disabled);
+        Ext.getCmp('loseBtn').setDisabled(disabled);
+        Ext.getCmp('deckUpdateBtn').setDisabled(disabled);
+        Ext.getCmp('deckCalBtn').setDisabled(disabled);
+        Ext.getCmp('deckUpload.deckFile').setDisabled(disabled);
     }
 	deckGrid.getSelectionModel().on('selectionchange',selectionchange );
 	
@@ -274,7 +287,8 @@ Ext.onReady(function() {
     });
 	
     var refresh = function(selection){
-    	$.send('/rest/mtgo/list',newDeckForm.getValues(),function(message){
+    	$.send('/rest/mtgo/list',{userIdForDeckList:userIdForDeckList},function(message,body){
+    		Ext.getCmp('userName').setText(body.GoogleUser.nickname);
     		deckStore.loadData(message);
     		if(selection!=null) deckGrid.getSelectionModel().select(selection);
     	});	
@@ -287,6 +301,33 @@ Ext.onReady(function() {
     		Ext.getCmp('loadingMessage').setText();
     	});
     }
+    
+ 	// ============================= 사용자 검색 팝업 팝업 ===================================
+	var userStore = new Ext.data.JsonStore({ fields: ['id','nickname','googleEmail','lastAccess'] });
+ 	var userIdForDeckList = '';
+	 		
+	var userSearchPopup = Ext.create('Ext.grid.Panel', {
+		store:userStore,width: 400,height:500,  border:true,autoScroll:true,
+        columns: [
+            {text : '이름',flex : 1,dataIndex: 'nickname'},
+            {text : 'E-mail',width : 140,dataIndex: 'googleEmail'},
+            {text : '최근접속시각',width : 150,dataIndex: 'lastAccess',align:'center'}
+        ],
+        viewConfig: {stripeRows: true},
+        listeners : {   ///아오~~ 몰라서 걍 일케 진행
+        	'cellclick' : function(grid,index,cellIndex,e){ // do something }
+        		var id = e.data.id;
+        		userIdForDeckList = id;
+        		userSearchWin.hide();
+        		refresh();
+        	}
+		}
+    });
+	
+	var userSearchWin = Ext.create('widget.window', {
+        closable: true,closeAction: 'hide',width: 400,height: 500,
+        title: '플레이어 선택',layout: 'fit',items: userSearchPopup
+  	});
     
 	// ============================= 빌드 ===================================
 	

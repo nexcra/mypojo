@@ -42,3 +42,4 @@ html, body {
 <script src="/js/erwins/jQueryEx.js" type="text/javascript" ></script>
 <script src="/js/erwins/Tool.js" type="text/javascript" ></script>
 <script src="/js/erwins/PrototypeEx.js" type="text/javascript" ></script>
+<link rel="stylesheet" type="text/css" href="/js/erwins/defaultCss.css" />

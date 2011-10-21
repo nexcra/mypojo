@@ -13,10 +13,11 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import erwins.webapp.myApp.GoogleUserEntity;
 import erwins.webapp.myApp.RootEntity;
 
 @PersistenceCapable(identityType=IdentityType.APPLICATION)
-public class GoogleUser implements RootEntity<GoogleUser>,Serializable{
+public class GoogleUser implements RootEntity<GoogleUser>,Serializable,GoogleUserEntity{
 	
 	private static final long serialVersionUID = 1;
 	public static final String ROLE_USER = "user";
@@ -128,13 +129,19 @@ public class GoogleUser implements RootEntity<GoogleUser>,Serializable{
 		return order;
 	}
 	@Override
-	public void initValue() {
-		Date date = new Date();
-		setUpdateDate(date);
-		if(id==null) setCreateDate(date);
+	public String getGoogleUserId() {
+		return id;
 	}
 	@Override
-	public void mergeByClientValue(GoogleUser client) {
-		setNickname(client.getNickname());
+	public String getGoogleUserName() {
+		return nickname;
+	}
+	@Override
+	public void setGoogleUserName(String nickname) {
+		this.nickname = nickname;
+	}
+	@Override
+	public void setGoogleUserId(String googleUserId) {
+		this.id = googleUserId;
 	}
 }

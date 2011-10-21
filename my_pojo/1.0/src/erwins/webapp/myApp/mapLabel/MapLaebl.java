@@ -14,7 +14,6 @@ import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Text;
 
-import erwins.webapp.myApp.Current;
 import erwins.webapp.myApp.GoogleUserEntity;
 import erwins.webapp.myApp.RootEntity;
 
@@ -121,21 +120,6 @@ public class MapLaebl implements RootEntity<MapLaebl>,Serializable,GoogleUserEnt
 	@Override
 	public void setRownum(int rownum) {
 		this.rownum = rownum;
-	}
-	@Override
-	public void initValue() {
-		Date date = new Date();
-		setUpdateDate(date);
-		if(id==null) setCreateDate(date);
-	}
-	@Override
-	public void mergeByClientValue(MapLaebl client) {
-		Current.getInfo().constraintByUser(this);
-		setDescription(client.getDescription());
-		setDisplayType(client.getDisplayType());
-		setLabel(client.getLabel());
-		setLat(client.getLat());
-		setLng(client.getLng());
 	}
 
 }

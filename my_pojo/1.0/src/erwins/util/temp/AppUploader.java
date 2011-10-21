@@ -27,6 +27,7 @@ public class AppUploader{
 		ServletFileUpload upload = new ServletFileUpload();
 		upload.setFileSizeMax(fileSizeMax);
 		upload.setHeaderEncoding(encode);
+		//upload.setHeaderEncoding(encode);
 		Map<String,Object> map = new HashMap<String,Object>();
 		try {
 			FileItemIterator iterator = upload.getItemIterator(req);

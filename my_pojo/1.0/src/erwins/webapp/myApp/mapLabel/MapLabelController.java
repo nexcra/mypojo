@@ -47,16 +47,14 @@ public class MapLabelController extends RootController{
     public View save(HttpServletRequest req) {
     	MapLaebl suser = mapToBean.build(requestToMap.toMap(req), MapLaebl.class);
     	SessionInfo info = Current.getInfo();
-    	info.setGoogleId(suser);
-    	suser = mapLabelService.saveOrMerge(suser);
-    	return new AjaxView(suser.getId());
+    	info.constraintByUser(suser);
+    	String existId = mapLabelService.saveOrMerge(suser);
+    	return new AjaxView(existId);
     }
     
     @RequestMapping("/remove")
     public View remove(@RequestParam String id) {
-    	MapLaebl entity = mapLabelService.getById(id);
-    	Current.getInfo().constraintAdminOrUser(entity); //일케하면 안된다. 나중에 서비스를 공용으로 하던가 할것 
-    	mapLabelService.delete(entity.getId());
+    	mapLabelService.delete(id);
     	return new AjaxView("정상적으로 삭제되었습니다.");
     }
     

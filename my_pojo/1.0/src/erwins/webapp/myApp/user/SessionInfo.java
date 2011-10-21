@@ -43,30 +43,34 @@ public class SessionInfo{
 	public boolean isAdmin() {
 		return isRoleAble(GoogleUser.ROLE_ADMIN);
 	}
-	public void constraintLogin() {
-		if(!isLogin()) throw new LoginRequiredException();
-	}
-	public void setGoogleId(GoogleUserEntity entity) {
-		constraintLogin();
+	public void initGoogleId(GoogleUserEntity entity) {
 		entity.setGoogleUserId(getUser().getId());
-	}
-	public void constraintByAdmin() {
-		constraintLogin();
-		if(!isRoleAble(GoogleUser.ROLE_ADMIN)) throw new BusinessException("관리자 권한만 가능합니다.");
-	}
-	public void constraintByUser(GoogleUserEntity doc) {
-		constraintByUser(doc.getGoogleUserId());
-	}
-	/** id로 직접 삭제하는 로직 등에서만 제한적으로 사용된다. */
-	public void constraintByUser(String id) {
-		constraintLogin();
-		if(!user.getId().equals(id)) throw new BusinessException("해당 문서의 작성자만 처리 가능합니다.");
-	}
-	public void constraintAdminOrUser(GoogleUserEntity doc) {
-		constraintLogin();
-		if(!user.getId().equals(doc.getGoogleUserId())) constraintByAdmin();
 	}
 	public void setLogin(boolean login) {
 		this.login = login;
 	}
+	
+	
+	public SessionInfo constraintLogin() {
+		if(!isLogin()) throw new LoginRequiredException();
+		return this;
+	}
+	
+	public SessionInfo constraintByAdmin() {
+		if(!isRoleAble(GoogleUser.ROLE_ADMIN)) throw new BusinessException("관리자 권한만 가능합니다.");
+		return this;
+	}
+	
+	/** 해당 사용자의 권한을 확인하거나 , 사용자를 입력해준다. */
+	public SessionInfo constraintByUser(GoogleUserEntity doc) {
+		String id = doc.getGoogleUserId();
+		if(!user.getId().equals(id)) throw new BusinessException("해당 문서의 작성자만 처리 가능합니다."); 
+		return this;
+	}
+	
+	public SessionInfo constraintAdminOrUser(GoogleUserEntity doc) {
+		if(!user.getId().equals(doc.getGoogleUserId())) constraintByAdmin();
+		return this;
+	}
+
 }

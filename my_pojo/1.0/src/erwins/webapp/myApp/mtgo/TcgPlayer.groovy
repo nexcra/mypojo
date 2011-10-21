@@ -34,6 +34,7 @@ class TcgPlayer{
 				//레어도의 위치가 바뀐다.
 				card.rarity =  infoTable.TR[5].TD[1].FONT.toString().trim()
 				if(card.rarity=='') card.rarity = infoTable.TR[4].TD[1].FONT.toString().trim()
+				if(card.rarity=='') card.rarity = infoTable.TR[3].TD[1].FONT.toString().trim()
 				
 				card.imageUrl = ROOT_URL+main.TR[1].TD[2].TABLE.TR[1].TD[1].IMG.'@src'  //width/height : 200/285
 			}catch(e){
