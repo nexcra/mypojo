@@ -248,14 +248,24 @@ String.prototype.toDecimal = function() {
 
 /**
  * 문자열을 실수로 변환 후 3저리마다 ,를 찍어준다. Usage: string.toNumeric()
+ * fix가 2라면 1234.2 -> 1,234.20 으로 변환한다.
  */
-String.prototype.toNumeric = function() {
+String.prototype.toNumeric = function(fix) {
 	var extra = "";
 	var value = this.toDecimal().toString();
+	if(value=='NaN') return '0'; //이거 주의!
 	var index = value.indexOf(".");
 	if (index > 0) {
 		extra = value.substring(index);
 		value = value.substring(0, index);
+		
+		//검증안됨
+		if(fix!=null){
+			var added = fix - extra.length +1;
+			if(added > 0) for(var i=0;i<added;i++) extra+= '0';
+			else if(added < 0) extra = extra.substring(0,fix+1);
+		}
+		
 	}
 	var pattern = new RegExp("(\\-?[0-9]+)([0-9]{3})", "");
 	while (pattern.test(value)) {

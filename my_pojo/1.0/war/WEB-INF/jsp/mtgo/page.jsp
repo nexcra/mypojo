@@ -45,7 +45,9 @@ Ext.onReady(function() {
     	metaData.tdAttr = 'data-qtip="'+data.description+'"'
         return val
     }
-    
+    var priceRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
+        return val.toString().toNumeric(2);
+    }
     var W = '<span style="background:white;color:black;font-weight:bold;">&nbsp;W&nbsp;</span>';
     var U = '<span style="background:blue;color:white;font-weight:bold;">&nbsp;U&nbsp;</span>';
     var B = '<span style="background:black;color:white;font-weight:bold;">&nbsp;B&nbsp;</span>';
@@ -74,7 +76,7 @@ Ext.onReady(function() {
             {text : '덱컬러',width : 85,renderer:deckcolorRenderer,align:'right'},
             {text : '덱이름',flex : 1,renderer :decknameRenderer},
             {text : '비고',width : 180,dataIndex: 'description',renderer:descriptionRenderer},
-            {text : '가격($)',width : 60,dataIndex: 'sumOfPrice',align:'right'},
+            {text : '가격($)',width : 60,dataIndex: 'sumOfPrice',renderer:priceRenderer,align:'right'},
             {text : '승',width : 40,dataIndex: 'win',align:'right'},
             {text : '패',width : 40,dataIndex: 'lose',align:'right'},
             {text : '승율',width : 60,renderer :winRateRenderer,align:'right'}
