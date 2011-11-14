@@ -50,6 +50,7 @@ public class DeckService extends GenericAppEngineService<Deck>{
 			server.setName(client.getName());
 			server.setType(client.getType());
 			server.setDescription(client.getDescription());
+			server.setNote(client.getNote());
 			server.setUpdateDate(date);;
 			return server.getId();
 		}

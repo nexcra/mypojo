@@ -13,6 +13,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import com.google.appengine.api.datastore.Text;
+
 import erwins.util.temp.StringTemp;
 import erwins.webapp.myApp.GoogleUserEntity;
 import erwins.webapp.myApp.RootEntity;
@@ -35,6 +37,8 @@ public class Deck implements RootEntity<Deck>, Serializable, GoogleUserEntity {
 	private String name;
 	@Persistent
 	private String description;
+	@Persistent
+	private Text note;
 	@Persistent
 	private List<String> colors;
 	@Persistent
@@ -167,7 +171,12 @@ public class Deck implements RootEntity<Deck>, Serializable, GoogleUserEntity {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
+	public Text getNote() {
+		return note;
+	}
+	public void setNote(Text note) {
+		this.note = note;
+	}
 	@Override
 	public int compareTo(Deck o) {
 		int order = 0;

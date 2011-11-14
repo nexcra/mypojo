@@ -11,7 +11,7 @@ Ext.onReady(function() {
 	var currettSelection; //API를 더 숙지할 필요가 있다
 	
     var deckStore = new Ext.data.JsonStore({
-        fields: ['id','type','name','win','lose','colors','sumOfPrice','description']
+        fields: ['id','type','name','win','lose','colors','sumOfPrice','description','note']
     });
     var cardStore = new Ext.data.JsonStore({
     	//fields: ['cardName','type','rarity','cost','price','edition','matchSize','url','quantity']
@@ -36,15 +36,17 @@ Ext.onReady(function() {
     	var data = record.data;
     	var type = data.type;
     	var label = data.name;
+    	metaData.tdAttr = 'data-qtip="'+data.note+'"'
     	if(type=='standard') label = label.toSpan('blue',true);
     	else if(type=='pauper') label = label.toSpan('red');
-        return label
+        return label;
     }
+    /*
     var descriptionRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
     	var data = record.data;
-    	metaData.tdAttr = 'data-qtip="'+data.description+'"'
-        return val
-    }
+    	metaData.tdAttr = 'data-qtip="'+data.note+'"'
+        return val;
+    }*/
     var priceRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
         return val.toString().toNumeric(2);
     }
@@ -75,7 +77,7 @@ Ext.onReady(function() {
             {text : '타입',width : 80,dataIndex: 'type'},
             {text : '덱컬러',width : 85,renderer:deckcolorRenderer,align:'right'},
             {text : '덱이름',flex : 1,renderer :decknameRenderer},
-            {text : '비고',width : 180,dataIndex: 'description',renderer:descriptionRenderer},
+            {text : '비고',width : 180,dataIndex: 'description'},
             {text : '가격($)',width : 60,dataIndex: 'sumOfPrice',renderer:priceRenderer,align:'right'},
             {text : '승',width : 40,dataIndex: 'win',align:'right'},
             {text : '패',width : 40,dataIndex: 'lose',align:'right'},
@@ -185,7 +187,8 @@ Ext.onReady(function() {
                         {boxLabel: '<span style="color:red">R</span>',name: 'colors',inputValue:'R'},
                         {boxLabel: '<span style="color:green">G</span>',name: 'colors',inputValue:'G'}
                     ]
-                },deckTypeCombo],
+                },deckTypeCombo
+                ,{id:'deck.note',fieldLabel: '튜닝',name:'note',xtype:'textareafield',anchor:'100%',height:150}],
         buttons: [
             {text: 'delete',id:'deleteBtn',handler: function(){
             	$.send('/rest/mtgo/delete',newDeckForm.getValues(),function(message){
@@ -204,7 +207,7 @@ Ext.onReady(function() {
         ]
     });
 	var newDeckWin = Ext.create('widget.window', {
-        closable: true,closeAction: 'hide',width: 300,height: 200,
+        closable: true,closeAction: 'hide',width: 350,height: 350,
         title: '덱 등록/수정',layout: 'fit',items: newDeckForm
   	});
     var newDeckWinToggle = function(data){
@@ -215,6 +218,7 @@ Ext.onReady(function() {
 	    		Ext.getCmp('deck.id').setValue(''); //혹시 모르니 초기화
 	    		Ext.getCmp('deck.name').setValue('');
 	    		Ext.getCmp('deck.description').setValue('');
+	    		Ext.getCmp('deck.note').setValue('');
 	    		Ext.getCmp('deck.colors').setValue({colors:''});
 	    		Ext.getCmp('deck.type').setValue('');
 	    		Ext.getCmp('deleteBtn').setDisabled(true);
@@ -222,6 +226,7 @@ Ext.onReady(function() {
 	    		Ext.getCmp('deck.id').setValue(data.id);
 	    		Ext.getCmp('deck.name').setValue(data.name);
 	    		Ext.getCmp('deck.description').setValue(data.description);
+	    		Ext.getCmp('deck.note').setValue(data.note);
 	    		Ext.getCmp('deck.colors').setValue({colors:data.colors});
 	    		Ext.getCmp('deck.type').setValue(data.type);
 	    		Ext.getCmp('deleteBtn').setDisabled(false);
