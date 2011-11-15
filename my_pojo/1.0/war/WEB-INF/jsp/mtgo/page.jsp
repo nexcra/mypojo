@@ -7,7 +7,8 @@ Ext.require([ '*' ]);
 Ext.onReady(function() {
 	
 	// ============================= 덱리스트 ===================================
-	var currentData;
+	var currentData; //선택된 데이터
+	var loadedDeckId; // 카드 리스트가 로딩된 덱의 id. 이미 선택된 부분을 더블클릭시 불러오지 않게 하기위함이다.
 	var currettSelection; //API를 더 숙지할 필요가 있다
 	
     var deckStore = new Ext.data.JsonStore({
@@ -36,7 +37,9 @@ Ext.onReady(function() {
     	var data = record.data;
     	var type = data.type;
     	var label = data.name;
-    	metaData.tdAttr = 'data-qtip="'+data.note+'"'
+    	var note = data.note;
+    	if(note==null) note = '';
+    	metaData.tdAttr = 'data-qtip="'+note.replaceAll('\n','<br>')  +'"'
     	if(type=='standard') label = label.toSpan('blue',true);
     	else if(type=='pauper') label = label.toSpan('red');
         return label;
@@ -191,6 +194,7 @@ Ext.onReady(function() {
                 ,{id:'deck.note',fieldLabel: '튜닝',name:'note',xtype:'textareafield',anchor:'100%',height:150}],
         buttons: [
             {text: 'delete',id:'deleteBtn',handler: function(){
+            	if(!confirm('덱이 삭제됩니다. \n정말로?')) return;
             	$.send('/rest/mtgo/delete',newDeckForm.getValues(),function(message){
             		Ext.example.msg('덱 등록/수정',message);
             		newDeckWinToggle();
@@ -253,6 +257,7 @@ Ext.onReady(function() {
         Ext.getCmp('deckUpload.deckFile').setDisabled(disabled);
     }
 	deckGrid.getSelectionModel().on('selectionchange',selectionchange );
+	deckGrid.on('itemdblclick',function(){ newDeckWinToggle(currentData); });
 	
 	/** 덱 승리/패배 펑션 */
 	var updateCount = function(isWin){
@@ -301,6 +306,8 @@ Ext.onReady(function() {
     	});	
     }
     var refreshCard = function(){
+    	if(loadedDeckId == currentData.id) return; //기존 로드된게 현재랑 똑같다면 이벤트를 무시한다.
+    	loadedDeckId = currentData.id;
     	var loadingMessage = '카드 정보를 로딩중입니다... 잠시 기다려주세요 '.toSpan('red',true);
     	Ext.getCmp('loadingMessage').setText(loadingMessage);
     	$.send('/rest/mtgo/cardList',{id:currentData.id},function(message){

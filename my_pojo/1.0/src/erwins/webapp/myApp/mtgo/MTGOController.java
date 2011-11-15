@@ -120,6 +120,7 @@ public class MTGOController extends RootController {
 			cars.add(card);
 		}
 		deckService.updadteCard(id,cars);
+		deckService.deckCal(id); //별도의 트랜잭션에서 같이 되도록 추가함
 		return new AjaxTextView("{'success':true}"); //EXT js 는 일케 해야함.. ㅅㅂ 짱나. 한글도 깨진다.
 	}
 	
