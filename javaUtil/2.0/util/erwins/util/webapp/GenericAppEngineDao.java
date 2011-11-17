@@ -13,8 +13,6 @@ import org.springframework.orm.jdo.support.JdoDaoSupport;
 
 import erwins.util.lib.StringUtil;
 import erwins.util.root.EntityId;
-import erwins.util.root.EntityInit;
-import erwins.util.root.EntityMerge;
 
 public abstract class GenericAppEngineDao<T extends EntityId<String>>  extends JdoDaoSupport{
 	
@@ -73,10 +71,10 @@ public abstract class GenericAppEngineDao<T extends EntityId<String>>  extends J
 	}
 	/** 웬만하면 update용으로는 사용하지 말것!! 다이렉트update는 좋지않다. */
 	public T saveOrUpdate(T entity) {
-		if(entity instanceof EntityInit) ((EntityInit) entity).initValue();
+		//if(entity instanceof EntityInit) ((EntityInit) entity).initValue();
 		return getJdoTemplate().makePersistent(entity);
 	}
-	/** 입력은 insert / 변경은 기존 객체를 불러와 수동으로 업데이트 한다. 이렇게 해야 createDate가 유지된다 ㅅㅂ.. */
+/*	*//** 입력은 insert / 변경은 기존 객체를 불러와 수동으로 업데이트 한다. 이렇게 해야 createDate가 유지된다 ㅅㅂ.. *//*
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public T saveOrMerge(T entity) {
 		if(entity.getId()==null) return saveOrUpdate(entity);
@@ -86,7 +84,7 @@ public abstract class GenericAppEngineDao<T extends EntityId<String>>  extends J
 			((EntityInit) server).initValue();
 			return (T)server;
 		}
-	}
+	}*/
 	
 	public void delete(T entity) {
 		getJdoTemplate().deletePersistent(entity);

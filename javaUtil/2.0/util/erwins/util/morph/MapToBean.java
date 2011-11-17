@@ -70,6 +70,9 @@ public class MapToBean extends MapToBeanRoot{
 				if (Object[].class.isInstance(value)) {
 					Object[] array = (Object[])value;
 					return CollectionUtil.toList(array);
+				}else if (String.class.isInstance(value)) {
+					//request의 다중 Array이나 값이 1개 뿐이라 []로 넘어오지 않았을 경우
+					return CollectionUtil.toList(value);
 				}
 				return null;
 			}

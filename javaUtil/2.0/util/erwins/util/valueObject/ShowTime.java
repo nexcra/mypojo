@@ -18,9 +18,12 @@ public class ShowTime {
     int MM;
     int ss;
 
+    public ShowTime() {
+    	
+    }
     public ShowTime(long nanoTime) {
         totalNanoSecond = nanoTime;
-        init();
+        initNanoTime();
     }
     
     public ShowTime(int[] time) {
@@ -30,11 +33,19 @@ public class ShowTime {
     	if(time.length > 2) ss = time[2]; 
     }
 
-    private void init() {
+    private void initNanoTime() {
         totalSecond = totalNanoSecond / 1000 / 1000 / 1000;
-        h = (int) (totalSecond / 60 / 60);
-        MM = (int) (totalSecond / 60);
-        ss = (int) (totalSecond % 60);
+        initTime();
+    }
+    public ShowTime initTime(long totalSecond) {
+    	this.totalSecond = totalSecond;
+    	initTime();
+    	return this;
+    }
+    private void initTime() {
+    	h = (int) (totalSecond / 60 / 60);
+    	MM = (int) (totalSecond / 60);
+    	ss = (int) (totalSecond % 60);
     }
 
     public boolean isLarge(int second) {

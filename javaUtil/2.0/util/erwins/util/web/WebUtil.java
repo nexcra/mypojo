@@ -49,7 +49,8 @@ public abstract class WebUtil {
 	/** 모바일 기기(안드로이드/아이폰 등)에서 온 요청인지? */
 	public static boolean isMobile(HttpServletRequest req) {
 		String header = req.getHeader(USER_AGENT);
-		return StringUtil.isMatchIgnoreCase(header, "Android","AppleWebKit","iPhon");
+		return StringUtil.isMatchIgnoreCase(header, "Android","iPhon"); //크롬의 경우 AppleWebKit가 포함된다.
+		//return StringUtil.isMatchIgnoreCase(header, "Android","AppleWebKit","iPhon");
 		//return Strings.isMatch(header, "Android","AppleWebKit","iPhon");
 	}
 	

@@ -21,6 +21,7 @@ import erwins.util.root.DomainObject;
 import erwins.util.root.Pair;
 import erwins.util.root.Singleton;
 import erwins.util.valueObject.ValueObject;
+import erwins.util.vender.etc.Flex;
 
 /**
  * Object로 서버사이드의 JsonObject를 생성한다. +로 사용자정의 필터를 추가한 버전이다. FCKEditor의 경우 json으로
@@ -287,5 +288,18 @@ public abstract class BeanToJsonRoot {
 			}
 		}
 	}    
+	
+	/** 코드성 데이터를 json화 할때 사용한다.
+	 * EXT.js에서 사용 */
+	public static JSONArray pairToJson(Pair[] pairs) {
+		JSONArray array = new JSONArray();
+		for (Pair pair : pairs) {
+			JSONObject obj = new JSONObject();
+			obj.put(Flex.LABEL, pair.getName());
+			obj.put(Flex.VALUE, pair.getValue());
+			array.add(obj);
+		}
+		return array;
+	}
 
 }

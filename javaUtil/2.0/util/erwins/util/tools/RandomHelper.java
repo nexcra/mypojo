@@ -13,7 +13,6 @@ public class RandomHelper  extends Random{
 		if(n <= 0) return n;
 		int next = nextInt(n); 
 		return next + 1;
-		
 	}
 	
 	private static final int forRandomDate = 315532;
