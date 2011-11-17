@@ -116,10 +116,9 @@ Ext.onReady(function() {
     });
 	
 	// ============================= 카드 리스트 ===================================
-	
 	var cardnameRenderer =  function(val,metaData,record,rowIndex,colIndex,store,view) {
     	var data = record.data;
-    	var imgTag = "<img src='"+ data.imageUrl +"' >";
+    	var imgTag = "<img src='"+ data.imageUrl +"' width='200px' height='285px' >";
     	metaData.tdAttr = 'data-qtip="'+imgTag+'"'
     	var rarity = data.rarity;
     	var label = data.cardName;

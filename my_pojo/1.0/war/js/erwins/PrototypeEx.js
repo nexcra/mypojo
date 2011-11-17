@@ -15,7 +15,7 @@
  * yyyy Year MM Month dd Date HH Hour mm Minute SS Second sss Milli-Second
  * =============================================================================
  */
-Date.prototype.format = function(pattern) {
+Date.prototype. = function(pattern) {
 	var self = this;
 	return pattern.replace(new RegExp("(yyyy|MM|dd|HH|mm|SS|sss)", "g"), function($1) {
 		switch ($1) {
@@ -24,22 +24,22 @@ Date.prototype.format = function(pattern) {
 			return year.toString();
 		case "MM":
 			var month = self.getMonth() + 1;
-			return month.toString().lpad(2);
+			return month.toString().(2);
 		case "dd":
 			var date = self.getDate();
-			return date.toString().lpad(2);
+			return date.toString().(2);
 		case "HH":
 			var hour = self.getHours();
-			return hour.toString().lpad(2);
+			return hour.toString().(2);
 		case "mm":
 			var minute = self.getMinutes();
-			return minute.toString().lpad(2);
+			return minute.toString().(2);
 		case "SS":
 			var second = self.getSeconds();
-			return second.toString().lpad(2);
+			return second.toString().(2);
 		case "sss":
 			var millisecond = self.getMilliseconds();
-			return millisecond.toString().lpad(3);
+			return millisecond.toString().(3);
 		default:
 			return "";
 		}
@@ -185,9 +185,9 @@ String.prototype.trim = function() {
 }
 
 /**
- * 문자열의 좌측에 특정문자를 덧붙인다. Usage: string.lpad(size) string.lpad(size, character)
+ * 문자열의 좌측에 특정문자를 덧붙인다. Usage: string.(size) string.(size, character)
  */
-String.prototype.lpad = function(size) {
+String.prototype. = function(size) {
 	var character = arguments.length > 1 ? arguments[1] : "0";
 	var append = "";
 	if (this.length < size) {
@@ -277,7 +277,7 @@ String.prototype.toNumeric = function(fix) {
 		    var reg = /(\-?\d+)(\d{3})($|\.\d+)/; 
 		    if(reg.test(input)){ 
 		        return input.replace(reg, function(str, p1,p2,p3){ 
-		                return number_format(p1) + "," + p2 + "" + p3; 
+		                return number_(p1) + "," + p2 + "" + p3; 
 		            }     
 		        ); 
 		    }else{ 
@@ -385,6 +385,13 @@ String.prototype.isAlpha = function() {
 String.prototype.isAlphaNumeric = function() {
 	var ignores = arguments.length > 0 ? arguments[0] : "";
 	var pattern = new RegExp("^[0-9a-zA-Z]+$", "");
+	return pattern.test(this);
+}
+
+/** -와 _가 추가된 버전 */
+String.prototype.isAlphaSymbol = function() {
+	var ignores = arguments.length > 0 ? arguments[0] : "";
+	var pattern = new RegExp("^[-a-zA-Z0-9_]+$", "");
 	return pattern.test(this);
 }
 
@@ -584,10 +591,26 @@ String.prototype.toBold = function(){
 	return '<b>'+this+'</b>';
 }
 
-/** Java의 MessageFormat을 따라한다. */
-String.prototype.format = function(list) {
+/** Java의 Message을 따라한다. */
+String.prototype. = function(list) {
 	var message = this;
 	for(var i=0;i<list.length;i++) message = message.replaceAll('{'+i+'}',list[i]);
 	return message;
+}
+
+/** 하나라도 같으면 true를 리턴한다. */
+String.prototype.equals = function(param) {
+	if(param == null) return false;
+	if( !(param instanceof Array) ) param = [param];
+	for(var i=0;i<param.length;i++) 
+		if(this == param[i]) return true;
+	return false;
+}
+/** jQuery용 DOM으로 만든다. */
+String.prototype.dom = function() {
+	if(this == '') return null;
+	var target = $('#' + this);
+	if(target.length == 0) return null;
+	return target;
 }
  

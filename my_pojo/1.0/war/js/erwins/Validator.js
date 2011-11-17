@@ -1,5 +1,6 @@
 /**
  * jQuery와 PrototypeEx.js 가 있아야 한다.
+   => 이 방식은 유연성이 떨어져서 버림. HTML5가 나온다면 고려해보자 
  * required : 
  * max : 
  */
