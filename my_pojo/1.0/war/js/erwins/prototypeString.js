@@ -1,82 +1,3 @@
-/* 
- * 작성 : erwins 2008.03
- * 주의 : Prototype.js와 겹치지 않게 조심..
- */
-
-/*========================================================================================
- 1. Date객체 / 2. String객체 / 3. Number객체의 변환
- ========================================================================================*/
-
-/**
- * Date객체의 포맷한 날짜를 반환한다. 로컬PC의 날자임으로 사용시 주의.
- * =============================================================================
- * Letters Component
- * -----------------------------------------------------------------------------
- * yyyy Year MM Month dd Date HH Hour mm Minute SS Second sss Milli-Second
- * =============================================================================
- */
-Date.prototype. = function(pattern) {
-	var self = this;
-	return pattern.replace(new RegExp("(yyyy|MM|dd|HH|mm|SS|sss)", "g"), function($1) {
-		switch ($1) {
-		case "yyyy":
-			var year = self.getFullYear();
-			return year.toString();
-		case "MM":
-			var month = self.getMonth() + 1;
-			return month.toString().(2);
-		case "dd":
-			var date = self.getDate();
-			return date.toString().(2);
-		case "HH":
-			var hour = self.getHours();
-			return hour.toString().(2);
-		case "mm":
-			var minute = self.getMinutes();
-			return minute.toString().(2);
-		case "SS":
-			var second = self.getSeconds();
-			return second.toString().(2);
-		case "sss":
-			var millisecond = self.getMilliseconds();
-			return millisecond.toString().(3);
-		default:
-			return "";
-		}
-	});
-}
-
-/** 현제 객체에 count만큼의 날자를 더한다. */ 
-Date.prototype.plusDate = function(count) {
-	this.setDate(this.getDate()+count);
-	return this;
-}
-
-/**
- * 마지막 일자를 반환한다. Usage: date.getLastDate()
- */
-Date.prototype.getLastDate = function() {
-	var year = this.getFullYear();
-	var month = this.getMonth() + 1;
-
-	switch (month) {
-	case 4:
-	case 6:
-	case 9:
-	case 11:
-		return 30;
-	case 2:
-		if (year % 4 == 0 && year % 100 != 0) {
-			return 29;
-		}
-		if (year % 400) {
-			return 29;
-		}
-		return 28;
-	}
-
-	return 31;
-}
 
 /**
  * String 객체 문자열을 날짜로 변환한다.
@@ -552,8 +473,7 @@ String.prototype.isPhone = function() {
  */
 String.prototype.isMobile = function() {
 	var delimiter = arguments.length > 0 ? arguments[0] : "";
-	var pattern = new RegExp("01[016789]" + delimiter.meta() + "[1-9]{1}[0-9]{2,3}" + delimiter.meta() + "[0-9]{4}$",
-			"");
+	var pattern = new RegExp("01[016789]" + delimiter.meta() + "[1-9]{1}[0-9]{2,3}" + delimiter.meta() + "[0-9]{4}$","");
 	return pattern.test(this);
 }
 
@@ -592,7 +512,7 @@ String.prototype.toBold = function(){
 }
 
 /** Java의 Message을 따라한다. */
-String.prototype. = function(list) {
+String.prototype.format = function(list) {
 	var message = this;
 	for(var i=0;i<list.length;i++) message = message.replaceAll('{'+i+'}',list[i]);
 	return message;

@@ -39,7 +39,9 @@ html, body {
 <!-- 내가만든거 + 오픈소스 -->
 <script src="/js/erwins/Base64.js" type="text/javascript" ></script>
 <script src="/js/erwins/AppEngine.js" type="text/javascript" ></script>
-<script src="/js/erwins/jQueryEx.js" type="text/javascript" ></script>
-<script src="/js/erwins/Tool.js" type="text/javascript" ></script>
-<script src="/js/erwins/PrototypeEx.js" type="text/javascript" ></script>
-<link rel="stylesheet" type="text/css" href="/js/erwins/defaultCss.css" />
+<script src="/js/erwins/jQueryInit.js" type="text/javascript" ></script>
+<script src="/js/erwins/jQueryExtend.js" type="text/javascript" ></script>
+<script src="/js/erwins/jQueryUtil.js" type="text/javascript" ></script>
+<script src="/js/erwins/prototypeDate.js" type="text/javascript" ></script>
+<script src="/js/erwins/prototypeString.js" type="text/javascript" ></script>
+<link rel="stylesheet" type="text/css" href="/js/defaultCss.css" />
