@@ -37,8 +37,8 @@ html, body {
 <script src="/js/erwins/flex.js" type="text/javascript" ></script>
 
 <!-- 내가만든거 + 오픈소스 -->
-<script src="/js/erwins/Base64.js" type="text/javascript" ></script>
-<script src="/js/erwins/AppEngine.js" type="text/javascript" ></script>
+<script src="/js/erwins/base64.js" type="text/javascript" ></script>
+<script src="/js/erwins/appEngine.js" type="text/javascript" ></script>
 <script src="/js/erwins/jQueryInit.js" type="text/javascript" ></script>
 <script src="/js/erwins/jQueryExtend.js" type="text/javascript" ></script>
 <script src="/js/erwins/jQueryUtil.js" type="text/javascript" ></script>
