@@ -1,20 +1,12 @@
-
-/** 셀렉트박스에 선택된 text를 가져온다. 특수목적용 */
-$.fn.getSelectBoxText = function() {
-	var cd = $(this);
-	if(cd.length == 0) throw new Error('No Element!');
-	var index = cd.attr('selectedIndex');
-	var option = cd.attr('options')[index];
-	return option.text ;
-};
-/** 체크박스에 값 설정. 
- * 설정할때마다 모든 체크는 false로 초기화 한다. */
-$.fn.setCheckBox = function(codes) {
-	return this.each(function(){
-		var checkBox = this;
-		checkBox.checked = false;
-		$.each(codes,function(i,code){
-			if(code == checkBox.value) checkBox.checked = true;
+/** 인풋박스 등에 엔터키 이벤트를 바인드한다. */
+$.fn.enter = function(func) {
+	return this.each(function() {
+		var me = $(this);
+		me.keyup(function(e){
+			var keyCode =  e.keyCode;
+			if(keyCode==13){
+				func();
+			}
 		});
 	});
 };
@@ -30,49 +22,77 @@ $.fn.clearForm = function() {
 	});
 };
 
+/** 셀렉트박스 : 선택된 text를 가져온다. 특수목적용 */
+$.fn.domText = function() {
+	var me = $(this);
+	if(me.length == 0) throw new Error('No Element!');
+	//~수정해서 아직 검증 안됨
+	var tagName = me.attr('tagName');
+	if(tagName == 'select'){
+		var index = me.attr('selectedIndex');
+		var option = me.attr('options')[index];
+		return option.text ;	
+	}else throw new Error(tagName+' 는 지원하지 않는 tag');
+};
+
+/** 체크박스에 값 설정. 
+ * 설정할때마다 모든 체크는 false로 초기화 한다. */
+$.fn.domCheck = function(codes) {
+	return this.each(function(){
+		var checkBox = this;
+		checkBox.checked = false;
+		$.each(codes,function(i,code){
+			if(code == checkBox.value) checkBox.checked = true;
+		});
+	});
+};
+
 /** 해당 체크박스를 전부 선택/선택취소 한다. */
-$.fn.checkAll = function(isCheck) {
+$.fn.domCheckToggle = function(isCheck) {
 	return this.each(function() {
 		this.checked = isCheck;
 	});
 };
 
-/** 체크박스를 전부 선택/선택취소하는 버튼을 만든다.
+/** 체크박스에  체크박스를 전부 선택/선택취소하는 이벤트를 걸어준다.
  * ex) var ckecks =  $('input[name=check]:checkbox');
 		$('#checkAll').checkAllBtn(ckecks); */
-$.fn.checkAllBtn = function(checkBoxs) {
+$.fn.domCheckAllBtn = function(checkBoxs) {
 	return this.each(function() {
 		$(this).click(function(){
-			checkBoxs.checkAll(this.checked);
+			checkBoxs.domCheckToggle(this.checked);
 		});
 	});
 };
 
-/** ex) var select = $("#stnId");
-		select.buildoption(list,{name:'전체',value:'',initValue:stnId}); */
-$.fn.buildoption = function(list,defaultOption) {
-	var nameKey = defaultOption.nameKey==null ? 'name' : defaultOption.nameKey;
-	var valueKey = defaultOption.valueKey == null ? 'value' : defaultOption.valueKey;
-	
+/**  전,후 처리는 별도로 할것!
+ * ex) var select = $("#stnId");
+		select.domOption(list); */
+$.fn.domOption = function(list,defaultOption) {
+	//var nameKey = defaultOption.nameKey==null ? 'name' : defaultOption.nameKey;
+	//var valueKey = defaultOption.valueKey == null ? 'value' : defaultOption.valueKey;
 	return this.each(function() {
 		var select = $(this);
 		$('option', select).remove();
 		var options = select.attr('options');
-		var pad = 0;
+		//var pad = 0;
+		/*
 		if(defaultOption!=null){ //선처리
 			if(defaultOption.name != null){
 				options[0] = new Option(defaultOption.name,defaultOption.value);
 				pad = 1;	
 			}
-		}
+		}*/
 		$.each(list,function(k,v){
-			options[k+pad] = new Option(v[nameKey], v[valueKey]);
+			options[k] = new Option(v[nameKey], v[valueKey]);
 		});
+		select.selectedIndex = 1;
+		/*
 		if(defaultOption!=null){ //후처리
 			var value = defaultOption.initValue ;
 			if(value == null || value == '') select.selectedIndex = 1;
 			else select.val(defaultOption.initValue);
-		}
+		}*/
 	});
 };
 
@@ -92,6 +112,23 @@ $.fn.toggleByValue = function() {
 	});
 };
 
+/** 프로그레스 / 팝업창 등을 가운데로 옮긴다. */
+$.fn.toCenter = function() {
+	return this.each(function(){
+		var element = $(this);
+		var win = $(window);
+		var x = win.width();
+		var y = win.height();
+		element.remove().appendTo("body");
+		element.css("position", "absolute");
+		element.css("left", (x + win.scrollLeft())/2 - element.width()/2);
+		element.css("top", (y + win.scrollTop())/2 - element.height()/2);
+	});
+};
+
+
+//================= 프로젝트별 달라짐 ==========================
+
 /** 테이블 마우스오버시 색을 입혀준다. 미검증" +
 "  ex) $('tr','#listBody').tableMouseOver('yellow'); */
 $.fn.tableMouseOver = function(color) {
@@ -109,19 +146,6 @@ $.fn.tableMouseOver = function(color) {
 			if(background==null) background = '';
 			me.css('background',background); //null이면 적용 안된다.
 		});
-	});
-};
-
-$.fn.toCenter = function() {
-	return this.each(function(){
-		var element = $(this);
-		var win = $(window);
-		var x = win.width();
-		var y = win.height();
-		element.remove().appendTo("body");
-		element.css("position", "absolute");
-		element.css("left", (x + win.scrollLeft())/2 - element.width()/2);
-		element.css("top", (y + win.scrollTop())/2 - element.height()/2);
 	});
 };
 

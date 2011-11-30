@@ -15,6 +15,7 @@ $.setInput = function(json,prefix){
 		}else dom.attr('value',value); 
 	}
 }
+
 /** 라디오 버튼에 값 설정. ex) var radios =  $('input[name=type]:radio'); */
 $.setRadio = function(radios,value){
 	if(value==null || value=='') radios[0].checked = true;
@@ -27,43 +28,13 @@ $.getRadio = function(radios){
 	}
 	return null;
 }
+
 /** 체크박스중에 체크된것만 가져온다. */
 $.findChecked = function(ckecks){
 	var checkedList = new Array();
 	$.each(ckecks,function(i,v){ if(v.checked) checkedList.push(v);});
 	return checkedList;	
 }
-
-
-$.send = function(url,data,callback){
-	$.loading();
-	$.ajax({
-		type:'POST',url:url,dataType:'json',data:data,
-		success:function(json,status){
-			$.loading(false);
-			if(json.success) callback(json.message,json);
-			else{
-				alert("작업 실패\n" + json.message);
-			}
-		},error:function(xhr,status,error){
-			$.loading(false);
-			alert('오류! \n'+status + error);
-		}
-	});
-};
-
-/** 에거 수정하기 */
-$.bindEnter = function(btn,input,func){
-	if(!(btn instanceof $)) btn =  $('#'+btn);
-	if(!(input instanceof $)) input =  $('#'+input);
-	btn.click(func);
-	input.keyup(function(e){
-		var keyCode =  e.keyCode;
-		if(keyCode==13){
-			func();
-		}	
-	});
-};
 
 /** max까지 입력되면 다음DOM으로 포커싱을 이동한다. */
 $.bindTab = function(dom1,dom2){
@@ -89,6 +60,83 @@ $.isEmpty = function(value){
 	if(value=='') return true;
 	return false;
 }
+
+/** map이 Array에만 반응해서 하나 만들었다.  */
+$.collect = function(items,callback){
+	var result = [];
+	$.each(items,function(k,v){
+		var value = callback(k,v);
+		result.push(value);
+	});
+	return result;
+}
+
+/** item에 DOM or DOM의 ID값 or json을 넣으면 된다. 
+ *  일반 문자열을 넣으면 form을 serialize한다. */
+$.toQuery = function(items){
+	if(items==null) return '';
+	if(items instanceof Array){
+		return  $.map(items,function(it){ 
+			//~  $()일 경우 변경~
+			return it+'='+$('#'+it).val();
+		}).join('&');
+	}else{
+		if( !( items instanceof Object ) ) return $('#'+items).serialize(); 
+		return  $.collect(items,function(k,v){ 
+			var value = v == null ? '' : v;
+			return k+'='+value;
+		}).join('&');
+	}
+}
+
+/** 간단 테스트기 */
+$.getInfo =  function(obj){
+	var str = '';
+	if(obj instanceof Object){
+		for(var oo in obj){
+			str+= oo + '  :  ' + obj[oo] + '\n'
+		}
+		alert(str);
+	}else{
+		alert("Object가 아님.");
+	}
+}
+
+/**  json에서 트리를 따라가며 객체를 검색한다. 리턴은 배열로 나온다.
+ * keys의 1번째는 검색대상, 2번째는 칠드런
+ex) var result = searchJson(text,['data','children'],treeData);  */
+$.searchJson = function(value,keys,jsonList,result){
+	if(result==null) result = [];
+	var size = jsonList.length;
+	for(var i=0;i<size;i++){
+		var obj = jsonList[i];
+		var name = obj[keys[0]];
+		if(name.contains(value)) result.push(obj);
+		var children = obj[keys[1]];
+		if(children==null) continue;
+		$.searchJson(value,keys,children,result);
+	}
+	return result; 
+}
+
+//================= 프로젝트별 달라짐 ==========================
+
+$.send = function(url,data,callback){
+	$.loading();
+	$.ajax({
+		type:'POST',url:url,dataType:'json',data:data,
+		success:function(json,status){
+			$.loading(false);
+			if(json.success) callback(json.message,json);
+			else{
+				alert("작업 실패\n" + json.message);
+			}
+		},error:function(xhr,status,error){
+			$.loading(false);
+			alert('오류! \n'+status + error);
+		}
+	});
+};
 
 /** 테이블의 홀짝을 구분해서 색을 입혀준다. 
  * 사용된 선택자는 웹표준으로 E8 이하 버전은 지원되지 않아서 자바스크립트로 처리한다. */
@@ -151,45 +199,4 @@ $.buildProgressbar = function(text,interval) {
 /** ajax로 반복툴팁을 하면 잔상?이 남는다. 이걸로 효과가 있을지 의문 */
 $.removeTooltip = function(text) {
 	$("div.tooltip").remove();
-}
-
-/** map이 Array에만 반응해서 하나 만들었다.  */
-$.collect = function(items,callback){
-	var result = [];
-	$.each(items,function(k,v){
-		var value = callback(k,v);
-		result.push(value);
-	});
-	return result;
-}
-
-/** item에 DOM or DOM의 ID값 or json을 넣으면 된다. 
- *  일반 문자열을 넣으면 form을 serialize한다. */
-$.toQuery = function(items){
-	if(items==null) return '';
-	if(items instanceof Array){
-		return  $.map(items,function(it){ 
-			//~  $()일 경우 변경~
-			return it+'='+$('#'+it).val();
-		}).join('&');
-	}else{
-		if( !( items instanceof Object ) ) return $('#'+items).serialize(); 
-		return  $.collect(items,function(k,v){ 
-			var value = v == null ? '' : v;
-			return k+'='+value;
-		}).join('&');
-	}
-}
-
-/** 간단 테스트기 */
-$.getInfo =  function(obj){
-	var str = '';
-	if(obj instanceof Object){
-		for(var oo in obj){
-			str+= oo + '  :  ' + obj[oo] + '\n'
-		}
-		alert(str);
-	}else{
-		alert("Object가 아님.");
-	}
 }

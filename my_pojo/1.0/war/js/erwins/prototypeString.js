@@ -66,7 +66,6 @@ String.prototype.meta = function() {
 			replace = replace + this.charAt(i);
 		}
 	}
-
 	return replace;
 }
 
@@ -108,7 +107,7 @@ String.prototype.trim = function() {
 /**
  * 문자열의 좌측에 특정문자를 덧붙인다. Usage: string.(size) string.(size, character)
  */
-String.prototype. = function(size) {
+String.prototype.lpad = function(size) {
 	var character = arguments.length > 1 ? arguments[1] : "0";
 	var append = "";
 	if (this.length < size) {
@@ -151,11 +150,12 @@ String.prototype.toNumber = function(){
 /**
  * 문자열을 해당 자리수 만큼의 실수로 변환한다. (인자로 0 입력시 정수형) 표시할수 있는 자리수+1에서 반올림한다. <br>
  * Usage: string.toDecimal(2) => 123.45
+ *  -> 수정할것
  */
 String.prototype.toDecimal = function() {
 	var pattern = new RegExp("[^\\-0-9\\.]", "g");
 	var value = this.replace(pattern, "");
-	var temp = parseFloat(value, 10);
+	var temp = parseFloat(value, 10); // >.<
 	var range = arguments.length > 0 ? Number(arguments[0]) : null;
 	if (range == null) {
 		return temp;
@@ -249,6 +249,83 @@ String.prototype.toMobile = function() {
 	}
 }
 
+/**
+ * String 문자열에 숫자를 더한다.
+ */
+String.prototype.plus = function(arg) {
+	if (arg)
+		return Number(this) + arg;
+	else
+		return Number(this) + 1;
+}
+ 
+/** 확장자를 리턴한다. */
+String.prototype.getExt = function(arg) {
+	if(!arg) arg = '.';
+	var i = str.lastIndexOf('.');
+	if(i == -1) return '';
+	return this.substring(i+1,str.length);
+}
+
+/** 대소문자를 가리지 않고 두 문자를 비교한다. */
+String.prototype.eq = function(arg) {
+	return this.toUpperCase() == arg.toUpperCase();
+}
+
+/** span태그를 입혀서 리턴한다.
+Ext.js에서 사용한다. */
+String.prototype.toSpan = function(color,isBold){
+	var list = ['color:'+color+';']; 
+	if(isBold) list.push('font-weight:bold;');
+	return '<span style="'+list.join('')+'" >'+this+'</span>';
+}
+String.prototype.toBold = function(){
+	return '<b>'+this+'</b>';
+}
+
+/** Java의 Message을 따라한다. */
+String.prototype.format = function(list) {
+	var message = this;
+	for(var i=0;i<list.length;i++) message = message.replaceAll('{'+i+'}',list[i]);
+	return message;
+}
+
+/** 하나라도 같으면 true를 리턴한다. */
+String.prototype.equals = function(param) {
+	if(param == null) return false;
+	if( !(param instanceof Array) ) param = [param];
+	for(var i=0;i<param.length;i++) 
+		if(this == param[i]) return true;
+	return false;
+}
+/** jQuery용 DOM으로 만든다. */
+String.prototype.dom = function() {
+	if(this == '') return null;
+	var target = $('#' + this);
+	if(target.length == 0) return null;
+	return target;
+}
+/** '123456'.splitSet(2) 하면 ['12','34','56'] 일케 나온다.
+ * 반드시 나머지가 없어야 한다. -> 추후 수정.  */
+String.prototype.splitSet = function(size) {
+	var count = this.length / size ;
+	var array = [];
+	for(var i=0;i<this.length;i+=size){
+		array.push(this.substring(i,i+size));
+	}
+	return array;
+}
+
+/** 문자열이 있는지 검사 : 필요하면 어퍼케이스 포함 */
+String.prototype.contains = function(str) {
+	var index = this.indexOf(str);
+	if(index < 0) return false;
+	return true;
+}
+
+
+// ============   벨리데이션 =============
+
 
 /**
  * 문자열의 캐릭터 배열길이가 최소값과 최대값 사이인지 확인한다. Usage: string.isLength()
@@ -283,7 +360,7 @@ String.prototype.isBytes = function() {
 }
 
 /**
- * 문자열이 숫자형인지 확인한다.
+ * 문자열이 숫자형인지 확인한다. -> -부호가 안먹는듯?
  */
 String.prototype.isNumeric = function(){
     var pattern = new RegExp("^[0-9]+$", "");
@@ -475,72 +552,5 @@ String.prototype.isMobile = function() {
 	var delimiter = arguments.length > 0 ? arguments[0] : "";
 	var pattern = new RegExp("01[016789]" + delimiter.meta() + "[1-9]{1}[0-9]{2,3}" + delimiter.meta() + "[0-9]{4}$","");
 	return pattern.test(this);
-}
-
-/**
- * String 문자열에 숫자를 더한다.
- */
-String.prototype.plus = function(arg) {
-	if (arg)
-		return Number(this) + arg;
-	else
-		return Number(this) + 1;
-}
- 
-/** 확장자를 리턴한다. */
-String.prototype.getExt = function(arg) {
-	if(!arg) arg = '.';
-	var i = str.lastIndexOf('.');
-	if(i == -1) return '';
-	return this.substring(i+1,str.length);
-}
-
-/** 대소문자를 가리지 않고 두 문자를 비교한다. */
-String.prototype.eq = function(arg) {
-	return this.toUpperCase() == arg.toUpperCase();
-}
-
-/** span태그를 입혀서 리턴한다.
-Ext.js에서 사용한다. */
-String.prototype.toSpan = function(color,isBold){
-	var list = ['color:'+color+';']; 
-	if(isBold) list.push('font-weight:bold;');
-	return '<span style="'+list.join('')+'" >'+this+'</span>';
-}
-String.prototype.toBold = function(){
-	return '<b>'+this+'</b>';
-}
-
-/** Java의 Message을 따라한다. */
-String.prototype.format = function(list) {
-	var message = this;
-	for(var i=0;i<list.length;i++) message = message.replaceAll('{'+i+'}',list[i]);
-	return message;
-}
-
-/** 하나라도 같으면 true를 리턴한다. */
-String.prototype.equals = function(param) {
-	if(param == null) return false;
-	if( !(param instanceof Array) ) param = [param];
-	for(var i=0;i<param.length;i++) 
-		if(this == param[i]) return true;
-	return false;
-}
-/** jQuery용 DOM으로 만든다. */
-String.prototype.dom = function() {
-	if(this == '') return null;
-	var target = $('#' + this);
-	if(target.length == 0) return null;
-	return target;
-}
-/** '123456'.splitSet(2) 하면 ['12','34','56'] 일케 나온다.
- * 반드시 나머지가 없어야 한다. -> 추후 수정.  */
-String.prototype.splitSet = function(size) {
-	var count = this.length / size ;
-	var array = [];
-	for(var i=0;i<this.length;i+=size){
-		array.push(this.substring(i,i+size));
-	}
-	return array;
 }
  

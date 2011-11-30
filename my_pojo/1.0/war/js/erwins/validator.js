@@ -95,8 +95,8 @@ var V = function(confirmName){
 	}
 	
 	// ========== 이하 검증안됨 =============
-	/** 체크박스일때 사용한다.  */
-	this.notNullCheck = function(name,checkBoxs){
+	/** 체크박스일때 사용한다. 체크박스는 id를 지정하지 못한다.  */
+	this.notNulls = function(name,checkBoxs){
 		if (!(checkBoxs instanceof $)) checkBoxs = $('input[name=' + checkBoxs + ']:checkbox');
 		me.options.push(function(){
 			var checked = $.findChecked(checkBoxs);

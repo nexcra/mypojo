@@ -6,7 +6,7 @@
  * yyyy Year MM Month dd Date HH Hour mm Minute SS Second sss Milli-Second
  * =============================================================================
  */
-Date.prototype. = function(pattern) {
+Date.prototype.format = function(pattern) {
 	var self = this;
 	return pattern.replace(new RegExp("(yyyy|MM|dd|HH|mm|SS|sss)", "g"), function($1) {
 		switch ($1) {
@@ -65,7 +65,6 @@ Date.prototype.getLastDate = function() {
 		}
 		return 28;
 	}
-
 	return 31;
 }
  
