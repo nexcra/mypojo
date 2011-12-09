@@ -10,7 +10,7 @@ import erwins.util.root.Shutdownable;
  * */
 public class ThreadPool implements Shutdownable{
 	
-	List<Thread> list = new ArrayList<Thread>();
+	private List<Thread> list = new ArrayList<Thread>();
 	
 	/** 리턴된 Thread에 이름을 달아주자~ */
 	public Thread add(Thread thread){
@@ -25,6 +25,37 @@ public class ThreadPool implements Shutdownable{
 	@Override
 	public void shutdown() {
 		for (Thread each : list) each.interrupt();
+	}
+	
+	public static class ThreadState{
+		public int on;
+		public int off;
+		public int interrupted;
+	}
+	
+	/** 모든 스래드가 기동중인지? */
+	public boolean isOn(){
+		ThreadState state = state();
+		if(state.on == list.size()) return true;
+		return false;
+	}
+	
+	/** 모든 스래드가 대기중인지? */
+	public boolean isOff(){
+		ThreadState state = state();
+		if(state.off == list.size()) return true;
+		return false;
+	}
+	
+	public ThreadState state(){
+		ThreadState state = new ThreadState();
+		for (Thread each : list) {
+			if(each.isAlive()){
+				if(each.isInterrupted()) state.interrupted ++;
+				else state.on++;
+			}else  state.off ++;
+		}
+		return state;
 	}
 	
 }

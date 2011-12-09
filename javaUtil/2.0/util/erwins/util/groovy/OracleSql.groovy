@@ -11,6 +11,7 @@ import erwins.util.tools.TextFile
 import erwins.util.vender.apache.Poi
 import erwins.util.vender.apache.PoiReaderFactory
 import groovy.sql.Sql
+
 /** 표준형인 date는 년월일만 지원한다. 오라클타입을 TimeStamp로 해야한다.
  * 강제로 date를 TimeStamp로 변경하려면 -Doracle.jdbc.V8Compatible=true 를 JVM옵션으로 주면된다. (v1.9~)
  * or originalDataSource.addConnectionProperty( "oracle.jdbc.V8Compatible", "true" ); 
@@ -68,7 +69,6 @@ public class OracleSql extends AbstractSql implements Iterable{
 	/* ================================================================================== */
 	/*                                Util                                                */
 	/* ================================================================================== */
-
 	public columns(TABLE_NAME){
 		def sql = """
 			SELECT a.TABLE_NAME,a.COLUMN_NAME,COMMENTS,'' as KEY,DATA_TYPE,DATA_LENGTH,DATA_PRECISION,DATA_SCALE,'' as SEARCH_CONDITION
@@ -233,47 +233,6 @@ public class OracleSql extends AbstractSql implements Iterable{
 		if(oracleType=='DATE') return new Timestamp(format.parse(value).getTime());
 		return value
 	}
-
-	/** iBatis등으로 개발할때 활용하자. */
-	public printIBatis(TABLE_NAME){
-		def columns = columns(TABLE_NAME)
-		columnsKey(TABLE_NAME,columns)
-		def cn = columns.collect { it.COLUMN_NAME }
-		//println "INSERT INTO $TABLE_NAME (" + cn.join(',') + ') VALUES ('+ cn.collect { ':'+it}.join(',')  +')'
-		println "INSERT INTO $TABLE_NAME (" + cn.join(',') + ') VALUES ('+ cn.collect { '#'+StringUtil.getCamelize(it)+'#'}.join(',')  +')'
-		//println "UPDATE $TABLE_NAME SET " + cn.collect { it + ' = :'+it}.join(',') + ' WHERE ID = :ID'
-		println "UPDATE $TABLE_NAME SET " + cn.collect { it + ' = '+'#'+StringUtil.getCamelize(it)+'#'}.join(',') + ' WHERE ID = :ID'
-		println 'SELECT ' + cn.collect{'a.'+it}.join(',') + " FROM $TABLE_NAME a "
-		
-		def pks = columns.findAll { it['KEY'] == 'PK' }.collect { it.COLUMN_NAME }
-		def nonPks = columns.findAll { it['KEY'] != 'PK' }.collect { it.COLUMN_NAME }
-		def sql  = "MERGE INTO $TABLE_NAME USING dual ON ( " + pks.collect { it + ' = '+'#'+StringUtil.getCamelize(it)+'#' }.join(' AND ')  + " )\n"
-		sql += "WHEN matched THEN UPDATE SET " + nonPks.collect { it + ' = '+'#'+StringUtil.getCamelize(it)+'#' }.join(',') + '\n'
-		sql += "WHEN NOT matched THEN INSERT (" + cn.join(',') + ') VALUES ('+ cn.collect { '#'+StringUtil.getCamelize(it)+'#'}.join(',')  +')'
-		println sql 
-	}
-	
-	/*MERGE INTO DB_CTRL_SMS_WARN USING dual ON ( MONG_CLAU_CD = :mongClauCd AND WARN_RNK = :warnRnk)
-	WHEN matched THEN UPDATE SET TSHD_CNT = :tshdCnt
-	WHEN NOT matched THEN
-	INSERT (MONG_CLAU_CD,WARN_RNK,TSHD_CNT) VALUES (:mongClauCd,:warnRnk,:tshdCnt)*/
-	
-	public static def JAVA_TYPE = ['NUMBER':'BigDecimal','DATE':'Date','VARCHAR2':'String','CHAR':'String']
-	public static def SIMPLE_TYPE = ['NUMBER':'Num','DATE':'Date','VARCHAR2':'VC2','CHAR':'Char']
-	
-	/** java 도메인 객체 기본생성 */
-	public printJava(TABLE_NAME){
-		def cols = columns(TABLE_NAME)
-		def cn = cols.collect { it.COLUMN_NAME }
-		println StringUtil.getCamelize(TABLE_NAME).capitalize()
-		cols.each {
-			def type = JAVA_TYPE[it['DATA_TYPE']]
-			if(type=='BigDecimal' && it['DATA_SCALE']==0) type ='Long'
-			def name = StringUtil.getCamelize(it['COLUMN_NAME'])
-			println "/** $it.COMMENTS */"
-			println "private $type $name;"
-		}
-	}
 	
 	/** 해당 디렉토리의 모든 텍스트/엑셀 파일을 DB로 입력한다.
 	 * 파일이름 = 테이블명, 헤더=컬럼명 이다 
@@ -304,8 +263,65 @@ public class OracleSql extends AbstractSql implements Iterable{
 					assert it.renameTo(new File(errorDir,it.name))
 				}
 			}
-			
 		}
+	}
+	
+	/* ================================================================================== */
+	/*                                print                                               */
+	/* ================================================================================== */
+	
+	/** iBatiis or MyBatis용 */
+	public printBatis(TABLE_NAME){
+		def columns = columns(TABLE_NAME)
+		columnsKey(TABLE_NAME,columns)
+		def cn = columns.collect { it.COLUMN_NAME }
+		
+		/* 알아서 바꿔주자 */
+		def $$ = {'#{'+it.camelize()+'}'  }; //mybatis용
+		//def $$ = {'#'+it.camelize()+'#'  }; //ibatis용
+		
+		def sqls = [:];
+		sqls['SELECT'] = 'SELECT ' + cn.collect{'a.'+it}.join(', ') + " \nFROM $TABLE_NAME a " 
+		sqls['INSERT'] = "INSERT INTO $TABLE_NAME (" + cn.join(', ') + ') \nVALUES ('+ cn.collect { $$(it) }.join(',')  +')' 
+		
+		def pks = columns.findAll { it['KEY'] == 'PK' }.collect { it.COLUMN_NAME }
+		def nonPks = columns.findAll { it['KEY'] != 'PK' }.collect { it.COLUMN_NAME }
+		
+		sqls['UPDATE'] = "UPDATE $TABLE_NAME SET " + cn.collect { it + ' = '+$$(it)}.join(', ') + ' \nWHERE ' + pks.collect { it + ' = '+$$(it) }.join(' AND ')
+		
+		def mergeSql  = "MERGE INTO $TABLE_NAME USING dual ON ( " + pks.collect { it + ' = '+$$(it) }.join(' AND ')  + " )\n"
+		mergeSql += "WHEN matched THEN UPDATE SET " + nonPks.collect { it + ' = '+$$(it) }.join(', ') + '\n'
+		mergeSql += "WHEN NOT matched THEN INSERT (" + cn.join(', ') + ') VALUES ('+ cn.collect { $$(it)}.join(', ')  +')'
+		sqls['MERGE'] = mergeSql
+		
+		def writer = new StringWriter()
+		def builder = new groovy.xml.MarkupBuilder(writer)
+		def className = TABLE_NAME.camelize();
+		def invoices = builder.resultMap(id:className+'Map',type:className.capitalize()){
+			pks.each { id(property:it.camelize(),column:it) }
+			nonPks.each { result(property:it.camelize(),column:it) }
+		}
+		sqls['RESULT_MAP'] = writer.toString()
+		return sqls
+	}
+	
+	public static def JAVA_TYPE = ['NUMBER':'BigDecimal','DATE':'Date','VARCHAR2':'String','CHAR':'String']
+	public static def SIMPLE_TYPE = ['NUMBER':'Num','DATE':'Date','VARCHAR2':'VC2','CHAR':'Char']
+	
+	/** java 도메인 객체 기본생성 */
+	public printJava(TABLE_NAME){
+		def cols = columns(TABLE_NAME)
+		def cn = cols.collect { it.COLUMN_NAME }
+		def result = [StringUtil.getCamelize(TABLE_NAME).capitalize()]
+		cols.each {
+			def type = JAVA_TYPE[it['DATA_TYPE']]
+			if(type=='BigDecimal' && it['DATA_SCALE']==0) type ='Long'
+			def name = StringUtil.getCamelize(it['COLUMN_NAME'])
+			if(it.COMMENTS==null) it.COMMENTS = 'COMMENTS를 달아주세요'
+			result << "/** $it.COMMENTS */"
+			result << "private $type $name;"
+		}
+		return result
 	}
 
 }

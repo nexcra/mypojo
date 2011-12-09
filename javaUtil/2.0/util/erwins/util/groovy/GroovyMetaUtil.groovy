@@ -17,11 +17,27 @@ import groovy.sql.GroovyRowResult
 public class GroovyMetaUtil{
 
 	public static void addMeta(){
+		string()
 		map()
 		file()
 		stringArray()
 		list()
 		groovyRowResult 'N/A'
+	}
+	
+	/** 자주 사용되는거나 
+	 * 신규 추가만 하자. */
+	public static void string(){
+		String.metaClass.camelize = { return StringUtil.getCamelize(delegate) }
+		String.metaClass.camelize = { return StringUtil.getCamelize(delegate) }
+		String.metaClass.swapCase = {
+			def sb = new StringBuffer()
+			delegate.each {
+				sb << (Character.isUpperCase(it as char) ? Character.toLowerCase(it as char) :
+						Character.toUpperCase(it as char))
+			}
+			sb.toString()
+		}
 	}
 	
 	public static void number(){
@@ -207,17 +223,6 @@ public class GroovyMetaUtil{
 		GroovyRowResult.metaClass."getNullSafe"  = { key ->
 			if(delegate.containsKey(key)) return delegate[key]
 			else return nullString
-		}
-	}
-	/** 추가하진 않는다. 나중에 하든지 하자. */
-	public static void string(){
-		String.metaClass.swapCase = {
-			def sb = new StringBuffer()
-			delegate.each {
-				sb << (Character.isUpperCase(it as char) ? Character.toLowerCase(it as char) :
-						Character.toUpperCase(it as char))
-			}
-			sb.toString()
 		}
 	}
 

@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
 
-class Concurrent{
+public class Concurrent{
 
     final AtomicReference<Integer> c = new AtomicReference<Integer>(0);
     
