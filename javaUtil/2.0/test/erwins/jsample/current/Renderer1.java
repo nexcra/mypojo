@@ -26,10 +26,10 @@ public abstract class Renderer1 {
         };
 
         Future<List<ImageData>> future = executor.submit(task);
-        renderText(source);
+        renderText(source); //텍스트를 먼저 렌더링한 후
 
         try{
-            List<ImageData> imageData = future.get();
+            List<ImageData> imageData = future.get(); //나중에 이미지 작업 task.get(timeout, unit); 처럼 파라메터 가능
             for (ImageData data : imageData)
                 renderImage(data);
         }

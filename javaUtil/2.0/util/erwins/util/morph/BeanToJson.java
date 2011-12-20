@@ -11,6 +11,7 @@ import org.hibernate.Hibernate;
 import erwins.util.lib.ReflectionUtil;
 import erwins.util.root.DomainObject;
 import erwins.util.root.EntityId;
+import erwins.util.root.HibernateDomainObject;
 import erwins.util.root.Singleton;
 
 /**
@@ -31,18 +32,28 @@ public class BeanToJson extends BeanToJsonRoot {
 				Object value =  ReflectionUtil.getField(field, instance);
 				if(value==null) return true;
 				String fieldName = field.getName();
+				json.put(fieldName,theInstance.getByDomain(value,true));
+				return true;
+			}
+		}));
+		theInstance.addConfig(new BeanToJSONBaseConfig(new Class[] { HibernateDomainObject.class }, new BeanToJSONConfigFetcher() {
+			@Override
+			public boolean fetch(Object instance, Field field, JSONObject json) {
+				Object value =  ReflectionUtil.getField(field, instance);
+				if(value==null) return true;
+				String fieldName = field.getName();
 				//재귀 호출이라도 Hibernate가 init되지 않았다면 재귀를 멈춘다.
 				if(Hibernate.isInitialized(value)) json.put(fieldName,theInstance.getByDomain(value,true));
 				else if(value instanceof EntityId){
-		        	//캐스팅하면 id만 불러올때 세션을 읽어 쿼리를 날려버린다. (이전 버전에선 가능했다.) 따라서 리플렉션으로 불러오자.
-		            Object id = ReflectionUtil.findFieldValue(value, EntityId.ID_NAME);
-		            if(id==null) return true;
-		            JSONObject proxy = new JSONObject();
-		            proxy.put("id", id);
-		            json.put(fieldName,proxy);
-		            //Flex 게시판 등의 단일 뎁스를 위해준비.
-		            json.put(fieldName+"Id",id);
-		        }
+					//캐스팅하면 id만 불러올때 세션을 읽어 쿼리를 날려버린다. (이전 버전에선 가능했다.) 따라서 리플렉션으로 불러오자.
+					Object id = ReflectionUtil.findFieldValue(value, EntityId.ID_NAME);
+					if(id==null) return true;
+					JSONObject proxy = new JSONObject();
+					proxy.put("id", id);
+					json.put(fieldName,proxy);
+					//Flex 게시판 등의 단일 뎁스를 위해준비.
+					json.put(fieldName+"Id",id);
+				}
 				return true;
 			}
 		}));
@@ -52,7 +63,9 @@ public class BeanToJson extends BeanToJsonRoot {
 			public boolean fetch(Object instance, Field field, JSONObject json) {
 				Collection value =  (Collection)ReflectionUtil.getField(field, instance);
 				if(value==null) return true;
-				if(!Hibernate.isInitialized(value)) return true;
+				if(ReflectionUtil.isCglibProxy(value)){
+					if(!Hibernate.isInitialized(value)) return true;
+				}
 				JSONArray jsonArray = theInstance.getByList(value);
 			    json.put(field.getName(), jsonArray);
 				return true;

@@ -105,6 +105,24 @@ public abstract class AbstractSql{
 		println "테이블 ${tableName}에 $success 건의 데이터가 입력되었습니다 "
 		return ac.count()
 	}
+	
+	/** map대신 List<List>를 사용한다.  */
+	public int insertList(tableName,columnNames,List list){
+		def insertSql = "INSERT INTO $tableName (" + columnNames.join(',') + ') VALUES ('+ columnNames.collect { '?' }.join(',')  +')'
+		int success=0
+		withTransaction {
+			list.each {
+				try{
+					db.executeInsert(insertSql, it)
+					success++
+				}catch(e){
+					exceptionHandle(e,insertSql,it)
+				}
+			}
+		}
+		println "테이블 ${tableName}에 $success 건의 데이터가 입력되었습니다 "
+		return success
+	}
 
 	/** Map 내용 전체가 입력된다. 
 	 * ex) db.delete('메타컬럼01').insertListMap('메타컬럼01', new ERWinToXls(DIR+'Columns').convert()) */

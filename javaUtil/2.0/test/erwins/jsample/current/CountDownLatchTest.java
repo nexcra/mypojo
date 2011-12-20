@@ -4,10 +4,7 @@ package erwins.jsample.current;
 import java.util.concurrent.*;
 
 /**
- * TestHarness
- * <p/>
- * Using CountDownLatch for starting and stopping threads in timing tests
- * @author Brian Goetz and Tim Peierls
+ * join의 대용으로 특정 이벤트( X회수만큼 액션이 일어나는것)가 발생할 때 까지 여러 스래드를 대기상태로 잡아둘 수 있다.
  */
 public class CountDownLatchTest {
     public long timeTasks(int nThreads, final Runnable task) throws InterruptedException {

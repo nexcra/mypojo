@@ -7,6 +7,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * 타임아웃이 되면 기본광고로 변경한다.
  */
 public class TimeLimit1 {
+	
     private static final Ad DEFAULT_AD = new Ad();
     private static final long TIME_BUDGET = 1000;
     private static final ExecutorService exec = Executors.newCachedThreadPool();

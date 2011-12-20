@@ -3,13 +3,12 @@ package erwins.util.groovy
 
 import java.sql.Timestamp
 
-import org.apache.poi.hssf.record.formula.functions.T
-
 import erwins.util.lib.FormatUtil
 import erwins.util.lib.StringUtil
 import erwins.util.tools.TextFile
 import erwins.util.vender.apache.Poi
 import erwins.util.vender.apache.PoiReaderFactory
+import erwins.util.vender.etc.OpenCsv
 import groovy.sql.Sql
 
 /** 표준형인 date는 년월일만 지원한다. 오라클타입을 TimeStamp로 해야한다.
@@ -122,17 +121,119 @@ public class OracleSql extends AbstractSql implements Iterable{
 	}
 
 	/* ================================================================================== */
-	/*                                Simple                                              */
+	/*                                Simple  백업                                                              */
 	/* ================================================================================== */
 
+	/** sql을 페이징처리해서 콜백 돌린다. 대규모 자료 변환에 사용하자.
+	 * ex) def columns = columns(TABLE_NAME)
+	 * insertList(~~)
+	 *  */
+	public void batch(tableName,batchSize,maxSize,callback){
+		for(int i=1;i<maxSize+1;i++){
+			println "$i 번째 처리중 파일 처리중"
+			//여기에 PK기반 페이징처리 추가.
+			def list = paging "select * from $tableName ",batchSize,i
+			if(list.size()==0) return;
+			callback(list,i);
+			if(list.size() < batchSize) return
+		}
+	}
+	
+	
+	/** DB의 내용을 csv로 옮긴다.
+	* 실DB의 일정분량만을 테스트DB로 이관할때 사용하였다.  batchSize * maxSize 가 전체수
+	* ex) db.dbToXls ROOT, 500, 2, " and TABLE_NAME = 'AGR_AGRI_DAY' "
+	* 전부 다 하고싶으면 maxSize를 매우 높게 주도록 하자.  */
+	public dbToCsv(dir,batchSize,maxSize,where = ''){
+		loadInfo(where).loadCount().loadColumn()
+		tables.each { tableToCsv(it,dir,batchSize,maxSize)}
+	}
+
+	private void tableToCsv(table,dir,batchSize,maxSize){
+		for(int i=1;i<maxSize+1;i++){
+			println "$table.TABLE_NAME : $i 번째 파일 처리중"
+			def list = paging "select * from $table.TABLE_NAME ",batchSize,i
+			if(list.size()==0) return;
+			
+			def fileCount = StringUtil.leftPad(i.toString(),4,'0')
+			def fileForWrite = new File(dir , "${table.TABLE_NAME}#${fileCount}.csv")
+			OpenCsv.writeMap(fileForWrite, list);
+			
+			if(list.size() < batchSize) return
+		}
+	}
+	
+	public fileToDb(dir,toDir,errorDir=null){
+		if(dir instanceof String) dir = new File(dir)
+		if(toDir instanceof String) toDir = new File(toDir)
+		if(!toDir.exists()) toDir.mkdirs()
+		dir.listFiles().each {
+			try{
+				def name = StringUtil.getFirst(it.name, '.');
+				println "$name 시작"
+				def list
+				if(it.name.toUpperCase().endsWith('.TXT')) list = new TextFile().readAsMap(it)
+				else if(it.name.toUpperCase().endsWith('.CSV')) list =  OpenCsv.readAsMap(it)
+				else list =   PoiReaderFactory.instance(it)[0].read()
+				println "$name 로드완료 : size = ${list.size()}"
+				
+				def tableName = StringUtil.getFirst(name, '#');
+				eachFileToDb(tableName, list)
+				assert it.renameTo(new File(toDir,it.name))
+			}catch(e){
+				if(errorDir==null) throw e
+				else{
+					System.err.out(e.message);
+					if(errorDir instanceof String) errorDir = new File(errorDir)
+					if(!errorDir.exists()) errorDir.mkdirs()
+					assert it.renameTo(new File(errorDir,it.name))
+				}
+			}
+		}
+	}
+	
+	/** 테이즐정보를 로드해서 columnNames을 생략할 수 있게 해준다. Map안의 데이터중 컬럼과 매핑되는것만 insert한다.
+	* ex) println db.insert('도메인정의서',PoiReaderFactory.instance(ROOT+'KMA_DA_도메인정의서_v1.72')[1].read()) \
+	* 근데 이거 쓸일이 거의 없는듯. 망함. */
+   public int eachFileToDb(TABLE_NAME,List listMap){
+	   def columns = columns(TABLE_NAME)
+	   if(columns.size()==0) throw new RuntimeException("테이블 $TABLE_NAME 를 찾을 수 없습니다.")
+	   listMap.each { map ->
+		   def mapForReplace = [:]
+		   map.each{ key,value ->
+			   if('PAGE_RN' == key) return //페이징 처리에 사용됨
+			   def col = columns.find { it['COLUMN_NAME'] == key  }
+			   if(col==null) throw new RuntimeException("자료의 $key 컬럼을 DB스키마에서 찾을 수 없습니다")
+			   if(col['DATA_TYPE']=='DATE') mapForReplace[key] = new Timestamp( Long.valueOf(value) )
+		   }
+		   mapForReplace.each { k,v -> map[k] == v }
+	   }
+	   //columnsKey(TABLE_NAME,columns)
+	   def columnNames  = columns.collect { it.COLUMN_NAME }
+	   return insertListMap(TABLE_NAME,columnNames,listMap)
+   }
+   
+   /** 문자열을 DB타입으로 바꿔준다.  */
+   private Object stringToJavaSqlType(String oracleType,String value){
+	   println value
+	   println oracleType
+	   if( value == null || value == '' ) return null
+	   if(oracleType == 'DATE') return new Timestamp( Long.valueOf(value) );
+	   return value
+   }
+	
+	
+	
 	/** DB의 내용을 xls로 옮긴다. (임시용이다. 대용량은 txt로 처리하자)
 	 * 실DB의 일정분량만을 테스트DB로 이관할때 사용하였다.  batchSize * maxSize 가 전체수 
 	 * ex) db.dbToXls ROOT, 500, 2, " and TABLE_NAME = 'AGR_AGRI_DAY' "*/
+	@Deprecated
 	public dbToXls(file,batchSize,maxSize,where = ''){
 		loadInfo(where).loadCount().loadColumn()
 		tables.each { tableToXls(file,batchSize,maxSize,it)}
 	}
 
+	@Deprecated
 	private void tableToXls(file,batchSize,maxSize,table){
 		for(int i=1;i<maxSize+1;i++){
 			println "$table.TABLE_NAME : $i 번째 파일 처리중"
@@ -146,67 +247,12 @@ public class OracleSql extends AbstractSql implements Iterable{
 			if(list.size() < batchSize) return
 		}
 	}
-
-	/** 컬럼 정보를 한 시트에 모두 담는다. */
-	public dbInfo(fileName,where = ''){
-		Poi p = new Poi()
-		loadInfo(where).loadColumn()
-		tables.each { it['COUNT'] = count(it.TABLE_NAME) }
-		p.setListedMap("1.테이블목록",tables);
-		def allColums = []
-		int tableCount = 1
-		tables.each {
-			if(it.TABLE_NAME.startsWith('BIN')) return
-				def colums = it.columns
-			def conSql = """
-				SELECT aa.TABLE_NAME,COLUMN_NAME,CONSTRAINT_TYPE,SEARCH_CONDITION
-				FROM USER_CONS_COLUMNS aa join USER_CONSTRAINTS bb on aa.CONSTRAINT_NAME = bb.CONSTRAINT_NAME
-				WHERE aa.TABLE_NAME = '$it.TABLE_NAME' """
-			def con = list(conSql)
-			//제약조건들은 알아서 세팅
-			con.each{ c ->
-				colums.findAll { col-> c.COLUMN_NAME == col.COLUMN_NAME }.each { result->
-					if(c.CONSTRAINT_TYPE=='C') result['SEARCH_CONDITION'] = c.SEARCH_CONDITION
-					else  if(c.CONSTRAINT_TYPE=='P') result['KEY'] = 'PK'
-				}
-			}
-			p.addHyperlink tableCount++, 0, '2.컬럼정보', 'A', allColums.size()+2
-			allColums.addAll colums
-		}
-		p.setListedMap '2.컬럼정보',allColums
-		p.wrap()
-		p.getMerge(1).setAbleRow(0).setAbleCol(0).merge();
-		p.write(fileName)
-	}
-
-	/** ex) db.sqlJoin(['AFFILIATION','AIR_METAR_JUN','AWS_AIR']) */
-	public sqlJoin(joinTables){
-		def select = 'SELECT '
-		def from = 'FROM '
-		def first = true
-		for(int i=0;i<joinTables.size();i++){
-			def name = joinTables[i]
-			def ali = FormatUtil.intToAlpha(i)
-			def table = getAt(name)
-			if(table==null){ //특수환경을 위한 로직.. ㅅㅂ  인제 안쓰니 지워도 될듯
-				table = one("SELECT TABLE_NAME,COMMENTS FROM USER_TAB_COMMENTS WHERE TABLE_NAME = '$name' ")
-				table['columns'] = columns(name)
-			}
-			def cols = table.columns.collect { "$ali.$it.COLUMN_NAME" }
-			if(first) first = false
-			else{
-				select+= ','
-				from+= 'JOIN '
-			}
-			select += cols.join(',') + "  --$name($table.COMMENTS) \n"
-			from += "$name $ali "
-		}
-		println select + from + '\nWHERE ~~'
-	}
+	
 
 	/** 테이즐정보를 로드해서 columnNames을 생략할 수 있게 해준다. Map안의 데이터중 컬럼과 매핑되는것만 insert한다.
 	 * ex) println db.insert('도메인정의서',PoiReaderFactory.instance(ROOT+'KMA_DA_도메인정의서_v1.72')[1].read()) \
 	 * 근데 이거 쓸일이 거의 없는듯. 망함. */
+	@Deprecated
 	public int insert(TABLE_NAME,List listMap){
 		def columns = columns(TABLE_NAME)
 		if(columns.size()==0) throw new RuntimeException("테이블 $TABLE_NAME 를 찾을 수 없습니다.")
@@ -226,8 +272,10 @@ public class OracleSql extends AbstractSql implements Iterable{
 	/** 그루비 입력시 반드시 옵션 확인!!!  
 	 * 24시간 체계를 사용한다. 00시~ 23시
 	 * hh로 포매팅한다면 12시와 00시를 구분하지 못한다. */
+	@Deprecated
 	public def format = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //오렌지 디폴트
 	
+	@Deprecated
 	private Object stringToOracleType(String oracleType,String value){
 		if(value==null || value=='') return null
 		if(oracleType=='DATE') return new Timestamp(format.parse(value).getTime());
@@ -239,17 +287,17 @@ public class OracleSql extends AbstractSql implements Iterable{
 	 * 다 입력되면 완료 디렉토리로 파일을 이동시킨다.
 	 * 
 	 * => 나중에 별도 객체로 빼고 조건을 클로저화 하자. */
+	@Deprecated
 	public simpleInsert(dir,toDir,errorDir=null){
 		if(dir instanceof String) dir = new File(dir)
 		if(toDir instanceof String) toDir = new File(toDir)
 		if(!toDir.exists()) toDir.mkdirs()
-		def tf = new TextFile()
 		dir.listFiles().each {
 			try{
 				def name = StringUtil.getFirst(it.name, '.');
 				println "$name 시작"
 				def list
-				if(it.name.toUpperCase().endsWith('.TXT')) list = tf.readAsMap(it)
+				if(it.name.toUpperCase().endsWith('.TXT')) list = new TextFile().readAsMap(it)
 				else list =   PoiReaderFactory.instance(it)[0].read()
 				println "$name 로드완료 : size = ${list.size()}"
 				insert(name, list)
@@ -323,5 +371,65 @@ public class OracleSql extends AbstractSql implements Iterable{
 		}
 		return result
 	}
+	
+	
+	/** 컬럼 정보를 한 시트에 모두 담는다. */
+	public dbInfo(fileName,where = ''){
+		Poi p = new Poi()
+		loadInfo(where).loadColumn()
+		tables.each { it['COUNT'] = count(it.TABLE_NAME) }
+		p.setListedMap("1.테이블목록",tables);
+		def allColums = []
+		int tableCount = 1
+		tables.each {
+			if(it.TABLE_NAME.startsWith('BIN')) return
+				def colums = it.columns
+			def conSql = """
+				SELECT aa.TABLE_NAME,COLUMN_NAME,CONSTRAINT_TYPE,SEARCH_CONDITION
+				FROM USER_CONS_COLUMNS aa join USER_CONSTRAINTS bb on aa.CONSTRAINT_NAME = bb.CONSTRAINT_NAME
+				WHERE aa.TABLE_NAME = '$it.TABLE_NAME' """
+			def con = list(conSql)
+			//제약조건들은 알아서 세팅
+			con.each{ c ->
+				colums.findAll { col-> c.COLUMN_NAME == col.COLUMN_NAME }.each { result->
+					if(c.CONSTRAINT_TYPE=='C') result['SEARCH_CONDITION'] = c.SEARCH_CONDITION
+					else  if(c.CONSTRAINT_TYPE=='P') result['KEY'] = 'PK'
+				}
+			}
+			p.addHyperlink tableCount++, 0, '2.컬럼정보', 'A', allColums.size()+2
+			allColums.addAll colums
+		}
+		p.setListedMap '2.컬럼정보',allColums
+		p.wrap()
+		p.getMerge(1).setAbleRow(0).setAbleCol(0).merge();
+		p.write(fileName)
+	}
+
+	/**
+	* 졸 쓸모없는듯
+	* ex) db.sqlJoin(['AFFILIATION','AIR_METAR_JUN','AWS_AIR']) */
+   public sqlJoin(joinTables){
+	   def select = 'SELECT '
+	   def from = 'FROM '
+	   def first = true
+	   for(int i=0;i<joinTables.size();i++){
+		   def name = joinTables[i]
+		   def ali = FormatUtil.intToAlpha(i)
+		   def table = getAt(name)
+		   if(table==null){ //특수환경을 위한 로직.. ㅅㅂ  인제 안쓰니 지워도 될듯
+			   table = one("SELECT TABLE_NAME,COMMENTS FROM USER_TAB_COMMENTS WHERE TABLE_NAME = '$name' ")
+			   table['columns'] = columns(name)
+		   }
+		   def cols = table.columns.collect { "$ali.$it.COLUMN_NAME" }
+		   if(first) first = false
+		   else{
+			   select+= ','
+			   from+= 'JOIN '
+		   }
+		   select += cols.join(',') + "  --$name($table.COMMENTS) \n"
+		   from += "$name $ali "
+	   }
+	   println select + from + '\nWHERE ~~'
+   }
 
 }

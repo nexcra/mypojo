@@ -3,17 +3,14 @@ package erwins.jsample.current;
 import java.util.concurrent.CyclicBarrier;
 
 import org.junit.Assert;
+import org.junit.Test;
 
 import erwins.jsample.current.PutTakeTestByBarrier.PutTake;
 
 /**
- * TimedPutTakeTest
- * <p/>
- * Testing with a barrier-based timer
- *
- * @author Brian Goetz and Tim Peierls
  */
 public class PutTakeTestByTime extends PutTake{
+	
     private BarrierTimer timer = new BarrierTimer();
 
     public PutTakeTestByTime(int cap, int pairs, int trials) {
@@ -55,5 +52,27 @@ public class PutTakeTestByTime extends PutTake{
             }
         }
         PutTake.pool.shutdown();
+    }
+    
+    
+    public static class BarrierTimer implements Runnable {
+        private boolean started;
+        private long startTime, endTime;
+
+        public synchronized void run() {
+            long t = System.nanoTime();
+            if (!started) {
+                started = true;
+                startTime = t;
+            } else endTime = t;
+        }
+
+        public synchronized void clear() {
+            started = false;
+        }
+
+        public synchronized long getTime() {
+            return endTime - startTime;
+        }
     }
 }

@@ -1,5 +1,7 @@
 package erwins.util.lib;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -29,7 +31,7 @@ public abstract class SystemUtil extends SystemUtils{
     }
     public static String nowUsedMemoryStr(){
         double memory = nowUsedMemory();
-        return String.valueOf(memory / 1000 / 1000) + "MB";
+        return new BigDecimal(memory / 1000 / 1000).setScale(2,RoundingMode.HALF_UP) + "MB";
     }
     
     /** 현재 heap 메모리를 리턴한다. 단위는 MB이다. */

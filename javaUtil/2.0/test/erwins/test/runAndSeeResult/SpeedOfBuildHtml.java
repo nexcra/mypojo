@@ -10,7 +10,7 @@ public class SpeedOfBuildHtml {
 
 	@Test
 	public void t1() throws Exception {
-		final int size = 1000;
+		final long size = 10000;
 		final UL root = new UL();
 		System.out.println(StopWatch.load(new Runnable() {
 			@Override

@@ -7,7 +7,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * !PutTakeTest 테스트~ 배리어 사용.
+ * CycleBarrier => 사이클마다 여러 스래드의 스타트를 제어하는 배리어를 생성 및 제거. 
+	각 스래드는 먼저 도착하더라도 배리어가 풀려야 진행 가능. 단계별 배리어 액션 실행 가능.
+	시뮬레이션 알고리즘 등에서 사용.
+	CountDownLatch와는 달리 이벤트가 아닌 다른 스래드를 기다린다.
  * put과 get의 합계가 정확한지 비교한다.
  */
 public class PutTakeTestByBarrier{
