@@ -98,7 +98,7 @@ $.getInfo =  function(obj){
 		}
 		alert(str);
 	}else{
-		alert("Object가 아님.");
+		alert("Object가 아님 : " + obj);
 	}
 }
 
@@ -199,4 +199,23 @@ $.buildProgressbar = function(text,interval) {
 /** ajax로 반복툴팁을 하면 잔상?이 남는다. 이걸로 효과가 있을지 의문 */
 $.removeTooltip = function(text) {
 	$("div.tooltip").remove();
+}
+
+
+
+/** func , tick을 등록하자. 
+ex) 
+var timer = new Timer();
+timer.func = function(){ $.send('/rest/count',null,function(message){  $('#count').text(message); }); } ;
+timer.start();
+*/ 
+function Timer() {
+	var me = this;
+	this.tick = 1000; //디폴트값 1초
+    this.start =  function() {
+    	me.interval = setInterval(me.func, me.tick);
+    }
+    this.stop = function() {
+        if(null != me.interval) clearInterval(me.interval);
+    }
 }

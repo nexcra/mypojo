@@ -299,7 +299,7 @@ String.prototype.equals = function(param) {
 	return false;
 }
 /** jQuery용 DOM으로 만든다. */
-String.prototype.dom = function() {
+String.prototype.toDom = function() {
 	if(this == '') return null;
 	var target = $('#' + this);
 	if(target.length == 0) return null;

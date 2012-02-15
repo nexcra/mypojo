@@ -15,22 +15,22 @@ Date.prototype.format = function(pattern) {
 			return year.toString();
 		case "MM":
 			var month = self.getMonth() + 1;
-			return month.toString().(2);
+			return month.toString().lpad(2);
 		case "dd":
 			var date = self.getDate();
-			return date.toString().(2);
+			return date.toString().lpad(2);
 		case "HH":
 			var hour = self.getHours();
-			return hour.toString().(2);
+			return hour.toString().lpad(2);
 		case "mm":
 			var minute = self.getMinutes();
-			return minute.toString().(2);
+			return minute.toString().lpad(2);
 		case "SS":
 			var second = self.getSeconds();
-			return second.toString().(2);
+			return second.toString().lpad(2);
 		case "sss":
 			var millisecond = self.getMilliseconds();
-			return millisecond.toString().(3);
+			return millisecond.toString().lpad(3);
 		default:
 			return "";
 		}
