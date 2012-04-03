@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
 
-/** 엡엔진용 rest api. 딴건 다 제한 걸려서 새로 만들었다. */
 public class UrlConnection{
 	
 	private String encode = "euc-kr";

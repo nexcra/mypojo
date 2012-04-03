@@ -22,7 +22,8 @@ public class AppUploader{
 	private String encode = "EUC-KR";
 	private long fileSizeMax = 1024*1024*2; //2메가?
 	
-	/** csv같은 파일을 받기 위함이다. */
+	/** csv같은 파일을 받기 위함이다. 
+	 * 일단 현재버전은 csv를 읽어서 List<String> 를 리턴한다. */
 	public Map<String,Object> uploadTextFile(HttpServletRequest req) {
 		ServletFileUpload upload = new ServletFileUpload();
 		upload.setFileSizeMax(fileSizeMax);

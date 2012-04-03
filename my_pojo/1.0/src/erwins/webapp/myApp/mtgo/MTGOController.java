@@ -91,6 +91,13 @@ public class MTGOController extends RootController {
 		Deck deck = deckService.updateWinRate(id, isWin, isMinus);
 		return new AjaxView(deck);
 	}
+	
+	@RequestMapping("/resetWinRate")
+	public View resetWinRate(HttpServletRequest req) {
+		String id = req.getParameter("id");
+		Deck deck = deckService.resetWinRate(id);
+		return new AjaxView(deck);
+	}
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping("/upload")

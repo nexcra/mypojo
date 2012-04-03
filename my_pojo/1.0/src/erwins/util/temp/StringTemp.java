@@ -1,6 +1,6 @@
 package erwins.util.temp;
 
-
+/** 나중에 StringUtil에 합치자. */
 public class StringTemp{
 	
 	/** null을 고려한 compare

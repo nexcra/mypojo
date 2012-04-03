@@ -90,6 +90,15 @@ public class DeckService extends GenericAppEngineService<Deck>{
     	return server;
     }
     
+    @Transactional
+    public Deck resetWinRate(String id){
+    	Deck server = dao.getById(id);
+    	Current.getInfo().constraintLogin().constraintByUser(server);
+    	server.setWin(0);
+    	server.setLose(0);
+    	return server;
+    }
+    
     /** 무조건 다 지우고 새로 입력한다 */
     @Transactional
     public void updadteCard(String id,List<Card> list){

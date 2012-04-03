@@ -30,7 +30,7 @@ public class AdminController {
 	private static final String UPLOAD_URL_TRX = "/rest/admin/trx/upload";
 	private static final String UPLOAD_URL_USER = "/rest/admin/user/upload";
 	
-	/** ㅅㅂ 돈안내면 업로드 불가. */
+	/** 돈안내면 고용량은 업로드 안될듯. */
 	@RequestMapping("/page")
 	public String page(HttpServletRequest req) {
 		if(!SystemInfo.isServer()){
