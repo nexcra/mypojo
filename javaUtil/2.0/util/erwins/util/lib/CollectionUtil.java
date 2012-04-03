@@ -401,5 +401,27 @@ public abstract class CollectionUtil extends CollectionUtils {
 		}
 		return sum;
 	}
+	
+    /**  list를 pageSize길이가 되도록 분리한다 */
+    public static <T> List<List<T>> splitByLength(List<T> list,int pageSize){
+        List<List<T>> result = new ArrayList<List<T>>();
+        int max = list.size();
+        if(max==0) return result;
+        List<T> each = new ArrayList<T>();
+        result.add(each);
+        int page = 0;
+        for(int i=0;i<max;i++){
+            each.add(list.get(i));
+            page ++;
+            if(page == pageSize){
+                page = 0;
+                each = new ArrayList<T>();
+                result.add(each);
+            }
+        }
+        return result;
+    }
+	
+	
 
 }

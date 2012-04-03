@@ -2,7 +2,6 @@ package erwins.util.vender.etc;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections.map.ListOrderedMap;
+import org.apache.commons.io.output.FileWriterWithEncoding;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
@@ -20,13 +20,25 @@ import au.com.bytecode.opencsv.CSVWriter;
  * 간단 래핑한다. 스트림 기능을 지원하지 않는듯 하다. ㅅㅂ
  * CSVReader reader = new CSVReader(new FileReader("yourfile.csv"), '\t', '\'', 2); 처럼 옵션 조절 가능
  */
-public abstract class OpenCsv{
+public class OpenCsv{
+	
+	/** 기본값 UTF-8 , MS-OFFICE로 읽을 경우 EUC-KR로 해야 한글이 깨지지 않는다.  */
+	private String encoding = "UTF-8";
     
+	public String getEncoding() {
+		return encoding;
+	}
+	
+	public OpenCsv setEncoding(String encoding) {
+		this.encoding = encoding;
+		return this;
+	}
+
 	/** key를 첫번째 열에 담는다.
 	 * Date의 경우 숫자형으로 담지만, 읽을땨는 역변환이 안된다. 알아서 처리할것.
 	 * 적절한? 컨버터가 필요해 보인다. */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void writeMap(File file,List<Map> list){
+	public  void writeMap(File file,List<Map> list){
 		if(list.size()==0) return;
 		List<String[]> entries = new ArrayList<String[]>();
 		List colList = new ArrayList();
@@ -54,10 +66,10 @@ public abstract class OpenCsv{
     } 
 	
 	
-    public static void writeAll(File file,List<String[]> entries){
+    public  void writeAll(File file,List<String[]> entries){
     	CSVWriter writer = null;
     	try {
-            writer = new CSVWriter(new FileWriter(file));
+            writer = new CSVWriter(new FileWriterWithEncoding(file,encoding));
             writer.writeAll(entries);
             writer.close();
         } catch (IOException e) {
@@ -71,7 +83,7 @@ public abstract class OpenCsv{
 		}
     }
     
-    public static List<String[]> readAll(File file){
+    public  List<String[]> readAll(File file){
     	CSVReader reader = null;
     	try {
 			reader = new CSVReader(new FileReader(file));
@@ -88,7 +100,7 @@ public abstract class OpenCsv{
     }
     
     @SuppressWarnings("unchecked")
-	public static List<Map<String,String>> readAsMap(File file){
+	public  List<Map<String,String>> readAsMap(File file){
     	List<Map<String,String>> result = new ArrayList<Map<String,String>>();
     	List<String[]> datas = readAll(file);
     	if(datas.size() <= 1) return result;

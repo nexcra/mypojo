@@ -203,4 +203,13 @@ public abstract class WebUtil {
 			throw new RuntimeException(e);
 		}
     }
+    
+    public static int  getInt(HttpServletRequest req,String key){
+    	String value = req.getParameter(key);
+    	return Integer.valueOf(value);
+    }
+    public static long  getLong(HttpServletRequest req,String key){
+    	String value = req.getParameter(key);
+    	return Long.valueOf(value);
+    }
 }

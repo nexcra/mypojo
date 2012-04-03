@@ -27,27 +27,33 @@ public class AbstractAjaxView implements View{
 		this.config = config;
 	}
 
-	private boolean success = true;
-    private JSONObject json = new JSONObject();
+	protected boolean success = true;
+    protected JSONObject json = new JSONObject();
 
     public AbstractAjaxView add(Object obj) {
-    	addObject(config.getMessageKey(),obj);
+    	addEntity(config.getMessageKey(),obj);
         return this;
     }
     
     public AbstractAjaxView add(String message,Object ... obj) {
-        addObject(config.getMessageKey(),MessageFormat.format(message, obj));
+    	addEntity(config.getMessageKey(),MessageFormat.format(message, obj));
         return this;
     }
 
+    /** 직접 입력할때 한해서 사용한다. */
     public AbstractAjaxView addObject(String key, Object obj) {
-		if (obj instanceof String || obj instanceof JSON) json.put(key, obj);
-        else{
-            JSON array = beanToJson.build(obj);
-            json.put(key, array);
-        }
+    	json.put(key, obj);
 		return this;
 	}
+    public AbstractAjaxView addEntity(String key, Object obj) {
+    	if (obj instanceof String || obj instanceof Number || obj instanceof JSON) json.put(key, obj);
+    	else{
+    		JSON array = beanToJson.build(obj);
+    		json.put(key, array);
+    	}
+    	return this;
+    }
+    
     public AbstractAjaxView isFail() {
 		this.success = false;
 		return this;

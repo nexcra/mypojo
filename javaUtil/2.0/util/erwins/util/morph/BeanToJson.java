@@ -2,6 +2,7 @@ package erwins.util.morph;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Map;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -36,6 +37,21 @@ public class BeanToJson extends BeanToJsonRoot {
 				return true;
 			}
 		}));
+		
+		/** Hibernate클래스가 없어도 된다~ 일반 프로젝트에서 도메인에 map을 쓸일이 없으니 쓸모 없을듯  */
+		theInstance.addConfig(new BeanToJSONBaseConfig(new Class[] { Map.class }, new BeanToJSONConfigFetcher() {
+            @SuppressWarnings("rawtypes")
+            @Override
+            public boolean fetch(Object instance, Field field, JSONObject json) {
+                Map value =  (Map)ReflectionUtil.getField(field, instance);
+                if(value==null) return true;
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.putAll(value);
+                json.put(field.getName(), jsonObject);
+                return true;
+            }
+        }));
+		
 		theInstance.addConfig(new BeanToJSONBaseConfig(new Class[] { HibernateDomainObject.class }, new BeanToJSONConfigFetcher() {
 			@Override
 			public boolean fetch(Object instance, Field field, JSONObject json) {

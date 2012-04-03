@@ -2,6 +2,7 @@
 package erwins.util.lib;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -70,6 +71,18 @@ public abstract class StringEscapeUtil extends StringEscapeUtils {
         catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    public static String unescapeUrl(String str) {
+        return unescapeUrl(str,CharEncodeUtil.UTF_8);
+    }
+    public static String unescapeUrl(String str,String encode) {
+    	try {
+    		return URLDecoder.decode(str, encode);
+    	}
+    	catch (UnsupportedEncodingException e) {
+    		throw new RuntimeException(e);
+    	}
     }
 
     /**

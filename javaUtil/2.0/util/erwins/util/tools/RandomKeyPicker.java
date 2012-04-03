@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import erwins.util.tools.RandomKeyPicker.RandomObject;
 
 /** count는 랜덤하게 픽하게 될 부가상수이다. count / sum이 픽될 확율이 된다. */
-public class RandomKeyPicker<OBJ,T extends RandomObject<OBJ>>{
+public class RandomKeyPicker<OBJ,T extends RandomObject<OBJ>> implements RandomPick<OBJ>{
     
     private NavigableMap<Integer, OBJ> map = new TreeMap<Integer, OBJ>();
     private Random random = new Random();

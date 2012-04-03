@@ -5,6 +5,7 @@ import java.sql.Timestamp
 
 import erwins.util.counter.Accumulator
 import erwins.util.counter.Accumulator.ThreashHoldRun
+import erwins.util.valueObject.ShowTime
 import groovy.lang.Closure
 import groovy.sql.Sql
 
@@ -38,8 +39,15 @@ public abstract class AbstractSql{
 	public count(tableName){
 		one("select COUNT(*) as COUNT from $tableName ")['COUNT']
 	}
+	
+	/** 간단한 sql문장을 생성한다. 사전에 전체카운트 체크할것! */
+	public List simpleInsertSql(tableName){
+		def list = list("select * from $tableName")
+		return list.collect { "insert into $tableName values (" + it.collect{"'"+it.value+"'"}.join(',') + ");" }
+	}
 
-	/** 이 안에서 작업하자. 아래 withTransaction와는 closure의 쓰임새가 틀리다. 주의! */
+	/** 이 안에서 작업하자. 범용 API로서 
+	 * 아래 withTransaction와는 closure의 쓰임새가 틀리다. 주의! */
 	public void withTransaction(Closure closure){
 		db.resultSetConcurrency = java.sql.ResultSet.CONCUR_UPDATABLE
 		try{
@@ -47,7 +55,8 @@ public abstract class AbstractSql{
 			db.commit()
 		}catch (Exception e) {
 			db.rollback()
-			e.printStackTrace()
+			throw e
+			//e.printStackTrace()
 		}finally{
 			//reset resultSetsConcurrency back to read only (no further changes required)  데이터 변경 못하게 막는다.
 			db.resultSetConcurrency = java.sql.ResultSet.CONCUR_READ_ONLY
@@ -83,9 +92,12 @@ public abstract class AbstractSql{
 		return this
 	}
 	
+	/** false이면 예외를 던진다. */
 	protected abstract void exceptionHandle(Exception e,String sql,List param)
 	
-	/** 디비 스키마 기준으로 엑셀 내용을 insert할때 사용된다. Map에 잡데이터가 들어가있어도 해당 컬럼만 입력된다.  */
+	/** 디비 스키마 기준으로 엑셀 내용을 insert할때 사용된다. Map에 잡데이터가 들어가있어도 해당 컬럼만 입력된다.\
+	 * 예외를 던져도 멈추지 않는다.. 이유를 모르겠다.  */
+	@Deprecated
 	public int insertListMap(tableName,columnNames,List listMap){
 		def insertSql = "INSERT INTO $tableName (" + columnNames.join(',') + ') VALUES ('+ columnNames.collect { '?' }.join(',')  +')'
 		def ac = new Accumulator(10000,{ println it * 10000 } as ThreashHoldRun);
@@ -106,8 +118,8 @@ public abstract class AbstractSql{
 		return ac.count()
 	}
 	
-	/** map대신 List<List>를 사용한다.  */
-	public int insertList(tableName,columnNames,List list){
+	/** 배치를 상용하지 않는 입력이다.  */
+	public int insertListEach(tableName,columnNames,List list){
 		def insertSql = "INSERT INTO $tableName (" + columnNames.join(',') + ') VALUES ('+ columnNames.collect { '?' }.join(',')  +')'
 		int success=0
 		withTransaction {
@@ -123,11 +135,74 @@ public abstract class AbstractSql{
 		println "테이블 ${tableName}에 $success 건의 데이터가 입력되었습니다 "
 		return success
 	}
+	
+	/** 1000개씩 배치로 묶어서 인서트한다. */
+	public void insertList(tableName,columnNames,List list){
+		def insertSql = "INSERT INTO $tableName (" + columnNames.join(',') + ') VALUES ('+ columnNames.collect { '?' }.join(',')  +')'
+		withTransaction {
+			db.withBatch 1000,insertSql,{ ps->
+				list.each { ps.addBatch(it) }
+			}
+		}
+		int success =  list.size()
+		println "테이블 ${tableName}에 $success 건의 데이터가 입력되었습니다 "
+	}
+	
+	/** 한번에 너무많이 하지말긔~ update에 사용하자.
+	 * ex) result.splitByNumber(1000).each 백만건 이상 시.  */
+	public void withBatch(sql,List list){
+		withTransaction {
+			db.withBatch 1000,sql,{ ps->
+				list.each { ps.addBatch(it) }
+			}
+		}
+		int success =  list.size()
+		println "$success 건의 sql이 실행되었습니다."
+	}
 
 	/** Map 내용 전체가 입력된다. 
 	 * ex) db.delete('메타컬럼01').insertListMap('메타컬럼01', new ERWinToXls(DIR+'Columns').convert()) */
+	@Deprecated
 	public int insertListMap(tableName,List listMap){
 		def columnNames = listMap[0].keySet()
 		return insertListMap(tableName,columnNames,listMap)
 	}
+	
+	/** 일반 페이징 쿼리가 너무 느릴때 사용한다. 키값으로 페이징 처리함으로 인덱스를 타기때문에 로드시 부하가 적다.
+	*  --> 2천만건 이상 데이터가 있을때 모두 페이징 처리 해야하는경우. 100만건 이하는 걍 해도 빠르다.
+	*  숫자형? 유일키가 있어야 사용 가능하며, 한번의 배치당 진행되는 숫자는 다를 수 있다. (키값 사이의 공백) */
+  public void batchByKey(tableName,keyName,batchSize,callback,startPage=1,sqlAppend='',isStringKey=false){
+	  int start = oneValue("select min($keyName) from $tableName").toInteger();
+	  int end = oneValue("select max($keyName) from $tableName").toInteger();
+	  int maxCount = end - start +1
+	  int maxPage = Math.round( maxCount / batchSize )
+	  long beforeTime = 0
+	  long cumulatedTime = 0
+	  def sql = "select * from $tableName where $keyName between ? and ? $sqlAppend".toString()
+	  for(int i=startPage-1;i<maxPage;i++){
+		  long startTime = System.nanoTime()
+		  if(beforeTime==0) println "$i / $maxPage 파일 처리중...."
+		  else{
+			  def nowTime = new ShowTime(beforeTime).toString()
+			  long avg = Math.round(cumulatedTime / i)
+			  def avgTime = new ShowTime( avg ).toString()
+			  def maxTime = new ShowTime(avg * (maxPage - i + 1)).toString()
+			  println "$i / $maxPage 파일 처리중... 이전배치동작시간 $nowTime / 평균 $avgTime / 남은예상시간 $maxTime "
+		  }
+		  def s = start + (batchSize * i)
+		  def e = start + (batchSize * (i+1)) -1
+		  if(e > end) e = end
+		  //타입을 마춰주어야 인덱스를 탄다.
+		  def param = isStringKey ? [s.toString(),e.toString()] : [s,e]
+		  def list = db.rows(sql,param)
+		  if(list.size()==0){
+			  println '데이터가 없습니다.'
+			  return;
+		  }
+		  callback(list,i);
+		  beforeTime = System.nanoTime() - startTime
+		  cumulatedTime += beforeTime
+	  }
+	  println '배치의 maxSize에 도달했습니다. 배치를 종료합니다.'
+  }
 }

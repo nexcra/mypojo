@@ -1,6 +1,8 @@
 
 package erwins.util.valueObject;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.MessageFormat;
 
 /**
@@ -28,9 +30,9 @@ public class ShowTime {
     
     public ShowTime(int[] time) {
     	if(time==null || time.length > 3) throw new IllegalArgumentException();
-    	if(time.length > 0) h = time[0]; 
-    	if(time.length > 1) MM = time[1]; 
-    	if(time.length > 2) ss = time[2]; 
+    	if(time.length > 0) h = time[0];
+    	if(time.length > 1) MM = time[1];
+    	if(time.length > 2) ss = time[2];
     }
 
     private void initNanoTime() {
@@ -44,7 +46,7 @@ public class ShowTime {
     }
     private void initTime() {
     	h = (int) (totalSecond / 60 / 60);
-    	MM = (int) (totalSecond / 60);
+    	MM = (int) ((totalSecond - (h*60*60)) / 60);
     	ss = (int) (totalSecond % 60);
     }
 
@@ -78,7 +80,13 @@ public class ShowTime {
     	}
 		if(h!=0) return MessageFormat.format("{0}시간 {1}분 {2}초",  h, MM, ss);
         else if(MM!=0) return MessageFormat.format("{0}분 {1}초", MM,ss);
-        else return MessageFormat.format("{0}초", ss);	
+        else{
+        	if(ss>10) return MessageFormat.format("{0}초", ss);
+        	else {
+        		BigDecimal c = new BigDecimal((double)totalNanoSecond / 1000 / 1000 / 1000).setScale(2,RoundingMode.HALF_UP);
+        		return c.toString() + "초";
+        	}
+        }
     }
 
     /**

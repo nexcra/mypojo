@@ -4,6 +4,8 @@ package erwins.util.groovy
 import java.io.File
 import java.text.DecimalFormat
 
+import oracle.sql.TIMESTAMP
+
 import org.apache.commons.collections.map.ListOrderedMap
 
 import erwins.util.collections.MapForList
@@ -40,6 +42,7 @@ public class GroovyMetaUtil{
 		}
 	}
 	
+	/** Number로 나중에 다 바꾸자 */
 	public static void number(){
 		DecimalFormat wonFormat = new DecimalFormat("#0");
 		/** 간이 한글 처리기  */
@@ -69,6 +72,34 @@ public class GroovyMetaUtil{
 		}
 		Integer.metaClass."format" = { f=format ->
 			return f.format(delegate);
+		}
+		Long.metaClass."split" = { size ->
+			def result = []
+			int remain = delegate
+			while(true){
+				if(remain < size){
+					if(remain!=0) result << remain
+					break;
+				}
+				result << size
+				remain -= size
+			}
+			return result
+		}
+		/** size만큼 잘라서 배열로 만들어준다. 주로 배치작업에 사용된다.
+		 * 279.splitSize(100) ==> [100,100,79]  */
+		Number.metaClass."splitSize" = { size ->
+			def result = []
+			int remain = delegate
+			while(true){
+				if(remain < size){
+					if(remain!=0) result << remain
+					break;
+				}
+				result << size
+				remain -= size
+			}
+			return result
 		}
 	}
 
@@ -177,6 +208,23 @@ public class GroovyMetaUtil{
 			}
 			return result
 		}
+		/** 인메모리 페이징 처리기 이다.
+		* 배열을 크기 숫자료 잘라준다. */
+	   ArrayList.metaClass."splitByNumber" = { splitSize ->
+		   int current = 0
+		   def list = []
+		   def result = [list]
+		   delegate.each {
+			   if(current == splitSize){
+				   list = []
+				   result << list
+				   current = 0
+			   }
+			   current++
+			   list << it
+		   }
+		   return result
+	   }
 		/** List<Map> 인 구조에서 특정 key로 데이터를 분류한다.
 		 * 분류된 데이터는 당근 Map<List<Map>> 이 된다  */
 		ArrayList.metaClass."splitByKey" = {key ->
@@ -231,6 +279,17 @@ public class GroovyMetaUtil{
 			def parameter = StringUtil.iterateStr( '?', ',', delegate.length)
 			def INSERT = "INSERT INTO $tableName ( ${delegate.join(',')} ) VALUES ( ${parameter} )"
 			return INSERT
+		}
+	}
+	
+	/** 오라클 모음 */
+	public static void oracle(){
+		/** it.START_TIME.time 욜케 써도 된다. */
+		TIMESTAMP.metaClass."getTime"  = {
+			return delegate.timestampValue().getTime()
+		}
+		TIMESTAMP.metaClass."toDate"  = {
+			return new Date(delegate.getTime())
 		}
 	}
 }

@@ -13,6 +13,7 @@ import erwins.util.valueObject.ShowTime;
 /**
  * 년도, 일자 등의 처리. singleton
  * 10년의 차이는  long으로 315532800000 이다.
+ * 경고!! 스레드에 안전하지 않다!!!!!!!!!
  */
 public enum DayUtil{
     
@@ -256,9 +257,28 @@ public enum DayUtil{
     public static String getDayStr(Calendar c){
         return String.format("%tB %<tC일 %<tA", c);
     }
+    
     /** 요일을 리턴한다. 나중에 패턴으로 바꿀것. */
     public static String getDayStr(){
     	return getDayStr(Calendar.getInstance());
+    }
+
+    public static Calendar getInit8Calendar() {
+    	String dateString = DayUtil.DATE_FOR_DB.get();
+    	return DayUtil.getCalendar(dateString);
+    }
+    /** 년월일 기준으로 초기화된(0시0분0초) 일자를 리턴한다.
+     * Date로 구성된 필드에서 기간 등을 구할때 사용된다. 
+     *  DateUtils의 truncate를 사용하면 될듯 하다.  */
+    @Deprecated
+    public static Calendar getInit8Calendar(Calendar c) {
+    	String dateString = DayUtil.DATE_FOR_DB.get(c);
+    	return DayUtil.getCalendar(dateString);
+    }
+    
+    /** Calendar의 일자를 해당 월의 말일로 변경해준다. */
+    public static void toMaxDate(Calendar c) {
+        c.set(Calendar.DATE, c.getActualMaximum(Calendar.DATE));
     }
     
 

@@ -22,6 +22,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.DESedeKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -31,9 +32,12 @@ import org.apache.commons.codec.binary.Base64;
  * Base64 라이브러리를 sun패키지에서 apache껄로 바꿨다. 이게 더 나은듯.\
  * SecretKeySpec 과 IvParameterSpec는 생략했다.
  */
-public class Cryptor {
+public class Copy_2_of_Cryptor {
 	
 	public static enum Mode{
+		/** Advanced Encryption Standard
+		 * 미국의 연방 표준 알고리즘으로서 20년이 넘게 사용되어 온 DES를 대신할 차세대 표준 알고리즘 */
+		AES("AES/CBC/PKCS5Padding"),
 		/** 일반 DES(Data Encryption Standard) */
 		DES("DES/ECB/PKCS5Padding"),
 		/** (트리플 DES) */
@@ -54,14 +58,14 @@ public class Cryptor {
 	
 	private Mode mode = Mode.DESede;
 	/** 기본값  DESede*/
-	public Cryptor setMode(Mode mode) {
+	public Copy_2_of_Cryptor setMode(Mode mode) {
 		this.mode = mode;
 		return this;
 	}
 
 	private String encode = "UTF-8";
 	/** 기본값 UTF-8  */
-	public Cryptor setEncode(String encode) {
+	public Copy_2_of_Cryptor setEncode(String encode) {
 		this.encode = encode;
 		return this;
 	}
@@ -70,7 +74,7 @@ public class Cryptor {
 		return key;
 	}
 	
-	public synchronized String encryptBase64(String str){
+	public String encryptBase64(String str){
 		byte[] raw = encrypt(str);
         try {
 			return new String(Base64.encodeBase64(raw),encode);
@@ -113,7 +117,7 @@ public class Cryptor {
 		}
 	}
 	
-	public synchronized String decryptBase64(String base64){
+	public String decryptBase64(String base64){
 		byte[] raw;
 		try {
 			raw = Base64.decodeBase64(base64.getBytes(encode));
@@ -225,9 +229,8 @@ public class Cryptor {
 		else throw new RuntimeException("MODE not fount" + mode.name());
 	}	
 
-	/** 이 key를 사용하면 String 복호화의 경우 padding오류가 난다?? 주의 */
-	@Deprecated
-	public Cryptor generateKey(){
+	/** 이 key를 사용하면 String 복호화의 경우 padding오류가 난다. 주의 */
+	public Copy_2_of_Cryptor generateKey(){
 		KeyGenerator keygen = null;
 		try {
 			keygen = KeyGenerator.getInstance(mode.name());
@@ -239,18 +242,23 @@ public class Cryptor {
 	}
 	
 	/** 아무 문자나 막넣어도 키를 생성해준다. */
-	public Cryptor generateKeyByString(String stringForKey) {
+	public Copy_2_of_Cryptor generateKeyByString(String stringForKey) {
 		return generateKey(MD5.getHashHexString(stringForKey).substring(0,26));
 	}
 	
 	/** 문자열 단일 암호화는 이것으로 생성하자. ex)quantum.object@hotmail.com
 	 * DESede's key length must be 26  */
-	public Cryptor generateKey(String stringForKey) {
+	public Copy_2_of_Cryptor generateKey(String stringForKey) {
 		byte[] keydata = stringForKey.getBytes();
 		try {
-			KeySpec keySpec = getKeySpec(keydata);
-			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(mode.name());
-			key = keyFactory.generateSecret(keySpec);
+			if(mode == Mode.AES){
+				key = new SecretKeySpec(keydata, mode.name());
+			}else{
+				KeySpec keySpec = getKeySpec(keydata);
+				SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(mode.name());
+				key = keyFactory.generateSecret(keySpec);	
+			}
+			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -258,7 +266,7 @@ public class Cryptor {
 	}
 
 	/** TripleDES 전용? */
-	public Cryptor writeKey(File f){
+	public Copy_2_of_Cryptor writeKey(File f){
 		try {
 			SecretKeyFactory keyfactory = SecretKeyFactory.getInstance(mode.name());
 			
@@ -281,7 +289,7 @@ public class Cryptor {
 	}
 
 	/** Read a TripleDES secret key from the specified file */
-	public Cryptor readKey(File f){
+	public Copy_2_of_Cryptor readKey(File f){
 		try {
 			DataInputStream in = new DataInputStream(new FileInputStream(f));
 			byte[] rawkey = new byte[(int) f.length()];
@@ -298,7 +306,7 @@ public class Cryptor {
 	}
 	
 	/** 걍 날로 저장한 Key를 읽어온다. */
-	public Cryptor readKeyForObject(File f){
+	public Copy_2_of_Cryptor readKeyForObject(File f){
 		try {
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
 			key = (SecretKey)in.readObject();

@@ -2,10 +2,16 @@ package erwins.util.groovy
 
 
 import java.sql.Timestamp
+import java.util.List
 
+import org.apache.poi.hssf.record.formula.functions.T
+
+import erwins.util.collections.MapForList
+import erwins.util.exception.BusinessException
 import erwins.util.lib.FormatUtil
 import erwins.util.lib.StringUtil
 import erwins.util.tools.TextFile
+import erwins.util.valueObject.ShowTime
 import erwins.util.vender.apache.Poi
 import erwins.util.vender.apache.PoiReaderFactory
 import erwins.util.vender.etc.OpenCsv
@@ -21,6 +27,12 @@ public class OracleSql extends AbstractSql implements Iterable{
 	public static OracleSql instance(ip,sid,id,pass){
 		OracleSql oracleSql = new OracleSql()
 		oracleSql.db = Sql.newInstance("jdbc:oracle:thin:@$ip:1521:$sid",id,pass,'oracle.jdbc.driver.OracleDriver');
+		oracleSql.db.connection.autoCommit = false
+		return oracleSql;
+	}
+	public static OracleSql instance(url,id,pass){
+		OracleSql oracleSql = new OracleSql()
+		oracleSql.db = Sql.newInstance(url,id,pass,'oracle.jdbc.driver.OracleDriver');
 		oracleSql.db.connection.autoCommit = false
 		return oracleSql;
 	}
@@ -42,7 +54,9 @@ public class OracleSql extends AbstractSql implements Iterable{
 	}
 	/** ex) db.loadInfo(tableSql).loadColumn().loadColumnKey() */
 	public OracleSql loadInfo(where=''){
-		tables = list("SELECT TABLE_NAME,COMMENTS FROM USER_TAB_COMMENTS WHERE TABLE_NAME NOT LIKE 'BIN%' $where ORDER BY TABLE_NAME")
+		def sql = """SELECT a.TABLE_NAME,a.NUM_ROWS, b.COMMENTS FROM USER_TABLES a JOIN USER_TAB_COMMENTS b ON a.TABLE_NAME = b.TABLE_NAME 
+		WHERE a.TABLE_NAME NOT LIKE 'BIN%' $where  ORDER BY a.TABLE_NAME"""
+		tables = list(sql)
 		return this
 	}
 	public OracleSql loadCount(){
@@ -112,7 +126,6 @@ public class OracleSql extends AbstractSql implements Iterable{
 	/*                                STATIC                                              */
 	/* ================================================================================== */
 
-
 	/** 오라클에서 사용하는 페이징으로 바꿔준다. */
 	public static String toOraclePaging(sql,pageSize,pageNo){
 		int startNo = pageSize * (pageNo-1) +1;
@@ -128,17 +141,37 @@ public class OracleSql extends AbstractSql implements Iterable{
 	 * ex) def columns = columns(TABLE_NAME)
 	 * insertList(~~)
 	 *  */
-	public void batch(tableName,batchSize,maxSize,callback){
-		for(int i=1;i<maxSize+1;i++){
-			println "$i 번째 처리중 파일 처리중"
-			//여기에 PK기반 페이징처리 추가.
-			def list = paging "select * from $tableName ",batchSize,i
-			if(list.size()==0) return;
+	public void batch(tableName,start,batchSize,maxSize,callback,sqlAppend=''){
+		int maxCount = one("select COUNT(*) as COUNT from $tableName $sqlAppend")['COUNT']
+		int maxPage = Math.round( maxCount / batchSize )
+		long beforeTime = 0
+		long cumulatedTime
+		long finalPage = maxPage > maxSize ? maxSize : maxPage //둘중 작은게 결정자이다.
+		for(int i=start;i<finalPage+1;i++){
+			long startTime = System.nanoTime()
+			if(beforeTime==0) println "$i / $maxPage 파일 처리중...."
+			else{
+				def nowTime = new ShowTime(beforeTime).toString()
+				long avg = Math.round(cumulatedTime /  (i-start))
+				def avgTime = new ShowTime( avg ).toString()
+				def maxTime = new ShowTime(avg * (finalPage - i + 1)).toString()
+				println "$i / $maxPage 파일 처리중... 이전배치동작시간 $nowTime / 평균 $avgTime / 남은예상시간 $maxTime "
+			}
+			def list = paging "select * from $tableName "+sqlAppend,batchSize,i
+			if(list.size()==0){
+				println '데이터가 없습니다.'
+				return;
+			}
 			callback(list,i);
-			if(list.size() < batchSize) return
+			if(list.size() < batchSize) {
+				println '마지막 자료입니다. 배치를 종료합니다.'
+				return
+			}
+			if(i==maxSize) println '배치의 maxSize에 도달했습니다. 배치를 종료합니다.'
+			beforeTime = System.nanoTime() - startTime
+			cumulatedTime += beforeTime
 		}
 	}
-	
 	
 	/** DB의 내용을 csv로 옮긴다.
 	* 실DB의 일정분량만을 테스트DB로 이관할때 사용하였다.  batchSize * maxSize 가 전체수
@@ -221,8 +254,12 @@ public class OracleSql extends AbstractSql implements Iterable{
 	   if(oracleType == 'DATE') return new Timestamp( Long.valueOf(value) );
 	   return value
    }
-	
-	
+   
+   /** columnNames을 안넣었을때  */
+   public void insertList(tableName,List list){
+	   def columnNames = columns(tableName).collect { it.COLUMN_NAME }
+	   insertList(tableName,columnNames,list)
+   }
 	
 	/** DB의 내용을 xls로 옮긴다. (임시용이다. 대용량은 txt로 처리하자)
 	 * 실DB의 일정분량만을 테스트DB로 이관할때 사용하였다.  batchSize * maxSize 가 전체수 
@@ -318,6 +355,35 @@ public class OracleSql extends AbstractSql implements Iterable{
 	/*                                print                                               */
 	/* ================================================================================== */
 	
+	/** 통계성 쿼리 등 간이 SQL을 bean으로 매핑하고싶을때.  */
+	public printSqlToMyBatisBean(sql){
+		//def list = paging(sql,1,1); //로우넘 생겨서 안씀 ㅋ
+		def list = list(sql);
+		if(list.size()==0) throw new BusinessException('1개 이상의 결과가 있어야 합니다.')
+
+		def oneRow = list[0]		
+		def map = [:]
+		def cn = oneRow.keySet()
+		
+		def writer = new StringWriter()
+		def builder = new groovy.xml.MarkupBuilder(writer)
+		def className = 'Sample';
+		def invoices = builder.resultMap(id:className.capitalize()+'Map',type:className.capitalize()){
+			cn.each { result(property:it.camelize(),column:it) }
+		}
+		map['RESULT_MAP'] = writer.toString()
+		
+		def javaResult = []
+		cn.each{
+			def value = oneRow[it]
+			def type =  value==null ? 'Object' : value.class.simpleName 
+			javaResult << "private $type ${it.camelize()};"
+		}
+		map['JAVA'] = javaResult.join('\n')
+		
+		return map
+	}
+	
 	/** iBatiis or MyBatis용 */
 	public printBatis(TABLE_NAME){
 		def columns = columns(TABLE_NAME)
@@ -326,35 +392,57 @@ public class OracleSql extends AbstractSql implements Iterable{
 		
 		/* 알아서 바꿔주자 */
 		def $$ = {'#{'+it.camelize()+'}'  }; //mybatis용
+		def $$2 = { cName ->
+			def type = ''
+			def col =  columns.find { it['COLUMN_NAME'] == cName }
+			if(col['SEARCH_CONDITION']==null){   //null가능하다면 타입을 명시해준다. (mybatis의경우 타입이 없으면 null파라메터를 허용하지 않는다.)
+				def jdbcType = ORACLE_TO_JDBC_TYPE[col['DATA_TYPE']]
+				if(jdbcType!=null) type += ',jdbcType='+jdbcType
+			}
+			'#{'+cName.camelize()+type+'}'
+		}
+		/*
+		nonPks.each { cName ->
+			def col =  columns.find { it['COLUMN_NAME'] == cName }
+			def jdbcType = ORACLE_TO_JDBC_TYPE[col['DATA_TYPE']]
+			if(jdbcType==null) result(property:cName.camelize(),column:cName)
+			else result(property:cName.camelize(),column:cName,jdbcType:jdbcType)
+		}
+		*/
+		
 		//def $$ = {'#'+it.camelize()+'#'  }; //ibatis용
+		
 		
 		def sqls = [:];
 		sqls['SELECT'] = 'SELECT ' + cn.collect{'a.'+it}.join(', ') + " \nFROM $TABLE_NAME a " 
-		sqls['INSERT'] = "INSERT INTO $TABLE_NAME (" + cn.join(', ') + ') \nVALUES ('+ cn.collect { $$(it) }.join(',')  +')' 
+		sqls['INSERT'] = "INSERT INTO $TABLE_NAME (" + cn.join(', ') + ') \nVALUES ('+ cn.collect { $$2(it) }.join(',')  +')' 
 		
 		def pks = columns.findAll { it['KEY'] == 'PK' }.collect { it.COLUMN_NAME }
 		def nonPks = columns.findAll { it['KEY'] != 'PK' }.collect { it.COLUMN_NAME }
 		
-		sqls['UPDATE'] = "UPDATE $TABLE_NAME SET " + cn.collect { it + ' = '+$$(it)}.join(', ') + ' \nWHERE ' + pks.collect { it + ' = '+$$(it) }.join(' AND ')
+		sqls['UPDATE'] = "UPDATE $TABLE_NAME SET " + cn.collect { it + ' = '+$$2(it)}.join(', ') + ' \nWHERE ' + pks.collect { it + ' = '+$$(it) }.join(' AND ')
 		
 		def mergeSql  = "MERGE INTO $TABLE_NAME USING dual ON ( " + pks.collect { it + ' = '+$$(it) }.join(' AND ')  + " )\n"
-		mergeSql += "WHEN matched THEN UPDATE SET " + nonPks.collect { it + ' = '+$$(it) }.join(', ') + '\n'
-		mergeSql += "WHEN NOT matched THEN INSERT (" + cn.join(', ') + ') VALUES ('+ cn.collect { $$(it)}.join(', ')  +')'
+		mergeSql += "WHEN matched THEN UPDATE SET " + nonPks.collect { it + ' = '+$$2(it) }.join(', ') + '\n'
+		mergeSql += "WHEN NOT matched THEN INSERT (" + cn.join(', ') + ') VALUES ('+ cn.collect { $$2(it)}.join(', ')  +')'
 		sqls['MERGE'] = mergeSql
 		
+		//참고
+		//http://www.jarvana.com/jarvana/view/org/mybatis/mybatis/3.0.2/mybatis-3.0.2-javadoc.jar!/org/apache/ibatis/type/JdbcType.html
 		def writer = new StringWriter()
 		def builder = new groovy.xml.MarkupBuilder(writer)
 		def className = TABLE_NAME.camelize();
-		def invoices = builder.resultMap(id:className+'Map',type:className.capitalize()){
+		def invoices = builder.resultMap(id:className.capitalize()+'Map',type:className.capitalize()){
 			pks.each { id(property:it.camelize(),column:it) }
-			nonPks.each { result(property:it.camelize(),column:it) }
+			nonPks.each { result(property:it.camelize(),column:it)  }
 		}
 		sqls['RESULT_MAP'] = writer.toString()
 		return sqls
 	}
 	
-	public static def JAVA_TYPE = ['NUMBER':'BigDecimal','DATE':'Date','VARCHAR2':'String','CHAR':'String']
-	public static def SIMPLE_TYPE = ['NUMBER':'Num','DATE':'Date','VARCHAR2':'VC2','CHAR':'Char']
+	/** my-batis같은거 쓸때 null예외를 회피하기위해 XML에 추가해주는 용도. => 변경을 해야함 */
+	public static def ORACLE_TO_JDBC_TYPE = ['NUMBER':'NUMERIC','DATE':'TIMESTAMP ','VARCHAR2':'VARCHAR','CHAR':'CHAR']
+	public static def ORACLE_TO_JAVA_TYPE = ['NUMBER':'BigDecimal','DATE':'Date','VARCHAR2':'String','CHAR':'String']
 	
 	/** java 도메인 객체 기본생성 */
 	public printJava(TABLE_NAME){
@@ -362,7 +450,7 @@ public class OracleSql extends AbstractSql implements Iterable{
 		def cn = cols.collect { it.COLUMN_NAME }
 		def result = [StringUtil.getCamelize(TABLE_NAME).capitalize()]
 		cols.each {
-			def type = JAVA_TYPE[it['DATA_TYPE']]
+			def type = ORACLE_TO_JAVA_TYPE[it['DATA_TYPE']]
 			if(type=='BigDecimal' && it['DATA_SCALE']==0) type ='Long'
 			def name = StringUtil.getCamelize(it['COLUMN_NAME'])
 			if(it.COMMENTS==null) it.COMMENTS = 'COMMENTS를 달아주세요'
@@ -430,6 +518,165 @@ public class OracleSql extends AbstractSql implements Iterable{
 		   from += "$name $ali "
 	   }
 	   println select + from + '\nWHERE ~~'
+   }
+   
+   /** 제약조건 불러옴 */
+   private def colsSql = """SELECT aa.TABLE_NAME,COLUMN_NAME,CONSTRAINT_TYPE,SEARCH_CONDITION,R_CONSTRAINT_NAME
+   FROM USER_CONS_COLUMNS aa join USER_CONSTRAINTS bb on aa.CONSTRAINT_NAME = bb.CONSTRAINT_NAME """
+   
+   /** 스키마 비교용 테이블 3곳에 데이터를 입력한다.  시간에따라 or 계정에 따라 적절히 입력하자 테이블은 스키마 참조 */
+   public schema(desc){
+	   def constraints = list(colsSql)
+	   MapForList map = new MapForList()
+	   constraints.each { map.add(it.TABLE_NAME+':'+it.COLUMN_NAME, it)  }
+
+	   int id =  oneValue('SELECT NVL(MAX(ID),0)+1 FROM TEMP_SCHEMA')
+	   insertList('TEMP_SCHEMA',[[id,new Timestamp(new Date().time),desc]]);
+	   
+	   withTransaction {
+		   def sql = """INSERT INTO TEMP_SCHEMA_TABLE (ID,TABLE_NAME,NUM_ROWS,COMMENTS)
+		   SELECT $id,a.TABLE_NAME,a.NUM_ROWS, b.COMMENTS
+		   FROM USER_TABLES a JOIN USER_TAB_COMMENTS b ON a.TABLE_NAME = b.TABLE_NAME"""
+		   execute(sql);
+		   
+		   def sqlCol = """INSERT INTO TEMP_SCHEMA_COL (ID,TABLE_NAME,COLUMN_NAME,COMMENTS,DATA_TYPE,DATA_LENGTH,DATA_PRECISION,DATA_SCALE,KEY,NOT_NULL)
+		   SELECT $id,a.TABLE_NAME,A.COLUMN_NAME,B.COMMENTS,DATA_TYPE,DATA_LENGTH,DATA_PRECISION,DATA_SCALE,'N','N'
+		   FROM user_tab_columns a JOIN USER_COL_COMMENTS b
+		   ON a.COLUMN_NAME = b.COLUMN_NAME AND a.TABLE_NAME = b.TABLE_NAME"""
+		   execute(sqlCol);
+	   }
+	   
+	   withTransaction('TEMP_SCHEMA_COL','1=1') { data ->
+		   def cons = map[data.TABLE_NAME+':'+data.COLUMN_NAME]
+		   if(cons==null) return
+		   cons.each {
+			   if(it.CONSTRAINT_TYPE == 'C') data['NOT_NULL'] = 'Y'
+			   else if(it.CONSTRAINT_TYPE == 'R') data['R_CONSTRAINT_NAME'] = it['R_CONSTRAINT_NAME']
+			   else if(it.CONSTRAINT_TYPE == 'P') data['KEY'] = 'Y'
+		   }
+	   }
+   }
+   
+   /** 변경된 스키마를 비교해서 바뀐점을 찾아낸다. */
+   public schemaChangeLog(long oldId,long newId){
+	   
+	   def buildSchema = { id ->
+		   def map = list("SELECT ID, TABLE_NAME, COMMENTS, NUM_ROWS  FROM TEMP_SCHEMA_TABLE a where ID = $id").toMap('TABLE_NAME')
+		   MapForList colMap = new MapForList()
+		   list("SELECT ID, TABLE_NAME, COLUMN_NAME, COMMENTS, DATA_TYPE, DATA_LENGTH, DATA_PRECISION, DATA_SCALE, KEY, NOT_NULL, R_CONSTRAINT_NAME FROM TEMP_SCHEMA_COL a WHERE ID = $id ")
+			   .each { colMap.add(it.TABLE_NAME, it) }
+		   colMap.each { k,v->
+			   def table = map[k] //null이면 view이다.
+			   if(table==null) return
+			   table['columns'] = v
+		   }
+		   return map
+	   }
+	   def oldDb = buildSchema(oldId)
+	   def newDb = buildSchema(newId)
+	   
+	   def deleted = []
+	   def created = []
+	   def changed = []
+	   def result = [deleted:deleted,created:created,changed:changed]
+	   
+	   oldDb.each { if(newDb[it.key]==null) deleted << it.value }
+	   newDb.each {
+		   def table = it.value
+		   def oldTable = oldDb[it.key]
+		   if(oldTable==null){
+			   created << table
+			   return
+		   }
+		   def oldColumns = oldTable.columns.toMap('COLUMN_NAME')
+		   def newColumns = table.columns.toMap('COLUMN_NAME')
+		   
+		   def colDeleted = []
+		   def colCreated = []
+		   def colChanged = []
+		   oldColumns.each { if(newColumns[it.key]==null) colDeleted << it.value }
+		   newColumns.each {
+			   def oldColumn = oldColumns[it.key]
+			   if(oldColumn==null){
+				   colCreated << it.value
+				   return
+			   }
+			   def log = { a,b,name ->
+				   if(a[name] != b[name])  colChanged << "$a.COLUMN_NAME : $name changed : ${a[name]} to ${b[name]}"
+			   }
+			   log(it.value,oldColumn,'DATA_TYPE')
+			   log(it.value,oldColumn,'DATA_LENGTH')
+			   log(it.value,oldColumn,'DATA_PRECISION')
+			   log(it.value,oldColumn,'DATA_SCALE')
+		   }
+		   boolean isChanged =  (colDeleted.size() + colCreated.size() + colChanged.size()) != 0
+		   changed << [isChanged:isChanged,tableInfo:table,colDeleted:colDeleted,colCreated:colCreated,colChanged:colChanged]
+	   }
+	   return result
+   }
+   
+   /** 스키마 비교결과를 문자열로 만든다. */
+   public schemaResultToString(result){
+	   def log = ''
+	   StringBuilder b = new StringBuilder()
+	   log += '\n=== 삭제된 테이블 ==='
+	   result.deleted.each { log += "\n$it.TABLE_NAME : $it.COMMENTS ($it.NUM_ROWS)"  }
+	   log += '\n=== 생성된 테이블 ==='
+	   result.created.each { log += "\n$it.TABLE_NAME : $it.COMMENTS ($it.NUM_ROWS)" }
+	   log += '\n=== 변경된 테이블 ==='
+	   result.changed.each {
+		   if(!it.isChanged) return
+		   def tableInfo = it.tableInfo
+		   log += "\n$tableInfo.TABLE_NAME : $tableInfo.COMMENTS ($tableInfo.NUM_ROWS)"
+		   it.colDeleted.each { log += "\n  삭제된 컬럼 : $it.COLUMN_NAME : $it.COMMENTS ($it.DATA_TYPE)" }
+		   it.colCreated.each { log += "\n  생성된 컬럼 : $it.COLUMN_NAME : $it.COMMENTS ($it.DATA_TYPE)" }
+		   it.colChanged.each { log += "\n  변경된 컬럼 : $it" }
+	   }
+	   return log
+   }
+   
+   
+   /**  */
+   public sqlMigration(beforeId,boolean first){
+	   
+	   def whereConstraint = """ SELECT distinct aa.TABLE_NAME 
+	   FROM USER_CONS_COLUMNS aa join USER_CONSTRAINTS bb on aa.CONSTRAINT_NAME = bb.CONSTRAINT_NAME
+	   WHERE CONSTRAINT_TYPE = 'R' and aa.TABLE_NAME not like '%_DATA' """
+   
+	   def w1 = """and a.TABLE_NAME = ''  and a.TABLE_NAME NOT IN ( $whereConstraint )"""
+	   def w2 = """and a.TABLE_NAME IN ( $whereConstraint )"""
+	   
+	   loadInfo(first ? w1 : w2).loadColumn().loadColumnKey()
+	   def result = []
+	   each {
+		   def comment = "-- $it.COMMENTS ($it.TABLE_NAME)";
+		   
+		   def cn = it.columns.collect { it.COLUMN_NAME }
+		   def remoteTableName = "$beforeId.$it.TABLE_NAME";
+		   
+		   try{
+			   int count =  count(remoteTableName)
+			   if(count==0){
+				   result << "$comment : is empty remote table "
+			   }else{
+			   
+				   def pks = it.columns.findAll { it['KEY'] == 'PK' }.collect { it.COLUMN_NAME }
+				   def nonPks = it.columns.findAll { it['KEY'] != 'PK' }.collect { it.COLUMN_NAME }
+				   
+				   if(pks.size()==0){
+					   result << "--$it.COMMENTS : $count\nINSERT INTO $it.TABLE_NAME ($colNames) SELECT $colNames FROM $remoteTableName ;"
+				   }else{
+					   def mergeSql  = "$comment\nMERGE INTO $it.TABLE_NAME o USING $remoteTableName r ON ( " + pks.collect { 'o.'+it + ' = r.'+ it }.join(' AND ')  + " )\n"
+					   mergeSql += "WHEN matched THEN UPDATE SET " + nonPks.collect { it + ' = r.'+ it }.join(', ') + '\n'
+					   mergeSql += "WHEN NOT matched THEN INSERT (" + cn.join(', ') + ') VALUES ('+ cn.collect { 'r.'+it }.join(', ')  +')'
+					   result << mergeSql
+				   }
+			   }
+		   }catch(e){
+			   result << "$comment : error - $e.message "
+		   }
+	   }
+	   return result
    }
 
 }

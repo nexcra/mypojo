@@ -1,5 +1,5 @@
 
-package erwins.util.root;
+package erwins.util.vender.apache;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -93,7 +93,6 @@ public class MailHelper {
      */    
     public void send(String subject,String templit, Object... values) throws EmailException {        
         email.setSubject(subject);
-        
         StringBuilder htmlContent = new StringBuilder();
         htmlContent.append("<html>");
         htmlContent.append("<body>");

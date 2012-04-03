@@ -1,0 +1,148 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름 : OPENCLICK1.TEMP_SCHEMA
+-- 만든 날짜 : 2012-03-14 오전 11:58:33
+-- 마지막으로 수정한 날짜 : 2012-03-14 오전 11:58:33
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP TABLE OPENCLICK1.TEMP_SCHEMA CASCADE CONSTRAINTS;
+
+CREATE TABLE OPENCLICK1.TEMP_SCHEMA (
+  ID             NUMBER(10)     NOT NULL, 
+  CHANGE_DATE    DATE               NULL
+)
+TABLESPACE USERS
+PCTFREE 10
+PCTUSED 0
+INITRANS 1
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+)
+LOGGING
+NOCACHE
+MONITORING
+NOPARALLEL
+;
+
+ALTER TABLE OPENCLICK1.TEMP_SCHEMA ADD
+(
+    CONSTRAINT PK_TEMP_SCHEMA
+    PRIMARY KEY ( ID )
+        USING INDEX
+        TABLESPACE USERS 
+        PCTFREE 10
+        INITRANS 2
+        MAXTRANS 255
+        STORAGE (
+            INITIAL 64 K
+            MINEXTENTS 1
+            MAXEXTENTS UNLIMITED
+        )
+);
+
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : OPENCLICK1.TEMP_SCHEMA_COL
+-- 만든 날짜 : 2012-03-14 오후 12:10:09
+-- 마지막으로 수정한 날짜 : 2012-03-14 오후 1:57:12
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP TABLE OPENCLICK1.TEMP_SCHEMA_COL CASCADE CONSTRAINTS;
+
+CREATE TABLE OPENCLICK1.TEMP_SCHEMA_COL (
+  ID                   NUMBER(10)         NOT NULL, 
+  TABLE_NAME           VARCHAR2(100)      NOT NULL,
+  COLUMN_NAME          VARCHAR2(100)      NOT NULL, 
+  COMMENTS             VARCHAR2(4000)         NULL, 
+  DATA_TYPE            VARCHAR2(100)          NULL, 
+  DATA_LENGTH          NUMBER(10)             NULL, 
+  DATA_PRECISION       NUMBER(10)             NULL, 
+  DATA_SCALE           NUMBER(10)             NULL, 
+  KEY                  VARCHAR2(1)            NULL,
+  NOT_NULL             VARCHAR2(1)            NULL, 
+  R_CONSTRAINT_NAME    VARCHAR2(100)          NULL 
+)
+TABLESPACE USERS
+PCTFREE 10
+PCTUSED 0
+INITRANS 1
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+)
+LOGGING
+NOCACHE
+MONITORING
+NOPARALLEL
+;
+
+ALTER TABLE OPENCLICK1.TEMP_SCHEMA_COL ADD
+(
+    CONSTRAINT PK_TEMP_SCHEMA_COL
+    PRIMARY KEY ( ID,TABLE_NAME, COLUMN_NAME )
+        USING INDEX
+        TABLESPACE USERS 
+        PCTFREE 10
+        INITRANS 2
+        MAXTRANS 255
+        STORAGE (
+            INITIAL 64 K
+            MINEXTENTS 1
+            MAXEXTENTS UNLIMITED
+        )
+);
+
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : OPENCLICK1.TEMP_SCHEMA_TABLE
+-- 만든 날짜 : 2012-03-14 오후 12:02:00
+-- 마지막으로 수정한 날짜 : 2012-03-14 오후 1:56:13
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP TABLE OPENCLICK1.TEMP_SCHEMA_TABLE CASCADE CONSTRAINTS;
+
+CREATE TABLE OPENCLICK1.TEMP_SCHEMA_TABLE (
+  ID            NUMBER(10)         NOT NULL,
+  TABLE_NAME    VARCHAR2(100)      NOT NULL,
+  COMMENTS      VARCHAR2(4000)         NULL, 
+  NUM_ROWS      NUMBER(10)             NULL 
+   
+  
+)
+TABLESPACE USERS
+PCTFREE 10
+PCTUSED 0
+INITRANS 1
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+)
+LOGGING
+NOCACHE
+MONITORING
+NOPARALLEL
+;
+
+ALTER TABLE OPENCLICK1.TEMP_SCHEMA_TABLE ADD
+(
+    CONSTRAINT PK_TEMP_SCHEMA_TABLE
+    PRIMARY KEY ( ID,TABLE_NAME  )
+        USING INDEX
+        TABLESPACE USERS 
+        PCTFREE 10
+        INITRANS 2
+        MAXTRANS 255
+        STORAGE (
+            INITIAL 64 K
+            MINEXTENTS 1
+            MAXEXTENTS UNLIMITED
+        )
+);
+
+
