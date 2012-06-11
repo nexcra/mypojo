@@ -7,6 +7,8 @@ import java.text.DecimalFormat
 import oracle.sql.TIMESTAMP
 
 import org.apache.commons.collections.map.ListOrderedMap
+import org.apache.commons.io.filefilter.IOFileFilter
+import org.apache.poi.hssf.record.formula.functions.T
 
 import erwins.util.collections.MapForList
 import erwins.util.collections.MapType
@@ -105,6 +107,17 @@ public class GroovyMetaUtil{
 
 	/** 이게 더 깔끔한듯 */
 	public static void map(){
+		Map.metaClass."toBean" = { Class c ->
+			def bean = c.newInstance()
+			delegate.each { k,v->
+				try{
+					bean[k] = v
+				}catch(MissingFieldException e){
+					println "[$k] : $e.message"
+				}
+			}
+			return bean;
+		}
 		HashMap.metaClass."plus" = { key,value=1 ->
 			def org = delegate.get(key)
 			if(org==null) org = 0;
@@ -290,6 +303,20 @@ public class GroovyMetaUtil{
 		}
 		TIMESTAMP.metaClass."toDate"  = {
 			return new Date(delegate.getTime())
+		}
+	}
+	
+	/** ex) def i = FileUtil.iterateFiles('C:/DATA/src', makeFilter { it.name.endsWith(".java") }) */
+	public IOFileFilter makeFilter(closure){
+		return new IOFileFilter(){
+			@Override
+			public boolean accept(File arg0) {
+				return closure(arg0);
+			}
+			@Override
+			public boolean accept(File arg0, String arg1) {
+				return true;
+			}
 		}
 	}
 }

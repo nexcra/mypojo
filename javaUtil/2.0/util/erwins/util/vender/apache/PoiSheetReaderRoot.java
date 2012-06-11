@@ -96,6 +96,9 @@ public abstract class PoiSheetReaderRoot implements Iterable<String[]>{
      * DateUtil 의 is~~ 시리즈가 완벽하게 작동하지 않는다. 따라서 안되는 부분은 DateUtil.getJavaDate(cell.getNumericCellValue() 를 사용
      * DateUtil -> XSSF에서도 이게 통하는지는 의문.. . 걍 time을 일단은 문자로 넘겨준다.
      * 나증에 Object 로 이동하도록 변경하자
+     * 
+     * ... 왜 else return new BigDecimal(cell.getNumericCellValue()).toString(); 일케했을까? ㅠㅠ 일단 변경
+     *   --> 24.7 일케 더블이 들어오면 24.6999999999 일케 바껴벼린다.
      */
     protected String cellToString(Cell cell) {
         if (cell == null) return "";
@@ -103,7 +106,12 @@ public abstract class PoiSheetReaderRoot implements Iterable<String[]>{
 			switch (cell.getCellType()) {
 			    case Cell.CELL_TYPE_NUMERIC:
 			    	if(DateUtil.isCellDateFormatted(cell)) return String.valueOf(cell.getDateCellValue().getTime());
-			    	else return new BigDecimal(cell.getNumericCellValue()).toString();
+			    	//else return new BigDecimal(cell.getNumericCellValue()).toString();
+			    	else{
+			    		String strValue = String.valueOf(cell.getNumericCellValue());
+			    		if(StringUtil.contains(strValue, 'E')) strValue = new BigDecimal(strValue).toPlainString(); //3.00004032E8 이런거 방지
+			    		return strValue;
+			    	}
 			    default:
 			    	return cell.getRichStringCellValue().getString().trim();
 			}

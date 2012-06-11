@@ -19,21 +19,20 @@ import erwins.util.morph.anno.Fk;
 import erwins.util.root.Singleton;
 
 /**
- * 자료를 복사한다.
- * ... 나중에 수정하자.
+ * 자료를 복사한다. -> 너무 복잡한듯? 일단 새로 만들자
  */
 @Singleton
-public class Duplicator{
+public class CopyOfDuplicator{
     
-    private static Duplicator theInstance = new Duplicator();
+    private static CopyOfDuplicator theInstance = new CopyOfDuplicator();
     
-    public static Duplicator instance(){
+    public static CopyOfDuplicator instance(){
         return theInstance;
     }
     
     private List<DuplicatorConfig> list = new CopyOnWriteArrayList<DuplicatorConfig>();
 
-    public Duplicator add(DuplicatorConfig command) {
+    public CopyOfDuplicator add(DuplicatorConfig command) {
         list.add(command);
         return this;
     }

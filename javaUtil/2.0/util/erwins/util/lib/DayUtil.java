@@ -162,6 +162,7 @@ public enum DayUtil{
     	Calendar cal = Calendar.getInstance();
     	cal.setLenient(false);
     	cal.set(year,month-1,day,h,m,0);
+    	cal.set(Calendar.MILLISECOND, 0);
     	return cal;
     }
     

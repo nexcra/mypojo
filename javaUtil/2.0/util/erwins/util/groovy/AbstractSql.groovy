@@ -2,6 +2,7 @@ package erwins.util.groovy
 
 
 import java.sql.Timestamp
+import java.text.Format;
 
 import erwins.util.counter.Accumulator
 import erwins.util.counter.Accumulator.ThreashHoldRun
@@ -12,6 +13,11 @@ import groovy.sql.Sql
 /** 벤더별로 만들어 사용하자.
  *  sql.execute 로 테이블생성 등이 가능 */
 public abstract class AbstractSql{
+	
+	/** 그루비 입력시 반드시 옵션 확인!!!
+	* 24시간 체계를 사용한다. 00시~ 23시
+	* hh로 포매팅한다면 12시와 00시를 구분하지 못한다. */
+   public static Format format = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //오렌지 디폴트
 
 	@Delegate
 	protected Sql db;
@@ -43,7 +49,9 @@ public abstract class AbstractSql{
 	/** 간단한 sql문장을 생성한다. 사전에 전체카운트 체크할것! */
 	public List simpleInsertSql(tableName){
 		def list = list("select * from $tableName")
-		return list.collect { "insert into $tableName values (" + it.collect{"'"+it.value+"'"}.join(',') + ");" }
+		return list.collect { "insert into $tableName values (" + it.collect{
+			it.value==null ? 'null' : "'"+it.value+"'"  
+		}.join(',') + ");" }
 	}
 
 	/** 이 안에서 작업하자. 범용 API로서 
@@ -95,29 +103,6 @@ public abstract class AbstractSql{
 	/** false이면 예외를 던진다. */
 	protected abstract void exceptionHandle(Exception e,String sql,List param)
 	
-	/** 디비 스키마 기준으로 엑셀 내용을 insert할때 사용된다. Map에 잡데이터가 들어가있어도 해당 컬럼만 입력된다.\
-	 * 예외를 던져도 멈추지 않는다.. 이유를 모르겠다.  */
-	@Deprecated
-	public int insertListMap(tableName,columnNames,List listMap){
-		def insertSql = "INSERT INTO $tableName (" + columnNames.join(',') + ') VALUES ('+ columnNames.collect { '?' }.join(',')  +')'
-		def ac = new Accumulator(10000,{ println it * 10000 } as ThreashHoldRun);
-		int success=0
-		withTransaction {
-			listMap.each { map ->
-				def param = columnNames.collect { map[it] instanceof Date ? new Timestamp(map[it].getTime()) : map[it] } //Date는지원하지 않는다.
-				try{
-					db.executeInsert(insertSql, param)
-					success++
-				}catch(e){
-					exceptionHandle(e,insertSql,param)
-				}
-				ac.next()
-			}
-		}
-		println "테이블 ${tableName}에 $success 건의 데이터가 입력되었습니다 "
-		return ac.count()
-	}
-	
 	/** 배치를 상용하지 않는 입력이다.  */
 	public int insertListEach(tableName,columnNames,List list){
 		def insertSql = "INSERT INTO $tableName (" + columnNames.join(',') + ') VALUES ('+ columnNames.collect { '?' }.join(',')  +')'
@@ -134,6 +119,14 @@ public abstract class AbstractSql{
 		}
 		println "테이블 ${tableName}에 $success 건의 데이터가 입력되었습니다 "
 		return success
+	}
+	
+	/** 그루비로 가져온 map파일을 다이렉트로 인서트 가능하다.
+	 * ex) DB  마이그레이션  */
+	public void insertListMap(tableName,List<Map> listMap){
+		def columnNames = listMap[0].keySet().collect  { it }
+		def list = listMap.collect { it.values().toList() }
+		insertList(tableName,columnNames,list)
 	}
 	
 	/** 1000개씩 배치로 묶어서 인서트한다. */
@@ -158,14 +151,6 @@ public abstract class AbstractSql{
 		}
 		int success =  list.size()
 		println "$success 건의 sql이 실행되었습니다."
-	}
-
-	/** Map 내용 전체가 입력된다. 
-	 * ex) db.delete('메타컬럼01').insertListMap('메타컬럼01', new ERWinToXls(DIR+'Columns').convert()) */
-	@Deprecated
-	public int insertListMap(tableName,List listMap){
-		def columnNames = listMap[0].keySet()
-		return insertListMap(tableName,columnNames,listMap)
 	}
 	
 	/** 일반 페이징 쿼리가 너무 느릴때 사용한다. 키값으로 페이징 처리함으로 인덱스를 타기때문에 로드시 부하가 적다.

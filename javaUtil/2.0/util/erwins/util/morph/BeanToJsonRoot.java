@@ -33,7 +33,8 @@ import erwins.util.vender.etc.Flex;
 public abstract class BeanToJsonRoot {
     
     /**
-     * 특별한 변환 없이 그냥 사용하면 되는것.
+     * 특별한 변환 없이 그냥 사용하면 되는것. 아마 프리미티브는 안해도 될거 같은데... 잘 몰라서 걍 씀. 
+     * 이놈들은 재고의 여지가 있다.
      */
     private static final Class<?>[] STRING_TYPE = new Class<?>[] {String.class, BigDecimal.class, int.class, Integer.class, long.class,
             Long.class,Boolean.class,boolean.class };
@@ -217,8 +218,11 @@ public abstract class BeanToJsonRoot {
             	continue;
             }
             Class<?> clazz = value.getClass();
-            if (CollectionUtil.isEqualsAny(STRING_TYPE, clazz)) {
+            //자바스크립트에서 문자와 숫자를 명확히 구분해야 한다.
+            if (value instanceof String) {
             	json.put(key, StringEscapeUtil.escapeFlex(value.toString()));
+            }else if (value instanceof Number) {
+            	json.put(key, value); //그냥입력
             } else if (clazz == String[].class) { //request에서 받아올때 주로 사용~
                 String[] temp = (String[]) value;
                 JSONArray jsonArray = new JSONArray();

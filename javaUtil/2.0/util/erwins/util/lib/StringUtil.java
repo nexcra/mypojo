@@ -108,6 +108,11 @@ public class StringUtil extends StringUtils {
             if (StringUtil.contains(body, str)) return true;
         return false;
     }
+    public static boolean isMatch(String body, Iterable<String> strs) {
+    	for (String str : strs)
+    		if (StringUtil.contains(body, str)) return true;
+    			return false;
+    }
     
     /**
      * prefix들중 일부라도 매치가 되면 true를 리턴한다.
@@ -176,7 +181,7 @@ public class StringUtil extends StringUtils {
      * 매칭이 안되면 원본을 리턴한다.
      */
     public static String getFirstAfter(String str, String pattern) {
-    	return str.substring(str.indexOf(pattern)+1,str.length() );
+    	return str.substring(str.indexOf(pattern)+pattern.length(),str.length() );
     }
 
     /**

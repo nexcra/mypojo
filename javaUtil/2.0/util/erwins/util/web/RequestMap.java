@@ -7,7 +7,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 /** e-mail링크 / 파일링크 등을 위한 map
- * 파일이름으로 부가정보를 설정하자 */
+ * 파일이름으로 부가정보를 설정하자
+ * ???? 이거 뭐지?  ㅠㅠ */
 public class RequestMap<T>{
 	/**  AAA/BBB/C/ 처럼 마지막에 /가 와야 한다. */
 	protected final String url;

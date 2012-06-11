@@ -40,7 +40,7 @@ public abstract class WebUtil {
 
 	/** response에 file을 담아서 출력한다. 기본적으로 application/octet-stream로 되어있다. */
 	public static void download(HttpServletResponse response, File file) {
-		download(response,file,CONTENT_TYPE_DOWNLOAD);
+		download(response,file,CONTENT_TYPE_DOWNLOAD,null);
 	}
 	
 	public static final String USER_AGENT = "user-agent";
@@ -59,9 +59,10 @@ public abstract class WebUtil {
 		return req.getHeader(ACCEPT);
 	}
 
-	/** 구형 IE에서 다운로드를 취소할때 나는 오류를 무시한다. */
-	public static void download(HttpServletResponse response, File file,String contentType) {
-	
+	/** 구형 IE에서 다운로드를 취소할때 나는 오류를 무시한다.
+	 * 다운될 파일이름이 실제파일과 달라야 하는 경우가 있어서 fileName을 추가 */
+	public static void download(HttpServletResponse response, File file,String contentType,String fileName) {
+		if(fileName==null) fileName = file.getName();
 		if (!file.exists())
 			file = new File(CharEncodeUtil.getEucKr(file.getAbsolutePath()));
 		if (!file.exists())
@@ -76,7 +77,7 @@ public abstract class WebUtil {
 		try {
 			// MS익스플러어가 기본적으로 8859_1를 인식하기때문에 변환을 해주어야 한다.
 			response.setHeader("Content-Disposition", "attachment; fileName=\""
-					+ new String(file.getName().getBytes("EUC_KR"), "8859_1") + "\";");
+					+ new String(fileName.getBytes("EUC_KR"), "8859_1") + "\";");
 			response.setHeader("Content-Transfer-Encoding", "binary");
 			/*
 			response.setHeader("Expires", "0");

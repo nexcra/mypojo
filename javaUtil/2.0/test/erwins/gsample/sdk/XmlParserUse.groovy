@@ -45,6 +45,15 @@ public class XmlParserUse{
         assert plan.depthFirst()*.name().join('->') == 'plan->week->task->task->task->week->task->task->xx'
         
         assert plan.week.task.findAll{it.@title =~ 'XML'}.size() == 2
+		
+		/**
+		 * 네임스페이스 사용 - 파서는 다른걸 사용했다.
+		 * def xml = new XmlParser().parse(new File('C:/DATA/맥퍼트/categories.xml'))
+        def d2p1 = new groovy.xml.Namespace("http://schema.auction.co.kr/Arche.Category.xsd")
+        xml.CategoryDetailT.each {
+            def IsLeaf  = it.attributes()[d2p1.IsLeaf]
+		}
+		 */
    }
    
 } 

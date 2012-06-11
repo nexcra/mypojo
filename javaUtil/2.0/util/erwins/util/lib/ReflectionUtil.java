@@ -324,5 +324,41 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 			if (method.getName().equals(name) && method.getParameterTypes().length == argsSize) return method;
 		return null;
 	}
+	
+    /** 해당하는 이름의 필드명이 있다면 값을 입력한다. 아니면 무시한다. */
+    public static void setValueIfAble(Object newObject,String fieldName,Object value){
+        try {
+            Field field =  newObject.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(newObject, value);
+        } catch (NoSuchFieldException e) {
+            return;  //무시한다.
+        } catch (Exception e) {
+            throw new RuntimeException(e);            
+        }
+    }
+    
+    /** null포함, 단순히 이름 매칭으로 데이터의 래퍼런스만을 모두  복사한다. 간단한 이력에만 사용하도록 하자.   */
+    public static void shallowCopyAllByName(Object server,Object newObject){
+        Class<?> clazz = (Class<?>) server.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        for(Field field : fields){
+            field.setAccessible(true);
+            Object value;
+            try {
+                value = field.get(server);
+            } catch (Exception e) {
+                throw new RuntimeException(e);            
+            }
+            setValueIfAble(newObject, field.getName(), value);
+        }
+    }
+    
+    /** 간단버전 */
+    public static <T> T shallowCopyAllByName(Object server,Class<T> newClass){
+        T obj = newInstance(newClass);
+        shallowCopyAllByName(server,obj);
+        return obj;
+    }
 
 }

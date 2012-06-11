@@ -26,6 +26,11 @@ public class PairObject implements Pair{
 		this.value = value;
 	}
 	
+	public static Pair getPairByName(Pair[] pairs,String name) {
+        for(Pair each : pairs) if(each.getName().equals(name)) return each;
+        return null;
+    }
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

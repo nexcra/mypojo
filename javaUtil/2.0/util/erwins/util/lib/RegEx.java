@@ -9,6 +9,9 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -270,6 +273,23 @@ public enum RegEx {
             }
         }
         return buff.toString();
+    }
+    
+    /** reg에 해당하는 문자열을 전부 추출한다. 멀티라인은 안됨! 
+     *  -> 컨트롤러의@RequestMapping(.*) 을 체크할때 사용함 */
+    public List<String> findMatchString(Iterator<File> i,String reg) {
+        List<String> result = new ArrayList<String>();
+        Pattern pattern = Pattern.compile(reg);
+        while(i.hasNext()){
+            File each = i.next();
+            if(!StringUtil.isMatch(each.getName(),"Controller")) continue;
+            List<String> lines = FileUtil.readLines(each);
+            for(String line : lines){
+                Matcher m = pattern.matcher(line);
+                while (m.find()) result.add(m.group());    
+            }
+        }
+        return result;
     }
 
 
