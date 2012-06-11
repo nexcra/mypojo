@@ -60,7 +60,6 @@ public class OracleSqlBean{
 	/** iBatiis or MyBatis용 */
 	public printBatis(TABLE_NAME){
 		db.loadInfo("and a.TABLE_NAME = '$TABLE_NAME'").loadColumn().loadColumnKey()
-		
 		def columns = db[TABLE_NAME].COLUMNS
 		def cn = columns.collect { it.COLUMN_NAME }
 		
@@ -114,9 +113,10 @@ public class OracleSqlBean{
 	
 	/** java 도메인 객체 기본생성 */
 	public printJava(TABLE_NAME){
-		db.tables.each { it['columns'] =  columns(it.TABLE_NAME)}
-		def cols = columns(TABLE_NAME)
+		db.loadInfo("and a.TABLE_NAME = '$TABLE_NAME'").loadColumn().loadColumnKey()
+		def cols = db[TABLE_NAME].COLUMNS
 		def cn = cols.collect { it.COLUMN_NAME }
+		
 		def result = [StringUtil.getCamelize(TABLE_NAME).capitalize()]
 		cols.each {
 			def type = ORACLE_TO_JAVA_TYPE[it['DATA_TYPE']]
