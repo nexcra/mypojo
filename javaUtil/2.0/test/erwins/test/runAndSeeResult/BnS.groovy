@@ -25,7 +25,19 @@ class BnS {
 		def 약왕원 = [name:'인삼 회복약',count:5,min:33,재료:[
 			[name:'인삼',count:20],
 		]]
-		이윤계산출력(태상문,약왕원)
+		def 도기방1 = [name:'내열토 그릇',count:5,min:33,재료:[
+			[name:'내열토',count:10],
+			[name:'대지의 성물',count:1],
+		]]
+		def 도기방2 = [name:'내열토 약병',count:5,min:33,재료:[
+			[name:'내열토',count:10],
+			[name:'암반수',count:1],
+		]]
+		def 도기방3 = [name:'느티나무 괴황지',count:5,min:33,재료:[
+			[name:'내열토',count:10],
+			[name:'대지의 성물',count:1],
+		]]
+		이윤계산출력([태상문,약왕원,도기방1,도기방2,도기방3])
 	}
 	
 	private 이윤계산출력(items) {
@@ -35,19 +47,22 @@ class BnS {
 		}
 	}
 	
-	private 출력(it) {
-		println "it.name : 판매가:it.avg 이윤:it.이윤";
+	private 출력(item) {
+		println "$item.name : 이윤:$item.이윤 / 판매가:$item.avg 재료비:$item.재료비 상점수량:$item.total";
 	}
 	
 	private 이윤계산(item) {
+		def 수수료 = 20 + 80
 		calculate(item)
 		item.재료.each { calculate(it) }
 		item['재료비'] = item.재료.sum{ it['avg'] * it['count'] }
-		item['이윤'] = item.재료.sum{ it['avg'] }
+		item['이윤'] = item['avg'] * item['count'] - item['재료비'] - 수수료
 	}
 	
 	private calculate(item) {
-		item['avg'] = getItemAvg(item['name'])
+		def result = getItemAvg(item['name'])
+		item['avg'] = result['avg']
+		item['total'] = result['total']
 	}
 	
 	private getItemAvg(아이템명,페이지=5) {
@@ -66,13 +81,15 @@ class BnS {
 		def result = [:]
 		result['total'] = StringUtil.getDecimal(total).longValue()
 		
+		if(페이지 == 5 && result['total'] < 35) return getItemAvg(아이템명,1)
+		
 		def itemList = []
 		list.each {
 			def item = [:]
 			item['img'] = it.TH.SPAN[0].IMG[0].attributes()['src'] //.attributes['src']
 			item['level'] = it.TD[0].text()
 			item['moneyStr'] = it.TD[2].DIV[0].SPAN.text()
-			def mt = item['moneyStr'] 
+			def mt = item['moneyStr']
 			long sum = 0
 			sum += toMoney('금',mt,100 * 100)
 			mt = StringUtil.getLast(mt, '금');
@@ -82,10 +99,13 @@ class BnS {
 			item['money'] = sum
 			itemList << item
 		}
-		long sum = 0;
-		itemList.each { sum +=it['money'] }
-		result['avg'] = new BigDecimal(sum / list.size()).setScale(0, RoundingMode.HALF_UP);
-		return result['avg']
+		if(itemList.size()==0) result['avg'] = 0
+		else{
+			long sum = 0;
+			itemList.each { sum +=it['money'] }
+			result['avg'] = new BigDecimal(sum / list.size()).setScale(0, RoundingMode.HALF_UP);
+		}
+		return result
 	}
 	
 	private long toMoney(prefix, mt,요율) {
