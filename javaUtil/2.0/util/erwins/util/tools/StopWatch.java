@@ -2,12 +2,16 @@
 package erwins.util.tools;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.ecs.wml.Td;
 import org.apache.ecs.wml.Tr;
 
-import erwins.util.lib.*;
+import erwins.util.lib.FormatUtil;
+import erwins.util.lib.MathUtil;
+import erwins.util.lib.StringUtil;
 import erwins.util.valueObject.ShowTime;
 
 /**
@@ -133,7 +137,7 @@ public class StopWatch {
     }
 
     public void check(String taskName) {
-        this.stop();
+    	if(isRunning()) this.stop();
         this.start(taskName);
     }
 
@@ -237,6 +241,7 @@ public class StopWatch {
 
     @Override
     public String toString() {
+    	if(isRunning()) stop();
         StringBuilder str = new StringBuilder("============== StopWatch =============== \n");
         for (int i = 0, j = getTaskInfo().size(); i < j; i++) {
             ShowTime time = new ShowTime(getTaskInfo().get(i).getNanoTimeLong());

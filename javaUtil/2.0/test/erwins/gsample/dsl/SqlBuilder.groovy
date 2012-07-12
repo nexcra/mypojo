@@ -15,7 +15,7 @@ public class SqlBuilder extends FactoryBuilderSupport { {
  * Select class encapsulates the select clause node of the SQL query
  * and acts as a parent node to all select queries.
  */
-private class Select {
+class Select {
 	
 	def table,        // Name of the main select table
 	tables  = [], // All tables join tables and select table
@@ -47,13 +47,13 @@ private class Select {
 
 ///////// Private classes to support the builder functionality /////////////
 
-private class Join {
+class Join {
 	def table
 	def type = "INNER"
 	def using = []
 }
 
-private class Using {
+class Using {
 	def lhs, rhs, op = "="
 	
 	def methodMissing(String name, args) {
@@ -61,13 +61,13 @@ private class Using {
 	}
 }
 
-private class Where {
+class Where {
 	def clause
 }
 
 ///////// Factories that construct the appropriate objects based on the DSL expressions //////////////
 
-private class SelectFactory extends AbstractFactory {
+public class SelectFactory extends AbstractFactory {
 	
 	public Object newInstance(FactoryBuilderSupport factoryBuilderSupport, name, value, Map map) {
 		return new Select(table: value, tables: [value])
@@ -86,7 +86,7 @@ private class SelectFactory extends AbstractFactory {
 	}
 }
 
-private class JoinFactory extends AbstractFactory {
+public class JoinFactory extends AbstractFactory {
 	
 	public Object newInstance(FactoryBuilderSupport factoryBuilderSupport, name, value, Map map) {
 		Join join = new Join(table: value)
@@ -106,7 +106,7 @@ private class JoinFactory extends AbstractFactory {
 	}
 }
 
-private class UsingFactory extends AbstractFactory {
+public class UsingFactory extends AbstractFactory {
 	
 	public Object newInstance(FactoryBuilderSupport factoryBuilderSupport, name, op, Map map) {
 		Using using = new Using()
@@ -132,7 +132,7 @@ private class UsingFactory extends AbstractFactory {
 	}
 }
 
-private class WhereFactory extends AbstractFactory {
+public class WhereFactory extends AbstractFactory {
 	
 	public Object newInstance(FactoryBuilderSupport factoryBuilderSupport, name, value, Map map) {
 		return new Where(clause: value)
@@ -144,7 +144,7 @@ private class WhereFactory extends AbstractFactory {
 }
 
 
-private class GroupAndOrderFactory extends AbstractFactory {
+public class GroupAndOrderFactory extends AbstractFactory {
 	
 	public Object newInstance(FactoryBuilderSupport factoryBuilderSupport, name, value, Map map) {
 		def fqCols = [];
