@@ -166,8 +166,8 @@ public class StringUtil extends StringUtils {
     	String[] temp = new String[2];
         int index = str.indexOf(pattern);
         if (index == -1){
-        	temp[0] = str; 
-        	temp[1] = str; 
+        	temp[0] = str;
+        	temp[1] = str;
         	return temp;
         }
         temp[0] = str.substring(0, index);
