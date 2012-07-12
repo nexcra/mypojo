@@ -29,7 +29,14 @@ class BnS {
 				[name:'느티나무',count:10],
 				[name:'붉은빛 합성원소',count:1],
 				[name:'내열토 정제재',count:1],
-			]]
+		]]
+		태상문 << [name:'대사막 명공의 치명 합성패 상자',count:1,min:14,재료:[
+			[name:'대사막 장인의 치명 합성패',count:1],
+			[name:'냉혈귀의 가시',count:1],
+			[name:'고급 내열토 정제재',count:1],
+			[name:'영석',count:6],
+			[name:'꿩 뼈',count:3],
+	    ]]
 		성군당 << [name:'굴 자개',count:5,min:14,재료:[
 				[name:'굴 껍데기',count:20],
 				[name:'암반수',count:1],
@@ -82,7 +89,7 @@ class BnS {
 		println '====성군당====' ;  이윤계산출력(성군당)
 		println '====약왕원====' ;  이윤계산출력(약왕원)
 		println '====도기방====' ;  이윤계산출력(도기방)
-		println 도기방.last()['재료']
+		//println 도기방.last()['재료']
 		
 	}
 	
@@ -113,7 +120,7 @@ class BnS {
 		item['total'] = result['total']
 	}
 	
-	private getItemAvg(아이템명,페이지=3) {
+	private getItemAvg(아이템명,페이지=2) {
 		HttpData d = HttpData.getSimpleClient()
 		def url = 'http://bns.plaync.com/bs/market/search'
 		def query = [new  NameValuePair('ct','0'),new  NameValuePair('level','0-0')
@@ -129,7 +136,7 @@ class BnS {
 		def result = [:]
 		result['total'] = StringUtil.getDecimal(total).longValue()
 		
-		if(페이지 == 3 && result['total'] < 21) return getItemAvg(아이템명,1)
+		if(페이지 == 2 && result['total'] < 14) return getItemAvg(아이템명,1)
 		
 		def itemList = []
 		list.each {
@@ -153,6 +160,7 @@ class BnS {
 			itemList.each { sum +=it['money'] }
 			result['avg'] = new BigDecimal(sum / list.size()).setScale(0, RoundingMode.HALF_UP);
 		}
+		if(result['avg']<=0) println '경고 금액0 : ' + 아이템명
 		return result
 	}
 	
