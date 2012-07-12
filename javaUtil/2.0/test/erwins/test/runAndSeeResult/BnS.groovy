@@ -22,7 +22,10 @@ class BnS {
 				[name:'붉은빛 합성원소',count:1],
 				[name:'내열토 정제재',count:1],
 			]]
-		def 약왕원 = [name:'인삼 회복약',count:5,min:33,재료:[
+		def 약왕원1 = [name:'인삼 회복약',count:5,min:33,재료:[
+			[name:'인삼',count:20],
+		]]
+		def 약왕원2 = [name:'인삼 즉시회복약',count:5,min:33,재료:[
 			[name:'인삼',count:20],
 		]]
 		def 도기방1 = [name:'내열토 그릇',count:5,min:33,재료:[
@@ -37,7 +40,7 @@ class BnS {
 			[name:'내열토',count:10],
 			[name:'대지의 성물',count:1],
 		]]
-		이윤계산출력([태상문,약왕원,도기방1,도기방2,도기방3])
+		이윤계산출력([태상문,약왕원1,약왕원2,도기방1,도기방2,도기방3])
 	}
 	
 	private 이윤계산출력(items) {
