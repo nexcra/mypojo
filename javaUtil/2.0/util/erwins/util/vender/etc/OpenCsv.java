@@ -1,8 +1,9 @@
 package erwins.util.vender.etc;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -86,7 +87,8 @@ public class OpenCsv{
     public  List<String[]> readAll(File file){
     	CSVReader reader = null;
     	try {
-			reader = new CSVReader(new FileReader(file));
+			//reader = new CSVReader(new FileReader(file));
+    		reader = new CSVReader(new InputStreamReader(new FileInputStream(file),encoding));
 			return reader.readAll();
 		} catch (Exception e) {
 			throw new RuntimeException(e);

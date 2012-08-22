@@ -53,7 +53,7 @@ public abstract class BeanToJsonRoot {
     	@Override
     	public boolean fetch(Object instance,Field field, JSONObject map) {
     		Date value =(Date) ReflectionUtil.getField(field, instance); 
-    		if(value!=null) map.put(field.getName(), DayUtil.DATE.get(value));
+    		if(value!=null) map.put(field.getName(), DayUtil.DATE.get(value)); //수정하자ㅣ
 			return true;
     	}
     });
@@ -101,6 +101,10 @@ public abstract class BeanToJsonRoot {
     private final List<BeanToJSONConfigFetcher> configs = new ArrayList<BeanToJSONConfigFetcher>();
 	public void addConfig(BeanToJSONConfigFetcher config) {
 		configs.add(config);
+	}
+	/** 맨 앞으로 입력한다. 우선순위를 덮어쓸 수 있다. */
+	public void addConfigFirst(BeanToJSONConfigFetcher config) {
+		configs.add(0,config);
 	}
 	
     /**
@@ -231,7 +235,7 @@ public abstract class BeanToJsonRoot {
                 }
                 json.put(key, jsonArray);
             } else if (value instanceof Date) {
-                json.put(key, DayUtil.DATE_SIMPLE.get((Date) value));
+                json.put(key, DayUtil.DATE_JS.get((Date) value));
             } else if (value instanceof List) {
                 JSON array = getByList((List)value);
                 json.put(key, array);

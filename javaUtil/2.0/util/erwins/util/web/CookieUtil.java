@@ -13,12 +13,13 @@ public class CookieUtil{
     
     private HttpServletResponse resp;
     private HttpServletRequest req;
-    private String  domain; // => 상위 도메인(뒤에서부터)만 포함 가능하다. *~~.net 등
+    private String  domain = ""; // => 상위 도메인(뒤에서부터)만 포함 가능하다. *~~.net 등
     private String  path = "/";
     
     public CookieUtil(HttpServletRequest req){
         this.req = req;
     }
+    
     public CookieUtil(HttpServletResponse resp,String domain,String path){
         this.resp = resp;
         this.domain = domain;

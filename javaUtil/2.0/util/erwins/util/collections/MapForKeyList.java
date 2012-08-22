@@ -21,7 +21,16 @@ import org.apache.commons.collections.map.ListOrderedMap;
 public class MapForKeyList<K,T> implements Map<K,List<T>> ,Serializable{
 	
 	private Map<K,List<T>> map;
+	private ListInstanceCallback<T> callback;
 	
+	public void setCallback(ListInstanceCallback<T> callback) {
+		this.callback = callback;
+	}
+	
+	public static interface ListInstanceCallback<T>{
+		public List<T> getListInstance();
+	}
+
 	@SuppressWarnings("unchecked")
 	public MapForKeyList(MapType type){
 		switch(type){
@@ -34,7 +43,8 @@ public class MapForKeyList<K,T> implements Map<K,List<T>> ,Serializable{
 	public MapForKeyList<K,T> add(K key,T item){
 		List<T> list = map.get(key);
 		if(list==null){
-			list = new ArrayList<T>();
+			if(callback==null) list = new ArrayList<T>();
+			else list = callback.getListInstance();
 			map.put(key, list);
 		}
 		list.add(item);

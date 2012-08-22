@@ -86,10 +86,12 @@ public abstract class GenericAppEngineDao<T extends EntityId<String>>  extends J
 		}
 	}*/
 	
+	/** 트랜잭션 내에서 써야한다. 트랜잭션 이후에 호출되면 아래 예외가 떨어질것이다.
+	 * org.springframework.orm.jdo.JdoUsageException: Transient instances cant be deleted.; nested exception is javax.jdo.JDOUserException: Transient instances cant be deleted. */
 	public void delete(T entity) {
 		getJdoTemplate().deletePersistent(entity);
 	}
-	/** 해당 */
+	
 	public void delete(String id) {
 		T entity = getJdoTemplate().getObjectById(getPersistentClass(), id);
 		getJdoTemplate().deletePersistent(entity);

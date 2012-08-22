@@ -29,6 +29,9 @@ public enum DayUtil{
     /** yyyy.MM.dd_HH.mm.ss */
     DATE_FILE(new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss")),
     
+    /** yyyyMMddHHmmss */
+    DATE_JS(new SimpleDateFormat("yyyyMMddHHmmss")),
+    
     /** yyyyMMdd */
     DATE_FOR_DB(new SimpleDateFormat("yyyyMMdd")),
 

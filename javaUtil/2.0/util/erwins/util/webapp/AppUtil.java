@@ -7,30 +7,43 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Locale;
 
+import org.apache.commons.io.IOUtils;
+
 import erwins.util.root.EntityHibernatePaging;
-import erwins.util.tools.StringBuilder2;
 
 
 public abstract class AppUtil{
+	
+	/** UTF-8을 기본 */
+	public static String getUrlText(String urlString){
+		return getUrlText(urlString,"UTF-8");
+	}
 
 	/** 직접 커넥션을 줄 수 없어서 이렇게 REST자료를 얻어와야 한다. */
-	public static String rest(String urlString){
+	public static String getUrlText(String urlString,String encode){
+		BufferedReader reader = null;
 		try {
 			URL url = new URL(urlString);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-			StringBuilder2 b = new StringBuilder2(); 
-			String line;
-			while((line=reader.readLine())!=null){
-				b.appendLine(line);
-			}
-			reader.close();
-			return b.toString();
+			reader = new BufferedReader(new InputStreamReader(url.openStream(),encode));
+			return IOUtils.toString(reader);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
+		}finally{
+			IOUtils.closeQuietly(reader);
 		}
 	}
+	
+	/** 흠.. 로케일 그냥두면 에러나길래 일단 일케 땜빵.. ㅠㅠ */
+    public static Date toLocaleKorea(Date date) {
+    	Calendar calendar = Calendar.getInstance(Locale.KOREA);
+    	calendar.setTime(date);
+    	calendar.add(Calendar.HOUR, 9);
+    	return calendar.getTime();
+    }
+	
 	
 	private static final String NORMAL = "yyyy년MM월dd일-HH시mm분";
 	
@@ -39,6 +52,7 @@ public abstract class AppUtil{
 	}
 	
 	/** Enum인 DayUtil을 사용하면 초기회 오류난다.. ㅅㅂ */
+	@Deprecated
 	public static String  dateString(String format){
 		Calendar c = Calendar.getInstance(Locale.KOREA);
         SimpleDateFormat f = new SimpleDateFormat(format, Locale.KOREA);
