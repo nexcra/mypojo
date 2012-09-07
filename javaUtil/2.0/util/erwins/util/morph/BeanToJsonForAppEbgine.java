@@ -21,6 +21,7 @@ import erwins.util.root.Singleton;
 /**
  */
 @Singleton
+@Deprecated
 public class BeanToJsonForAppEbgine extends BeanToJson {
 	
 	/** 500자 이상의 데이터는 Text로 해야한다. */

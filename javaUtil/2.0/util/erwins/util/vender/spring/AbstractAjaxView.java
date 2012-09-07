@@ -16,6 +16,7 @@ import erwins.util.morph.BeanToJson;
 import erwins.util.web.ResponseOutConfig;
 import erwins.util.web.WebUtil;
 
+@Deprecated
 public class AbstractAjaxView implements View{
 	
 	private final BeanToJson beanToJson;

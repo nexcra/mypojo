@@ -44,11 +44,7 @@ public abstract class OpenIDHelper {
     }
 	
 	public OpenIDHelper(){
-		try {
-			manager = new ConsumerManager();
-		} catch (ConsumerException e) {
-			throw new RuntimeException(e);
-		}
+		manager = new ConsumerManager();
 		//인증기관에 인증하는동안 요청을 저장할 장소.  클러스터링 되어있다면 DB나 RMI등  적절한 통신 필요. 
         manager.setAssociations( new InMemoryConsumerAssociationStore() );
         // 인증 응답 메시지의 nonce 를 추적. 제한시간 있음.

@@ -29,6 +29,7 @@ import erwins.util.vender.etc.Flex;
  * toString옵션에 1을 주면 들여쓰기 한다. 참고.
  */
 @Singleton
+@Deprecated
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public abstract class BeanToJsonRoot {
     

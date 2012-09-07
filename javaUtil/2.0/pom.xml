@@ -1,0 +1,358 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>erwins.util</groupId>
+	<artifactId>erwinsTest</artifactId>
+	<version>1.00.01</version>
+	<packaging>jar</packaging>
+
+	<!-- 대표적인 프레임워크 버전세팅 -->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<org.springframework.version>3.1.2.RELEASE</org.springframework.version>
+		<org.hibernate.version>3.5.5-Final</org.hibernate.version>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>mvn-public</id>
+			<name>MVNRepository</name>
+			<url>http://mvnrepository.com</url>
+		</repository>
+		<!-- 하이버네이트는 메이븐 센트럴에서 제이보스 리포지터로 모두 이사갔습니다. -->
+		<repository>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
+			<layout>default			</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+		</repository>
+		<!-- odbc등 라이센스 문제로 중앙저장소에서 못가져오는것들 -->
+		<repository>
+			<id>mesir-repo</id>
+			<url>http://mesir.googlecode.com/svn/trunk/mavenrepo</url>
+		</repository>
+		<!-- openid4java .... -->
+		<repository>
+			<id>openid4java snapshots repository</id>
+			<name>openid4java snapshots repository</name>
+			<url>https://oss.sonatype.org/content/repositories/openid4java-snapshots</url>
+			<snapshots />
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<!-- ====================================================================== -->
+		<!-- ================== 아파치 커먼스 관련 (대부분 다른종속에 딸려온다) ================ -->
+		<!-- ====================================================================== -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-net</groupId>
+			<artifactId>commons-net</artifactId>
+			<version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-email</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<!-- 간이로 WAS내에 만들어야 할 때도 있음 -->
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<!-- slf4j를 쓰더라도 있어야 한다. -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-dbutils</groupId>
+			<artifactId>commons-dbutils</artifactId>
+			<version>1.5</version>
+		</dependency>
+
+		<!-- ====================================================================== -->
+		<!-- ======================= 스프링 관련 ==================================== -->
+		<!-- ====================================================================== -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aspects</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!-- spring-aspects 쓸려면 필요할듯? -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>1.7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>1.7.0</version>
+		</dependency>
+		<!-- 스프링-시큐리티 -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>3.1.2.RELEASE</version>
+		</dependency>
+		<!-- 스프링-배치 -->
+		<dependency>
+			<groupId>org.springframework.batch</groupId>
+			<artifactId>spring-batch-core</artifactId>
+			<version>2.1.8.RELEASE</version>
+		</dependency>
+
+
+		<!-- ====================================================================== -->
+		<!-- ======================= 하이버네이트 관련 ================================ -->
+		<!-- ====================================================================== -->
+		<!-- 하이버네이트는 CGLIB 프로젝트가 죽어서 자바시스트로 이사갔는데, 스프링은 아직 이걸 씁니다? -->
+		<!-- 하이버네이트 엔터티메니저 패키지 링크걸면 어노테이션, 코어 다 따라옵니다. -->
+		<!-- JPA2 API, 전통적으로 JSR API 는 메이븐 리포지터리를 무시하기 때문에.. 하이버네이트에서 제공하는 것으로 
+			사용 -->
+		<!-- org.hibernate.validator 가 빠짐. -->
+		<!-- 하이버네이트가 다이렉트 참조하도록 도와주는거인듯 그냥 링크걸면 하이버네이트 구버전이 따라오면서 쫑나니 아래 처럼 익스클루드 
+			<dependency> <groupId>joda-time</groupId> <artifactId>joda-time-hibernate</artifactId> 
+			<version>1.2</version> <exclusions> <exclusion> <groupId>org.hibernate</groupId> 
+			<artifactId>hibernate</artifactId> </exclusion> </exclusions> </dependency> -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>${org.hibernate.version}</version>
+		</dependency>
+
+		<!-- ====================================================================== -->
+		<!-- ======================= 기타 오픈소스 =============================== -->
+		<!-- ====================================================================== -->
+
+		<!-- 조다 타임 : 글로벌 스탠다드한 Date 보조객체. JDK7의 신규API가 이것기반. -->
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>1.6</version>
+		</dependency>
+		<!-- 인메모리 래퍼런스 캐싱용 -->
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache-core</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+		<!-- HTML등의 태그를 객체로 표현/제작 -->
+		<dependency>
+			<groupId>ecs</groupId>
+			<artifactId>ecs</artifactId>
+			<version>1.4.2</version>
+		</dependency>
+		<!-- 의존객체가 너무 많아서 all 버전을 사용함. -all만 빼면 단일버전 -->
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy-all</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+		<!-- 글로벌 스탠다드한 스케쥴러 -->
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+			<version>2.1.6</version>
+		</dependency>
+		<!-- xls ppt 등 파일 다루기 -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.8</version>
+		</dependency>
+		<dependency>
+			<groupId>nz.ac.waikato.cms.weka</groupId>
+			<artifactId>WekaExcel</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+		<!-- JSON 다루기 -->
+		<dependency>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<version>2.4</version>
+			<classifier>jdk15</classifier>
+		</dependency>
+		<!-- CSV 다루기 -->
+		<dependency>
+			<groupId>net.sf.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>2.3</version>
+		</dependency>
+		<!-- RSS 다루기 -->
+		<dependency>
+			<groupId>rome</groupId>
+			<artifactId>rome</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<!-- OPEN ID 다루기 -> nekohtml이 여기 딸려오는듯. -->
+		<dependency>
+			<groupId>org.openid4java</groupId>
+			<artifactId>openid4java-consumer</artifactId>
+			<!--artifactId>openid4java-server</artifactId -->
+			<!--artifactId>openid4java-infocard</artifactId -->
+			<!--artifactId>openid4java-xri</artifactId -->
+			<!--artifactId>openid4java</artifactId -->
+			<!--artifactId>openid4java-full</artifactId -->
+			<version>0.9.7-SNAPSHOT</version>
+			<type>pom</type>
+		</dependency>
+		<!-- GAE에서도 되는 엑셀 다루기 -->
+		<dependency>
+			<groupId>net.sourceforge.jexcelapi</groupId>
+			<artifactId>jxl</artifactId>
+			<version>2.6.12</version>
+		</dependency>
+		<dependency>
+			<groupId>jivesoftware</groupId>
+			<artifactId>smack</artifactId>
+			<version>3.1.0</version>
+		</dependency>
+
+		<!-- ====================================================================== -->
+		<!-- ======================= mybatis ====================================== -->
+		<!-- ====================================================================== -->
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
+
+		<!-- ====================================================================== -->
+		<!-- ======================= Java 표준 ====================================== -->
+		<!-- ====================================================================== -->
+
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>1.0.0.GA</version>
+		</dependency>
+		<!-- @ThreadSafe 등의 어노테이션 모음 (4개밖에 안됨..) -->
+		<dependency>
+			<groupId>org.apache.servicemix.bundles</groupId>
+			<artifactId>org.apache.servicemix.bundles.jcip-annotations</artifactId>
+			<version>1.0_2</version>
+		</dependency>
+
+		<!-- ====================================================================== -->
+		<!-- ======================= DB관련 ====================================== -->
+		<!-- ====================================================================== -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.13</version>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc14</artifactId>
+			<version>10.2.0.4.0</version>
+		</dependency>
+
+		<!-- ====================================================================== -->
+		<!-- ======================= UI관련 ====================================== -->
+		<!-- ====================================================================== -->
+		<!-- jstl없다고 에러 날때용 -->
+		<dependency>
+			<groupId>jstl</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<!-- 버전3?? 테스트 필요 <dependency> <groupId>org.apache.taglibs</groupId> <artifactId>taglibs-parent</artifactId> 
+			<version>1</version> </dependency> -->
+		<!-- 타일즈 시리즈1 3.0.1까지 나왔으나 내가쓴건 구버전 -->
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-core</artifactId>
+			<version>2.1.3</version>
+		</dependency>
+		<!-- 타일즈 시리즈2 -->
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-jsp</artifactId>
+			<version>2.1.3</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>2.4</version>
+					<executions>
+						<execution>
+							<id>copy-dependencies</id>
+							<phase>package</phase>
+							<goals>
+								<goal>copy-dependencies</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<outputDirectory>C:\DATA\PROJECT\workspace\erwinsMaven\WebContent/WEB-INF/lib</outputDirectory>
+						<overWriteIfNewer>true</overWriteIfNewer>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+</project>

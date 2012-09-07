@@ -1,14 +1,11 @@
 package erwins.util.groovy
 
 
-import java.io.File
 import java.text.DecimalFormat
 
 import oracle.sql.TIMESTAMP
 
 import org.apache.commons.collections.map.ListOrderedMap
-import org.apache.commons.io.filefilter.IOFileFilter
-import org.apache.poi.hssf.record.formula.functions.T
 
 import erwins.util.collections.MapForList
 import erwins.util.collections.MapType
@@ -307,6 +304,7 @@ public class GroovyMetaUtil{
 	}
 	
 	/** ex) def i = FileUtil.iterateFiles('C:/DATA/src', makeFilter { it.name.endsWith(".java") }) */
+	/* 그루비에서 IOFileFilter 익명객체 생성이 안됨.. 
 	public IOFileFilter makeFilter(closure){
 		return new IOFileFilter(){
 			@Override
@@ -319,5 +317,6 @@ public class GroovyMetaUtil{
 			}
 		}
 	}
+	*/
 }
 

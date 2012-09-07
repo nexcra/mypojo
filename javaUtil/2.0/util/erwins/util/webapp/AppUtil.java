@@ -12,6 +12,10 @@ import java.util.Locale;
 
 import org.apache.commons.io.IOUtils;
 
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
+
 import erwins.util.root.EntityHibernatePaging;
 
 
@@ -64,6 +68,11 @@ public abstract class AppUtil{
 	public static <T extends EntityHibernatePaging> void  rownum(Collection<T> result){
 		int num  = result.size();
 		for(T each : result) each.setRownum(num--);
+	}
+	
+	public static void addQueue(String url){
+		Queue queue = QueueFactory.getDefaultQueue();
+	    queue.add(TaskOptions.Builder.withUrl(url));
 	}
 	
 }

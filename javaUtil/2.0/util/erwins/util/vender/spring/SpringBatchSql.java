@@ -63,4 +63,10 @@ public enum SpringBatchSql implements PagingQueryProvider{
 	public boolean isUsingNamedParameters() {
 		throw new UnsupportedOperationException();
 	}
+
+	@Override
+	public String getSortKey() {
+		//뭔가 해야함!!
+		return null;
+	}
 }

@@ -5,17 +5,34 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.URLConnection;
 import java.nio.ByteBuffer;
-import java.nio.channels.*;
+import java.nio.channels.FileChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Vector;
 
-import javax.swing.*;
-
-import netscape.javascript.JSObject;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 /**
  * 1. 파일의 멀티 셀렉트
@@ -103,22 +120,22 @@ public class AppletUploader extends Applet {
         totalUploadProgressive.setString("0Bps");       
     }
     
-    
-    /**
+    /*
+    *//**
      * 브라우저의 자바스크립트를 호출한다.
-     **/
+     **//*
     public void jsAlert(String str){
         JSObject window = JSObject.getWindow(this);
         String as1[] = {str};
         window.call("alert", as1);
     }
-    /**
+    *//**
      * 브라우저의 자바스크립트를 호출한다.
-     **/
+     **//*
     public void jsInvoke(String method,String ... args){
         JSObject window = JSObject.getWindow(this);
         window.call(method, args);
-    }
+    }*/
     
     private void buildUploadFileTable() {
         Vector cols = new Vector(5);

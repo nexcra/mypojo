@@ -16,8 +16,10 @@ import erwins.util.root.HibernateDomainObject;
 import erwins.util.root.Singleton;
 
 /**
+ * 기본 JSONObject의 JSONSerializer.toJSON( bean ) / JsonConfig 를 사용하자
  */
 @Singleton
+@Deprecated
 public class BeanToJson extends BeanToJsonRoot {
 
 	public static BeanToJson create() {

@@ -85,7 +85,6 @@ public class DynamicTilesView extends AbstractUrlBasedView {
         ServletContext servletContext = getServletContext();
         TilesContainer container = TilesAccess.getContainer(servletContext);
         
-        
         if (container == null) { throw new ServletException("Tiles container is not initialized. "
                 + "Have you added a TilesConfigurer to your web application context?"); }
 

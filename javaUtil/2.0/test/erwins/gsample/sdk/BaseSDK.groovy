@@ -2,21 +2,16 @@ package erwins.gsample.sdk
 
 
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import erwins.util.collections.MapType
+import groovy.transform.AutoClone
+import groovy.transform.InheritConstructors
+import groovy.transform.ToString
+
+import java.text.SimpleDateFormat
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
 
 import org.junit.Test
-
-import groovy.lang.Delegate;
-import groovy.lang.GroovyShellimport groovy.lang.Lazy;
-import groovy.transform.AutoClone;
-import groovy.transform.Canonical;
-import groovy.transform.InheritConstructors;
-import groovy.transform.ToString;
-import groovy.util.logging.Log;
 
 //@Log  이거면 멤버필드에 log가 자동추가
 public class BaseSDK{
@@ -148,6 +143,11 @@ class Person {
 	String first, last
 	List favItems
 	Date since
+	//이하 테스트용 추가
+	MapType type
+	Person parent
+	Person2 parent2
+	List<Person2> persons
 }
 
 @InheritConstructors // 상위생성자를 자동생성

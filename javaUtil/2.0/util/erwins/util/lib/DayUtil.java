@@ -14,7 +14,10 @@ import erwins.util.valueObject.ShowTime;
  * 년도, 일자 등의 처리. singleton
  * 10년의 차이는  long으로 315532800000 이다.
  * 경고!! 스레드에 안전하지 않다!!!!!!!!!
+ * 
+ *  ==> JodaTime을 사용할것
  */
+@Deprecated
 public enum DayUtil{
     
     /** yyyy/MM/dd */
