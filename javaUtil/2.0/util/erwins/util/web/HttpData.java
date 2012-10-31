@@ -24,7 +24,8 @@ import erwins.util.exception.ExceptionUtil;
 import erwins.util.lib.FileUtil;
 
 /**
- * 세션당 하나씩 만들어라
+ * 세션당 하나씩 만들어라.
+ * url을 한번만 지정후 쿼리를 변경하면서 재사용 가능하다.
  * @author sin
  */
 public class HttpData{

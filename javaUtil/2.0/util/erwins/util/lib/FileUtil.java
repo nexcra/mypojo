@@ -16,6 +16,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -31,11 +32,11 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import erwins.util.exception.BusinessException;
 import erwins.util.exception.Check;
 import erwins.util.exception.ExceptionUtil;
+import erwins.util.root.StringCallback;
 
 /**
- * <p>
  * 이 클래스는 파일 관련 기능을 제공
- * </p>
+ * readLine 등을 사용할때 한글인코딩일 경우 EUC-KR 보다 MS949를 사용하자
  */
 public abstract class FileUtil extends FileUtils {
 
@@ -607,6 +608,47 @@ public abstract class FileUtil extends FileUtils {
 	}
 	public static List<String> readLines(File file){
 		return readLines(file,"UTF-8");
+	}
+	
+	/** 한줄씩 라인 단위로 스트리밍해서 읽는다
+	 * ex) CharEncodeUtil.C_EUC_KR  */
+	public static long readLines(File file,Charset encoding,StringCallback calback){
+        try {
+			return readLines(new FileInputStream(file), encoding,calback);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/** 스트림을 한줄씩 읽는다 */
+	public static long readLines(InputStream stream,Charset encoding,StringCallback calback){
+		InputStreamReader isr = null;
+		BufferedReader br = null;
+		long skipIndex = 0;
+        try {
+            isr = new InputStreamReader(stream,encoding);
+            br = new BufferedReader(isr,BUFFER_SIZE);
+            String s = null;
+            while ((s = br.readLine()) != null) {
+            	calback.process(s);
+				skipIndex++;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ReadSkipException e) {
+            //즉시 종료한다
+        } finally {
+        	IOUtils.closeQuietly(br);
+        	IOUtils.closeQuietly(isr); //자동으로 닫기지만 혹시나 해서
+        }
+        return skipIndex;
+	}
+	
+	/** 읽기를 중단할때 던진다 */
+	public static class ReadSkipException extends RuntimeException{
+		
+		private static final long serialVersionUID = 1L;
+		
 	}
 
 }

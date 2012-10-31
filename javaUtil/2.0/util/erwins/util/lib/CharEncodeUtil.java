@@ -3,6 +3,7 @@ package erwins.util.lib;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 
 import org.apache.commons.lang.CharEncoding;
 
@@ -11,9 +12,14 @@ import org.apache.commons.lang.CharEncoding;
  * static메소드 쓰지 말것! 나중에 필요하면 enum으로 만들자. TimeUtil 참고.
  */
 public abstract class CharEncodeUtil extends CharEncoding{
-    
-    public static final String EUC_KR = "EUC-KR";
-    public static final String UNICODE = "UNICODE";
+	
+	//====================  캐릭터셑 문자열 추가  ==============================
+	public static final String EUC_KR = "EUC-KR";
+	public static final String UNICODE = "UNICODE";
+	
+	//====================  캐릭터셑  추가  ==============================
+	public static final Charset C_EUC_KR = Charset.forName(EUC_KR);
+	public static final Charset C_UTF_8 = Charset.forName(UTF_8);
 
     /**
      * UTF-8로 인코딩을 바꾼다.

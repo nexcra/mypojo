@@ -9,11 +9,18 @@ import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 
 public class XMPPBotTokenClient extends XMPPBotClient {
 
-	public XMPPBotTokenClient(String host, int port, String id, String pass) {
-		super(host, port, id, pass);
+	public XMPPBotTokenClient(String host, int port,String serverName, String id, String pass) {
+		super(host, port,serverName, id, pass);
 		setBotMessageListener(new XMPPBotTokenMessageListener());
 	}
 	
+	
+	public XMPPBotTokenClient(String id, String pass) {
+		super(id, pass);
+		setBotMessageListener(new XMPPBotTokenMessageListener());
+	}
+
+
 	/** 일치하는 명령이 없으면 실행하지 않는다. */
 	public class XMPPBotTokenMessageListener implements XMPPBotMessageListener{
 		@Override

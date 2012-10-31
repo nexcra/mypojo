@@ -18,8 +18,9 @@ import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
 /**
- * 간단 래핑한다. 스트림 기능을 지원하지 않는듯 하다. ㅅㅂ
+ * 간단 래핑한다. 
  * CSVReader reader = new CSVReader(new FileReader("yourfile.csv"), '\t', '\'', 2); 처럼 옵션 조절 가능
+ * 스트림기능을 쓸려면 별도로 코딩할것 ex) CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(f), "MS949"));
  */
 public class OpenCsv{
 	

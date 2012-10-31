@@ -35,9 +35,19 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
     private final String id;
     private final String pass;
 	
-	public XMPPBotClient(String host,int port,String id,String pass){
+    /** Google Talk으로 연결한다. */
+    public XMPPBotClient(String id,String pass){
+    	Roster.setDefaultSubscriptionMode(SubscriptionMode.accept_all);
+		connConfig = new ConnectionConfiguration("talk.google.com", 5222,"gmail.com");
+		connConfig.setReconnectionAllowed(true);
+		this.id = id;
+		this.pass = pass;
+    }
+    
+	public XMPPBotClient(String host,int port,String serverName,String id,String pass){
 		Roster.setDefaultSubscriptionMode(SubscriptionMode.accept_all);
-		connConfig = new ConnectionConfiguration(host, port);
+		if(serverName!=null) connConfig = new ConnectionConfiguration(host, port,serverName);
+		else connConfig = new ConnectionConfiguration(host, port);
 		connConfig.setReconnectionAllowed(true);
 		this.id = id;
 		this.pass = pass;

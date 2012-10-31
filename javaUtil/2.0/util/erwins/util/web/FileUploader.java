@@ -2,36 +2,57 @@
 package erwins.util.web;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
 
 import erwins.util.exception.ExceptionUtil;
+import erwins.util.lib.CharEncodeUtil;
 import erwins.util.lib.FileUtil;
 
 /**
  * common을 이용한 파일 업로드.
- * Apache Commons를 이용, req에서 파일을 추출한다.
  * ProgressListener는 사용하지 않는다.
- * 추후 command를 넣어서 밸리데이션 체크를 하자.
- * 인코딩은 브라우저 jsp설정과 연관되는듯 하다.
  */
 public class FileUploader{
+    
+    /** 이 값을 넘는 크기의 파일은 디스크에 임시 저장된다
+     * 초기값은 0.01메가 */
+    private static final int THRESHOLD = 1024 * 1024 * 50; //50메가
+    
+    /** 기본설정 */
+    private static final FileUploadRename RENAME_DEFAULT = new FileUploadRename(){
+        @Override
+        public File nameTo(File uploadedFile) {
+            return FileUtil.uniqueFileName(uploadedFile);
+        }
+    };
 	
     private File repositoryPath;
-    private FileFilter filter;
-    private String encoding = "UTF-8";
-    private int maxMb = 1024*2;
+    private Charset encoding = CharEncodeUtil.C_UTF_8;
+    /** 엄로드 제한 용량 */
+    private int maxUploadMb = 1024*2; //기본 2기가
+    private FileUploadRename fileUploadRename = RENAME_DEFAULT;
+
     
-    public FileUploader(File repositoryPath){
-    	this.repositoryPath = repositoryPath;
+    public static interface FileUploadRename{
+        public File nameTo(File uploadedFile);
+    }
+    
+    public static interface UploadItemRead{
+        public void readValue(String name,String value);
+        /** 사용후 닫아주세요~ */
+        public void readStream(String name,InputStream in);
     }
     
     private void validate(HttpServletRequest req){
@@ -39,46 +60,26 @@ public class FileUploader{
         if(!isMultipart) throw new IllegalArgumentException("request is not multi/part");
     }
 
-    /** 리턴되는 map값에는 폼파라메터 값이 들어간다.
+    /** THRESHOLD가 넘는 경우 임시 지정된 디렉토리에 템프파일이 쌓인다. 별도의 삭제 데몬을 사용하지 않음으로 적절히 삭제하자.
      * upload되는 파일은 유일이름으로 변경되어 오버라이딩 되지 않는다.
      *  */
-    public UploadResult upload(HttpServletRequest req,FileUploadRename fileUploadRename){
-    	validate(req);
-    	if(fileUploadRename==null) fileUploadRename = RENAME_DEFAULT ;
-    	
-    	UploadResult result = new UploadResult();
-    	
-        int yourMaxMemorySize = 1024 * 200;                 // threshold  값 설정 (0.2M?) 초기값은 0.01메가
-        long yourMaxRequestSize = 1024 * 1024 * maxMb;   
-        
-        DiskFileItemFactory factory = new DiskFileItemFactory();
-        factory.setSizeThreshold(yourMaxMemorySize);
-        factory.setRepository(repositoryPath);
-        
-        ServletFileUpload upload = new ServletFileUpload(factory);
-        //upload.setHeaderEncoding("EUC-KR"); //수정!!
-        upload.setHeaderEncoding(encoding);
-        upload.setSizeMax(yourMaxRequestSize);  // 임시 업로드 디렉토리 설정
-        //upload.setProgressListener(listener);  //리스너는 사용하지 않는다.
-        
-        FileItem item = null;
-        List<?> items;
+    public UploadResult upload(HttpServletRequest req){
+        validate(req);
+        UploadResult result = new UploadResult();
+        ServletFileUpload upload = getServletUpload(getFactory());
         try {
-            items = upload.parseRequest(req);
-            for(Object aItem : items) {
-                item = (FileItem)aItem;
+            FileItemIterator it = upload.getItemIterator(req); //upload.parseRequest(req); <<- 이거는 스트리밍 안되는듯
+            while(it.hasNext()){
+                FileItem item = (FileItem)it.next();
                 if(item.isFormField()) {
-                	result.parameter.put(item.getFieldName(), item.getString(encoding));
+                    result.parameter.put(item.getFieldName(), item.getString(encoding.name()));
                 }else{
                     String fileName = item.getName();
                     fileName = fileName.substring(fileName.lastIndexOf(File.separator) + 1); //다시보기
                     File uploadedFile = new File(repositoryPath,fileName);
-                    if(filter != null && !filter.isStorable(uploadedFile)) continue;
-                    
                     File renamed = fileUploadRename.nameTo(uploadedFile); //OS가 한글을 인식 못할 수 있음으로 실제 쓰기전 rename한다.
-                    item.write(renamed);
-                    result.uploadedFiles.add(new UploadedFile(renamed,fileName));
-                    //fileItem.get();  //메모리에 모두 할당
+                    item.write(renamed); //fileItem.get();  //메모리에 모두 할당
+                    result.source.put(fileName, renamed);
                 }
             }
         } catch (Exception e) {
@@ -87,54 +88,72 @@ public class FileUploader{
         return result;
     }
     
+    /** 실시간 대용량 처리나, 실시간 벨리데이션 체크 등을 하고싶을때 사용한다.
+     * 스트림을 BlockingQueue으로 받아서 여러 스래드에 전달해주면 편하다.
+     * StringCallback도중 멈출려면 ReadSkipException를 던지자 */
+    public void uploadStream(HttpServletRequest req,UploadItemRead uploadItemRead){
+        validate(req);
+        ServletFileUpload upload = getServletUpload(null);
+        try {
+            FileItemIterator it = upload.getItemIterator(req); //upload.parseRequest(req); <<- 이거는 스트리밍 안되는듯
+            while(it.hasNext()){ //이거 호출하면 아마 InputStream이 닫기는듯
+                FileItemStream item = it.next();
+                String name = item.getFieldName();
+                InputStream stream = item.openStream();
+                if (item.isFormField()) {
+                    uploadItemRead.readValue(name, Streams.asString(stream,encoding.name()));
+                } else {
+                    uploadItemRead.readStream(name, stream);
+                }
+            }
+        } catch (Exception e) {
+            ExceptionUtil.castToRuntimeException(e);
+        }
+    }
+
+    ///  =================  공통  ===================== 
+    private ServletFileUpload getServletUpload(DiskFileItemFactory factory) {
+        ServletFileUpload upload = new ServletFileUpload(factory);
+        upload.setHeaderEncoding(encoding.name());
+        upload.setSizeMax(1024 * 1024 * maxUploadMb);
+        //upload.setProgressListener(listener);  //리스너는 사용하지 않는다.
+        return upload;
+    }
+
+    private DiskFileItemFactory getFactory() {
+        DiskFileItemFactory factory = new DiskFileItemFactory();
+        factory.setSizeThreshold(THRESHOLD);
+        factory.setRepository(repositoryPath);
+        return factory;
+    }
+    
     public static class UploadResult{
-    	public final Map<String,String> parameter = new HashMap<String,String>();
-    	public final List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
+        public final Map<String,String> parameter = new HashMap<String,String>();
+        public final Map<String,File> source = new HashMap<String,File>();
     }
     
-    public static class UploadedFile{
-    	public final File file;
-    	public final String orgName;
-    	public UploadedFile(File file,String orgName){
-    		this.file = file;
-    		this.orgName = orgName;
-    	}
+    //=============== getter / setter ==================
+    
+    public File getRepositoryPath() {
+        return repositoryPath;
     }
-    
-    private static final FileUploadRename RENAME_DEFAULT = new FileUploadRename(){
-		@Override
-		public File nameTo(File uploadedFile) {
-			return FileUtil.uniqueFileName(uploadedFile);
-		}
-    };
-    
+    public void setRepositoryPath(File repositoryPath) {
+        this.repositoryPath = repositoryPath;
+    }
+    public void setMaxUploadMb(int maxUploadMb) {
+        this.maxUploadMb = maxUploadMb;
+    }
     /** 디폴트 값은 UTF-8 */
-    public void setEncoding(String encoding) {
+    public void setEncoding(Charset encoding) {
         this.encoding = encoding;
     }
 
     /** 디폴트 값은 1024*2 인 2기가. */
     public void setMaxMb(int maxMb) {
-        this.maxMb = maxMb;
-    }
-
-    /** ex)  up.setFilter(new FileFilter(){
-            public boolean isStorable(File file) {
-                log.debug(file.getAbsolutePath()+" is uploaded.");
-                return true;
-            }
-        }); */
-    public void setFilter(FileFilter filter) {
-        this.filter = filter;
-    }
-
-    public static interface FileFilter{
-        /** false를 리턴하면 저장하지 않는다. */
-        public boolean isStorable(File file);
+        this.maxUploadMb = maxMb;
     }
     
-    public static interface FileUploadRename{
-    	public File nameTo(File uploadedFile);
-    }
+    
 
 }
+

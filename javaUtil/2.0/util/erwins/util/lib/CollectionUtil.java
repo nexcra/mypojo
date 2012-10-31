@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -278,6 +279,13 @@ public abstract class CollectionUtil extends CollectionUtils {
 		// list = Arrays.asList(a);
 		List<T> list = new ArrayList<T>();
 		for (T each : a)
+			list.add(each);
+		return list;
+	}
+	
+	public static <T> List<T> toList(Set<T> set) {
+		List<T> list = new ArrayList<T>();
+		for (T each : set)
 			list.add(each);
 		return list;
 	}

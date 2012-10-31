@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -213,4 +214,18 @@ public abstract class WebUtil {
     	String value = req.getParameter(key);
     	return Long.valueOf(value);
     }
+    
+    /** Poi처럼 resp에 write만 있는 경우 파일이름 등을 지정하기 위해 사용 */
+    public static void  setFileName(HttpServletResponse resp,String fileName){
+    	resp.setContentType(WebUtil.CONTENT_TYPE_DOWNLOAD);
+        //resp.setContentLength((int) file.length());
+        try {
+			resp.setHeader("Content-Disposition", "attachment; fileName=\""+ new String(fileName.getBytes("EUC_KR"), "8859_1") + "\";");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+    	//resp.setHeader("Content-Disposition", "attachment; fileName=\""+ fileName + "\";");
+        resp.setHeader("Content-Transfer-Encoding", "binary");
+    }
+    
 }

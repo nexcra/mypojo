@@ -15,12 +15,18 @@ import org.apache.commons.collections.map.ListOrderedMap;
 
 /**
  * 이하의 간단 버전이다. Map<String,Map<String,T>>
+ * 그냥 써도 되고, 복잡한게 필요하면 body를 꺼내서 써도 된다.
  */
-
 @SuppressWarnings("serial")
 public class MapForMap<T> implements Map<String, Map<String,T>>,Serializable{
 	
 	private Map<String,Map<String,T>> body;
+	/** 기본설정 해시 */
+	private MapInstanceCallback<T> callback;
+	
+	public static interface MapInstanceCallback<T>{
+		public Map<String,T> getMapInstance();
+	}
 
 	@SuppressWarnings("unchecked")
 	public MapForMap(MapType type){
@@ -31,10 +37,16 @@ public class MapForMap<T> implements Map<String, Map<String,T>>,Serializable{
 		}
 	}
 	
+	public MapForMap(Map<String,Map<String,T>> map){
+		this.body = map;
+	}
+	
+	@SuppressWarnings("unchecked")
 	public void add(String parentKey,String key,T value){
 		Map<String,T> map = body.get(parentKey); 
 		if(map==null){
-			map = new HashMap<String,T>();
+			if(callback==null) map = new HashMap<String,T>();
+			else map = callback.getMapInstance();
 			body.put(parentKey, map);
 		}
 		map.put(key,value);
@@ -112,9 +124,14 @@ public class MapForMap<T> implements Map<String, Map<String,T>>,Serializable{
 	public int hashCode() {
 		return body.hashCode();
 	}
-	
-	
 
+	public void setCallback(MapInstanceCallback<T> callback) {
+		this.callback = callback;
+	}
+
+	public Map<String, Map<String, T>> getBody() {
+		return body;
+	}
 	
 	
     
