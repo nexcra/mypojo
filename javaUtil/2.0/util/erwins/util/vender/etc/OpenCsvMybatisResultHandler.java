@@ -1,10 +1,14 @@
 package erwins.util.vender.etc;
 
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -14,7 +18,7 @@ import erwins.util.lib.CharEncodeUtil;
 
 /** 스트리밍으로 write하는 mybatis용 핸들러 
  * 사용후 반드시 닫아주자. */
-public abstract class OpenCsvMybatisResultHandler implements ResultHandler{
+public abstract class OpenCsvMybatisResultHandler implements ResultHandler,Closeable{
 	
 	private CSVWriter writer;
     /** 기본값 UTF-8 , MS-OFFICE로 읽을 경우 EUC-KR로 해야 한글이 깨지지 않는다.  */
@@ -56,6 +60,20 @@ public abstract class OpenCsvMybatisResultHandler implements ResultHandler{
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
     }
+    
+    //=== 이하 델리게이트 메소드 ===
+    
+	public void writeAll(List<String[]> arg0) {
+		writer.writeAll(arg0);
+	}
+	public void writeAll(ResultSet rs, boolean includeColumnNames) throws SQLException, IOException {
+		writer.writeAll(rs, includeColumnNames);
+	}
+	public void writeNext(String[] arg0) {
+		writer.writeNext(arg0);
+	}
+    
+    
     
     
 }
