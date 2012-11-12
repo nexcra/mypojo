@@ -3,24 +3,29 @@ package erwins.util.lib;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.WordUtils;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.util.ReflectionUtils;
 
+import erwins.util.collections.MapForList;
 import erwins.util.exception.BusinessException;
+import erwins.util.root.EntityId;
 import erwins.util.root.Pair;
 
 /**
- * 이놈은 예외로 커먼스를 사용하지 않는다. (없다) Generic정보는 객체에서는 사라지지만 Class에는 남아있어 런타임에 사용 가능하다.
+ * 이놈은 예외로 커먼스를 사용하지 않고 spring을 사용한다.
  */
 public abstract class ReflectionUtil extends ReflectionUtils {
 
@@ -360,5 +365,137 @@ public abstract class ReflectionUtil extends ReflectionUtils {
         shallowCopyAllByName(server,obj);
         return obj;
     }
+    
+
+    /** 마이바티스 때문에 빡쳐서 만듬 */
+    public static List<String> findNullObject(Object server){
+        List<String> list = new ArrayList<String>();
+        Class<?> clazz = (Class<?>) server.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        for(Field field : fields){
+            field.setAccessible(true);
+            Object value;
+            try {
+                value = field.get(server);
+            } catch (Exception e) {
+                throw new RuntimeException(e);            
+            }
+            if(value==null) list.add(field.getName());
+        }
+        return list;
+    }
+    
+    /** 해당 클래스의 모든 필드를 null로 초기화한다.
+     * jsp 태그에 사용할목적으로 만듬.
+     *  Primitive와 상속클래스는 제외된다. */
+    public static void initObject(Object object){
+        Field[] fs = object.getClass().getDeclaredFields();
+        for(Field each : fs){
+            each.setAccessible(true);
+            if(!each.getType().isPrimitive()) setField(each, object, null);
+        }
+    }
+    
+    /** 간단 복사. A값이 null이고 B값이 null이 아니라면 B의값을 A로 복사한다. */
+    public static <T> void  shallowCopyNull(T a,T b){
+        @SuppressWarnings("unchecked")
+        //Class<T> clazz =  (Class<T>) a.getClass();
+        Class<T> clazz =  (Class<T>) b.getClass(); //A에는 있으나 B에는 없는 필드는 복사하지 않는다.  ex) A extends B
+        Field[] fields = clazz.getDeclaredFields();
+        for(Field field : fields){
+            int mod = field.getModifiers();
+            if(Modifier.isStatic(mod)) continue;
+            if(Modifier.isFinal(mod)) continue;
+            field.setAccessible(true);
+            try {
+                Object valueOfB = field.get(b);
+                if(valueOfB==null) continue;
+                Object valueOfA = field.get(a);
+                if(valueOfA!=null) continue;
+                field.set(a, valueOfB);
+            } catch (Exception e) {
+                throw new RuntimeException(e);            
+            }
+        }
+    }
+    
+    /** 간단 복사. A값이 null이고 B값이 null이 아니라면 B의값을 A로 복사한다. */
+    public static <T> void  shallowCopy(T a,T b){
+        @SuppressWarnings("unchecked")
+        Class<T> clazz =  (Class<T>) b.getClass(); //A에는 있으나 B에는 없는 필드는 복사하지 않는다.  ex) A extends B
+        Field[] fields = clazz.getDeclaredFields();
+        for(Field field : fields){
+            int mod = field.getModifiers();
+            if(Modifier.isStatic(mod)) continue;
+            if(Modifier.isFinal(mod)) continue;
+            field.setAccessible(true);
+            try {
+                Object valueOfB = field.get(b);
+                field.set(a, valueOfB);
+            } catch (Exception e) {
+                throw new RuntimeException(e);            
+            }
+        }
+    }
+    
+    //nested loop
+    
+    /** masters 기준으로 slaves 값을 masters로 복사한다. masters가 많고 slaves가 적어야 한다.
+     * 주의!  slave에는 있지만 master에는 없는 값은 무시된다.
+     * 두개의 관계형 DB에서 데이터를 각가 가져올때 사용한다.
+     * 성능에 민감하다면 shallowCopyNull 대신 콜백을 사용할것! */
+    public static <T extends EntityId<String>> void  nestedLoopJoin(List<T> masters,List<T> slaves){
+        Map<String,T> slaveMap = new HashMap<String,T>();
+        for(T eachSlave : slaves) slaveMap.put(eachSlave.getId(), eachSlave);
+        for(T master : masters){
+            T slave = slaveMap.get(master.getId());
+            if(slave==null) continue;
+            if(slave==master) continue;
+            ReflectionUtil.shallowCopyNull(master, slave);
+        }
+    }
+    
+    /** 모든 객체를 key 중심으로 조인한다.  VO에는 두개의 테이블A,B의 컬럼 모두가 포함되어야 한다. 
+     * 결과는 걍 첫번째 객체 기준으로  value들을 더해서 리턴한다.(입력인자중 어느게 될지 모름) */
+    public static <T extends EntityId<String>> List<T>  hashJoin(List<T> ... listArray){
+        MapForList<T> map = new MapForList<T>();
+        for(List<T> list : listArray) for(T each : list) map.add(each.getId(), each);
+        
+        List<T> result = new ArrayList<T>();
+        for (Entry<String, List<T>> entry : map.entrySet()) {
+            List<T> value = entry.getValue();
+            if(value.size()==1) result.add(value.get(0));
+            else{
+                T firstValue = value.get(0);
+                for(int i=1;i<value.size();i++) ReflectionUtil.shallowCopyNull(firstValue, value.get(i));
+                result.add(firstValue);
+            }
+        }
+        return result;
+        
+    }
+    
+    /** null값에 0을 넣어준다. */
+    public static <T> void  nullValueToZero(T a){
+        @SuppressWarnings("unchecked")
+        Class<T> clazz =  (Class<T>) a.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        for(Field field : fields){
+            Class<?> type = field.getType();
+            boolean isNumber = Number.class.isAssignableFrom(type);
+            if(!isNumber) continue;
+            field.setAccessible(true);
+            try {
+                Object value = field.get(a);
+                if(value!=null) continue;
+                if(type.isAssignableFrom(Long.class)) field.set(a, 0L);
+                else if(type.isAssignableFrom(Integer.class)) field.set(a, 0);
+                else if(type.isAssignableFrom(BigDecimal.class)) field.set(a, BigDecimal.ZERO);
+            } catch (Exception e) {
+                throw new RuntimeException(e);            
+            }
+        }
+    }
+    
 
 }

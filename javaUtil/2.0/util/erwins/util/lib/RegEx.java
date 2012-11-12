@@ -291,6 +291,32 @@ public enum RegEx {
         }
         return result;
     }
+    
+    /** 패턴과 매칭되는 결과를 리턴한다. */
+    public static List<String> findAll(Pattern pattern,CharSequence  text) {
+        Matcher m = pattern.matcher(text);
+        List<String> list = new ArrayList<String>();
+        while (m.find()){
+            String result = m.group();
+            if(!StringUtil.isEmpty(result)) list.add(result);
+        }
+        return list;
+    }
+    
+    private static Pattern NUMBER = Pattern.compile("\\d*");
+    
+    /** 마지막 숫자 부분만 추출해서 숫자를 더한다.
+     * ex) plusIgnoreNumeric(123_3399_E21,100) --> 123_3399_E121  */
+    public static String plusIgnoreNumeric(String body,String add) {
+        List<String> list =  findAll(NUMBER, body);
+        if(list.size()==0) return null;
+        
+        String lastNum = list.get(list.size()-1);
+        String added = StringUtil.plus(lastNum, add);
+        int index = body.lastIndexOf(lastNum);
+        String result = body.substring(0, index);
+        return result + added;
+    }
 
 
 }

@@ -3,6 +3,7 @@ package erwins.util.lib;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.Iterator;
@@ -717,6 +718,31 @@ public class StringUtil extends StringUtils {
     public static String toString(Object str) {
         if (str == null) return EMPTY;
         return str.toString();
+    }
+    
+    public static boolean isBetween(String now,String start,String end){
+        boolean s = now.compareTo(start) >= 1;
+        boolean e = end.compareTo(now) >= 1;
+        return s && e;
+    }
+    
+    private static final String[] ENCODINGS = {"UTF-8","EUC-KR","8859_1","MS949","ISO-8859-1","US-ASCII"};
+    
+    /** 바보같은 간이유틸 */
+    public static void  findEncoding(String text) {
+        for(String each : ENCODINGS){
+            for(String toEncoding : ENCODINGS){
+                if(each.equals(toEncoding)) continue;
+                try {
+                    String value = new String(text.getBytes(each),toEncoding);
+                    String msg = MessageFormat.format("{0} -> {1} : {2}", each,toEncoding,value);
+                    System.out.println(msg);
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+                
+            }
+        }
     }
 
 }

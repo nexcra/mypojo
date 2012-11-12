@@ -22,10 +22,12 @@ import org.apache.commons.lang.StringUtils;
 
 import erwins.util.exception.ExceptionUtil;
 import erwins.util.lib.FileUtil;
+import erwins.util.lib.StringEscapeUtil;
 
 /**
  * 세션당 하나씩 만들어라.
  * url을 한번만 지정후 쿼리를 변경하면서 재사용 가능하다.
+ * releaseConnection / abort 가 필요시 추가
  * @author sin
  */
 public class HttpData{
@@ -34,13 +36,12 @@ public class HttpData{
     private HttpMethod method;
     
     private String encode = "UTF-8";
-    private Integer timeoutSec ;
+    private Integer timeoutSec = 5;
     private boolean post = true;
     
     /** 기본 설정의 인스턴스를 리턴한다. */
     public static HttpData getSimpleClient(){
     	HttpData instance = new HttpData();
-    	instance.timeoutSec = 5;
     	instance.init();
     	return instance;
     }
@@ -117,6 +118,16 @@ public class HttpData{
             IOUtils.closeQuietly(in);
         }
     }
+    
+    public InputStream asStream(){
+        InputStream in = null;
+        try {
+            in =  method.getResponseBodyAsStream();
+        }catch (IOException e) {
+            ExceptionUtil.castToRuntimeException(e);
+        }
+        return in;
+    }
 
     public String getEncode() {
         return encode;
@@ -124,8 +135,12 @@ public class HttpData{
     public void setEncode(String encode) {
         this.encode = encode;
     }
+    public void setTimeoutSec(Integer timeoutSec) {
+		this.timeoutSec = timeoutSec;
+	}
     
-    // ==================  쿼리만 교체, 아마 post만 되는듯 ===================
+
+	// ==================  쿼리만 교체, 아마 post만 되는듯 ===================
     public HttpData query(NameValuePair[] querys) {
         method.setQueryString(querys);
         return this;
@@ -138,7 +153,8 @@ public class HttpData{
     
     // =============== 이상한애들??
     
-    /** get방식일때 사용한다. 문자열에 =나 &가 들어가지 않아야 한다. -> 임시로직 */
+    /** get방식일때 사용한다. 문자열에 =나 &가 들어가지 않아야 한다.?? -> 임시로직 */
+    @Deprecated
     public HttpData url(String url,String parameter){
         String[] eachParams = parameter.split("&");
         NameValuePair[] querys = new NameValuePair[eachParams.length];
@@ -149,7 +165,8 @@ public class HttpData{
         return url(url,querys);
     }
     
-    /** get방식일때 사용한다. */
+    /** get방식일때 사용한다??. */
+    @Deprecated
     public HttpData url(String url,NameValuePair[] querys){
         StringBuilder b = new StringBuilder();
         boolean first = true;
@@ -162,6 +179,19 @@ public class HttpData{
             b.append(each.getValue());
         }
         return url(url+"?"+b.toString());
+    }
+    
+    /** 문자열에 =나 &가 들어가지 않아야 한다. -> 임시로직 */
+    public static NameValuePair[] stringToParameter(String parameter){
+        String[] eachParams = parameter.split("&");
+        NameValuePair[] querys = new NameValuePair[eachParams.length];
+        for(int i=0;i<eachParams.length;i++){
+            String[] keyValue = eachParams[i].split("=");
+            String value = keyValue.length > 1 ? keyValue[1] : "";
+            value = StringEscapeUtil.unescapeUrl(value, "UTF-8");
+            querys[i] = new NameValuePair(keyValue[0],value);
+        }
+        return querys;
     }
 
 }

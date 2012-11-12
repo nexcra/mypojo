@@ -16,12 +16,13 @@ import org.apache.ibatis.session.ResultHandler;
 import au.com.bytecode.opencsv.CSVWriter;
 import erwins.util.lib.CharEncodeUtil;
 
-/** 스트리밍으로 write하는 mybatis용 핸들러 
- * 사용후 반드시 닫아주자. */
+/** 스트리밍으로 write하는 mybatis용 핸들러. 
+ * 로우단위로만 작성 가능하다. mybatis의 SQL XML에 fetchSize를 설정하는것을 잊지말자
+ * 사용후 반드시(는 아니긴한데) 닫아주어야 한다. */
 public abstract class OpenCsvMybatisResultHandler implements ResultHandler,Closeable{
 	
 	private CSVWriter writer;
-    /** 기본값 UTF-8 , MS-OFFICE로 읽을 경우 EUC-KR로 해야 한글이 깨지지 않는다.  */
+    /** 기본값 UTF-8 , MS-OFFICE로 읽을 경우 EUC-KR(MS949)로 해야 한글이 깨지지 않는다.  */
     private Charset encoding = CharEncodeUtil.C_UTF_8;
     /** 기본 100kb  */
     private int bufferSize = 1024*100;

@@ -429,7 +429,40 @@ public abstract class CollectionUtil extends CollectionUtils {
         }
         return result;
     }
-	
+    
+    /** 두 리스트의 데이터(DB에서 가져온 데이터 등) 비교가 모두 같을경우 true */
+    public static <T extends Comparable<T>> boolean isEqualCollectionData(List<T> a , List<T> b){
+        if(a==null || b==null) return false;
+        if(a.size() != b.size()) return false;
+        int size = a.size();
+        for(int i=0;i<size;i++){
+            T aa = a.get(i);
+            T bb = b.get(i);
+            if(aa.compareTo(bb) != 0) return false;
+        }
+        return true;
+    }
+    
+    /** 두 리스트의 데이터(DB에서 가져온 데이터 등) 비교가 모두 같을경우 true */
+    public static <T> boolean isEqualCollectionData(List<T> a , List<T> b,Comparator<T> comparator){
+        if(a==null || b==null) return false;
+        if(a.size() != b.size()) return false;
+        int size = a.size();
+        for(int i=0;i<size;i++){
+            T aa = a.get(i);
+            T bb = b.get(i);
+            if(comparator.compare(aa, bb) != 0) return false;
+        }
+        return true;
+    }
+    
+    /** 두개의 리스트가 틀린지? equals()의 오버라이드 비교에 사용된다. null끼리는 같다고 비고한다. */
+    public static <T extends Comparable<T>> boolean isEqualCollectionDataNullSafe(List<T> a , List<T> b){
+        if(a==null && b==null) return true;
+        else if(a==null && b!=null) return false;
+        else if(a!=null && b==null) return false;
+        return isEqualCollectionData(a,b);
+    }
 	
 
 }

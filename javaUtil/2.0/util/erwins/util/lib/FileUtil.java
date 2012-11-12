@@ -8,6 +8,7 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,6 +22,7 @@ import java.text.MessageFormat;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -645,10 +647,22 @@ public abstract class FileUtil extends FileUtils {
 	}
 	
 	/** 읽기를 중단할때 던진다 */
+	@SuppressWarnings("serial")
 	public static class ReadSkipException extends RuntimeException{
-		
-		private static final long serialVersionUID = 1L;
-		
 	}
+	
+    /** 로그 등 일자료 롤링되는 파일중 가장 최신파일을 가져온다.  */
+    public static File getLastFile(File dir,final String prefix) {
+        File[] logs = dir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File arg0, String arg1) {
+                return arg1.startsWith(prefix);
+            }
+        });
+        TreeMap<String,File> logMap = new TreeMap<String, File>();
+        for(File each : logs) logMap.put(each.getName(), each);
+        File log = logMap.lastEntry().getValue();
+        return log;
+    }
 
 }

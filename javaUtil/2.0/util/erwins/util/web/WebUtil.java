@@ -31,6 +31,7 @@ public abstract class WebUtil {
 	public static final String CONTENT_TYPE_PDF = "application/pdf";
 	public static final String CONTENT_TYPE_DOWNLOAD = "application/octet-stream";
 	public static final String CONTENT_TYPE_MULTIPART = "multipart/form-data";
+	private static final String POST = "POST";
 
 	/**
 	 * 멀티파트 리퀘스트인지 검사
@@ -40,6 +41,7 @@ public abstract class WebUtil {
 	}
 
 	/** response에 file을 담아서 출력한다. 기본적으로 application/octet-stream로 되어있다. */
+	@Deprecated
 	public static void download(HttpServletResponse response, File file) {
 		download(response,file,CONTENT_TYPE_DOWNLOAD,null);
 	}
@@ -62,6 +64,7 @@ public abstract class WebUtil {
 
 	/** 구형 IE에서 다운로드를 취소할때 나는 오류를 무시한다.
 	 * 다운될 파일이름이 실제파일과 달라야 하는 경우가 있어서 fileName을 추가 */
+	@Deprecated
 	public static void download(HttpServletResponse response, File file,String contentType,String fileName) {
 		if(fileName==null) fileName = file.getName();
 		if (!file.exists())
@@ -91,6 +94,43 @@ public abstract class WebUtil {
 			out.flush();
 		} catch (IOException e) {
 			// if(!e.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException"))
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			if (fis != null)
+				try {
+					fis.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+		}
+	}
+	
+	/** 파일이름설정과 다운로드를 별도 분리 */
+	public static void downloadFile(HttpServletResponse response, File file) {
+		if (!file.exists())
+			file = new File(CharEncodeUtil.getEucKr(file.getAbsolutePath()));
+		if (!file.exists())
+			throw new RuntimeException(file.getAbsolutePath() + " : file not found!");
+	
+		OutputStream out = null;
+		FileInputStream fis = null;
+		
+		response.setContentLength((int) file.length());
+	
+		try {
+			response.setHeader("Content-Transfer-Encoding", "binary");
+			/*
+			response.setHeader("Expires", "0");
+		    response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
+		    response.setHeader("Pragma", "public");*/
+			out = response.getOutputStream();
+			fis = new FileInputStream(file);
+			IOUtils.copy(fis, out);
+			out.flush();
+		} catch (IOException e) {
+			// if(!e.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException"))
+			throw new RuntimeException(e);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -216,8 +256,8 @@ public abstract class WebUtil {
     }
     
     /** Poi처럼 resp에 write만 있는 경우 파일이름 등을 지정하기 위해 사용 */
-    public static void  setFileName(HttpServletResponse resp,String fileName){
-    	resp.setContentType(WebUtil.CONTENT_TYPE_DOWNLOAD);
+    public static void  setFileName(HttpServletResponse resp,String fileName,String contentType){
+    	resp.setContentType(contentType);
         //resp.setContentLength((int) file.length());
         try {
 			resp.setHeader("Content-Disposition", "attachment; fileName=\""+ new String(fileName.getBytes("EUC_KR"), "8859_1") + "\";");
@@ -226,6 +266,15 @@ public abstract class WebUtil {
 		}
     	//resp.setHeader("Content-Disposition", "attachment; fileName=\""+ fileName + "\";");
         resp.setHeader("Content-Transfer-Encoding", "binary");
+    }
+    
+    /** 디폴트값 입력 */
+    public static void  setFileName(HttpServletResponse resp,String fileName){
+    	setFileName(resp,fileName,CONTENT_TYPE_DOWNLOAD);
+    }
+    
+    public static boolean isPost(HttpServletRequest req){
+        return POST.equals(req.getMethod().toUpperCase());
     }
     
 }

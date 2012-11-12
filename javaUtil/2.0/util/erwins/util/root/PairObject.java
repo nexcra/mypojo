@@ -1,8 +1,18 @@
 package erwins.util.root;
 
+import java.util.Comparator;
+
 
 @SuppressWarnings("serial")
 public class PairObject implements Pair{
+	
+	/** 이름으로 정렬 */
+	public static final Comparator<PairObject> BY_NAME =  new Comparator<PairObject>() {
+        @Override
+        public int compare(PairObject o1, PairObject o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+    };
 	
 	private String name;
 	private String value;
@@ -26,6 +36,7 @@ public class PairObject implements Pair{
 		this.value = value;
 	}
 	
+	/** 해당하는 Pair를 찾는다 */
 	public static Pair getPairByName(Pair[] pairs,String name) {
         for(Pair each : pairs) if(each.getName().equals(name)) return each;
         return null;

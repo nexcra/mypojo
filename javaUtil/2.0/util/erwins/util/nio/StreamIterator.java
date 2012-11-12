@@ -16,7 +16,8 @@ import erwins.util.root.StringCallback;
  * item으로 분류되기 전까지는 동일 스래드에서 순서대로 라인을 읽어야 한다.
  * 라인세퍼레이터로 분리되는 파일만 가능하다. 
  * 이것을 스프링 배치에서 읽을때는 synch를 해주어야 한다.
- * 파일다운로드와 동시에 읽을때 정도 유용하다. 그 외에는 실시간 읽기가 더 좋다. */
+ * 파일다운로드와 동시에 읽을때 정도 유용하다. 그 외에는 실시간 읽기가 더 좋다. 
+ * --> 웬만하면 근데 사용금지 */
 public class StreamIterator<T>  extends Thread implements Iterator<T>{
 	
 	public static FileStreamLineToItem<String> DEFAULT = new FileStreamLineToItem<String>(){
@@ -25,14 +26,14 @@ public class StreamIterator<T>  extends Thread implements Iterator<T>{
 			return line;
 		}
 	};
-    
-    private final BlockingQueue<T> queue = new LinkedBlockingQueue<T>();
+    /** limitItem을 넘어가면 queue가 소진될때까지 block된다.  */
+    private BlockingQueue<T> queue;
     private FileStreamLineToItem<T> fileStreamLineToItem;
     private int limitItem = 100000;
-    private int sleepMSec = 1000;
     
     private File file;
     private InputStream in;
+    private int pollTimeoutSec = 10;
     
     public StreamIterator(){
         setDaemon(true);
@@ -50,14 +51,18 @@ public class StreamIterator<T>  extends Thread implements Iterator<T>{
     @Override
     public void run() {
         if(fileStreamLineToItem==null) throw new IllegalArgumentException("fileStreamLineToItem is required");
+        queue = new LinkedBlockingQueue<T>(limitItem);
         if(file!=null){
             FileUtil.readLines(file, CharEncodeUtil.C_EUC_KR, new StringCallback(){
                 @Override
                 public void process(String line) {
                     T item = fileStreamLineToItem.lineToItem(line);
                     if(item != null){
-                        if(queue.size() > limitItem) ThreadUtil.sleep(sleepMSec);
-                        queue.add(item);
+                        try {
+							queue.put(item);
+						} catch (InterruptedException e) {
+							//아무것도 하지 않는다.
+						}
                     }
                 }
             });
@@ -67,28 +72,37 @@ public class StreamIterator<T>  extends Thread implements Iterator<T>{
                 public void process(String line) {
                     T item = fileStreamLineToItem.lineToItem(line);
                     if(item != null){
-                        if(queue.size() > limitItem) ThreadUtil.sleep(sleepMSec);
-                        queue.add(item);
+                    	try {
+							queue.put(item);
+						} catch (InterruptedException e) {
+							//아무것도 하지 않는다.
+						}
                     }
                 }
             });
         }else throw new IllegalArgumentException("file or InputStream is required");
     }
 
-    /** 부정확하다! */
+    /** 부정확하다!
+     * hasNext()가 true이더라도 next가 없을 수 있다 */
     @Override
     public boolean hasNext() {
-        boolean isEnd = !isAlive() && queue.size() == 0;
-        return  !isEnd;
+    	if(queue.size() > 0) return true;
+    	if(isAlive()) return true;
+    	//if(getState()  != Thread.State.TERMINATED) return true;
+        return  false;
     }
 
-    /** take()일경우 끝났는데 이게 호출되면 망한다. 무한 대기할 수 있음.
-     * null이 나오면 끝이라고 인식하는 스프링 배치상 이걸로 해준다 */
+    /** 
+     * hasNext()가 true이더라도 next가 없을 수 있다
+     * 스래드가 종료되지 않았지만 대기시간이 넘어서 null이 리턴될 가능성이 있다.
+     * 스트림이 불안정 하다면 pollTimeoutSec을 크게 주자
+     *  */
     @Override
     public T next() {
         //take()
         try {
-            return queue.poll(10, TimeUnit.SECONDS);
+            return queue.poll(pollTimeoutSec, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             return null;
         }
@@ -101,9 +115,6 @@ public class StreamIterator<T>  extends Thread implements Iterator<T>{
     public int getLimitItem() {
         return limitItem;
     }
-    public void setSleepMSec(int sleepMSec) {
-        this.sleepMSec = sleepMSec;
-    }
     public StreamIterator<T> setFile(File file) {
         this.file = file;
         return this;
@@ -112,6 +123,9 @@ public class StreamIterator<T>  extends Thread implements Iterator<T>{
         this.in = in;
         return this;
     }
+	public void setPollTimeoutSec(int pollTimeoutSec) {
+		this.pollTimeoutSec = pollTimeoutSec;
+	}
     
 
 }
