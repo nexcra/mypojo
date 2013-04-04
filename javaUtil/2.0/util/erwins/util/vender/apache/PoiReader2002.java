@@ -3,7 +3,9 @@ package erwins.util.vender.apache;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,25 +21,35 @@ public class PoiReader2002 implements Iterable<PoiSheetReader2002>{
 	protected HSSFWorkbook wb ;
     
     public PoiReader2002(String fileName){
-    	load(new File(fileName));
+    	try {
+			load(new FileInputStream(new File(fileName)));
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
     }
     
     public PoiReader2002(File file){
-    	load(file);
-    }
-
-	private void load(File file) {
-		FileInputStream stream = null;
     	try {
-    		stream = new FileInputStream(file);
-            POIFSFileSystem filesystem = new POIFSFileSystem(stream);        
+			load(new FileInputStream(file));
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+    }
+    
+    public PoiReader2002(InputStream in){
+    	load(in);
+    }
+	
+	private void load(InputStream in) {
+    	try {
+            POIFSFileSystem filesystem = new POIFSFileSystem(in);        
             wb = new HSSFWorkbook(filesystem);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
         }finally{
         	try {
-				if(stream!=null) stream.close();
+				if(in!=null) in.close();
 			} catch (IOException e) {
 			}
         }

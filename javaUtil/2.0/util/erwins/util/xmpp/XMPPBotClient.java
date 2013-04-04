@@ -19,6 +19,10 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.RosterPacket;
+import org.jivesoftware.smack.packet.XMPPError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import erwins.util.exception.ExceptionUtil;
 import erwins.util.vender.etc.Flex;
@@ -34,6 +38,7 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
     protected XMPPConnection connection ;
     private final String id;
     private final String pass;
+    protected Logger log = LoggerFactory.getLogger(this.getClass());
 	
     /** Google Talk으로 연결한다. */
     public XMPPBotClient(String id,String pass){
@@ -83,6 +88,13 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
             if (p instanceof Message) botMessageListener.message((Message) p);
             else if(p instanceof Presence) botPacketListener.presence((Presence) p);
             else if(p instanceof IQ){
+            	if(p instanceof RosterPacket){
+                    RosterPacket rp = (RosterPacket)p;
+                    if(rp.getType() == IQ.Type.ERROR){
+                        XMPPError e = rp.getError();
+                        log.warn(e.getMessage());
+                    }
+            	}
             }else botPacketListener.unknown((IQ)p);
         }
     };

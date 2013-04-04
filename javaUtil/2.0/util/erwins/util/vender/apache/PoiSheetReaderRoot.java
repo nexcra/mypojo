@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.map.ListOrderedMap;
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 
 import erwins.util.lib.StringUtil;
 import groovy.lang.Closure;
@@ -97,8 +99,7 @@ public abstract class PoiSheetReaderRoot implements Iterable<String[]>{
      * DateUtil -> XSSF에서도 이게 통하는지는 의문.. . 걍 time을 일단은 문자로 넘겨준다.
      * 나증에 Object 로 이동하도록 변경하자
      * 
-     * ... 왜 else return new BigDecimal(cell.getNumericCellValue()).toString(); 일케했을까? ㅠㅠ 일단 변경
-     *   --> 24.7 일케 더블이 들어오면 24.6999999999 일케 바껴벼린다.
+     *   double로 읽을경우 --> 24.7 일케 더블이 들어오면 24.6999999999 일케 바껴벼린다.
      */
     protected String cellToString(Cell cell) {
         if (cell == null) return "";
@@ -106,11 +107,21 @@ public abstract class PoiSheetReaderRoot implements Iterable<String[]>{
 			switch (cell.getCellType()) {
 			    case Cell.CELL_TYPE_NUMERIC:
 			    	if(DateUtil.isCellDateFormatted(cell)) return String.valueOf(cell.getDateCellValue().getTime());
-			    	//else return new BigDecimal(cell.getNumericCellValue()).toString();
 			    	else{
-			    		String strValue = String.valueOf(cell.getNumericCellValue());
-			    		if(StringUtil.contains(strValue, 'E')) strValue = new BigDecimal(strValue).toPlainString(); //3.00004032E8 이런거 방지
-			    		return strValue;
+			    		if(cell instanceof XSSFCell){
+			    			XSSFCell rawCell  = (XSSFCell)cell;
+				    		return rawCell.getRawValue(); //number를 double로 읽기 않기 위해 원시값을 불러온다.
+			    		}else if(cell instanceof HSSFCell){
+			    			HSSFCell rawCell  = (HSSFCell)cell;
+			    			rawCell.setCellType(Cell.CELL_TYPE_STRING); //number를 double로 읽기 않기 위해 String으로 설정해준다. (2002버전은 API가 없다!)
+			    			return rawCell.getStringCellValue();
+			    		}else{
+			    			//아마 이런 타입은 없을것이다.
+			    			String strValue = String.valueOf(cell.getNumericCellValue());
+				    		if(StringUtil.contains(strValue, 'E')) strValue = new BigDecimal(strValue).toPlainString(); //3.00004032E8 이런거 방지
+				    		return strValue;	
+			    		}
+			    		
 			    	}
 			    default:
 			    	return cell.getRichStringCellValue().getString().trim();

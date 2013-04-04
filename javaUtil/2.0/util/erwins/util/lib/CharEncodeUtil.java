@@ -16,10 +16,13 @@ public abstract class CharEncodeUtil extends CharEncoding{
 	//====================  캐릭터셑 문자열 추가  ==============================
 	public static final String EUC_KR = "EUC-KR";
 	public static final String UNICODE = "UNICODE";
+	/**  CSV등을 읽을때는 반드시 EUC_KR가 아닌 MS949로 읽어야 뷁 같은 한글이 깨지지 않는다.  */
+	public static final String MS949 = "MS949";
 	
 	//====================  캐릭터셑  추가  ==============================
 	public static final Charset C_EUC_KR = Charset.forName(EUC_KR);
 	public static final Charset C_UTF_8 = Charset.forName(UTF_8);
+	public static final Charset C_MS949 = Charset.forName(MS949);
 
     /**
      * UTF-8로 인코딩을 바꾼다.

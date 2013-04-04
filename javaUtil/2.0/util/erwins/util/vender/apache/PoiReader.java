@@ -3,7 +3,9 @@ package erwins.util.vender.apache;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,26 +23,35 @@ public class PoiReader implements Iterable<PoiSheetReader>{
 	protected XSSFWorkbook wb ;
     
     public PoiReader(String fileName){
-    	load(new File(fileName));
+    	try {
+			load(new FileInputStream(fileName));
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
     }
     
     public PoiReader(File file){
-    	load(file);
-    }
-
-	private void load(File file) {
-		
-		FileInputStream stream = null;
     	try {
-    		stream = new FileInputStream(file);
-            wb = new XSSFWorkbook(stream);
+			load(new FileInputStream(file));
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+    }
+    
+    public PoiReader(InputStream in){
+    	load(in);
+    }
+	
+	private void load(InputStream in) {
+    	try {
+            wb = new XSSFWorkbook(in);
     		//wb = new XSSFWorkbook(OPCPackage.open(stream));
         }
         catch (Exception e) {
             throw new RuntimeException(e);
         }finally{
         	try {
-				if(stream!=null) stream.close();
+				if(in!=null) in.close();
 			} catch (IOException e) {
 			}
         }

@@ -143,7 +143,7 @@ public class Poi extends PoiRoot{
             Object[] obj = list.get(i);
             row = sheet.createRow(i+header);
             for(int j=0;j<obj.length;j++){
-                row.createCell(j).setCellValue(new HSSFRichTextString(StringUtil.toString(obj[j])));
+                row.createCell(j).setCellValue(new HSSFRichTextString(StringUtil.nvlToString(obj[j])));
             }
         }
     }

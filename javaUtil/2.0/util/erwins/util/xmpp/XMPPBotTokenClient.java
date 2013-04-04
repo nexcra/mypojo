@@ -6,6 +6,7 @@ import java.util.List;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.RosterPacket.ItemType;
+import org.jivesoftware.smack.packet.XMPPError;
 
 public class XMPPBotTokenClient extends XMPPBotClient {
 
@@ -14,17 +15,23 @@ public class XMPPBotTokenClient extends XMPPBotClient {
 		setBotMessageListener(new XMPPBotTokenMessageListener());
 	}
 	
-	
 	public XMPPBotTokenClient(String id, String pass) {
 		super(id, pass);
 		setBotMessageListener(new XMPPBotTokenMessageListener());
 	}
 
 
-	/** 일치하는 명령이 없으면 실행하지 않는다. */
+	/** 일치하는 명령이 없으면 실행하지 않는다.
+	 * 메제지의 경우 구독신청이 되어있지 않은경우에는 튕겨저 나온다. 이를 이벤트로 받아 답글을 쓸 경우 무한루프에 빠지게 된다. 
+	 * 따라서  type이 chat인지 확인해 주자 */
 	public class XMPPBotTokenMessageListener implements XMPPBotMessageListener{
 		@Override
 		public void message(Message from) {
+			if(from.getType() != Message.Type.chat){
+                XMPPError e = from.getError();
+                log.warn("error chat msg : " + e.getMessage());
+                return;
+            }
 			String body = from.getBody();
 			String fromId = from.getFrom().split("/")[0];
 			for(Token token:tokens){

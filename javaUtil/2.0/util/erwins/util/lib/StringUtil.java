@@ -12,6 +12,8 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import erwins.util.collections.map.RequestMap;
 import erwins.util.counter.Latch;
@@ -715,7 +717,7 @@ public class StringUtil extends StringUtils {
     /**
      * null safe한 toString
      */
-    public static String toString(Object str) {
+    public static String nvlToString(Object str) {
         if (str == null) return EMPTY;
         return str.toString();
     }
@@ -744,5 +746,21 @@ public class StringUtil extends StringUtils {
             }
         }
     }
+    
+    /** ToStringStyle을 입력해 준다. 순서는 필드 나열 순서인듯.
+     * SHORT_PREFIX_STYLE : 오류 / 경고 로그용
+     * SHORT_PREFIX_STYLE : CenterReqLogBasicReportCommonVo[basicDate=<null>,accIp=asd,url=asd,accId=<null>,reqCnt=0,exeTimeMax=0,exeTimeMin=0,exeTimeAvg=0]
+     * SIMPLE_STYLE : 데이터 로깅용
+     * SIMPLE_STYLE : <null>,asd,asd,<null>,0,0,0,0 */
+    public static String toStringByReflection(Object obj,ToStringStyle stype) {
+    	if(obj==null) return "";
+    	return ToStringBuilder.reflectionToString(obj, stype);	
+    }
+    /** SHORT_PREFIX_STYLE 를 기본으로 사용 */
+    public static String toStringByReflection(Object obj) {
+    	return toStringByReflection(obj, ToStringStyle.SHORT_PREFIX_STYLE);	
+    }
+    
+    
 
 }

@@ -664,5 +664,50 @@ public abstract class FileUtil extends FileUtils {
         File log = logMap.lastEntry().getValue();
         return log;
     }
+    
+    /** ins들을 해당 파일에 합쳐서 적재한다. (outFile에 append가 아니다)
+     * \n 으로 구분된 txt파일에도 잘된다.  */
+    public static long writeToFile(File outFile,int bufferSize,File[] ins) {
+    	long byteCount = 0;
+        OutputStream out = null;
+        try {
+            out = new FileOutputStream(outFile);
+            for(File each : ins){
+                InputStream in = null;
+                try {
+                    in = new FileInputStream(each);
+                    byteCount += writeStreamWithNoClose(in,out,bufferSize);
+                }finally{
+                    IOUtils.closeQuietly(in);
+                }
+            }
+        } catch (IOException e) {
+            ExceptionUtil.castToRuntimeException(e);
+        }finally{
+            IOUtils.closeQuietly(out);
+        }
+        return byteCount;
+    }
+    
+    /** stream을 닫지 않는다
+     * BufferedInputStream + byte[] buffer 할것  
+     * @throws IOException */ 
+    @SuppressWarnings("resource")
+	public static long writeStreamWithNoClose(InputStream in,OutputStream out,int bufferSize) throws IOException {
+        Check.isNotEmpty(in, "stream is null!");
+        Check.isNotEmpty(out, "stream is null!");
+        if(! (in instanceof BufferedInputStream)) in = new BufferedInputStream(in, bufferSize);
+        if(! (out instanceof BufferedOutputStream)) out = new BufferedOutputStream(out, bufferSize);
+        
+        long byteCount = 0;
+        byte[] buffer = new byte[bufferSize];
+        int bytesRead = -1;
+        while ((bytesRead = in.read(buffer)) != -1) {
+            out.write(buffer, 0, bytesRead);
+            byteCount += bytesRead;
+        }
+        out.flush();
+        return byteCount;
+    }
 
 }

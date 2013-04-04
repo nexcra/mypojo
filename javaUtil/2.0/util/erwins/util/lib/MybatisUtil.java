@@ -33,5 +33,14 @@ public abstract class MybatisUtil{
         }
         return result;
     }
+    
+    /** mybatis에서 개별 SQL을 구할때 사용된다.
+     * 기존 #{aa} 들은 ?로 나타난다 */
+    public static String getSqlString(SqlSession session,String sqlId){
+        MappedStatement now = session.getConfiguration().getMappedStatement(sqlId);
+        SqlSource source =  now.getSqlSource();
+        BoundSql boundSql = source.getBoundSql(null);
+        return boundSql.getSql();
+    }
 
 }

@@ -18,8 +18,17 @@ public class ThreadPool implements Shutdownable{
 		return thread;
 	}
 	
-	public void startup(){
+	/** 간단 테스트 등에사용한다.
+	 * 뒤에startup()을 연결할 수 있다  */
+	public ThreadPool addAll(Runnable run,int size){
+		for(int i=0;i<size;i++) add(new Thread(run));
+		return this;
+	}
+	
+	/** 뒤에 joinAll()을 연결할 수 있다 */
+	public ThreadPool startup(){
 		for (Thread each : list) each.start();
+		return this;
 	}
 
 	@Override
@@ -56,6 +65,14 @@ public class ThreadPool implements Shutdownable{
 			}else  state.off ++;
 		}
 		return state;
+	}
+	
+	public void joinAll() throws InterruptedException {
+		for (Thread each : list) each.join();
+	}
+	
+	public List<Thread> getThreads() {
+		return list;
 	}
 	
 }

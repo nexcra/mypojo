@@ -8,10 +8,90 @@ import java.util.List;
 /**
  * 이 클래스는 수학 관련 함수를 제공합니다. inner static class 패턴 by Effective Java
  */
-public abstract class MathUtil {
+public enum CopyOfMathUtil {
+
+    /**
+     * @uml.property  name="pLUS"
+     * @uml.associationEnd  
+     */
+    PLUS(new Operation("+") {
+        @Override
+        public BigDecimal eval(BigDecimal body,BigDecimal ... values) {
+            for(BigDecimal value : values) body = body.add(value);
+            return body;
+        }
+    }),
+    /**
+     * @uml.property  name="mINUS"
+     * @uml.associationEnd  
+     */
+    MINUS(new Operation("-") {
+        @Override
+        public BigDecimal eval(BigDecimal body,BigDecimal ... values) {
+            for(BigDecimal value : values) body = body.add(value.negate());
+            return body;
+        }
+    }),
+    /**
+     * @uml.property  name="mULTIPLY"
+     * @uml.associationEnd  
+     */
+    MULTIPLY(new Operation("*") {
+        @Override
+        public BigDecimal eval(BigDecimal body,BigDecimal ... values) {
+            for(BigDecimal value : values) body = body.multiply(value);
+            return body;
+        }
+    }),
+    /**
+     * @uml.property  name="dIVIDE"
+     * @uml.associationEnd  
+     */
+    DIVIDE(new Operation("/") {
+        @Override
+        public BigDecimal eval(BigDecimal body,BigDecimal ... values) {
+            for(BigDecimal value : values) body = body.divide(value,BigDecimal.ROUND_HALF_UP);
+            return body;            
+        }
+    });
     
     /** 100 */
     private static final BigDecimal HUNDRED = new BigDecimal("100");
+
+    /**
+     * @uml.property  name="op"
+     * @uml.associationEnd  
+     */
+    private Operation op;
+
+    private CopyOfMathUtil(Operation op) {
+        this.op = op;
+    }
+    public BigDecimal run(BigDecimal body,BigDecimal... values) {
+        if(values.length < 1) throw new RuntimeException(values.length + " 1개 이상의 인자를 입력하셔야 합니다.");
+        BigDecimal result = op.eval(body,values); 
+        return result;
+    }
+    /** 반올림합니다. */
+    public BigDecimal run(Integer scale,BigDecimal body,BigDecimal... values) {
+        BigDecimal result = run(body,values); 
+        return round(result,scale);
+    }
+
+    /**
+     * 함수 원형을 설정한다.
+     */
+    public static abstract class Operation {
+        private final String name;
+        Operation(String name){
+            this.name = name;
+        }
+        @Override
+        public String toString(){
+            return this.name;
+        }
+        public abstract BigDecimal eval(BigDecimal body,BigDecimal ... values);
+    }
 
     /**
      * 내림 연산한다. <br> i가 0보다 작으면 스케일을 0으로 조정해야 ORM이 숫자(.toString())로 인식한다.
@@ -538,7 +618,4 @@ public abstract class MathUtil {
         if (!isRelativelyPrime(p, q)) { throw new IllegalArgumentException("p, q는 서로소야합니다."); }
         return (p - 1) * (q - 1);
     }
-    
-    //============  구아바 확장 ==================
-    
 }

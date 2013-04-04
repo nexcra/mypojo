@@ -1,5 +1,6 @@
 package erwins.util.vender.spring;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.Map;
@@ -70,9 +71,11 @@ public abstract class AbstractJsonView implements View {
 	public String getContentType() {
 		return CONTENT_TYPE;
 	}
+	/** 필요하다면 오버라이딩 */
 	public String getSuccesskey() {
 		return IS_SUCCESS_KEY;
 	}
+	/** 필요하다면 오버라이딩 */
 	public String getMessagekey() {
 		return MESSAGE_KEY;
 	}
@@ -82,6 +85,11 @@ public abstract class AbstractJsonView implements View {
 	/** resp를 닫아주지 않는다. 누가 해주겠지. */
 	@Override
 	public void render(Map<String, ?> arg0, HttpServletRequest arg1, HttpServletResponse resp) throws Exception {
+		render(resp);
+	}
+	
+	/** 외부에서 호출할때 사용하자 */
+	public void render(HttpServletResponse resp) throws IOException {
 		body.put(getSuccesskey(), success);
 		if(message!=null)  body.put(getMessagekey(), message);
 		resp.setContentType(getContentType()+"; charset=" + getEncoding());

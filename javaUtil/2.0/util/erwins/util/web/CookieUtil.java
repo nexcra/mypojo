@@ -9,6 +9,7 @@ import erwins.util.collections.map.RequestMap;
 /**
  * 쿠키~
  **/
+@Deprecated
 public class CookieUtil{
     
     private HttpServletResponse resp;

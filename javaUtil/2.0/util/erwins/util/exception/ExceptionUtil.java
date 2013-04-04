@@ -7,10 +7,13 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 
 import erwins.util.lib.StringUtil;
 
-/** 예외 모음 ValidationException을 던진다. */
+/** 예외 모음 ValidationException을 던진다.
+ * 스프링 시큐리티의 ThrowableAnalyzer를 활용할것 */
 public class ExceptionUtil extends ExceptionUtils{
 	
 	//IllegalStateException / 
+	
+	//private ThrowableAnalyzer throwableAnalyzer = new ThrowableAnalyzer();
 	
 	private static final String NULL_MESSAGE = "args must be not null";
     

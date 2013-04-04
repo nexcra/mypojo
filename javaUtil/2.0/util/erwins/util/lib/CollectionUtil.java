@@ -8,10 +8,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -283,10 +283,12 @@ public abstract class CollectionUtil extends CollectionUtils {
 		return list;
 	}
 	
-	public static <T> List<T> toList(Set<T> set) {
+	public static <T> List<T> toList(Iterable<T> set) {
 		List<T> list = new ArrayList<T>();
-		for (T each : set)
-			list.add(each);
+        Iterator<T> it = set.iterator();
+        while(it.hasNext()){
+            list.add(it.next());
+        }
 		return list;
 	}
 
@@ -462,6 +464,16 @@ public abstract class CollectionUtil extends CollectionUtils {
         else if(a==null && b!=null) return false;
         else if(a!=null && b==null) return false;
         return isEqualCollectionData(a,b);
+    }
+    
+    /** index가 짧거나, null이거나 String empty이면 nullObject를 반환한다.
+     * Poi를 읽을때 사용한다. */
+    public static <T> T indexSafeGet(T[] array,int index,T nullObject){
+    	if(array.length <= index) return nullObject;
+    	T result = array[index];
+    	if(result==null) return nullObject;
+    	if(result instanceof String) if(result.toString().equals("")) return nullObject;
+    	return result;
     }
 	
 

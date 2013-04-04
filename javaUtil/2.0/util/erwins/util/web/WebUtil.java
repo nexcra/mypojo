@@ -277,4 +277,11 @@ public abstract class WebUtil {
         return POST.equals(req.getMethod().toUpperCase());
     }
     
+    public static boolean isAjax(HttpServletRequest req){
+    	String xRequestWith = req.getHeader("x-requested-with");
+    	if(xRequestWith==null) return false;
+    	if( xRequestWith.equals("XMLHttpRequest")) return true;
+    	return false;
+    }
+    
 }

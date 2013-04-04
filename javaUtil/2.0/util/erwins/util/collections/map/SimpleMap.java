@@ -31,7 +31,7 @@ import erwins.util.root.Pair;
 /**
  * null과 ID등의 처리를 이곳에서 집중 체크한다.
  */
-
+@Deprecated
 @SuppressWarnings("serial")
 public class SimpleMap<KEY> implements Map<KEY,Object>,Serializable{
 	
@@ -423,7 +423,7 @@ public class SimpleMap<KEY> implements Map<KEY,Object>,Serializable{
      */
     public BigDecimal put(KEY key,MathUtil math,BigDecimal ... decimal){
         BigDecimal value = getDecimal(key);
-        value = math.run(value,decimal);
+        //value = math.run(value,decimal);
         theMap.put(key,value);
         return value;
     }    

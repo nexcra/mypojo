@@ -39,6 +39,7 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     private Class<Entity> persistentClass;
     
     public GenericHibernateDao() {
+    	//Spring의 GenericTypeResolver 를 사용해도 된다.
         this.persistentClass = (Class<Entity>)((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 

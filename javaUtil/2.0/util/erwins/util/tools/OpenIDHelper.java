@@ -96,7 +96,7 @@ public abstract class OpenIDHelper {
 	 * 이 ID는 메일계정으로 변환 가능하다. (IP와 계정을 묶어서 역변환 가능한 조작을 하는듯.. API읽기 귀찮아. ) */
 	public String verification(HttpServletRequest req){
 		ParameterList paramList = new ParameterList(req.getParameterMap());
-		DiscoveryInformation di = (DiscoveryInformation) req.getSession().getAttribute("openid-discover");
+		DiscoveryInformation di = (DiscoveryInformation) req.getSession().getAttribute(SESSION_KEY);
 		if (di == null) return null;
 
 		String receiveURL = req.getRequestURL() + "?" + req.getQueryString();

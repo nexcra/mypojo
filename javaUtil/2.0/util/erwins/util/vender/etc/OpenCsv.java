@@ -119,6 +119,26 @@ public class OpenCsv{
     	return result;
     }
     
+    public static void closeQuietly(CSVWriter writer){
+    	if(writer!=null){ 
+			try {
+				writer.close();
+			} catch (IOException e1) {
+				throw new RuntimeException(e1);
+			}
+		}
+    }
+    
+    public static void closeQuietly(CSVReader reader){
+    	if(reader!=null){ 
+			try {
+				reader.close();
+			} catch (IOException e1) {
+				throw new RuntimeException(e1);
+			}
+		}
+    }
+    
     /**
      * 	private CSVWriter writer;
 	

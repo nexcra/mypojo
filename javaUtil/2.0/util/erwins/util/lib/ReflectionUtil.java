@@ -1,6 +1,7 @@
 package erwins.util.lib;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -26,6 +27,7 @@ import erwins.util.root.Pair;
 
 /**
  * 이놈은 예외로 커먼스를 사용하지 않고 spring을 사용한다.
+ * spring의 GenericTypeResolver 를 참조할것
  */
 public abstract class ReflectionUtil extends ReflectionUtils {
 
@@ -131,7 +133,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 	}
 
 	@SuppressWarnings("cast")
-	private static Class<?> forName(String fullName) {
+	public static Class<?> forName(String fullName) {
 		Class<?> en = null;
 		try {
 			en = (Class<?>) Class.forName(fullName);
@@ -495,6 +497,22 @@ public abstract class ReflectionUtil extends ReflectionUtils {
                 throw new RuntimeException(e);            
             }
         }
+    }
+    
+    /** 이름하고 매치되는 아무 메소드 1개를 리턴한다. */
+    public static Method getMethodByName(Class<?> clazz, String name) {
+        Method[] methods = clazz.getMethods();
+        for (Method method : methods)
+            if (method.getName().equals(name) ) return method;
+        return null;
+    }
+    
+    /** 해당 어노테이션이 매핑된 모든 메소드를 가져온다 */
+    public static List<Method> getMethodByAnnotation(Class<?> clazz, Class<? extends Annotation> anno) {
+        List<Method> result = new ArrayList<Method>();
+        Method[] methods = clazz.getMethods();
+        for (Method method : methods) if(method.isAnnotationPresent(anno)) result.add(method);
+        return result;
     }
     
 

@@ -37,7 +37,9 @@ public abstract class Log4jUtil {
             if(FileAppender.class.isInstance(appender) ) fileAppender = (FileAppender) appender;
         }
         if(fileAppender==null) throw new RuntimeException("해당 로거에 파일어펜더가 존재하지 않습니다." + loggerName);
-        return new File(fileAppender.getFile());
+        String filePath = fileAppender.getFile();
+        if(filePath==null) throw new RuntimeException("해당 어펜더에 파일로거가 지정되지 않았습니다" + loggerName);
+        return new File(filePath);
     }
 
 }
