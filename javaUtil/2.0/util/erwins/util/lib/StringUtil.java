@@ -761,6 +761,26 @@ public class StringUtil extends StringUtils {
     	return toStringByReflection(obj, ToStringStyle.SHORT_PREFIX_STYLE);	
     }
     
+	/**
+	 * 자바는 유니코드를 사용함으로 모두 2byte로 처리하지만 다른 시스템 기준으로 바이트를 산정할때 사용한다.
+	 * 한글 1자 2byte 기타 1byte 로 계산 (UTF-8인 오라클은 3byte)
+	 * 주워온 자료이며 성능 검증되지 않음.
+	 */
+	public static int getByteSize(String s) {
+		int en = 0;
+		int ko = 0;
+		int etc = 0;
+		
+		char[] string = s.toCharArray();
+		int size = string.length;
+		for(int j=0;j<size;j++){
+			if (string[j]>='A' && string[j]<='z') en++;
+			else if (string[j]>='\uAC00' && string[j]<='\uD7A3') ko  += 2;
+			else etc++;
+		}
+		return en+ko+etc;
+	}
+    
     
 
 }

@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -56,10 +57,16 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 	 * GenericHibernateDao<Board,Integer> ==> genericClass(BookDao.class,1) :
 	 * Integer 가 리턴됨.
 	 */
-	public static Class<?> genericClass(Class<?> clazz, int index) {
+	/*public static Class<?> genericClass(Class<?> clazz, int index) {
 		ParameterizedType genericSuperclass = (ParameterizedType) clazz.getGenericSuperclass();
 		return (Class<?>) genericSuperclass.getActualTypeArguments()[index];
+	}*/
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static <T> Class<T> genericClass(Class clazz, int index) {
+		ParameterizedType genericSuperclass = (ParameterizedType) clazz.getGenericSuperclass();
+		return  (Class<T>) genericSuperclass.getActualTypeArguments()[index];
 	}
+	
 	
 	/** T로 제너릭된 클래스의 T를 인스턴스시켜서 리턴한다. 테스트 필요 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -174,6 +181,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 		return subBeanlist;
 	}
 	
+	/** 모든 상속구조의 필드를 다 조사하며, static인것은 제외한다. */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List<Field> getAllDeclaredFields(Class clazz){
 		List<Field> fields = new ArrayList<Field>();
@@ -182,6 +190,10 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 		for(Class each : classes){
 			if(each==Object.class) continue;
 			CollectionUtil.addToList(fields, each.getDeclaredFields());
+		}
+		Iterator<Field> i = fields.iterator();
+		while(i.hasNext()){
+			if(Modifier.isStatic(i.next().getModifiers())) i.remove();
 		}
 		return fields;
 	}

@@ -25,7 +25,7 @@ public class ChannelUtils{
 				//log.debug(e.getMessage() + " ?? " + e.getClass().getSimpleName());
 			}
 			whiteBuffer.rewind();
-		}		
+		}
 	}
 	
 }

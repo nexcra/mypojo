@@ -35,6 +35,12 @@ public abstract class AbstractGsonView implements View {
     protected JsonElement message;
     private boolean success = true;
     
+    public AbstractGsonView(){}
+    
+    public AbstractGsonView(Object obj){
+    	message = toJson(obj);
+    }
+    
     /** 직접 body에 입력할때 한해서 사용한다. */
     public AbstractGsonView setObject(String key, Object obj) {
     	body.add(key, toJson(obj));
@@ -109,5 +115,4 @@ public abstract class AbstractGsonView implements View {
 		PrintWriter writer =  resp.getWriter();
         writer.write(body.toString());
 	}
-
 }

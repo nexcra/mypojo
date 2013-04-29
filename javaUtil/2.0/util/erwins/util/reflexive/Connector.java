@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.google.common.collect.Lists;
+
 import erwins.util.exception.HeapNotFoundException;
 import erwins.util.morph.HtmlOptionBuilder;
 import erwins.util.root.Pair;
@@ -151,6 +153,20 @@ public class Connector<ID extends Serializable,T extends Connectable<ID,T>> {
 
     public List<T> getRoots() {
         return Collections.unmodifiableList(roots);
+    }
+    
+    /** 최상위 부모가 앞에 오도록 리스트를 반환한다. 무한루프 주의 */
+    public List<T> getAllParent(T obj) {
+    	List<T> list = Lists.newLinkedList();
+    	addAllParent(list,obj);
+        return list;
+    }
+    
+    private void addAllParent(List<T> list,T obj) {
+    	T parent = obj.getParent();
+    	if(parent==null) return ;
+    	list.add(0, parent);
+    	addAllParent(list,parent);
     }
     
     // ===========================================================================================

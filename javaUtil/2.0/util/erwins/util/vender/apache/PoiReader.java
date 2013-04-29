@@ -70,5 +70,14 @@ public class PoiReader implements Iterable<PoiSheetReader>{
 		}
 		return sheets.iterator();
 	}
+	
+	public int size(){
+		return wb.getNumberOfSheets();
+	}
+	
+	public XSSFWorkbook getWorkbook(){
+		return wb;
+	}
+	
     
 }

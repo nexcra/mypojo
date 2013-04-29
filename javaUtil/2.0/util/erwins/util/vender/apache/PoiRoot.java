@@ -278,6 +278,15 @@ public abstract class PoiRoot{
         wb.getSheetAt(index).setColumnWidth(col,size);
     }
     
+    /** wrap 후에 예쁘게 포장할때 사용
+     * auto 정렬이 잘 되지 않을때 사용하자. (잘 안되더라)  */
+    public void setColumnWidth(int sheetIndex,Integer ... columnLengths){
+    	HSSFSheet sheet = wb.getSheetAt(sheetIndex);
+    	for(int i=0;i<columnLengths.length;i++){
+    		sheet.setColumnWidth(i, columnLengths[i] * 1000);	
+    	}
+    }
+    
     /** wrap이 적용된 후 사용하자.  일반적인 경우는 PoiCellPair를 쓰는게 더 좋다. */
     public void setCustomStyle(CellStyle style,int sheetIndex,int[] cols,int ... rows){
         HSSFSheet sheet =  wb.getSheetAt(sheetIndex);

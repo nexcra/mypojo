@@ -68,5 +68,13 @@ public class PoiReader2002 implements Iterable<PoiSheetReader2002>{
 		}
 		return sheets.iterator();
 	}
+	
+	public int size(){
+		return wb.getNumberOfSheets();
+	}
+	
+	public HSSFWorkbook getWorkbook(){
+		return wb;
+	}
     
 }

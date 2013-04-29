@@ -27,7 +27,7 @@ public class SqlSessionFactoryDev extends SqlSessionFactoryBean {
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     private SqlSessionFactory proxy;
-    private int interval  = 0;
+    private int interval  = 1000*5;
     private Map<File,Long> locationedSqlFiles;
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock readLock = rwl.readLock();

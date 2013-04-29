@@ -407,7 +407,7 @@ public abstract class FileUtil extends FileUtils {
 	/**
 	 * 객체를 파일로 저장한다.
 	 */
-	public static void setObject(File file, Serializable obj) {
+	public static <T extends Serializable> void setObject(File file, T obj) {
 		FileOutputStream fos = null;
 		ObjectOutputStream oos = null;
 		try {
@@ -708,6 +708,16 @@ public abstract class FileUtil extends FileUtils {
         }
         out.flush();
         return byteCount;
+    }
+    
+    /** 확장자로 매칭하는 FilenameFilter를 리턴한다 */
+    public static FilenameFilter filenameFilterByExtention(final String ext){
+    	return new FilenameFilter(){
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.endsWith(ext);
+			}
+    	};
     }
 
 }
