@@ -18,6 +18,7 @@ import org.apache.ibatis.session.ResultContext;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -27,7 +28,7 @@ import erwins.util.lib.StringUtil;
 import erwins.util.vender.apache.Poi;
 import erwins.util.vender.apache.PoiSheetReader2002;
 import erwins.util.vender.etc.OpenCsv;
-import erwins.util.vender.etc.OpenCsvMybatisResultHandler;
+import erwins.util.vender.mybatis.OpenCsvMybatisResultHandler;
 import erwins.util.vender.spring.CsvItemReader.CsvMapper;
 import erwins.util.vender.spring.CsvItemWriter.CsvAggregator;
 import erwins.util.vender.spring.StringValidator.FieldToStringAble;
@@ -37,28 +38,19 @@ import erwins.util.vender.spring.StringValidator.FieldToStringAble;
  * 아직 엑셀은 지원 안함?? */
 public class StringArrayValidator<T> implements CsvMapper<T>,CsvAggregator<T>{
 	
-	private Class<T> clazz;
+	private final Class<T> clazz;
 	private Map<LineMetadata,List<StringValidator>> validatorMap = Maps.newTreeMap();
-	private Map<String,Field> fieldMap = Maps.newHashMap();
+	private final Map<String,Field> fieldMap;
 	
 	public StringArrayValidator(Class<T> clazz){
 		this.clazz = clazz;
-		init();
+		fieldMap = ReflectionUtil.getAllDeclaredFieldMap(clazz);
 	}
 
 	/** 별도로 init() 해주어야함 */
 	public StringArrayValidator(){
 		this.clazz = ReflectionUtil.genericClass(this.getClass(), 0);
-		init();
-	}
-
-	
-	protected void init() {
-		List<Field> fields = ReflectionUtil.getAllDeclaredFields(clazz);
-		for(Field each : fields){
-			each.setAccessible(true);
-			fieldMap.put(each.getName(), each);
-		}
+		fieldMap = ReflectionUtil.getAllDeclaredFieldMap(clazz);
 	}
     
     public void add(Integer index,String fieldName,String name,StringValidator ... validator){
@@ -85,7 +77,7 @@ public class StringArrayValidator<T> implements CsvMapper<T>,CsvAggregator<T>{
     
     
     /** 벨리데이션 체크 후 즉시 예외를 던진다 */
-    public void validateCsv(InputStream in,boolean skipFirst) throws InputStringViolationException{
+    public int validateCsv(InputStream in,boolean skipFirst) throws InputStringViolationException{
     	CSVReader reader = new CSVReader(new InputStreamReader(in, Charset.forName("MS949")));
         try {
         	int row = 1;
@@ -94,8 +86,11 @@ public class StringArrayValidator<T> implements CsvMapper<T>,CsvAggregator<T>{
         		row++;
         	}
             for(String[] lines=reader.readNext();lines != null;lines=reader.readNext()){
-            	validateLine(lines, row);
+            	validateLine(lines, row++);
             }
+            int realRowCount = row - 1;
+            if(skipFirst) realRowCount --;
+            return realRowCount;
         } catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -114,7 +109,7 @@ public class StringArrayValidator<T> implements CsvMapper<T>,CsvAggregator<T>{
         		row++;
         	}
             for(String[] lines=reader.readNext();lines != null;lines=reader.readNext()){
-            	T vo = validateLine(lines, row);
+            	T vo = validateLine(lines, row++);
             	list.add(vo);
             }
         } catch (IOException e) {
@@ -215,6 +210,7 @@ public class StringArrayValidator<T> implements CsvMapper<T>,CsvAggregator<T>{
     	for(Entry<LineMetadata, List<StringValidator>> entry : validatorMap.entrySet()){
     		LineMetadata meta = entry.getKey();
     		Field field = fieldMap.get(meta.fieldName);
+    		Preconditions.checkNotNull(field,meta.fieldName + " 에 해당하는 field를 찾을 수 없습니다");
     		Object value = ReflectionUtil.getField(field, item);
     		Object transValue = value;
     		

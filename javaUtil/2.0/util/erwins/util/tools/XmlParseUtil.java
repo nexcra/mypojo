@@ -16,6 +16,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import erwins.util.lib.StringUtil;
+
 /**
  * XML 간이파서.  
  * 인메모리 방식만 대응된다.
@@ -49,15 +51,17 @@ public class XmlParseUtil {
         }
         return null;
     }
+    
     /** 기본 api를 사용하면 모든 트리내의 자식이 다 나온다. 현재 객체자식꺼만 구할때 사용  */
-    public List<Element> getChildrenByName(Element parent,String tagName){
+    public List<Element> getChildrenByName(Element parent,String ... tagNames){
         List<Element> nodes = new ArrayList<Element>();
         NodeList list = parent.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
             Node each = list.item(i);
             if(each instanceof Element){
                 Element el = (Element)each;
-                if(el.getTagName().equals(tagName)) nodes.add(el);
+                String tagName = el.getTagName();
+                if(StringUtil.isEquals(tagName, tagNames)) nodes.add(el);
             }
         }
         return nodes;

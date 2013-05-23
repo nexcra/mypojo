@@ -2,6 +2,7 @@ package erwins.util.vender.spring;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,8 @@ import erwins.util.lib.FileUtil;
 import erwins.util.vender.apache.Poi;
 import erwins.util.web.WebUtil;
 
+/** 로컬파일 or 인메모리 파일 다운로드일때 사용.
+ * DB등의 스트리밍 다운로드에 사용되지는 않는다 */
 public class FileDownloadView implements View{
 	
 	private String fileName;
@@ -77,12 +80,16 @@ public class FileDownloadView implements View{
 		}else if(poi!=null) poi.write(resp);
 		else if(data!=null){
 			resp.setCharacterEncoding(encoding);
-	        IOUtils.write(data, resp.getWriter(),encoding);
+			PrintWriter writer = resp.getWriter();
+	        IOUtils.write(data, writer,encoding);
+	        writer.flush();
 		}else if(in!=null){
 			try {
-				IOUtils.copy(in, resp.getWriter());
+				PrintWriter writer = resp.getWriter();
+				IOUtils.copy(in, writer);
+				writer.flush();
 			}finally{
-				IOUtils.closeQuietly(in);	
+				IOUtils.closeQuietly(in);
 			}
 		}else throw new IllegalArgumentException("파라메터 입력 오류");
 	}

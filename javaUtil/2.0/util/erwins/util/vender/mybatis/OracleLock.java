@@ -1,8 +1,11 @@
-package erwins.util.vender.etc;
+package erwins.util.vender.mybatis;
 
 import java.util.Date;
 
-/** Lock확인용 VO */
+/**
+ * Lock확인용 VO
+ * @author sin
+ */
 public class OracleLock{
     
     private Long sid;

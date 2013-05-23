@@ -61,7 +61,7 @@ public class BatchContext{
         this.se = se;
         sec =  se.getExecutionContext();
         je = se.getJobExecution();
-        jec = se.getJobExecution().getExecutionContext();
+        jec = je.getExecutionContext();
         ji = je.getJobInstance();
         jp = ji.getJobParameters();
     }
@@ -70,7 +70,7 @@ public class BatchContext{
         se = cc.getStepContext().getStepExecution();
         sec =  se.getExecutionContext();
         je = se.getJobExecution();
-        jec = se.getJobExecution().getExecutionContext();
+        jec = je.getExecutionContext();
         ji = je.getJobInstance();
         jp = ji.getJobParameters();
     }

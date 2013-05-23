@@ -21,6 +21,8 @@ import org.apache.commons.lang.WordUtils;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.util.ReflectionUtils;
 
+import com.google.common.collect.Maps;
+
 import erwins.util.collections.MapForList;
 import erwins.util.exception.BusinessException;
 import erwins.util.root.EntityId;
@@ -181,7 +183,8 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 		return subBeanlist;
 	}
 	
-	/** 모든 상속구조의 필드를 다 조사하며, static인것은 제외한다. */
+	/** 모든 상속구조의 필드를 다 조사하며, static인것은 제외한다.
+	 * 확실하지 않지만, 천만건 이상 돌리면, 매번 호출하는거보나 약간 빠르다. 천전 이하에서는 매번 호출이 더 빠름.  */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List<Field> getAllDeclaredFields(Class clazz){
 		List<Field> fields = new ArrayList<Field>();
@@ -196,6 +199,31 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 			if(Modifier.isStatic(i.next().getModifiers())) i.remove();
 		}
 		return fields;
+	}
+	
+	/** access를 true로 설정 후 Map으로 리턴한다. */
+	@SuppressWarnings("rawtypes")
+	public static Map<String,Field> getAllDeclaredFieldMap(Class clazz){
+		Map<String,Field> fieldMap = Maps.newHashMap();
+		List<Field> fields = getAllDeclaredFields(clazz);
+		for(Field each : fields){
+			each.setAccessible(true);
+			fieldMap.put(each.getName(), each);
+		}
+		return fieldMap;
+	}
+	
+	/** access를 true로 설정 후 Map으로 리턴한다.
+	 * 카멜케이스를 DB에서 사용하는 언더스코어로 변경해서 리턴한다. */
+	@SuppressWarnings("rawtypes")
+	public static Map<String,Field> getAllDeclaredFieldUnderscoreMap(Class clazz){
+		Map<String,Field> fieldMap = Maps.newHashMap();
+		List<Field> fields = getAllDeclaredFields(clazz);
+		for(Field each : fields){
+			each.setAccessible(true);
+			fieldMap.put(StringUtil.getUnderscore(each.getName()), each);
+		}
+		return fieldMap;
 	}
 
 
@@ -525,6 +553,49 @@ public abstract class ReflectionUtil extends ReflectionUtils {
         Method[] methods = clazz.getMethods();
         for (Method method : methods) if(method.isAnnotationPresent(anno)) result.add(method);
         return result;
+    }
+    
+    /** Method를 래피한다.
+     * 숨겨진 메소드를 실행하는 용도로 사용 */
+    public static class Methods{
+    	public final Method method;
+    	/** 정확한 대상 clazz를 명시해야 한다. */
+    	public Methods(Class<?> clazz,String methdName,Class<?> ... parameterTypes){
+    		try {
+				method = clazz.getDeclaredMethod(methdName, parameterTypes);
+				method.setAccessible(true);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+    	}
+		public Object invoke(Object arg0, Object... arg1){
+			try {
+				return method.invoke(arg0, arg1);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+    }
+    
+    /** private으로 접근 불가능한 필드를 사용하고 싶을때 쓰자 */
+    public static class Fields{
+    	public final Field field;
+    	/** 정확한 대상 clazz를 명시해야 한다. */
+    	public Fields(Class<?> clazz,String methdName){
+    		try {
+    			field = clazz.getDeclaredField(methdName);
+    			field.setAccessible(true);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+    	}
+		public Object get(Object arg0){
+			try {
+				return field.get(arg0);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
     }
     
 

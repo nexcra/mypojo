@@ -17,6 +17,7 @@ import org.aspectj.lang.JoinPoint;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
@@ -24,6 +25,9 @@ import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
+
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 
 import erwins.util.lib.CollectionUtil;
 import erwins.util.lib.ReflectionUtil;
@@ -183,6 +187,21 @@ public abstract class SpringUtil {
                 cnt +=2;
         }
         return cnt;
+    }
+    
+    /** ANT 매칭파일을 리소스로 돌려준다 */
+    public static Resource[] resourceByClasspath(String packageAntMatchs) throws IOException{
+    	PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+    	Iterable<String> matches = Splitter.on(',').trimResults().omitEmptyStrings().split(packageAntMatchs);
+    	
+    	List<Resource> allResources = Lists.newArrayList();
+    	
+    	for(String match : matches){
+    		Resource[] res = resolver.getResources("classpath:"+match);
+    		for(Resource each : res) allResources.add(each);
+    	}
+    	
+    	return allResources.toArray(new Resource[allResources.size()]);
     }
     
 }

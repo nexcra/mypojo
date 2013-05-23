@@ -32,6 +32,7 @@ import org.springframework.web.servlet.view.AbstractUrlBasedView;
  * @author  David Winterfeldt
  * @author  David Winterfeldt가 만든것을 수정해서 사용.
  */
+@Deprecated
 public class DynamicTilesView extends AbstractUrlBasedView {
 
     /**

@@ -38,6 +38,7 @@ import erwins.util.lib.StringUtil;
  * @author  David Winterfeldt
  * @author  David Winterfeldt가 만든것을 수정해서 사용.
  */
+@Deprecated
 public class DynamicTilesViewProcessor {
     
     /** 이 필터를 조합해서 사용한다. */

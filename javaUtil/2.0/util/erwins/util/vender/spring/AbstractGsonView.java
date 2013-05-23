@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.View;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -108,11 +109,30 @@ public abstract class AbstractGsonView implements View {
 	
 	/** 외부에서 호출할때 사용하자 */
 	public void render(HttpServletResponse resp) throws IOException {
-		body.addProperty(getSuccesskey(), success);
-		if(message!=null)  body.add(getMessagekey(), message);
+		//resp.setHeader("Pragma", "private");
+		//resp.setHeader("Cache-Control", "private, must-revalidate");
 		resp.setContentType(getContentType()+"; charset=" + getEncoding());
 		WebUtil.cacheForSeconds(resp, -1, true);
 		PrintWriter writer =  resp.getWriter();
-        writer.write(body.toString());
+		JsonObject jsonBody = getBody();
+        writer.write(jsonBody.toString());
+	}
+	
+	public JsonObject getBody(){
+		body.addProperty(getSuccesskey(), success);
+		if(message!=null)  body.add(getMessagekey(), message);
+		return body;
+	}
+	
+	public JsonElement getMessage(){
+		return message;
+	}
+	
+	public JsonArray getMessageArray(){
+		return message.getAsJsonArray();
+	}
+	
+	public JsonObject getMessageObject(){
+		return message.getAsJsonObject();
 	}
 }

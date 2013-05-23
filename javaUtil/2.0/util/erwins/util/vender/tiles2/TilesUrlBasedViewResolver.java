@@ -25,6 +25,7 @@ import org.springframework.web.servlet.view.UrlBasedViewResolver;
  * @author  David Winterfeldt
  * @author  David Winterfeldt가 만든것을 수정해서 사용.
  */
+@Deprecated
 public class TilesUrlBasedViewResolver extends UrlBasedViewResolver {
 
 	private String tilesDefinitionName = null;

@@ -1,6 +1,7 @@
 package erwins.util.vender.spring;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -41,6 +42,12 @@ public class SqlSessionFactoryDev extends SqlSessionFactoryBean {
         super.setConfigLocation(configLocation);
     }
     
+    /** ,로 분리해서 넣자. classpath:가 기준이 된다.  */
+    public void setMapperLocationsByAnt(String packageAntMatchs) throws IOException {
+    	Resource[] mappingLocations = SpringUtil.resourceByClasspath(packageAntMatchs);
+    	setMapperLocations(mappingLocations);
+    }
+    
     public void setMapperLocations(Resource[] mappingLocations) {
         super.setMapperLocations(mappingLocations);
         if(!threadAble) return;
@@ -72,7 +79,7 @@ public class SqlSessionFactoryDev extends SqlSessionFactoryBean {
         super.afterPropertiesSet();
         makeProxy();
         if(!threadAble) return;
-        log.warn("파일 변경 감지를 위한 스래드가 기동됩니다. 실서버에서는 이 메세지가 보이면 안됨");
+        log.warn("파일 변경 감지를 위한 스래드가 기동됩니다. 실서버에서는 이 메세지가 보이면 안됨. sqlmapSize : " + locationedSqlFiles.size());
         startRefreshThread();
     }
     

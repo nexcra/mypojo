@@ -1,9 +1,11 @@
 package erwins.util.lib;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
@@ -59,6 +61,17 @@ public abstract class JodaTimeUtil {
 		run.run();
 		long end = System.currentTimeMillis();
 		return end - start;
+	}
+	
+    /** 시간차를 초단위로 리턴한다. */
+    public static int interval(Date aa,Date bb) {
+        long interval = aa.getTime() - bb.getTime();
+        return (int)interval / 1000;
+    }
+    
+	/** 하루를 더한 후 1밀리초 뺀다 */
+	public static DateTime endTimeOfDay(DateMidnight startDate){
+	    return startDate.plusDays(1).toDateTime().minusMillis(1);
 	}
 
 }

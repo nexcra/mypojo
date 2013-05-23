@@ -1,11 +1,13 @@
 package erwins.util.lib;
 
-import java.util.Date;
-
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
+import com.google.common.base.CharMatcher;
 
 @ThreadSafe
 public abstract class JodaUtil extends JodaTimeUtil {
@@ -30,10 +32,24 @@ public abstract class JodaUtil extends JodaTimeUtil {
     public static DateTimeFormatter YM = DateTimeFormat.forPattern("yyyyMM");
     public static DateTimeFormatter HM = DateTimeFormat.forPattern("HHmm");
     
-    /** 시간차를 초단위로 리턴한다. */
-    public static int interval(Date aa,Date bb) {
-        long interval = aa.getTime() - bb.getTime();
-        return (int)interval / 1000;
+	/** 어제일자 반환 */
+	public static String yesterday(){
+	    return new DateMidnight().minusDays(1).toString(JodaUtil.YMD);
+	}
+	/** 어제일자 반환 */
+	public static String today(){
+	    return new DateMidnight().toString(JodaUtil.YMD);
+	}
+	
+	/** 트랜잭션 타임  */
+    public static String regTime(){
+        return new DateTime().toString(JodaUtil.YMDHMSS);
+    }
+    
+    /** 년월일 형식을 리턴한다.  */
+    public static DateMidnight toDateMidnight(String yyyyMMdd){
+    	String escaped = CharMatcher.DIGIT.retainFrom(yyyyMMdd); 
+		return JodaUtil.YMD.parseDateTime(escaped).toDateMidnight();
     }
     
 }
