@@ -27,7 +27,10 @@ import org.slf4j.LoggerFactory;
 import erwins.util.exception.ExceptionUtil;
 import erwins.util.vender.etc.Flex;
 
-/** SMACK이라는 패키지가 필요하다.
+/**
+ * 경고 메세지 전송용으로 WAS에서 기동시, 쌍방향 친구추가를 해주자. 
+ * 친추가 안되어있을경우 XMPPBotTokenClient$XMPPBotTokenMessageListener : error chat msg : null  로그를 보게될지도~
+ * SMACK이라는 패키지가 필요하다.
  * 연결 시도하면  데몬 스래드들이 다수 기동된다.
  * Presence type :  available / unavailable
  *          status : 문자열 지정값

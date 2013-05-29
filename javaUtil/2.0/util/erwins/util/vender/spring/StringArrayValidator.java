@@ -54,6 +54,7 @@ public class StringArrayValidator<T> implements CsvMapper<T>,CsvAggregator<T>{
 	}
     
     public void add(Integer index,String fieldName,String name,StringValidator ... validator){
+    	Preconditions.checkArgument(fieldMap.containsKey(fieldName), fieldName +  " 에 해당하는 필드가 존재하지 않습니다. VO를 확인해주세요");
     	validatorMap.put(new LineMetadata(index,fieldName,name), Lists.newArrayList(validator));
     }
     
