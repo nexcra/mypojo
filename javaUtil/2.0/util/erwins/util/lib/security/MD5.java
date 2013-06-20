@@ -1,6 +1,10 @@
 package erwins.util.lib.security;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -14,14 +18,15 @@ public abstract class MD5{
     
     private static final String ALGORITHM = "MD5";
     
-    /** 입력한 데이터(바이트 배열)을 MD5 알고리즘으로 처리하여 해쉬값을 도출한다. */
-    public static byte[] getHash(byte[] input) throws IOException {
+    /** 입력한 데이터(바이트 배열)을 MD5 알고리즘으로 처리하여 해쉬값을 도출한다.
+     * google의 Hashing과 동일하다. */
+    public static byte[] getHash(byte[] input){
         try {
             MessageDigest md = MessageDigest.getInstance(ALGORITHM);
             return md.digest(input);
         } catch (NoSuchAlgorithmException e) {
             // 일어날 경우가 없다고 보지만 만약을 위해 Exception 발생
-            throw new IOException(ALGORITHM + " Algorithm Not Found", e);
+            throw new RuntimeException(ALGORITHM + " Algorithm Not Found", e);
         }
     }
     
@@ -56,12 +61,7 @@ public abstract class MD5{
 
     /** 입력한 데이터(byte[])를 MD5로 해쉬값을 도출한 다음, 16진수 문자열로 변환하여 출력한다. */
     public static String getHashHexString(byte[] input){
-        byte[] hash;
-		try {
-			hash = getHash(input);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+        byte[] hash = getHash(input);
         return byteToHexString(hash);
     }
     

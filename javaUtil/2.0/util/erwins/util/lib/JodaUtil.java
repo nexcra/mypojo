@@ -30,6 +30,7 @@ public abstract class JodaUtil extends JodaTimeUtil {
     public static DateTimeFormatter YMD = DateTimeFormat.forPattern("yyyyMMdd");
     /** 시분 */
     public static DateTimeFormatter YM = DateTimeFormat.forPattern("yyyyMM");
+    public static DateTimeFormatter Y = DateTimeFormat.forPattern("yyyy");
     public static DateTimeFormatter HM = DateTimeFormat.forPattern("HHmm");
     
 	/** 어제일자 반환 */
@@ -51,5 +52,6 @@ public abstract class JodaUtil extends JodaTimeUtil {
     	String escaped = CharMatcher.DIGIT.retainFrom(yyyyMMdd); 
 		return JodaUtil.YMD.parseDateTime(escaped).toDateMidnight();
     }
+    
     
 }

@@ -3,6 +3,7 @@ package erwins.util.lib;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -718,6 +719,17 @@ public abstract class FileUtil extends FileUtils {
 				return name.endsWith(ext);
 			}
     	};
+    }
+    
+    /** 딱히 넣을데가 없어서 여기 넣음. */
+    public static void closeQuietly(Closeable closeable){
+    	if(closeable!=null){
+    		try {
+				closeable.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+    	}
     }
 
 }

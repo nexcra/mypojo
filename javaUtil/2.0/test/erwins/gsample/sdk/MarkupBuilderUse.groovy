@@ -21,17 +21,19 @@ public class MarkupBuilderUse{
                     product(name:'Visual Editor', dollar:499)
                 }
             }
+			
             qwe(date: new Date(106,1,2)){
                 item(count:4) {
                     product(name:'Visual Editor', dollar:499)
                 }
             }
         }
+		println writer
         assert writer.toString().contains('한글')
    } 
     
     /** 파일로 만드는것도 가능하다. */
-    @Test
+    //@Test
     public void build2(){
         File xml = new File('D:/markup.html');
         def writer = new FileWriter(xml);

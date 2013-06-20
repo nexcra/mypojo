@@ -28,6 +28,9 @@ import erwins.util.lib.StringEscapeUtil;
  * 세션당 하나씩 만들어라.
  * url을 한번만 지정후 쿼리를 변경하면서 재사용 가능하다.
  * releaseConnection / abort 가 필요시 추가
+ * 
+ * 고도화 하자. 로그인 해서 지속적으로 사용 가능하다.
+ * HttpMethod 결과값의 302 는 리다이렉트 된것
  * @author sin
  */
 public class HttpData{

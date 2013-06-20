@@ -15,6 +15,8 @@ import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.google.common.base.Strings;
+
 import erwins.util.collections.map.RequestMap;
 import erwins.util.counter.Latch;
 
@@ -124,6 +126,16 @@ public class StringUtil extends StringUtils {
     	if(body==null) return false;
     	for (String each : prefix)
     		if (StringUtil.startsWith(body, each)) return true;
+    	return false;
+    }
+    
+    /**
+     * suff들중 일부라도 매치가 되면 true를 리턴한다.
+     */
+    public static boolean isEndsWithAny(String body, String... suf) {
+    	if(body==null) return false;
+    	for (String each : suf)
+    		if (StringUtil.endsWith(body, each)) return true;
     	return false;
     }
     
@@ -780,6 +792,18 @@ public class StringUtil extends StringUtils {
 		}
 		return en+ko+etc;
 	}
+	
+    /**
+     * BigDecimal로 변환하지 못할 경우, null을 리턴한다.
+     */
+    public static BigDecimal getDecimalOrNull(String str) {
+        if(Strings.isNullOrEmpty(str)) return null;
+        try {
+			return new BigDecimal(str);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+    }
     
     
 

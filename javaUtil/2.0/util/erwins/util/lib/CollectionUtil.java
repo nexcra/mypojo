@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -217,6 +218,7 @@ public abstract class CollectionUtil extends CollectionUtils {
 		if (body == null || items.length == 0) return false;
 		for (Class<?> item : items)
 			if (item.isAssignableFrom(body)) return true;
+		
 		return false;
 	}
 
@@ -410,6 +412,15 @@ public abstract class CollectionUtil extends CollectionUtils {
 			sum[A.length - 1 + i] = B[i];
 		}
 		return sum;
+	}
+	
+	/**  어레이는 머지가 없길래 추가. 테스트 안해봄 */
+	public static <T> T[] merge(T[] a,T[] b){
+		T[] newArray = Arrays.copyOf(a, a.length + b.length);
+		for(int i=0;i<b.length;i++){
+			newArray[a.length + i] = b[i];
+		}
+		return newArray;
 	}
 	
     /**  list를 pageSize길이가 되도록 분리한다 */

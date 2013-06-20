@@ -3,7 +3,6 @@ package erwins.util.lib;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -11,6 +10,13 @@ import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.joda.time.MutableDateTime;
 import org.joda.time.Period;
+import org.joda.time.ReadablePeriod;
+import org.joda.time.base.BaseDateTime;
+import org.joda.time.format.DateTimeFormatter;
+
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * 글로벌 스탠다드한 Date 보조객체 ~ 아직 안만듬. 프로젝트별로 이 클래스를 확장해서 DateTimeFormatter 가 있는 클래스를
@@ -34,25 +40,9 @@ public abstract class JodaTimeUtil {
 		return list;
 	}
 
-	public boolean isAfterPayDay(DateTime datetime) {
-		if (datetime.getMonthOfYear() == 2) { // February is month 2!!
-			return datetime.getDayOfMonth() > 26;
-		}
-		return datetime.getDayOfMonth() > 28;
-	}
-
 	public Days daysToNewYear(LocalDate fromDate) {
 		LocalDate newYear = fromDate.plusYears(1).withDayOfYear(1);
 		return Days.daysBetween(fromDate, newYear);
-	}
-
-	public boolean isRentalOverdue(DateTime datetimeRented) {
-		Period rentalPeriod = new Period().withDays(2).withHours(12);
-		return datetimeRented.plus(rentalPeriod).isBeforeNow();
-	}
-
-	public String getBirthMonthText(LocalDate dateOfBirth) {
-		return dateOfBirth.monthOfYear().getAsText(Locale.KOREAN);
 	}
 
 	/** run에 걸린 시간을 리턴한다 */
@@ -73,5 +63,31 @@ public abstract class JodaTimeUtil {
 	public static DateTime endTimeOfDay(DateMidnight startDate){
 	    return startDate.plusDays(1).toDateTime().minusMillis(1);
 	}
+	
+    /** 동일시간 포함, period 간격 만큼의 DateTime을 리턴한다.
+     * ex) List<DateTime> times = between(start,end,Period.days(1));
+     * 년월일의 경우 시작,종료 일자가 포함된다.  */
+    public static List<DateTime> between(BaseDateTime start,BaseDateTime end,ReadablePeriod period){
+    	Preconditions.checkArgument(start.isBefore(end) || start.isEqual(end),"start는 end보다 작거나 같아야 합니다");
+    	DateTime startTime = start.toDateTime();
+    	List<DateTime> times = Lists.newArrayList();
+    	
+    	while(startTime.isBefore(end) || startTime.isEqual(end)){
+    		times.add(startTime);
+    		startTime = startTime.plus(period);
+    	}
+    	return times;
+    }
+    
+    /** 배열을 간단하게 포매팅 할때 사용된다. 
+     * ex) List<String> dates =  FluentIterable.from(times).transform(formatFuction(JodaUtil.YMD)).toList(); */
+    public static Function<BaseDateTime,String> formatFuction(final DateTimeFormatter formatter){
+    	return new Function<BaseDateTime,String>(){
+			@Override
+			public String apply(BaseDateTime arg0) {
+				return arg0.toString(formatter);
+			}
+    	};
+    }
 
 }

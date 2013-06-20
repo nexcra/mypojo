@@ -44,6 +44,11 @@ public class ShowTime {
     	initTime();
     	return this;
     }
+    public ShowTime setMiliSec(long ms) {
+    	totalNanoSecond = ms * 1000 * 1000;
+        initTime();
+    	return this;
+    }
     private void initTime() {
     	h = (int) (totalSecond / 60 / 60);
     	MM = (int) ((totalSecond - (h*60*60)) / 60);

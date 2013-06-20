@@ -29,6 +29,7 @@ public class SimpleTemplateEngineUse{
 		   tasks     : ['visit the Groovy in Action (GinA) page',
 						'chat with GinA readers']
 	   ]
+	   println template.make(binding)
 	   assert template.make(binding).toString().trim().startsWith("Dear")
 	   /*
 	   assert template.make(binding).toString() == '''
