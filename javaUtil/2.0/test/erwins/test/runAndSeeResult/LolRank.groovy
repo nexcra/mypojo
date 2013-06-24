@@ -9,7 +9,7 @@ import erwins.util.collections.MapForKeyList;
 import erwins.util.collections.MapForList
 import erwins.util.collections.MapType
 import erwins.util.groovy.GroovyMetaUtil;
-import erwins.util.tools.GroovyXml;
+import erwins.util.groovy.GroovyXml;
 import erwins.util.vender.apache.Poi;
 import erwins.util.vender.apache.PoiReaderFactory;
 

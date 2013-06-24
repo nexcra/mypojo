@@ -1,8 +1,6 @@
 package erwins.test.runAndTakeResult
 
-import org.junit.Test
-import groovy.sql.Sql
-import erwins.util.lib.StringUtilimport erwins.util.tools.TextFileReader;
+import erwins.util.lib.StringUtil
 
 /** 그루비~ 굿 */
 public class FileGather{

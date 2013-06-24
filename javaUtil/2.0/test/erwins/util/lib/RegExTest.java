@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
-import erwins.util.collections.map.RequestMap;
 import erwins.util.exception.Check;
 
 public class RegExTest {
@@ -31,7 +30,7 @@ public class RegExTest {
         Check.isEquals(RegEx.filterText(text, "fuck","shit","멍멍이"),"영감님 f*** oh s***! 이 멍**야");
     }
     
-    @Test
+/*    @Test
     public void map() throws Exception {
         RequestMap map = new RequestMap();
         map.put("submitDate","2009/57/87");
@@ -42,7 +41,7 @@ public class RegExTest {
         Check.isEquals(map.get("submitDate"),"20095787");
         Check.isEquals(map.get("apache"),"2009/57/87");
         Check.isEquals(map.get("submitDate2"),new BigDecimal("123.145"));
-    }
+    }*/
 
     @Test
     public void emial() {
