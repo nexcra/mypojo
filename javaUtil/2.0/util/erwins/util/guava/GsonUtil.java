@@ -8,7 +8,7 @@ import com.google.gson.JsonObject;
 
 public abstract class GsonUtil {
 	
-	/** Map을 key,value로 플랫화 해준다. 주로 화면단에서 사용 */
+	/** Map을 key,value로 플랫화 해준다. 즉 객체 내용을 List로 볼 수 있다. 주로 화면단에서 사용 */
 	public static JsonArray toPrimitiveArray(JsonObject json){
 		JsonArray array = new JsonArray();
 		for(Entry<String,JsonElement> entry : json.entrySet()){

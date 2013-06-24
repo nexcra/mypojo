@@ -8,6 +8,8 @@ import net.sf.json.JSONObject;
 import erwins.util.exception.ExceptionUtil;
 import erwins.util.vender.etc.Flex;
 
+/** 해당 디렉토리를 Flex tree로 보여줄때 */
+@Deprecated
 public abstract class FileJsonTemplateForFlex{
 	
 	public final File repository;

@@ -29,9 +29,9 @@ import erwins.util.vender.apache.Poi;
 import erwins.util.vender.apache.PoiSheetReader2002;
 import erwins.util.vender.etc.OpenCsv;
 import erwins.util.vender.mybatis.OpenCsvMybatisResultHandler;
-import erwins.util.vender.spring.CsvItemReader.CsvMapper;
-import erwins.util.vender.spring.CsvItemWriter.CsvAggregator;
 import erwins.util.vender.spring.StringValidator.FieldToStringAble;
+import erwins.util.vender.springBatch.CsvItemReader.CsvMapper;
+import erwins.util.vender.springBatch.CsvItemWriter.CsvAggregator;
 
 
 /** CSV나 엑셀 업로드시 사용자 입력값을 검증하는 벨리데이터

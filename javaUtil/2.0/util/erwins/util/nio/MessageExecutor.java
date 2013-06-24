@@ -11,6 +11,7 @@ import java.nio.channels.SocketChannel;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
+import erwins.util.lib.CharEncodeUtil;
 import erwins.util.lib.StringUtil;
 
 /** 이 스래드는 1개만 기동한다고 가정한다. */
@@ -18,7 +19,6 @@ public class MessageExecutor implements Runnable {
 	
 	private final Selector selector;
 	private final MessageCallback messageCallback;
-	private CharsetUtils util = new CharsetUtils();
 	private ByteBuffer readBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 	
 	
@@ -83,12 +83,12 @@ public class MessageExecutor implements Runnable {
 		}else{
 			if(temp==null){
 				readBuffer.flip();
-				String returned = util.decode(readBuffer);
+				String returned = CharEncodeUtil.C_UTF_8.decode(readBuffer).toString();
 				readServerMessage(returned);	
 			}else{
 				temp.put(readBuffer);
 				temp.flip();
-				String returned = util.decode(temp);
+				String returned = CharEncodeUtil.C_UTF_8.decode(temp).toString();
 				readServerMessage(returned);
 				temp = null;
 			}

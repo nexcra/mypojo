@@ -14,7 +14,6 @@ import erwins.util.vender.etc.Flex;
  * 이하의 간단 버전이다.
  * private List<Map<String,T>> list = new ArrayList<Map<String,T>>();
  */
-
 public class ListForMap<T> implements Iterable<Map<String,T>>{
 	
 	private List<Map<String,T>> list;

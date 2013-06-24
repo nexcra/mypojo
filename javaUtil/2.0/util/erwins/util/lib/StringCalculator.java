@@ -16,7 +16,6 @@ public abstract class StringCalculator {
         B_A = B_A.add(B_B);
         return B_A.toString();
     }
-    
 
     public static String Plus(String A, String B, int Scale) {
         // A + B

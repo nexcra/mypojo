@@ -14,6 +14,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
 import erwins.util.exception.BusinessException;
+import erwins.util.lib.CharEncodeUtil;
 import erwins.util.root.Shutdownable;
 
 
@@ -69,7 +70,7 @@ public abstract class TalkServerTemplate implements Shutdownable {
 					} catch (BusinessException e) {
 						String message = null;
 						try {
-							message = util.decode(readBuffer);
+							message = CharEncodeUtil.C_UTF_8.decode(readBuffer).toString();
 						} catch (Exception e1) { //무시한다.
 						}
 						//log.error("[{0}] : Malformed message from client", message);
@@ -95,8 +96,6 @@ public abstract class TalkServerTemplate implements Shutdownable {
 		//log.debug("new Accept registered");
 	}	
 	
-	private final CharsetUtils util = new CharsetUtils();
-
 	/** 여기서 예외가 나는것은 갑작스런 client의 종료이다. 나머지 예외는 나면 안된다. 
 	 * 일정 바이트 이상의 데이터를 연속 읽기를 하도록 수정
 	 * 중요: 클라이언트의 무단종료시 최초의 읽기인데도 -1을 읽는 경우가 있다. 이경우 cancel한다. */
@@ -110,7 +109,7 @@ public abstract class TalkServerTemplate implements Shutdownable {
 				return;
 			}
 			buffer.flip();
-			String returned = util.decode(buffer);
+			String returned = CharEncodeUtil.C_UTF_8.decode(buffer).toString();
 			inputFromClient(key,returned);
 		} catch (IOException e) { 
 			try {

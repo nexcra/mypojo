@@ -4,6 +4,7 @@ package erwins.util.lib;
 import java.util.Random;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.joda.time.DateTime;
 
 /**
  * apache의 StringUtils에 없는것을 정의한다.
@@ -25,7 +26,7 @@ public class RandomStringUtil extends RandomStringUtils {
      * 연령을 20~60세로 제한한다.
      */
     public static String makeRandomSid() {
-        int yy = DayUtil.YY.getIntValue();
+        int yy = new DateTime().getYearOfCentury();
         while (true) {
             String sid = RandomStringUtils.randomNumeric(13);
             int birth = Integer.parseInt(sid.substring(0,2));

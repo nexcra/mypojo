@@ -12,8 +12,7 @@ import com.google.common.collect.Maps;
 
 /**
  * 이하의 간단 버전이다.
- * private Map<T,List<File>> map = new HashMap<T,List<File>>();
- * 
+ * private Map<K,Set<T>> map = Maps.newHashMap();
  */
 @SuppressWarnings("serial")
 public class MapForSet<K,T> implements Map<K,Set<T>> ,Serializable{
@@ -36,6 +35,7 @@ public class MapForSet<K,T> implements Map<K,Set<T>> ,Serializable{
 		if(v==null) v = Collections.emptySet();
 		return v;
 	}
+	
 	/** Groovy용. 이놈은 타입이 딱맞아야 한다(Object로 안됨) ㅅㅂ.  */
 	public Set<T> getAt(String key){
 		return map.get(key);

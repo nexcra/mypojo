@@ -14,6 +14,7 @@ import erwins.util.vender.springBatch.ToStringArrayRowMapper.ColumnMetaData;
  * 보통 CSV가 더 좋기때문에 잘 사용되지 않는다.
  * DB의ResultSet을 단순 문자열로 변경한다.
  * 메타 정보를 추가할 수 있지만 일단 단순 백업용 문자열로 사용.  */
+@Deprecated
 public class ToStringRowMapper implements RowMapper<String>,Serializable{
 
     private static final long serialVersionUID = 2002087137176208746L;

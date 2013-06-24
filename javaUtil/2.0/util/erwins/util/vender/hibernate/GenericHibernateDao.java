@@ -1,41 +1,15 @@
 package erwins.util.vender.hibernate;
 
 import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import org.hibernate.CacheMode;
-import org.hibernate.Criteria;
-import org.hibernate.LockMode;
-import org.hibernate.ObjectNotFoundException;
-import org.hibernate.Query;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
-import erwins.util.collections.map.SearchMap;
-import erwins.util.lib.CollectionUtil;
-import erwins.util.lib.ReflectionUtil;
-import erwins.util.lib.StringUtil;
-import erwins.util.root.EntityId;
-import erwins.util.root.EntityInit;
-import erwins.util.root.FetcherForId;
 
 /**
  * getOrder을 재정의 할것. <br> return 이 2개 이상일 경우 Object[]로 넘어온다. 주의!
  */
 @SuppressWarnings("unchecked")
-public abstract class GenericHibernateDao<Entity, ID extends Serializable> extends HibernateDaoSupport implements FetcherForId<ID, Entity>{
-
+public abstract class GenericHibernateDao<Entity, ID extends Serializable> extends HibernateDaoSupport{
+/*
     private Class<Entity> persistentClass;
     
     public GenericHibernateDao() {
@@ -47,7 +21,7 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         return persistentClass;
     }
     
-    /** 이번 세션에 한해서?? 2차 캐시를 무시한다. */
+    *//** 이번 세션에 한해서?? 2차 캐시를 무시한다. *//*
     protected void cacheIgnore(){
         getSession().setCacheMode(CacheMode.IGNORE);
     }
@@ -56,15 +30,15 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     //                                    편의성 단축 메소드.
     // ===========================================================================================
     
-    /**
+    *//**
      * 데이터 입력 후 목록을 iBatis등을 사용하여 다시 쿼리할때 세션이 유지된다면 늦은 insert가 실행된다.
      * 이러한 경우 flush를 이용하여 쿼리를 강제로 실행 시켜야 한다. 커밋되지는 않는다.
-     **/
+     **//*
     public void flush(){
         getSession().flush();
     }
     
-    /** Flush 이후 메모리(1차캐시?)에서 삭제한다. */
+    *//** Flush 이후 메모리(1차캐시?)에서 삭제한다. *//*
     public void flushAndClear(){
         getSession().flush();
         getSession().clear();
@@ -78,11 +52,11 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     //                                    벨리데이션을 추가한 dao기능.
     // ===========================================================================================        
 
-    /**
+    *//**
      * DefaultEntity의 하위노드라면 초기값을 세팅해 준다.
      * ID가 null이 아니면 update라고 판단하고 수정 가능 여부를 판별한다.
      * 업데이트 방식중 명시적으로 makePersistent를 호출해서 전부 교체하는 방식에만 사용된다.
-     */
+     *//*
     public Entity saveOrUpdate(Entity client) {
         if(client instanceof EntityInit){
             EntityInit defaultEntity = (EntityInit)client;
@@ -101,8 +75,8 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         getSession().delete(entity);
     }
     
-    /** entity를 update하고 신규 생신된 entity를 받아온다.
-     * update와 다른점은 기존 동일key의 영속객체가 세션에 있어도 요류나지 않고 기존 그놈과 이놈을 동일(==)하게 변경한다.  */
+    *//** entity를 update하고 신규 생신된 entity를 받아온다.
+     * update와 다른점은 기존 동일key의 영속객체가 세션에 있어도 요류나지 않고 기존 그놈과 이놈을 동일(==)하게 변경한다.  *//*
     public void merge(Entity entity) {
     	getSession().merge(entity);
     }
@@ -111,9 +85,9 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     //                                      공용 카운트
     // ===========================================================================================
 
-    /**
+    *//**
      * 페이징 등에서 사용될 전체 카운트 수  근데 int?? ㅠㅠ
-     **/
+     **//*
     protected int count(Criterion ... criterion) {
         Criteria crit = getSession().createCriteria(getPersistentClass()).setProjection(
                 Projections.projectionList().add(Projections.rowCount())
@@ -122,32 +96,32 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         return CollectionUtil.getResultInt(crit.list());
     }
     
-    /** 주어진 조건에 해당하는 자료가 1건 이상 있는지? */
+    *//** 주어진 조건에 해당하는 자료가 1건 이상 있는지? *//*
     protected boolean isExist(Criterion... criterion) {
         int count = count(criterion);
         if(count > 0) return true;
         return false;
     }
     
-    /** 주어진 조건에 해당하는 자료가 1건 이상 있는지? */
+    *//** 주어진 조건에 해당하는 자료가 1건 이상 있는지? *//*
     public boolean isExist(ID id) {
     	return isExist(Restrictions.eq(EntityId.ID_NAME,id));
     }
     
-    /** 주어진 조건에 해당하는 자료가 1건 이상 있는지? */
+    *//** 주어진 조건에 해당하는 자료가 1건 이상 있는지? *//*
     protected boolean isExist(Collection<Criterion> col) {
         return isExist(col.toArray(new Criterion[col.size()]));
     }
     
     
     
-    /** Criterion을 사용할 수 없을때,  반드시 1개의 숫자를 리턴해야 한다. */
+    *//** Criterion을 사용할 수 없을때,  반드시 1개의 숫자를 리턴해야 한다. *//*
     protected long count(HqlBuilder hql) {
     	Query query = hql.query(getSession());
         return (Long)query.uniqueResult();
     }
     
-    /** Criterion을 사용할 수 없을때, 날코딩 버전.  반드시 1개의 숫자를 리턴해야 한다. */
+    *//** Criterion을 사용할 수 없을때, 날코딩 버전.  반드시 1개의 숫자를 리턴해야 한다. *//*
     protected boolean isExist(String hql,Object ... parameters) {
         Query query = super.getSession().createQuery(hql);
         for(int i=0;i<parameters.length;i++){
@@ -157,8 +131,8 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         return count > 0 ? true : false; 
     }
     
-    /** 자연키 중복 여부를 테스트한다. (일반적으로 자연키는 묶어서 유니크 인덱스가 걸림으로 필요없다.) 
-     * 중복된게 없다면 null을 리턴한다. 있으면 갯수를 리턴한다. */
+    *//** 자연키 중복 여부를 테스트한다. (일반적으로 자연키는 묶어서 유니크 인덱스가 걸림으로 필요없다.) 
+     * 중복된게 없다면 null을 리턴한다. 있으면 갯수를 리턴한다. *//*
     protected Integer natureKeyValidate(String ... natureKeys) {
     	String sqlPiece = StringUtil.joinTemp(natureKeys,",");
     	HqlBuilder hql = new HqlBuilderRoot();
@@ -171,12 +145,12 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     //                                      find
     // ===========================================================================================
 
-    /**
+    *//**
      * 복합키를 별도의 객체에 매핑하지 않았을 경우 이걸로 불러온다. (entity를 키로 인식한다.) 
      * LockMode.READ를 주어서 늦은 로딩을 방지하며 (LockMode.READ/UPGRADE시에는 버전확인을 위해 select를 수행한다.)
      * 만약 키에 해당하는 값이 없으면 ObjectNotFoundException을 던짐으로 null을 리턴한다.
      * 자주 사용하지는 말고 이렇게도 가능하다는것만 알아둘것!
-     */
+     *//*
     public Entity loadImmediately(Entity entity) {
         try {
 			return (Entity) getSession().load(getPersistentClass(),(Serializable)entity, LockMode.READ);
@@ -185,18 +159,18 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
 		}
     }
     
-    /** 일반적으로 DB에 있는 객체를 불러와 갱신할때는 이걸 사용한다. ObjectNotFoundException을 잡을것! */
+    *//** 일반적으로 DB에 있는 객체를 불러와 갱신할때는 이걸 사용한다. ObjectNotFoundException을 잡을것! *//*
     public Entity load(ID id) {
     	return (Entity) getSession().load(getPersistentClass(),id, LockMode.NONE);
     }
     
-    /** id에 해당하는 객체를 즉시 가져온다. DB에 값이 없다면 null을 리턴한다.
-     * null을 명시적으로 체크해야 하는 경우가 아니라면 사용하지 말자. */
+    *//** id에 해당하는 객체를 즉시 가져온다. DB에 값이 없다면 null을 리턴한다.
+     * null을 명시적으로 체크해야 하는 경우가 아니라면 사용하지 말자. *//*
     public Entity getById(ID id) {
         return (Entity) getSession().get(getPersistentClass(), id);
     }
     
-    /** 가장 큰 ID를 검색한다. */
+    *//** 가장 큰 ID를 검색한다. *//*
     public ID getMaxId() {
     	Criteria crit = getSession().createCriteria(getPersistentClass()).setProjection(
                 Projections.projectionList().add(Projections.max(EntityId.ID_NAME))
@@ -204,30 +178,30 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         return (ID)CollectionUtil.getResultInt(crit.list());
     }
     
-    /** ID값 기준으로 가장 큰애를 가져온다. 보통 ID는 seq값임으로 테스트 작성시에나 사용. */
+    *//** ID값 기준으로 가장 큰애를 가져온다. 보통 ID는 seq값임으로 테스트 작성시에나 사용. *//*
     public Entity getMaxEntity() {
     	String hql = "from {0} e where e.{1} = (select max({1}) from {0})";
     	return queryUnique(StringUtil.format(hql, getPersistentClass().getSimpleName(),EntityId.ID_NAME));
     }
     
-    /** 유일하지 않으면 예외를 던진다.*/
+    *//** 유일하지 않으면 예외를 던진다.*//*
     protected Entity getUnique(Criterion... criterion) {
         return CollectionUtil.getResultUnique(findBy(criterion));
     }
     
-    /** null이거나 1개만이 있을 수 있다. */
+    *//** null이거나 1개만이 있을 수 있다. *//*
     protected Entity getUniqueNullable(Criterion... criterion) {
     	List<Entity> sets = findBy(criterion);
     	return CollectionUtil.getUniqNullable(sets);
     }
     
-    /** null이거나 1개만이 있을 수 있다. */
+    *//** null이거나 1개만이 있을 수 있다. *//*
     protected Entity getUniqueNullable(HqlBuilder hql) {
         Query query = hql.query(getSession());
         return CollectionUtil.getUniqNullable((List<Entity>)query.list());
     }
     
-    /** null이거나 1개만이 있을 수 있다. 전체를 로딩하지 않고 인덱스만 읽어서 Proxy객체를 가져올때 사용된다. */
+    *//** null이거나 1개만이 있을 수 있다. 전체를 로딩하지 않고 인덱스만 읽어서 Proxy객체를 가져올때 사용된다. *//*
     protected Entity getUniqueForProxy(Criterion... criterion) {
     	Criteria crit = getSession().createCriteria(getPersistentClass());
         for (Criterion c : criterion)  crit.add(c);
@@ -254,7 +228,7 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     	return findBy(cache);
     }
     
-    /** 이미 부모를 알고 있을때 자식 객체를 단독으로 가져오기 위해 사용한다. (이게 없으면 부모를 연관해 join해야 한다.) */
+    *//** 이미 부모를 알고 있을때 자식 객체를 단독으로 가져오기 위해 사용한다. (이게 없으면 부모를 연관해 join해야 한다.) *//*
     protected List<Entity> filter(Collection<Entity> subEntitys,String etcSql,SearchMap map) {
     	Query q = getSession().createFilter(subEntitys,etcSql);
     	for(Entry<?,?> entry : map.entrySet()) q.setParameter(entry.getKey().toString(), entry.getValue());
@@ -270,12 +244,12 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     //                                      Criterion
     // ===========================================================================================    
     
-    /** 간단한 검색용 . getOrder을 재정의 할것. 주로 테스트 용도로 사용한다.실전사용은 금지! */
+    *//** 간단한 검색용 . getOrder을 재정의 할것. 주로 테스트 용도로 사용한다.실전사용은 금지! *//*
     public List<Entity> findBy(Criterion... criterion) {
         return findBy(false,criterion);
     }
     
-    /** 한개만 리턴. 아니면 예외를 던진다. */
+    *//** 한개만 리턴. 아니면 예외를 던진다. *//*
     protected Entity findUnique(Criterion... criterion) {
     	return CollectionUtil.getResultUnique(findBy(false,criterion));
     }
@@ -283,7 +257,7 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     	return CollectionUtil.getUniqNullable(findBy(false,criterion));
     }
     
-    /** 간단한 검색용 . getOrder을 재정의 할것. */
+    *//** 간단한 검색용 . getOrder을 재정의 할것. *//*
     protected List<Entity> findBy(boolean cache,Criterion... criterion) {
     	Criteria crit = getSession().createCriteria(getPersistentClass());
     	if(cache) crit.setCacheable(true);
@@ -293,16 +267,16 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         return crit.list();
     }
     
-    /** 조건이 있는 간단한 검색용 */
+    *//** 조건이 있는 간단한 검색용 *//*
     protected List<Entity> findBy(Collection<Criterion> col) {
         return findBy(col.toArray(new Criterion[col.size()]));
     }
-    /** 조건이 있는 간단한 검색용 */
+    *//** 조건이 있는 간단한 검색용 *//*
     protected List<Entity> findBy(boolean cache,Collection<Criterion> col) {
         return findBy(cache,col.toArray(new Criterion[col.size()]));
     }
     
-    /** 조인 같은거 안됨~ 간단한거만 사용. 오더버이 반드시 지정한 후 보낼것 */
+    *//** 조인 같은거 안됨~ 간단한거만 사용. 오더버이 반드시 지정한 후 보낼것 *//*
     protected void findForPaging(CriterionMap c,Criteria criteria) {
         for (Order each : defaultOrder()) criteria.addOrder(each);
         SearchMap map = c.getMap();
@@ -316,7 +290,7 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         map.setResult(criteria.list());
     }
     
-    /** 프로시저 호출 */
+    *//** 프로시저 호출 *//*
     @Deprecated
     protected void callSP(){
         //"{ call PG_DBR_CONNECT.SP_RECEIPT () }"
@@ -326,21 +300,21 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     //                                    HQL
     // ===========================================================================================
     
-    /** 대량의 데이터를 배치처리. id값만을 가져온 후 나머지는 2차캐시(가능하다면)에서 가져온다. */
+    *//** 대량의 데이터를 배치처리. id값만을 가져온 후 나머지는 2차캐시(가능하다면)에서 가져온다. *//*
     protected Iterator<Entity> iterator(HqlBuilder hql) {
         Query query = hql.query(getSession());
         query.iterate();
         return query.iterate();
     }
     
-    /** 커서를 이용한다. 사용 후 반드시 닫아주여야 한다. */
+    *//** 커서를 이용한다. 사용 후 반드시 닫아주여야 한다. *//*
     protected ScrollableResults scroll(HqlBuilder hql) {
     	Query query = hql.query(getSession());
     	query.iterate();
     	return query.scroll(ScrollMode.FORWARD_ONLY);
     }
     
-    /** HqlBuilder를 이용한 페이징 처리기. */
+    *//** HqlBuilder를 이용한 페이징 처리기. *//*
     protected void query(SearchMap map,HqlBuilder hql) {
         Query query = hql.query(getSession());
         if(map.isPaging()){
@@ -352,7 +326,7 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         map.setResult(query.list());
     }
     
-    /** 페이징만 된다. 파라메터 매핑도 되지 않고 count역시 되지 않는다. */
+    *//** 페이징만 된다. 파라메터 매핑도 되지 않고 count역시 되지 않는다. *//*
     protected void query(SearchMap map,String hql) {
         Query query = super.getSession().createQuery(hql);
         if(map.isPaging()){
@@ -362,25 +336,25 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         map.setResult(query.list());
     }    
     
-    /** map없이 사용할때. 단순 쿼리만 된다. */
+    *//** map없이 사용할때. 단순 쿼리만 된다. *//*
     protected List<Entity> query(HqlBuilder hql) {
         Query query = hql.query(getSession());
         return query.list();
     }
     
-    /** 통계 작성 등에 사용된다. */
+    *//** 통계 작성 등에 사용된다. *//*
     protected List<Object[]> queryForObjectArray(HqlBuilder hql) {
         Query query = hql.query(getSession());
         return query.list();
     }
     
-    /** 통계 작성 등에 사용된다. */
+    *//** 통계 작성 등에 사용된다. *//*
     protected List<Object> queryForObject(HqlBuilder hql) {
     	Query query = hql.query(getSession());
     	return query.list();
     }
     
-    /** 결과 배열을 key,value의 Flate한 Map으로 변환한다. select구문에 반드시 2개(나무지는 무시)만 들어가야 한다. */
+    *//** 결과 배열을 key,value의 Flate한 Map으로 변환한다. select구문에 반드시 2개(나무지는 무시)만 들어가야 한다. *//*
     protected Map<String,Object> queryForFlatMap(HqlBuilder hql) {
     	List<Object[]> result = queryForObjectArray(hql);
     	Map<String,Object> map = new HashMap<String,Object>();
@@ -390,13 +364,13 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
         return map;
     }        
     
-    /** map없이 사용할때. */
+    *//** map없이 사용할때. *//*
     protected Entity queryUnique(HqlBuilder hql) {
         Query query = hql.query(getSession());
         return (Entity)query.uniqueResult();
     }
     
-    /** 파라메터 없이 아주 간단한거 할때만 사용할것. */
+    *//** 파라메터 없이 아주 간단한거 할때만 사용할것. *//*
     protected Entity queryUnique(String hql) {
     	Query query = super.getSession().createQuery(hql);
         return (Entity)query.uniqueResult();
@@ -406,11 +380,11 @@ public abstract class GenericHibernateDao<Entity, ID extends Serializable> exten
     //                                        서브클래스에서 구현하시오.
     // ===========================================================================================
 
-    /** 오버라이드 해서 사용. findBy에만 사용된다.  안쓰는데도 있으니 abstract는 안달았음. */
+    *//** 오버라이드 해서 사용. findBy에만 사용된다.  안쓰는데도 있으니 abstract는 안달았음. *//*
     protected Order[] defaultOrder(){
         return new Order[0];
     }
-    
+    */
     /*
     @Deprecated
     protected void querySql(SearchMap map,String sql,String count) {

@@ -8,6 +8,7 @@ import java.io.Serializable;
  * 제작 직후 key를 선정해서 Map으로 변경하면 키 기준으로 데이터를 모아준다.
  * MapForList<Trx> userMap = new MapForList<Trx>(MapType.Tree);
  * ex) for (Trx each : entry.getValue()) userMap.add(each.getSysUserName(), each);
+ * MultiMap을 우선 사용하도록 하자.
  */
 
 @SuppressWarnings("serial")

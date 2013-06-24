@@ -3,15 +3,10 @@ package erwins.util.openApi;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.ecs.html.Script;
 
-import erwins.util.morph.HtmlOptionBuilder;
-import erwins.util.tools.DocParser;
-import erwins.util.vender.apache.RESTful;
+import erwins.util.vender.apache.HtmlOptionBuilder;
 
 
 /**
@@ -33,15 +28,15 @@ public abstract class Naver{
         }
         
 
-        DocParser dp = new DocParser(RESTful.post(NAVER_GEOCODE_URL).query(query).run().asStream());
-        List<HashMap<String,String>> results =  dp.getElementsByTagName("x","y","address");
+        //DocParser dp = new DocParser(RESTful.post(NAVER_GEOCODE_URL).query(query).run().asStream());
+        //List<HashMap<String,String>> results =  dp.getElementsByTagName("x","y","address");
         
         HtmlOptionBuilder o = new HtmlOptionBuilder();
         o.addDefault("원하시는 지역을 골라주세요");
         
-        for(Map<String,String> result : results){
+        /*for(Map<String,String> result : results){
             o.add(result.get("x")+","+result.get("y"), result.get("address"));
-        }
+        }*/
         return o.toString();
         
     }

@@ -7,13 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.httpclient.NameValuePair;
 import org.apache.ecs.html.Script;
 import org.apache.ecs.wml.Img;
 
-import erwins.util.lib.CharEncodeUtil;
 import erwins.util.lib.StringUtil;
-import erwins.util.vender.apache.RESTful;
 
 
 /**
@@ -76,11 +73,12 @@ public class Google{
     }
     
     /** 구글 날씨를 XML로 리턴한다. */
+    /*
     public static String getWeatherXml(String city){
         String cityName = StringUtil.nvl(city,"seoul");
         NameValuePair[] parmas = new NameValuePair[]{new NameValuePair("weather",cityName)};
         return RESTful.get(GOOGLE_WEATHER_URL).query(parmas).run().asString(CharEncodeUtil.EUC_KR);
-    }
+    }*/
  
 
 }

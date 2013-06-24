@@ -2,7 +2,6 @@
 package erwins.util.lib;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
 import org.apache.commons.lang.CharEncoding;
@@ -23,7 +22,7 @@ public abstract class CharEncodeUtil extends CharEncoding{
 	public static final Charset C_EUC_KR = Charset.forName(EUC_KR);
 	public static final Charset C_UTF_8 = Charset.forName(UTF_8);
 	public static final Charset C_MS949 = Charset.forName(MS949);
-
+	
     /**
      * UTF-8로 인코딩을 바꾼다.
      */
@@ -58,21 +57,6 @@ public abstract class CharEncodeUtil extends CharEncoding{
         catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-    }
-    
-    /**
-     * String을 URL로 인코딩 한다. 플랫폼에 유영하지 않음!!
-     * 이거 대채할것 찾기
-     */
-    public static String toUrl(String s){
-        if (s == null) return null;
-        String result = null;
-        try {
-            result = URLEncoder.encode(s,"UTF-8");
-        } catch (Exception ex) {
-            throw new RuntimeException("PinUtil.URLEncode(\""+s+"\")\r\n"+ex.getMessage());
-        }
-        return result;
     }
 
 }

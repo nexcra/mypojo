@@ -13,7 +13,10 @@ import net.sf.cglib.proxy.MethodProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** LazyLoader할때 역시 사용된다. */ 
+/** 
+ * LazyLoader할때 역시 사용된다.
+ * 걍 레퍼런스용
+ *  */ 
 public abstract class CglUtil {
     
     private static MethodInterceptor EMPTY = new MethodInterceptor () {

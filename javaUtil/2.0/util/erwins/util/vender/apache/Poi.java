@@ -26,7 +26,6 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import erwins.util.collections.map.RequestMap;
 import erwins.util.lib.DayUtil;
 import erwins.util.lib.StringUtil;
 import groovy.lang.Closure;
@@ -369,18 +368,5 @@ public class Poi extends PoiRoot{
 			this.addValuesArray(values);
 		}
     }    
-    public void setListedRequestMap(String sheetname,List<RequestMap> list){
-		if(list.size()==0) return;
-		String[] colums =  list.get(0).keySet().toArray(new String[list.get(0).keySet().size()]);
-		this.addSheet(sheetname, colums);
-		
-		for(RequestMap each : list){
-			String[] values = new String[colums.length]; 
-			for(int i=0;i<colums.length;i++){
-				values[i] = each.getString(colums[i]);
-			}
-			this.addValuesArray(values);
-		}
-    }
     
 }

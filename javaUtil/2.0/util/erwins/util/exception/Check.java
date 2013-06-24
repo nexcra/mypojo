@@ -4,7 +4,9 @@ import erwins.util.lib.ReflectionUtil;
 
 /**
  * Check의 줄임말 입력값이 false이면 @see {@link BusinessException}을 던진다.
+ * Preconditions로 변경하자
  */
+@Deprecated
 public abstract class Check{
 
 	// private IllegalStateException e;

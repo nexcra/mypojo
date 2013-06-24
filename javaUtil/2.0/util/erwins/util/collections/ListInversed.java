@@ -13,10 +13,12 @@ public class ListInversed<T> extends LinkedList<T>{
 		this.maxSize = maxSize;
 	}
 	
-	public void pushAndRemoveMaxValue(T e){
+	public T pushAndRemoveMaxValue(T e){
+		T ret = null;
 		if(maxSize <= size()){
-			removeLast();
+			ret = removeLast();
 		}
 		addFirst(e);
+		return ret;
 	}
 }

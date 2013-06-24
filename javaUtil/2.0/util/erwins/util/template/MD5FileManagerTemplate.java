@@ -10,6 +10,8 @@ import net.sf.json.JSONObject;
 import erwins.util.lib.FileUtil;
 import erwins.util.lib.security.MD5;
 
+/** 해당 디렉토리를 Flex tree로 보여줄때 */
+@Deprecated
 public class MD5FileManagerTemplate extends FileJsonTemplateForFlex{
 	
 	public static final String HASH_CODE = "hashCode";

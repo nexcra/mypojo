@@ -6,11 +6,11 @@ import org.joda.time.format.DateTimeFormatter;
 import erwins.util.lib.JodaUtil;
 
 /**
- * Date를 문자열로 변경하여 mybatis sql의 between로직을 만들때 사용한다.
+ * Date를 문자열로 사용하는 프로젝트에서 임시 사용된다. 
+ * 변경하여 mybatis sql의 between로직을 만들때 사용한다.
  * @author sin
  */
 public class DateStringVo{
-    
 
     
     /** 마지막일로부터 X일까지의 between을 구한다.
@@ -21,8 +21,6 @@ public class DateStringVo{
         instance.endDate = format.print(JodaUtil.endTimeOfDay(endDate ));
         return instance;
     }
-    
-    
     
     private String startDate;
     private String endDate;

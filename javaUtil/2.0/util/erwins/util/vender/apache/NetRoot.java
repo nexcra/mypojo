@@ -22,6 +22,7 @@ import erwins.util.lib.StringUtil;
  * @since  2009-05-15 테스트 완료
  * http://www.takeone.pe.kr/94 참고.
  */
+@Deprecated
 public abstract class NetRoot {
     
     /** 완료되는 요구된 파일 활동 okay. */

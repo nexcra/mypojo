@@ -1,18 +1,9 @@
 package erwins.util.vender.hibernate;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.hibernate.stat.EntityStatistics;
-import org.hibernate.stat.QueryStatistics;
-import org.hibernate.stat.SecondLevelCacheStatistics;
-import org.hibernate.stat.Statistics;
-
-import erwins.util.morph.BeanToJson;
 
 /** 연결된 Flex와 같이 사용하자. */
 public class HibernateStatisticsToJson{
-	
+	/*
 	public static JSONObject hibernateStatistics(Statistics stats) {
 		JSONObject result = new JSONObject();
 		result.put("summary", summary(stats));
@@ -65,7 +56,7 @@ public class HibernateStatisticsToJson{
 		return array;
 	}		
 
-	/** 1개의 로우만을 가진다. */
+	*//** 1개의 로우만을 가진다. *//*
 	public static JSONArray summary(Statistics stats) {
 		JSONArray summary = new JSONArray();
 		JSONObject json = BeanToJson.create().getByDomain(stats, false);
@@ -84,5 +75,5 @@ public class HibernateStatisticsToJson{
 		
 		summary.add(json);
 		return summary;
-	}
+	}*/
 }

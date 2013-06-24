@@ -278,7 +278,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 
 	/** ReflectionUtils.findField에 추가해서 값을 가져온다. 특이한 케이스에만 사용하자. */
 	@SuppressWarnings("unchecked")
-	public static <T> T findFieldValue(T instance, String name) {
+	public static <T> T findFieldValue(Object instance, String name) {
 		Field f = ReflectionUtils.findField(instance.getClass(), name);
 		f.setAccessible(true);
 		try {

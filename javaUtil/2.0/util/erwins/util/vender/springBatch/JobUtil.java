@@ -28,6 +28,8 @@ import com.google.gson.internal.StringMap;
 /**
  * 간단 배치 유틸
  * 컨텍스트 관련은 해당 전용 클래스를 사용하자
+ * 
+ * 컨텍스트 관련 다 빼기
  * @author sin
  */
 public abstract class JobUtil{

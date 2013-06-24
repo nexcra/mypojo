@@ -14,12 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 
-import erwins.util.collections.map.SearchMap;
 import erwins.util.lib.CharEncodeUtil;
 import erwins.util.lib.StringUtil;
-import erwins.util.morph.BeanToJson;
-import erwins.util.root.StringCallback;
-import erwins.util.tools.TextFileReader;
 
 /**
  * 각종 비동기 Http통신에 필요한 도구 모음.
@@ -154,6 +150,7 @@ public abstract class WebUtil {
 	/**
      * 자바스크립트를 캐싱한다. \n 하는것 잊지말것
      */
+	/*
     public static void writeScript(HttpServletResponse resp, File js, int second) {
         cacheForSeconds(resp, second, false);
         resp.setContentType("application/javascript; charset=" + CharEncodeUtil.UTF_8);
@@ -173,7 +170,7 @@ public abstract class WebUtil {
                 }
             });
         }
-    }
+    }*/
     
     private static final String HEADER_CACHE_CONTROL = "Cache-Control";
     private static final String HEADER_EXPIRES = "Expires";
@@ -192,12 +189,6 @@ public abstract class WebUtil {
             response.setHeader(HEADER_CACHE_CONTROL, headerValue);
         }
     }  
-    
-    /** 간단한 request 파싱에 사용하자. */
-    public static String requestedJSON(HttpServletRequest request){
-        SearchMap map = new SearchMap(request);
-        return BeanToJson.create().build(map).toString();
-    }
     
     /** 서버로 접속 가능한 URL을 만든다. */
     public static String rootUrl(HttpServletRequest request){

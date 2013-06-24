@@ -13,9 +13,9 @@ import org.apache.commons.collections.map.ListOrderedMap;
 
 
 /**
- * 이하의 간단 버전이다.
- * private Map<T,List<File>> map = new HashMap<T,List<File>>();
+ * 이하의 간단 버전이다. private Map<T,List<File>> map = new HashMap<T,List<File>>();
  * Map을 구현하도록 바꿨다. (JSTL때문에)
+ * MultiMap을 우선 사용하도록 하자. 
  */
 @SuppressWarnings("serial")
 public class MapForKeyList<K,T> implements Map<K,List<T>> ,Serializable{

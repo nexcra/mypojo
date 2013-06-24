@@ -12,7 +12,9 @@ import erwins.util.lib.CollectionUtil;
 
 /**
  * 추후 페이징 로직 추가하자. 나중에~~ try catch를 없애는 commad패턴으로 수정하자.
+ * 나중에 실제 사용하게 되면 고쳐보자
  */
+@Deprecated
 public class Net extends NetRoot {
 
     // ===========================================================================================

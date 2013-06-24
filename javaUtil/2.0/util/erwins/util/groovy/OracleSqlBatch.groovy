@@ -2,10 +2,10 @@ package erwins.util.groovy
 
 
 import java.sql.Timestamp
-import java.util.List
+
+import org.apache.poi.ss.formula.functions.T
 
 import erwins.util.lib.StringUtil
-import erwins.util.tools.TextFile
 import erwins.util.valueObject.ShowTime
 import erwins.util.vender.apache.Poi
 import erwins.util.vender.apache.PoiReaderFactory
@@ -87,7 +87,8 @@ public class OracleSqlBatch{
 				def name = StringUtil.getFirst(it.name, '.');
 				println "$name 시작"
 				def list
-				if(it.name.toUpperCase().endsWith('.TXT')) list = new TextFile().readAsMap(it)
+				//if(it.name.toUpperCase().endsWith('.TXT')) list = new TextFile().readAsMap(it)
+				if(it.name.toUpperCase().endsWith('.TXT')) list = null
 				else if(it.name.toUpperCase().endsWith('.CSV')) list =  OpenCsv.readAsMap(it)
 				else list =   PoiReaderFactory.instance(it)[0].read()
 				println "$name 로드완료 : size = ${list.size()}"

@@ -28,7 +28,7 @@ public class PoiReaderJXls implements Iterable<PoiSheetReaderJXls>{
 
 	private void load(File file) {
 		try {
-			workbook = Workbook.getWorkbook(new File("D:/기상청/20110520작업/기후데이터/GTS_DEC_SYN.xls"));
+			workbook = Workbook.getWorkbook(file);
 		} catch (BiffException e) {
 			throw new RuntimeException(e);
 		} catch (IOException e) {

@@ -78,7 +78,7 @@ public enum SiUnit {
      * @uml.property  name="mICRO"
      * @uml.associationEnd  
      */
-    MICRO                 ("0.000 001","마이크로"),
+    MICRO                 ("0.000001","마이크로"),
     /**
      * @uml.property  name="nANO"
      * @uml.associationEnd  

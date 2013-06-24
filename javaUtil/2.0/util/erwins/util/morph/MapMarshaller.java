@@ -1,6 +1,8 @@
 package erwins.util.morph;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 
+import erwins.util.lib.ReflectionUtil;
 import erwins.util.lib.StringUtil;
 
 
@@ -23,18 +26,17 @@ import erwins.util.lib.StringUtil;
  * 뒷자리로 배열구분을 하게 되어있으나, reflection으로 하는게 더 정확할듯 하다. 일단 그냥 놔둠 */
 public class MapMarshaller {
 	
-	private String[] suffs = {"s","List","[]"};
 	private Gson gson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.STATIC,Modifier.TRANSIENT).create();
 	
 	public <T> T toBean(HttpServletRequest req,Class<T> clazz){
 		@SuppressWarnings("unchecked")
-		Map<String,Object> marshaled = marshal(req.getParameterMap());
+		Map<String,Object> marshaled = marshal(req.getParameterMap(),clazz);
 		JsonElement json = gson.toJsonTree(marshaled);
     	T vo =  gson.fromJson(json, clazz);
     	return vo;
 	}
 	
-    public Map<String,Object> marshal(Map<String,String[]> requestMap){
+    public Map<String,Object> marshal(Map<String,String[]> requestMap,Class<?> clazz){
     	Map<String,Object> body = Maps.newHashMap();
     	Table<String,String,String[]> subCollection = HashBasedTable.create();
     	Table<String,String,String> subObject = HashBasedTable.create();
@@ -46,7 +48,9 @@ public class MapMarshaller {
     			String[] subKey = StringUtil.getExtentions(key);
     			if(value.length > 1 ) subCollection.put(subKey[0], subKey[1], value);
         		else if(value.length > 0) {
-        			if(StringUtil.isEndsWithAny(subKey[0], suffs)) subCollection.put(subKey[0], subKey[1], value);
+        			Field field = ReflectionUtil.findField(clazz, subKey[0]);
+        			if(field==null) continue;
+        			if(Collection.class.isAssignableFrom(field.getType())) subCollection.put(subKey[0], subKey[1], value);
         			else subObject.put(subKey[0], subKey[1], value[0]);
         		}
     		}else{
@@ -88,10 +92,6 @@ public class MapMarshaller {
 
     
     //============================== getter / setter ==========================================
-
-	public void setSuffs(String[] suffs) {
-		this.suffs = suffs;
-	}
 
 	public void setGson(Gson gson) {
 		this.gson = gson;

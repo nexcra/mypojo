@@ -10,10 +10,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.Lists;
 
-import erwins.util.exception.HeapNotFoundException;
-import erwins.util.morph.HtmlOptionBuilder;
 import erwins.util.root.Pair;
 import erwins.util.root.TreeObject;
+import erwins.util.vender.apache.HtmlOptionBuilder;
 
 
 /**
@@ -37,7 +36,7 @@ public class Connector<ID extends Serializable,T extends Connectable<ID,T>> {
     /** check일 경우 값이 없으면 예외를 던진다. */
     public T $(ID id,boolean check){
         T obj = map.get(id);
-        if(check && obj==null) throw new HeapNotFoundException(id + " is not found by heap");
+        if(check && obj==null) throw new RuntimeException(id + " is not found from heap");
         return obj;    
     }
     

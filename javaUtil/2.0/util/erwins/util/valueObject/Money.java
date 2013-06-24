@@ -10,8 +10,6 @@ import erwins.util.lib.FormatUtil;
  * 금액을 나타낸다. BigDecimal을 delegate한다.
  */
 public class Money{
-
-    private static final long serialVersionUID = 1L;
     
     /**
      * @uml.property  name="decimal"

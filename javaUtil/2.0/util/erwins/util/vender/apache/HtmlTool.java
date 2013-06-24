@@ -14,7 +14,4 @@ public abstract class HtmlTool{
     }
     
     
-    
-    
-    
 }

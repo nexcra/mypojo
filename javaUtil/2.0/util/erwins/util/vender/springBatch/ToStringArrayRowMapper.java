@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.RowMapper;
 import com.google.common.collect.Lists;
 
 /** DB로우데이터를 CSV로 내릴때 사용된다  */
+@Deprecated
 public class ToStringArrayRowMapper implements RowMapper<String[]>{
 
     private Integer columnCount = null;

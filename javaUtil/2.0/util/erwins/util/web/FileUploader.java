@@ -32,6 +32,9 @@ import erwins.util.vender.etc.OpenCsv;
 /**
  * common을 이용한 파일 업로드.
  * ProgressListener는 사용하지 않는다.
+ * 
+ * 
+ * 전자정부꺼 그냥 쓰자. 귀찮..
  */
 @Deprecated
 public class FileUploader{

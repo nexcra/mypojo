@@ -1,20 +1,12 @@
 package erwins.util.vender.hibernate;
 
-import java.util.Calendar;
-
-import org.hibernate.Query;
-import org.hibernate.Session;
-
-import erwins.util.collections.map.SearchMap;
-import erwins.util.lib.DayUtil;
-import erwins.util.lib.StringUtil;
 
 /**
  * Map버전
- * 데코레이터 패턴을 사용한다.
+ * 데코레이터 패턴을 사용한다. implements HqlBuilder
  */
-public class HqlBuilderMap implements HqlBuilder{
-    
+public class HqlBuilderMap {
+    /*
     private SearchMap map;
     private HqlBuilder builder;
     
@@ -51,18 +43,18 @@ public class HqlBuilderMap implements HqlBuilder{
     	return this;
     }
     
-    /** 복수형을 담는다!! 그리고 map에서 안가져온다~!! */
+    *//** 복수형을 담는다!! 그리고 map에서 안가져온다~!! *//*
     public HqlBuilderMap in(String field,Object[] obj){
         builder.in(field, obj);
         return this;
     }
     
-    /** 나중에 수정하기.. true / false로 */
+    *//** 나중에 수정하기.. true / false로 *//*
     public HqlBuilderMap isNull(String field){
         builder.isNull(field);
         return this;
     }
-    /** 나중에 수정하기.. true / false로 */
+    *//** 나중에 수정하기.. true / false로 *//*
     public HqlBuilderMap isNotNull(String field){
     	builder.isNotNull(field);
     	return this; 
@@ -98,14 +90,14 @@ public class HqlBuilderMap implements HqlBuilder{
         return this;
     }
     
-    /** 자동으로 숫자형으로 바꾼다. 주의! */
+    *//** 자동으로 숫자형으로 바꾼다. 주의! *//*
     public HqlBuilderMap between(String field, Object small,Object large){
     	builder.between(field, map.getNumericString(small), map.getNumericString(large));
         return this;
     }
     
-    /** between과 동일하나 Date형식으로 바꿔준다. 
-     * 모든 조건은 =가 들어감으로 max에 +1을 해준다.  */
+    *//** between과 동일하나 Date형식으로 바꿔준다. 
+     * 모든 조건은 =가 들어감으로 max에 +1을 해준다.  *//*
     public HqlBuilderMap betweenByDate(String field, Object small,Object large){
     	Calendar min = map.getCalendarBy8Char(small);
     	Calendar max = map.getCalendarBy8Char(large);
@@ -114,10 +106,10 @@ public class HqlBuilderMap implements HqlBuilder{
     	return this;
     }
     
-    /**
+    *//**
      *  map에서 조건을 가져와서 할당한다.
      *  key값이 true이면 역 정렬(DESC)이다.  
-     * */
+     * *//*
     public HqlBuilder orderBy(String ... orderBy){
         for(String each : orderBy){
             Boolean value = map.getBoolean(each);
@@ -155,24 +147,24 @@ public class HqlBuilderMap implements HqlBuilder{
         return this;
     }
     
-    /**
+    *//**
      * ex1) hql.eq("a.someType", SomeType.class); 라고 입력하면
      * ==> a.someType = :somType
      * ==> setParameter(map.getEnum('someType'));
      * ex2) "a.agent.id"  => "agent.id" 로 바꿔 준다
-     */
+     *//*
     private String getExt(String str){
         return StringUtil.getFirstAfter(str, ".");
     }
     
-    /** key뒤에 Min,Max를 붙여서 검색한다. 자동으로 숫자형으로 바꾼다. 주의! */
+    *//** key뒤에 Min,Max를 붙여서 검색한다. 자동으로 숫자형으로 바꾼다. 주의! *//*
     public HqlBuilder between(String key){
     	String mapKey = StringUtil.getExtention2(key);
     	between(key,mapKey+"Min",mapKey+"Max");
     	return this;
     }
     
-    /** between의 Date버전. DB의 컬럼이 Day나 String이 아니라 TimeStamp계열일때 사용한다. */
+    *//** between의 Date버전. DB의 컬럼이 Day나 String이 아니라 TimeStamp계열일때 사용한다. *//*
     public HqlBuilder betweenByDate(String key){
     	String mapKey = StringUtil.getExtention2(key);
     	betweenByDate(key,mapKey+"Min",mapKey+"Max");
@@ -241,7 +233,7 @@ public class HqlBuilderMap implements HqlBuilder{
         return this;
     }
     
-    /** 내장객체를 그대로 호출해준다. */
+    *//** 내장객체를 그대로 호출해준다. *//*
     public HqlBuilder orderBy(String orderBy,boolean desc){
         builder.orderBy(orderBy, desc);
         return  this;
@@ -258,7 +250,7 @@ public class HqlBuilderMap implements HqlBuilder{
     public String hqlString(){
         return builder.hqlString();
     }
-
+*/
     
     
 }

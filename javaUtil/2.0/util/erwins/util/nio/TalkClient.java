@@ -9,11 +9,13 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 
+import erwins.util.lib.CharEncodeUtil;
+
 public class TalkClient {
 	
 	protected final Selector selector;
 	protected final SocketChannel channel;
-	private final Charset charset = new CharsetUtils().getCharset();
+	private final Charset charset = CharEncodeUtil.C_UTF_8;
 
 	public TalkClient(String adress,int port){
 		try {

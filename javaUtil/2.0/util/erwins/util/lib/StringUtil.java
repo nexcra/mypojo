@@ -1,14 +1,10 @@
 
 package erwins.util.lib;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
@@ -17,7 +13,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.google.common.base.Strings;
 
-import erwins.util.collections.map.RequestMap;
 import erwins.util.counter.Latch;
 
 /**
@@ -645,56 +640,6 @@ public class StringUtil extends StringUtils {
     	for(String each : objs) if(isEmpty(each)) return true;
     	return false;
     }    
-    
-    /** txt에 비워드인 걸로 다 짤라서 몇개의 단어가 있는지 검사한다. 얼추 된다. ㅋㅋ */
-    public static class WordCounter implements Iterable<Entry<String,Object>>{
-    	
-    	private boolean ignoreCase = false;
-    	private RequestMap counter = new RequestMap();
-    	
-    	public void addCount(File file){
-    		String txt;
-			try {
-				txt = FileUtil.readFileToString(file);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-    		addCount(txt);
-    	}
-    	
-    	/** 케이스 무시할 시 모두 소문자로 변경한다. */
-    	public void addCount(String txt){
-    		if(ignoreCase) txt = txt.toLowerCase();
-    		String[] texts = txt.split("[^\\w]");
-    		for(String each : texts){
-    			if(each.equals("")) continue;
-    			counter.plus(each);
-    		}
-    	}
-    	
-    	public void setIgnoreCase(boolean ignoreCase) {
-			this.ignoreCase = ignoreCase;
-		}
-
-		public List<Entry<String,Object>> result(){
-    		return counter.sortByValue(RequestMap.DESC);
-    	}
-
-		@Override
-		public Iterator<Entry<String, Object>> iterator() {
-			return result().iterator();
-		}
-		/** 디렉토리의 파일(txt,java 등)에서 단어를 추출/집계 후 가장 많이 사용된 순으로 정렬해서 리턴한다. */
-		public static List<Entry<String,Object>> countDirectoryFile(File directory,String ... exts){
-			WordCounter c = new WordCounter();
-			Iterator<File> i = FileUtil.iterateFiles(directory,true,exts);
-			while(i.hasNext()){
-				File each = i.next();
-				c.addCount(each);
-			}
-			return c.result();
-		}
-    }
 
     // ===========================================================================================
     //                                      NVL            
@@ -803,6 +748,16 @@ public class StringUtil extends StringUtils {
 		} catch (NumberFormatException e) {
 			return null;
 		}
+    }
+    
+    /** 간단 변환 */
+    public static Boolean toBoolean(Object obj){
+        if(obj==null) return null;
+        else if(obj instanceof Boolean) return (Boolean)obj;
+        String value = obj.toString();
+        if(StringUtil.isEqualsIgnoreCase(value, "Y","1","ON","true")) return true;
+        else if(StringUtil.isEqualsIgnoreCase(value, "N","0","OFF","false")) return false;
+        else return null;
     }
     
     

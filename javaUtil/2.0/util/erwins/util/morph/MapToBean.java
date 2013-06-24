@@ -18,9 +18,13 @@ import erwins.util.root.Singleton;
  * JSONObject.fromObject(domainByJson).toString()과는 호환되지 않는다. 
  * 이놈은 Integer가 null이면 0으로 변환한다.. 이밖에 Date와 null처리 방식에 차이가 있다.  
  * JSONObject에 있는 변형 기능이 맘에들지 않아 제작했다.
- * JSONObject.toBean(demoJson)에 비해서 10배 정도 빠르긴 하다. ㅠㅠ    */
+ * JSONObject.toBean(demoJson)에 비해서 10배 정도 빠르긴 하다. ㅠㅠ 
+ * 
+ *    향후 하이버네이트 등에서 사용할지 모르니 일단 남겨놓는다.
+ *    */
 @Singleton
 @SuppressWarnings("rawtypes")
+@Deprecated
 public class MapToBean extends MapToBeanRoot{
 
 	public static MapToBean create() {

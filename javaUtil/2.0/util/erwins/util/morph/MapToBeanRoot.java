@@ -15,9 +15,11 @@ import erwins.util.lib.StringUtil;
 import erwins.util.root.Singleton;
 import erwins.util.valueObject.ValueObject;
 
-/** BeanToJson 와 비슷하게 만들려 했으나 실패 ㅠㅠ */
+/** BeanToJson 와 비슷하게 만들려 했으나 실패 ㅠㅠ 
+ * 향후 하이버네이트 등에서 사용할지 모르니 일단 남겨놓는다.*/
 @Singleton
 @SuppressWarnings("rawtypes")
+@Deprecated
 public abstract class MapToBeanRoot {
 
 	private final List<MapToBeanConfigFetcher> configs = new ArrayList<MapToBeanConfigFetcher>();
