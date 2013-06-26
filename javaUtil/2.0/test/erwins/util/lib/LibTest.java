@@ -6,7 +6,8 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import erwins.util.exception.Check;
+import erwins.util.text.StringUtil;
+import erwins.util.validation.Precondition;
 
 public class LibTest{
 
@@ -15,13 +16,13 @@ public class LibTest{
     @Test
     public void strings(){
         String url[] = StringUtil.getUrlAndExtention("/D:/qwe.qwe.go");
-        Check.isTrue(url[0].equals("D:/qwe.qwe"));
-        Check.isTrue(url[1].equals("go"));
+        Precondition.isTrue(url[0].equals("D:/qwe.qwe"));
+        Precondition.isTrue(url[1].equals("go"));
 
         String value = StringUtil.escapeAndUncapitalize("searchMapKey","search");
-        Check.isTrue(value.equals("mapKey"));
+        Precondition.isTrue(value.equals("mapKey"));
         
-        Check.isTrue(StringUtil.plus("08", "-10").equals("-2"));
+        Precondition.isTrue(StringUtil.plus("08", "-10").equals("-2"));
     }
     
     @BeforeClass
@@ -32,10 +33,6 @@ public class LibTest{
         list.add("F");
     }
     
-    @Test
-    public void sets(){
-        Check.isTrue(StringUtil.joinTemp(list,",").equals("1,2,3,F"));
-        Check.isTrue(StringUtil.joinTemp(CollectionUtil.inverse(list),",").equals("F,3,2,1"));
-    }
+    
 
 }

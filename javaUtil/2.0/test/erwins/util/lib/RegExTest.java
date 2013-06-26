@@ -5,7 +5,8 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
-import erwins.util.exception.Check;
+import erwins.util.text.RegEx;
+import erwins.util.validation.Precondition;
 
 public class RegExTest {
 
@@ -13,21 +14,21 @@ public class RegExTest {
     public void tag() throws Exception {
         String org = "영감님<tag>정말로</tag>좋아요";
         String result = RegEx.TAG_TEXT.replace(org,"@@");
-        Check.isEquals(result,"영감님<tag>@@</tag>좋아요");
+        Precondition.isEquals(result,"영감님<tag>@@</tag>좋아요");
         
         String result2 = RegEx.TAG.replace(org,"@@");
-        Check.isEquals(result2,"영감님@@정말로@@좋아요");
+        Precondition.isEquals(result2,"영감님@@정말로@@좋아요");
     }
     
     @Test
     public void simpleMatch() throws Exception {
-        Check.isTrue(RegEx.simpleMatch("/base/**/123/*", "/base/qwe/ss/123/save.do"));
+        Precondition.isTrue(RegEx.simpleMatch("/base/**/123/*", "/base/qwe/ss/123/save.do"));
     }
     
     @Test
     public void filterText() throws Exception {
         String text = "영감님 fuck oh shit! 이 멍멍이야";
-        Check.isEquals(RegEx.filterText(text, "fuck","shit","멍멍이"),"영감님 f*** oh s***! 이 멍**야");
+        Precondition.isEquals(RegEx.filterText(text, "fuck","shit","멍멍이"),"영감님 f*** oh s***! 이 멍**야");
     }
     
 /*    @Test
@@ -45,12 +46,12 @@ public class RegExTest {
 
     @Test
     public void emial() {
-        Check.isTrue(RegEx.E_MAIL.isFullMatch("my.pojo@gmail.co.kr"));
-        Check.isTrue(RegEx.E_MAIL.isFullMatch("my.po.jo@gmail.co.kr"));
-        Check.isTrue(RegEx.E_MAIL.isFullMatch("my.po.jo@gmail.co.kr.com"));
-        Check.isTrue(!RegEx.E_MAIL.isFullMatch("my.pojo.@gmail.co.kr"));
-        Check.isTrue(!RegEx.E_MAIL.isFullMatch("my.po.jo@gmail.co.kr.com."));
-        Check.isTrue(!RegEx.E_MAIL.isFullMatch("my.pojo@gmail..co.kr"));
+        Precondition.isTrue(RegEx.E_MAIL.isFullMatch("my.pojo@gmail.co.kr"));
+        Precondition.isTrue(RegEx.E_MAIL.isFullMatch("my.po.jo@gmail.co.kr"));
+        Precondition.isTrue(RegEx.E_MAIL.isFullMatch("my.po.jo@gmail.co.kr.com"));
+        Precondition.isTrue(!RegEx.E_MAIL.isFullMatch("my.pojo.@gmail.co.kr"));
+        Precondition.isTrue(!RegEx.E_MAIL.isFullMatch("my.po.jo@gmail.co.kr.com."));
+        Precondition.isTrue(!RegEx.E_MAIL.isFullMatch("my.pojo@gmail..co.kr"));
     }
     
 }

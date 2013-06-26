@@ -7,7 +7,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.junit.AfterClass;
 import org.junit.Test;
 
-import erwins.util.exception.Check;
+import erwins.util.validation.Precondition;
 import erwins.util.vender.apache.PoiSheetReaderRoot.StringMapPoiCallback;
 
 
@@ -67,7 +67,7 @@ public class PoiTest{
 		PoiReader2002 reader = new PoiReader2002(TEST2);
 		for(PoiSheetReader2002 each : reader){
 			count++;
-			Check.isEquals("국가코드표", each.getSheetName());
+			Precondition.isEquals("국가코드표", each.getSheetName());
 			each.read(new StringMapPoiCallback(){
 				@Override
 				protected void process(Map<String, String> line) {
@@ -75,7 +75,7 @@ public class PoiTest{
 				}
 			});
 		}
-		Check.isEquals(count,1);
+		Precondition.isEquals(count,1);
     }
     
     @AfterClass

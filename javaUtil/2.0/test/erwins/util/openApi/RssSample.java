@@ -16,8 +16,7 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
 
-import erwins.util.lib.CollectionUtil;
-import erwins.util.lib.StringUtil;
+import erwins.util.text.StringUtil;
 
 
 /**
@@ -137,7 +136,7 @@ public enum RssSample {
             if(i%2==0) tr = new Tr();
             SyndEntry entry = list.get(i);
             setTrByEntry(tr, entry);
-            CollectionUtil.addIfNotFound(trs, tr);
+            //CollectionUtil.addIfNotFound(trs, tr);
         }
         return StringUtil.joinTemp(trs,"");
     }

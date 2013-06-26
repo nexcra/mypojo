@@ -11,9 +11,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import erwins.util.exception.Check;
 import erwins.util.lib.FileUtil;
 import erwins.util.lib.security.Cryptor.Mode;
+import erwins.util.validation.Precondition;
 
 public class SecurityTest{
 	
@@ -34,8 +34,8 @@ public class SecurityTest{
 	
 	@AfterClass
 	public static void afterClass(){
-		Check.isTrue(objectKeyDES.delete());
-		Check.isTrue(fileKeyDESede.delete());
+		Precondition.isTrue(objectKeyDES.delete());
+		Precondition.isTrue(fileKeyDESede.delete());
 	}
 	
 	@Test
@@ -73,13 +73,13 @@ public class SecurityTest{
     	cryptor.decrypt(sealed, unsealed);
     	
     	try {
-			Check.isTrue(FileUtil.readFileToString(org).equals(FileUtil.readFileToString(unsealed)));
+			Precondition.isTrue(FileUtil.readFileToString(org).equals(FileUtil.readFileToString(unsealed)));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-    	Check.isTrue(org.delete());
-		Check.isTrue(sealed.delete());
-		Check.isTrue(unsealed.delete());
+    	Precondition.isTrue(org.delete());
+		Precondition.isTrue(sealed.delete());
+		Precondition.isTrue(unsealed.delete());
     }
 
 	private File buildOrgdile() {
