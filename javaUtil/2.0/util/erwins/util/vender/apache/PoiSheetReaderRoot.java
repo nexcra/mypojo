@@ -15,7 +15,7 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 
-import erwins.util.lib.StringUtil;
+import erwins.util.text.StringUtil;
 import groovy.lang.Closure;
 
 /**

@@ -26,8 +26,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import erwins.util.lib.DayUtil;
-import erwins.util.lib.StringUtil;
+import erwins.util.text.StringUtil;
 import groovy.lang.Closure;
 
 /**
@@ -262,7 +261,7 @@ public class Poi extends PoiRoot{
             }else{
             	String value = null;
                 if(each==null) value="";
-                else if(each instanceof Date) value = DayUtil.DATE.get((Date)each);
+                //else if(each instanceof Date) value = DayUtil.DATE.get((Date)each);
                 else value = each.toString();
                 row.createCell(i++).setCellValue(new HSSFRichTextString(value));
             }
@@ -301,7 +300,7 @@ public class Poi extends PoiRoot{
             	row.getCell(i).setCellValue(number.doubleValue());	
             	continue;
             }
-            else if(each instanceof Date) value = DayUtil.DATE.get((Date)each);
+            //else if(each instanceof Date) value = DayUtil.DATE.get((Date)each);
             else value = each.toString();
             row.getCell(i++).setCellValue(new HSSFRichTextString(value));
         }

@@ -15,9 +15,11 @@ import biz.source_code.miniTemplator.MiniTemplator.TemplateSyntaxException;
 
 /**
  * 간이 템플릿 작성기.
+ * biz.source_code.miniTemplator.MiniTemplator 가 필요하다.
+ * 향후 사용할때 수정
  * @author sin
  */
-public class TemplateBuilder {
+public class MiniTemplateHelper {
 
     private String charset = "UTF-8";
     

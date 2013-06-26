@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.apache.commons.net.ftp.FTPFile;
 
+import com.google.common.collect.Lists;
+
 import erwins.util.lib.FileUtil;
 import erwins.util.lib.CollectionUtil;
 
@@ -180,7 +182,7 @@ public class Net extends NetRoot {
     private void loopAndSynch(File localDir, String ftpFullPath,Synch synch) throws IOException {
         File[] localFiles = localDir.listFiles();
         /** 이게 매치가 안되면 로컬에는 있으나 FTP에는 없는 파일이다. 즉 업로드할것이다. */
-        List<File> isNoMatch = CollectionUtil.toList(localFiles);
+        List<File> isNoMatch = Lists.newArrayList(localFiles);
 
         FTPFile[] ftpFiles = ftpClient.listFiles(ftpFullPath);
         for (int i = 0; i < ftpFiles.length; i++) {

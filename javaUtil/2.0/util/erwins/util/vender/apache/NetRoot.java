@@ -14,7 +14,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
-import erwins.util.lib.StringUtil;
+import erwins.util.text.StringUtil;
 
 /**
  * Ftp 등등을 래핑한다. 필요할때마다 로직을 추가하자. 
