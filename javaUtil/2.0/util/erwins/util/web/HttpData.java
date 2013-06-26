@@ -20,9 +20,8 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
-import erwins.util.exception.ExceptionUtil;
 import erwins.util.lib.FileUtil;
-import erwins.util.lib.StringEscapeUtil;
+import erwins.util.text.StringEscapeUtil;
 
 /**
  * 세션당 하나씩 만들어라.
@@ -103,7 +102,7 @@ public class HttpData{
             result = IOUtils.toString(in,encode);
         }
         catch (IOException e) {
-            ExceptionUtil.castToRuntimeException(e);
+        	throw new RuntimeException(e);
         }finally{
             IOUtils.closeQuietly(in);
         }
@@ -127,7 +126,7 @@ public class HttpData{
         try {
             in =  method.getResponseBodyAsStream();
         }catch (IOException e) {
-            ExceptionUtil.castToRuntimeException(e);
+        	throw new RuntimeException(e);
         }
         return in;
     }

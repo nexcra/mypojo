@@ -4,9 +4,6 @@ package erwins.util.xmpp;
 import java.util.Collection;
 import java.util.Iterator;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
@@ -23,9 +20,6 @@ import org.jivesoftware.smack.packet.RosterPacket;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import erwins.util.exception.ExceptionUtil;
-import erwins.util.vender.etc.Flex;
 
 /**
  * 경고 메세지 전송용으로 WAS에서 기동시, 쌍방향 친구추가를 해주자. 
@@ -116,7 +110,7 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
             connection.sendPacket(new Presence(Presence.Type.available));
         }
         catch (XMPPException e) {
-            ExceptionUtil.castToRuntimeException(e);
+        	throw new RuntimeException(e);
         }
     }
     
@@ -201,8 +195,8 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
 			throw new RuntimeException(e);
 		}
     }
-    
-    /** 그룹별 엔트리 정보를 리턴한다. */
+    /*
+    *//** 그룹별 엔트리 정보를 리턴한다. *//*
     public JSONArray getEntryInfo(){
     	Roster roster = connection.getRoster();
 		JSONArray root = new JSONArray();
@@ -224,7 +218,7 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
 			root.add(obj);
 		}
 		return root;
-    }    
+    }    */
     
     
 

@@ -13,7 +13,7 @@ import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.google.appengine.repackaged.com.google.common.util.Base64;
 
-import erwins.util.lib.StringUtil;
+import erwins.util.text.StringUtil;
 
 public abstract class ChannelHelper{
 

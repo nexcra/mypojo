@@ -4,7 +4,7 @@ package erwins.util.webapp;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import erwins.util.lib.StringUtil;
+import erwins.util.text.StringUtil;
 
 
 

@@ -12,7 +12,7 @@ import com.google.appengine.api.xmpp.SendResponse;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
 
-import erwins.util.lib.StringUtil;
+import erwins.util.text.StringUtil;
 
 public abstract class GoogleXMPP {
 

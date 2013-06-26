@@ -19,7 +19,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.springframework.web.servlet.View;
 
 import au.com.bytecode.opencsv.CSVWriter;
-import erwins.util.lib.CharEncodeUtil;
+import erwins.util.text.CharEncodeUtil;
 import erwins.util.web.WebUtil;
 
 /** 스트리밍으로 write하는 mybatis용 핸들러. 

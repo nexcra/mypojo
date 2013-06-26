@@ -23,10 +23,8 @@ import org.apache.commons.fileupload.util.Streams;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
-import erwins.util.exception.ExceptionUtil;
-import erwins.util.lib.CharEncodeUtil;
 import erwins.util.lib.FileUtil;
-import erwins.util.root.StringArrayCallback;
+import erwins.util.text.CharEncodeUtil;
 import erwins.util.vender.etc.OpenCsv;
 
 /**
@@ -76,6 +74,12 @@ public class FileUploader{
 		public void readValue(String name, String value) {
 			param.put(name, value);
 		}
+    }
+    
+    public static interface StringArrayCallback{
+    	
+    	public void readStringArray(String[] line,int row);
+        
     }
     
     public static class UploadCsvStreamReader extends UploadItemReadSimpleStream{
@@ -154,7 +158,7 @@ public class FileUploader{
                 }
             }
         } catch (Exception e) {
-            ExceptionUtil.castToRuntimeException(e);
+            throw new RuntimeException(e);
         }
         return result;
     }
@@ -178,7 +182,7 @@ public class FileUploader{
                 }
             }
         } catch (Exception e) {
-            ExceptionUtil.castToRuntimeException(e);
+        	throw new RuntimeException(e);
         }
     }
 
