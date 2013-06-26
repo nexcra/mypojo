@@ -5,8 +5,8 @@ import java.util.Map.Entry;
 
 import org.junit.Test;
 
-import erwins.util.openApi.GoogleContract;
-import erwins.util.openApi.GoogleContract.ContractEntry;
+import erwins.jsample.etc.GoogleContract;
+import erwins.jsample.etc.GoogleContract.ContractEntry;
 
 /** 구글 데이터의 연락처 보기 샘플. */
 public class GoogleContracts {

@@ -17,7 +17,6 @@ public class FTP_Synch{
             m1.setPassive();
             //m1.setRoots("/system/file/open/music","D:/DATA/MUSIC").update();
             m1.setRoots("/SYSTEM/file/open/music","D:/DATA/MUSIC").updateLog();
-            //m1.connect("218.156.67.18","guest","dudrkasla");
             //m1.setRoots("/share/test","D:/임시").updateLog();
             //m1.setRoots("/d:/SYSTEM/임시","D:/임시").updateLog();
             FtpLog log = m1.getFtpLog();

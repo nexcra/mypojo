@@ -9,7 +9,6 @@ import java.util.concurrent.Executors
 
 import org.junit.Test
 
-import erwins.util.lib.RandomStringUtil
 import erwins.util.tools.StopWatch
 
 /** 멀티스래드에 대한 속도를 측정한다.. 조낸 쪼금 빨라지네 쩝..

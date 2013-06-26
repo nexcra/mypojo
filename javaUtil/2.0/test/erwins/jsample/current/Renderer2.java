@@ -2,9 +2,12 @@
 package erwins.jsample.current;
 
 import java.util.List;
-import java.util.concurrent.*;
-
-import erwins.util.exception.ExceptionUtil;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * Renderer
@@ -42,7 +45,7 @@ public abstract class Renderer2 {
             Thread.currentThread().interrupt();
         }
         catch (ExecutionException e) {
-            ExceptionUtil.castToRuntimeException(e);
+        	throw new RuntimeException(e);
         }
     }
 

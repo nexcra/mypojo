@@ -14,8 +14,8 @@ import org.apache.commons.logging.LogFactory;
 
 import erwins.jsample.domain.talk.BroadcastMessage;
 import erwins.jsample.domain.talk.Protocol;
-import erwins.util.lib.ChannelUtils;
-import erwins.util.lib.CharEncodeUtil;
+import erwins.util.nio.ChannelUtils;
+import erwins.util.text.CharEncodeUtil;
 
 /** 성능을 위해 메세지를 받아 스래드로 처리한다.
  * 중요! 각 인스턴스당 하나의 whiteBuffer를 가진다.  */

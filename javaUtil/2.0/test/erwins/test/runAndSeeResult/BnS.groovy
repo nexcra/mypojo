@@ -3,14 +3,12 @@ package erwins.test.runAndSeeResult
 
 import static org.junit.Assert.*
 
-import java.math.RoundingMode;
+import java.math.RoundingMode
 
 import org.apache.commons.httpclient.NameValuePair
 import org.cyberneko.html.parsers.SAXParser
 import org.junit.Test
 
-import erwins.util.groovy.GroovyMetaUtil
-import erwins.util.lib.StringUtil
 import erwins.util.web.HttpData
 
 class BnS {

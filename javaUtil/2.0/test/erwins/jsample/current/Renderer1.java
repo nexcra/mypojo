@@ -3,9 +3,11 @@ package erwins.jsample.current;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
-
-import erwins.util.exception.ExceptionUtil;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * ExecutorService에 Callable 을 사용해 Future를 리턴한 후 사용함.
@@ -40,7 +42,7 @@ public abstract class Renderer1 {
             future.cancel(true);
         }
         catch (ExecutionException e) {
-            ExceptionUtil.castToRuntimeException(e);
+        	throw new RuntimeException(e);
         }
     }
 

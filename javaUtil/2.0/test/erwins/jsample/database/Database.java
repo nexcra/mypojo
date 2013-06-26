@@ -27,15 +27,27 @@
 
 package erwins.jsample.database;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.net.URI;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
-import erwins.jsample.database.text.*;
+import erwins.jsample.database.text.ParseFailure;
 import erwins.jsample.database.text.Scanner;
-import erwins.util.exception.ExceptionUtil;
+import erwins.jsample.database.text.Token;
+import erwins.jsample.database.text.TokenSet;
 
 /***
  * This class implements a small SQL-subset database. that provides a front end
@@ -479,7 +491,7 @@ public final class Database { /*
             } else useDatabase(path);
         }
         catch (Exception e) {
-            ExceptionUtil.castToRuntimeException(e);
+        	throw new RuntimeException(e);
         }
     }
 

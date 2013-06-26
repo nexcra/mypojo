@@ -18,7 +18,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.junit.Assert;
 import org.junit.Test;
 
-import erwins.util.lib.JodaTimeUtil;
+import erwins.util.dateTime.JodaTimeUtil;
 
 
 /** 

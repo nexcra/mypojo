@@ -2,8 +2,6 @@ package erwins.jsample;
 
 import org.junit.Test;
 
-import erwins.util.exception.ExceptionUtil;
-
 
 /**
  * 실글톤이 셧다운될때 가동되는 스래드.
@@ -23,7 +21,7 @@ public class ShutdownHook {
                     Thread.sleep(1000);
                 }
                 catch (InterruptedException e) {
-                    ExceptionUtil.castToRuntimeException(e);
+                	throw new RuntimeException(e);
                 }
                 System.out.println("end");
             }
