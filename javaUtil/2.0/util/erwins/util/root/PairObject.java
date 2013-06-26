@@ -3,7 +3,6 @@ package erwins.util.root;
 import java.util.Comparator;
 
 
-@SuppressWarnings("serial")
 public class PairObject implements Pair{
 	
 	/** 이름으로 정렬 */

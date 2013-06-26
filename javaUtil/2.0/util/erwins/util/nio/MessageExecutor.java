@@ -11,8 +11,8 @@ import java.nio.channels.SocketChannel;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
-import erwins.util.lib.CharEncodeUtil;
-import erwins.util.lib.StringUtil;
+import erwins.util.text.CharEncodeUtil;
+import erwins.util.text.StringUtil;
 
 /** 이 스래드는 1개만 기동한다고 가정한다. */
 public class MessageExecutor implements Runnable {

@@ -16,7 +16,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import erwins.util.lib.StringUtil;
+import erwins.util.text.StringUtil;
 
 /**
  * XML 간이파서.  

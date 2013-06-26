@@ -9,7 +9,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 
-import erwins.util.lib.CharEncodeUtil;
+import erwins.util.text.CharEncodeUtil;
 
 public class TalkClient {
 	

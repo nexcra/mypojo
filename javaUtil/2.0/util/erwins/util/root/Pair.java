@@ -1,12 +1,11 @@
 package erwins.util.root;
 
-import java.io.Serializable;
 
 
 /**
  * Hibernate를 이용해서 Db에 저장되는 Enum 등에 사용된다.
  */
-public interface Pair extends Serializable{
+public interface Pair{
 	
     /** DB에 저장되는 값을 반환한다. */    
     public String getValue();

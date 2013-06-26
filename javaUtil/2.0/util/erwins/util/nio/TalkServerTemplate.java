@@ -13,9 +13,8 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
-import erwins.util.exception.BusinessException;
-import erwins.util.lib.CharEncodeUtil;
-import erwins.util.root.Shutdownable;
+import erwins.util.text.CharEncodeUtil;
+import erwins.util.validation.InputValidationException;
 
 
 /** 나중에 소스참고를 위해 범용적인 부분을 나눈다. 
@@ -67,7 +66,7 @@ public abstract class TalkServerTemplate implements Shutdownable {
 						throw new RuntimeException(e);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
-					} catch (BusinessException e) {
+					} catch (InputValidationException e) {
 						String message = null;
 						try {
 							message = CharEncodeUtil.C_UTF_8.decode(readBuffer).toString();

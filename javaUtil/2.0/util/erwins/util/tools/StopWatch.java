@@ -9,10 +9,10 @@ import java.util.List;
 import org.apache.ecs.wml.Td;
 import org.apache.ecs.wml.Tr;
 
-import erwins.util.lib.FormatUtil;
-import erwins.util.lib.MathUtil;
-import erwins.util.lib.StringUtil;
-import erwins.util.valueObject.ShowTime;
+import erwins.util.dateTime.ShowTime;
+import erwins.util.number.MathUtil;
+import erwins.util.text.FormatUtil;
+import erwins.util.text.StringUtil;
 
 /**
  * @author  Rod Johnson
