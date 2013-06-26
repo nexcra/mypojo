@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 import erwins.util.root.PairObject;
-import erwins.util.vender.etc.Flex;
 
 
 /**
  * 이하의 간단 버전이다.
+ * 레거시 소스에서 SQL의 결과를 Map으로 받을때 사용한다.
  * private List<Map<String,T>> list = new ArrayList<Map<String,T>>();
  */
 public class ListForMap<T> implements Iterable<Map<String,T>>{
@@ -21,6 +21,7 @@ public class ListForMap<T> implements Iterable<Map<String,T>>{
 	public ListForMap(List<Map<String,T>> list){
 		this.list = list;
 	}
+	
 	public ListForMap(){
 		this.list = new ArrayList<Map<String,T>>();
 	}
@@ -42,6 +43,9 @@ public class ListForMap<T> implements Iterable<Map<String,T>>{
 		}
 	}
 	
+	public static final String CHILDREN = "children";
+    public static final String LABEL = "label";
+	
 	/** 1:N 으로 받아온 Map데이터를 계층형 구조로 바꾼다.
 	 * 이 데이터는 keyField로  적절하게 정렬되어있어야 한다. */
 	@SuppressWarnings("unchecked")
@@ -52,13 +56,13 @@ public class ListForMap<T> implements Iterable<Map<String,T>>{
 			T keyValue = eachMap.get(keyField);
 			if(point.equals(keyValue)){
 				Map<String,Object> map = newList.get(newList.size()-1);
-				List<Map<String,T>> list = (List<Map<String, T>>) map.get(Flex.CHILDREN);
+				List<Map<String,T>> list = (List<Map<String, T>>) map.get(CHILDREN);
 				list.add(eachMap);
 			}else{
 				Map<String,Object> map = new HashMap<String, Object>();
-				map.put(Flex.LABEL, keyValue);
+				map.put(LABEL, keyValue);
 				List<Map<String,T>> list = new ArrayList<Map<String,T>>();
-				map.put(Flex.CHILDREN, list);
+				map.put(CHILDREN, list);
 				list.add(eachMap);
 				newList.add(map);
 				point = keyValue;

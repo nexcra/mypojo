@@ -30,6 +30,8 @@ import org.apache.commons.codec.binary.Base64;
  * ex) Cryptor c = new Cryptor().setMode(Mode.DESede).setEncode("euc-kr");
  * Base64 라이브러리를 sun패키지에서 apache껄로 바꿨다. 이게 더 나은듯.\
  * SecretKeySpec 과 IvParameterSpec는 생략했다.
+ * 
+ * Guava를 사용하자
  */
 public class Cryptor {
 	

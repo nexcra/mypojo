@@ -18,6 +18,7 @@ import org.apache.commons.collections.map.ListOrderedMap;
  * MultiMap을 우선 사용하도록 하자. 
  */
 @SuppressWarnings("serial")
+@Deprecated
 public class MapForKeyList<K,T> implements Map<K,List<T>> ,Serializable{
 	
 	private Map<K,List<T>> map;

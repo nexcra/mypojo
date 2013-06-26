@@ -13,8 +13,10 @@ import com.google.common.collect.Maps;
 /**
  * 이하의 간단 버전이다.
  * private Map<K,Set<T>> map = Maps.newHashMap();
+ * 테이블을 사용하자
  */
 @SuppressWarnings("serial")
+@Deprecated
 public class MapForSet<K,T> implements Map<K,Set<T>> ,Serializable{
 	
 	private Map<K,Set<T>> map = Maps.newHashMap();

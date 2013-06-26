@@ -1,7 +1,6 @@
 package erwins.util.groovy
 
 
-import erwins.util.lib.StringUtil
 
 
 /**  ex) def html = new XmlSlurper(new SAXParser()).parseText(text)

@@ -2,7 +2,7 @@ package erwins.util.lib;
 
 import java.util.Map;
 
-import erwins.util.lib.StringUtil;
+import erwins.util.text.StringUtil;
 
 
 public abstract class IpUtil{

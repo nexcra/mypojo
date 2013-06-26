@@ -12,6 +12,7 @@ import java.io.Serializable;
  */
 
 @SuppressWarnings("serial")
+@Deprecated
 public class MapForList<T> extends MapForKeyList<String,T> implements Serializable{
 
 	public MapForList(MapType type) {

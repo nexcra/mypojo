@@ -1,8 +1,6 @@
 package erwins.util.groovy
 
 
-import java.util.List
-
 import erwins.util.groovy.Tb.Col
 import groovy.sql.Sql
 

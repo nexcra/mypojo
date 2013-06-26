@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.google.common.base.Function;
 
+/** Function 모음집. */
 public abstract class FunctionSet {
 	
 	/** Groovy에서 CSV로 떨구기 위해 장만함 */

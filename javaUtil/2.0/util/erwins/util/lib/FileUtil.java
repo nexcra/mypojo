@@ -20,7 +20,6 @@ import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
@@ -32,10 +31,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 
-import erwins.util.exception.BusinessException;
-import erwins.util.exception.Check;
-import erwins.util.exception.ExceptionUtil;
+import com.google.common.base.Preconditions;
+
 import erwins.util.root.StringCallback;
+import erwins.util.text.CharEncodeUtil;
+import erwins.util.text.FormatUtil;
+import erwins.util.text.RegEx;
+import erwins.util.text.StringUtil;
+import erwins.util.validation.InputValidationException;
 
 /**
  * 이 클래스는 파일 관련 기능을 제공
@@ -46,18 +49,13 @@ public abstract class FileUtil extends FileUtils {
 	public static final int BUFFER_SIZE = 4096;
 	public static final int COMPRESSION_LEVEL = 8;
 	
-	/** commons의 NameFileComparator.NAME_COMPARATOR를 대체.(제너릭 때문) */
-	public static final Comparator<File> FILE_NAME_COMPARATOR =  new Comparator<File>() {
-		public int compare(File o1, File o2) {
-			return o1.getName().compareTo(o2.getName());
-		}
-	};
 	public static final FileFilter DIRECTORY_ONLY = new FileFilter(){
 		@Override
 		public boolean accept(File pathname) {
 			return pathname.isDirectory();
 		}
 	};
+	
 	public static final FileFilter FILE_ONLY = new FileFilter(){
 		@Override
 		public boolean accept(File pathname) {
@@ -128,8 +126,8 @@ public abstract class FileUtil extends FileUtils {
 
 	/** 출처 : Spring */
 	public static int copy(InputStream in, OutputStream out) {
-		Check.isNotEmpty(in, "stream is null!");
-		Check.isNotEmpty(out, "stream is null!");
+		Preconditions.checkNotNull(in, "stream is null!");
+		Preconditions.checkNotNull(out, "stream is null!");
 		int byteCount = 0;
 		try {
 			byte[] buffer = new byte[BUFFER_SIZE];
@@ -140,7 +138,7 @@ public abstract class FileUtil extends FileUtils {
 			}
 			out.flush();
 		} catch (IOException ex) {
-			ExceptionUtil.castToRuntimeException(ex);
+			throw new RuntimeException(ex);
 		} finally {
 			try {
 				in.close();
@@ -156,8 +154,8 @@ public abstract class FileUtil extends FileUtils {
 
 	/** 출처 : Spring */
 	public static int copy(File in, File out) throws IOException {
-		Check.isNotEmpty(in, "in file is null!");
-		Check.isNotEmpty(out, "out file is null!");
+		Preconditions.checkNotNull(in, "in file is null!");
+		Preconditions.checkNotNull(out, "out file is null!");
 		return copy(new BufferedInputStream(new FileInputStream(in)), new BufferedOutputStream(
 				new FileOutputStream(out)));
 	}
@@ -194,7 +192,6 @@ public abstract class FileUtil extends FileUtils {
 	
 	/** child가  parent에 속해있거나 같으면 true를 리턴한다. */
 	public static boolean isParent(File parent,File child) {
-		ExceptionUtil.throwIfNotExist(parent,child);
 		while(true){
 			if(child.equals(parent)) return true;
 			child = child.getParentFile();
@@ -205,7 +202,7 @@ public abstract class FileUtil extends FileUtils {
 	/** root는 반드시 file의  parent(몇단계가 되었던 간에)이어야 한다.
 	 * ex) file이 D:/A/B/C  이고 루트가 D:/A 이라면 D:/A/B 를 리턴한다.  */
 	public static File getFirstByRoot(File file,File root) {
-		ExceptionUtil.throwIfNotExist(file,root);
+		//ExceptionUtil.throwIfNotExist(file,root);
 		File parent;
 		while(true){
 			parent = file.getParentFile();
@@ -218,8 +215,7 @@ public abstract class FileUtil extends FileUtils {
 	/** root에 기준하는 상대경로를 리턴한다.
 	 * ex) file이 D:/A/B/C  이고 루트가 D:/A 이라면 B/C 를 리턴한다.  */
 	public static String getrelativePath(File file,File root) {
-		ExceptionUtil.throwIfNotExist(file,root);
-		
+		//ExceptionUtil.throwIfNotExist(file,root);
 		String rootName = getPath(root);
 		String fileName = getPath(file);
 		return fileName.substring(rootName.length());
@@ -235,7 +231,7 @@ public abstract class FileUtil extends FileUtils {
 	public static void renameTo(File file, File renamed) {
 		renamed = FileUtil.uniqueFileName(renamed);
 		boolean success = file.renameTo(renamed);
-		if(!success) throw new BusinessException(file.getAbsolutePath() + " : file move fail");
+		if(!success) throw new InputValidationException(file.getAbsolutePath() + " : file move fail");
 	}
 	
 	/** 파일을 디렉토리로 이동시킨다. */
@@ -247,8 +243,8 @@ public abstract class FileUtil extends FileUtils {
 	
 	/** 파일이 정상적으로 지워지지 않으면 예외를 던진다. */
 	public static void delete(File file) {
-		if (!file.exists()) throw new BusinessException(file.getAbsolutePath() + " : file is not exist");
-		if (!file.delete()) throw new BusinessException(file.getAbsolutePath() + " : file deleted fail");
+		if (!file.exists()) throw new InputValidationException(file.getAbsolutePath() + " : file is not exist");
+		if (!file.delete()) throw new InputValidationException(file.getAbsolutePath() + " : file deleted fail");
 	}
 
 	/** RMI등에 사용. 용량이 큰거 전송시 주의!! heap size 여유있게 해야한다. */
@@ -334,7 +330,7 @@ public abstract class FileUtil extends FileUtils {
 			}
 			zipStream.close();
 		} catch (IOException e) {
-			ExceptionUtil.castToRuntimeException(e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -394,7 +390,7 @@ public abstract class FileUtil extends FileUtils {
 			}
 			zipStream.close();
 		} catch (Exception e) {
-			ExceptionUtil.castToRuntimeException(e);
+			throw new RuntimeException(e);
 		} finally {
 			try {
 				if (fileIn != null)
@@ -502,15 +498,15 @@ public abstract class FileUtil extends FileUtils {
 				os.write(bytes, 0, c);
 			}
 		} catch (FileNotFoundException e) {
-			ExceptionUtil.castToRuntimeException(e);
+			throw new RuntimeException(e);
 		} catch (IOException e) {
-			ExceptionUtil.castToRuntimeException(e);
+			throw new RuntimeException(e);
 		} finally {
 			try {
 				if (os != null)
 					os.close();
 			} catch (IOException e) {
-				ExceptionUtil.castToRuntimeException(e);
+				throw new RuntimeException(e);
 			}
 		}
 	}	
@@ -683,7 +679,7 @@ public abstract class FileUtil extends FileUtils {
                 }
             }
         } catch (IOException e) {
-            ExceptionUtil.castToRuntimeException(e);
+            throw new RuntimeException(e);
         }finally{
             IOUtils.closeQuietly(out);
         }
@@ -695,8 +691,8 @@ public abstract class FileUtil extends FileUtils {
      * @throws IOException */ 
     @SuppressWarnings("resource")
 	public static long writeStreamWithNoClose(InputStream in,OutputStream out,int bufferSize) throws IOException {
-        Check.isNotEmpty(in, "stream is null!");
-        Check.isNotEmpty(out, "stream is null!");
+        Preconditions.checkNotNull(in, "stream is null!");
+        Preconditions.checkNotNull(out, "stream is null!");
         if(! (in instanceof BufferedInputStream)) in = new BufferedInputStream(in, bufferSize);
         if(! (out instanceof BufferedOutputStream)) out = new BufferedOutputStream(out, bufferSize);
         

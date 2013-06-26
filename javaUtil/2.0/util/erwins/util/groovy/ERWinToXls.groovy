@@ -4,13 +4,11 @@ package erwins.util.groovy
 
 import static org.junit.Assert.*
 
-import java.util.Iterator
-
 import org.apache.commons.collections.map.ListOrderedMap
 
 import erwins.util.collections.MapForList
 import erwins.util.collections.MapType
-import erwins.util.lib.StringUtil;
+import erwins.util.text.StringUtil
 import erwins.util.vender.apache.Poi
 import erwins.util.vender.apache.PoiReaderFactory
 

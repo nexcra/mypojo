@@ -1,8 +1,8 @@
 package erwins.util.groovy
 
 
-import erwins.util.exception.BusinessException
-import erwins.util.lib.StringUtil
+import erwins.util.text.StringUtil
+import erwins.util.validation.InputValidationException
 
 
 public class OracleSqlBean{
@@ -20,7 +20,7 @@ public class OracleSqlBean{
 	public printSqlToMyBatisBean(sql){
 		//def list = paging(sql,1,1); //로우넘 생겨서 안씀 ㅋ
 		def list = db.list(sql);
-		if(list.size()==0) throw new BusinessException('1개 이상의 결과가 있어야 합니다.')
+		if(list.size()==0) throw new InputValidationException('1개 이상의 결과가 있어야 합니다.')
 
 		def oneRow = list[0]
 		def map = [:]

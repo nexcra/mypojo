@@ -9,9 +9,9 @@ import org.apache.commons.collections.map.ListOrderedMap
 
 import erwins.util.collections.MapForList
 import erwins.util.collections.MapType
-import erwins.util.lib.CollectionUtil
-import erwins.util.lib.StringUtil
+import erwins.util.lib.CompareUtil
 import erwins.util.lib.security.MD5
+import erwins.util.text.StringUtil
 import groovy.sql.GroovyRowResult
 
 /** SQLUtil은 싱글톤만 사용하니까 따로 뺐다.  */
@@ -249,7 +249,7 @@ public class GroovyMetaUtil{
 		}
 		/** List<Map> 인 구조에서 특정 key로 데이터를 정렬한다 */
 		ArrayList.metaClass."sortKey" = {List keys ->
-			def comparator = CollectionUtil.mapComparator(keys)
+			def comparator = CompareUtil.mapComparator(keys)
 			Collections.sort(delegate,comparator);
 			return delegate
 		}

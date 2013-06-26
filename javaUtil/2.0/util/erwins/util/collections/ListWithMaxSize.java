@@ -8,7 +8,9 @@ import java.util.ListIterator;
 import com.google.common.collect.Lists;
 
 
-/** size를 넘어가면 add할때 이전 데이터를 지우고 넣는다.
+/**
+ * 최대 한계가 있는 간이 로그저장 용도로 사용 
+ * size를 넘어가면 add할때 이전 데이터를 지우고 넣는다.
  * 스래드 세이프하지 않다.  */
 public class ListWithMaxSize<T> implements List<T>{
 	

@@ -1,9 +1,10 @@
 
 package erwins.util.lib.security;
 
-import java.util.Calendar;
+import org.joda.time.DateTime;
+import org.joda.time.MutableDateTime;
 
-import erwins.util.lib.DayUtil;
+import erwins.util.dateTime.JodaUtil;
 
 /**
  * 암호화 , 복호화, Base64, 해쉬화 , 해쉬값 검증 등의 작업 Base64란 2진 데이터를, 문자코드에 영향을 받지 않는 공통
@@ -21,7 +22,7 @@ public abstract class MD5s extends MD5{
      * 1. 오늘 년월일 기준으로 key 생성
      */
     public static String hashByDate(String baseStr) {
-        return getHashHexString(DayUtil.DATE_SIMPLE.get() + baseStr);
+        return getHashHexString(new DateTime().toString(JodaUtil.YMD) + baseStr);
     }
     
     /**
@@ -29,10 +30,10 @@ public abstract class MD5s extends MD5{
      * @param day : 매치 가능한 일자. ex) 3 => 3일 이내로 생성된 hash값 true
      */
     public static boolean isMatchByDay(String hashed,String key,int day) {
-        Calendar sysdate = Calendar.getInstance();
+    	MutableDateTime now = new MutableDateTime();
         for (int i = 0; i < day; i++) {
-            sysdate.add(Calendar.DATE, -i);
-            if (isMatch(hashed, DayUtil.DATE_SIMPLE.get(sysdate) + key)) return true;
+        	now.addDays(i);
+            if (isMatch(hashed, now.toString(JodaUtil.YMD) + key)) return true;
         }
         return false;
     }

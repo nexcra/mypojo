@@ -32,8 +32,5 @@ public abstract class ConsoleUtil{
 		Thread.currentThread().interrupt();
 	}
 	
-	
-	
-	
 
 }

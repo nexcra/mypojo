@@ -1,7 +1,6 @@
 
 package erwins.util.counter;
 
-import erwins.util.exception.ExceptionUtil;
 
 
 
@@ -23,7 +22,7 @@ public class Latch implements Counter{
     
     @Override
 	public int count() {
-    	throw ExceptionUtil.unsupportedOperation();
+    	throw new UnsupportedOperationException();
 	}
     
 
