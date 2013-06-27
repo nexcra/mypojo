@@ -36,6 +36,7 @@ public class MapMarshaller {
     	return vo;
 	}
 	
+	/** 배열로 넘어온 자료를 객체로 변환해준다. */
     public Map<String,Object> marshal(Map<String,String[]> requestMap,Class<?> clazz){
     	Map<String,Object> body = Maps.newHashMap();
     	Table<String,String,String[]> subCollection = HashBasedTable.create();
