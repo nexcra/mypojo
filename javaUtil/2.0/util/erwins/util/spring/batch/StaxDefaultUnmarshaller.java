@@ -1,7 +1,6 @@
 package erwins.util.spring.batch;
 
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
 import javax.xml.stream.events.EndDocument;
@@ -15,60 +14,62 @@ import org.springframework.oxm.Unmarshaller;
 import org.springframework.oxm.XmlMappingException;
 
 import com.google.common.collect.Lists;
+import com.sun.xml.internal.stream.events.CharacterEvent;
 import com.sun.xml.internal.stream.events.EndElementEvent;
 import com.sun.xml.internal.stream.events.StartElementEvent;
 
-/** StAXSource를 지원하는 간단 언마샬러.
- * 스프링배치가 XStream를 기본 지원하지만, 리플렉션 기반이라 더럽게 느리기 때문에 대체한다. 
- * @see StaxDefaultUnmarshaller */
-public abstract class StaxUnmarshaller<T> implements Unmarshaller{
-	
-	private Class<T> persistentClass;
-    
-    @SuppressWarnings("unchecked")
-	public StaxUnmarshaller() {
-        this.persistentClass = (Class<T>)((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-    }
+/** vo 변환에 시간이 많이 걸릴경우 스래드 세이프하게 읽으면서, 빠른 성능을 내려면 기본 데이터만 읽고, 나머지는 별도 스래드에서 실행해야 한다.
+ * ex) 복잡한 정규식 필터, DB재조회 등등  */
+public class StaxDefaultUnmarshaller implements Unmarshaller{
     
     /** 나중에 추가할것 */
     @Override
-    public T unmarshal(Source source) throws IOException, XmlMappingException {
+    public XmlStreamEvent unmarshal(Source source) throws IOException, XmlMappingException {
         StAXSource StAXSource = (javax.xml.transform.stax.StAXSource) source;
         DefaultFragmentEventReader reader = (DefaultFragmentEventReader) StAXSource.getXMLEventReader();
         while(reader.hasNext()){
             XMLEvent event = (XMLEvent) reader.next();
-            if(event instanceof StartDocument) startDocumentEvent((StartDocument)event); //이 2가지는 무조건 호출된다. 왜인지 몰라
+            if(event instanceof StartDocument) continue; //이 2가지는 무조건 호출된다. 왜인지 몰라
             if(event instanceof EndDocument) continue; //이 2가지는 무조건 호출된다. 왜인지 몰라
             if(event instanceof StartElementEvent){
             	StartElementEvent see = (StartElementEvent) event;
                 List<XMLEvent> events = Lists.newArrayList();
                 while(true){
                 	XMLEvent next = (XMLEvent) reader.next();
+                	CharacterEvent text = null;
                 	if(next instanceof EndElementEvent){
                 		EndElementEvent endEvent = (EndElementEvent) next;
-                		if(endEvent.getName().equals(see.getName())) break;
-                	}
+                		if(endEvent.getName().equals(see.getName())){
+                			return new XmlStreamEvent(see, events, text);
+                		}
+                	}else if(next instanceof CharacterEvent){
+            			text = (CharacterEvent)text;
+            		}
                 	events.add(next);
                 }
-                return elementToObject(see,events);
             }
         }
         return null;
     }
     
-    
-    /** 필요하다면 오버라이드 하자. */
-    protected  void startDocumentEvent(StartDocument startDocument){
-    	//아무것도 하지 않는다.
+    public static class XmlStreamEvent{
+    	/** 루트 태그. 여기서 attr 추출 가능 */
+    	public final StartElementEvent start;
+    	/** 루트 태그 이하의 이벤트들. map으로 변경 가능 */
+    	public final List<XMLEvent> events;
+    	/** 루트 태그의 텍스트 */
+    	public final CharacterEvent text;
+		private XmlStreamEvent(StartElementEvent start, List<XMLEvent> events, CharacterEvent text) {
+			super();
+			this.start = start;
+			this.events = events;
+			this.text = text;
+		}
     }
-    
-    protected abstract T elementToObject(StartElementEvent see,List<XMLEvent> events);
-    
-    /** 특수한경우 확장할것 */
-    @Override
-    public boolean supports(Class<?> clazz) {
-    	return persistentClass.isAssignableFrom(clazz);
-    }
-    
+
+	@Override
+	public boolean supports(Class<?> arg0) {
+		return true;
+	}
 
 }

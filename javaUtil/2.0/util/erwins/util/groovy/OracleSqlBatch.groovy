@@ -3,8 +3,6 @@ package erwins.util.groovy
 
 import java.sql.Timestamp
 
-import org.apache.poi.ss.formula.functions.T
-
 import erwins.util.dateTime.ShowTime
 import erwins.util.text.StringUtil
 import erwins.util.vender.apache.Poi

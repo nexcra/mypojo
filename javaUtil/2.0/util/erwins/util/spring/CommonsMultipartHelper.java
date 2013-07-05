@@ -22,7 +22,8 @@ import com.google.common.base.Preconditions;
  * */
 public abstract class CommonsMultipartHelper {
 	
-    /** FileItem의 구현체가 DiskFileItem밖에 없다... */
+    /** FileItem의 구현체가 DiskFileItem밖에 없다...
+     * isInMemory 로 체크해서 파일이 없으면 DiskFileItem의  write()해주자 */
     public static DiskFileItem getDiskFileItem(HttpServletRequest req,String fieldName){
         Preconditions.checkState(req instanceof MultipartHttpServletRequest,"request가 Multipart를 구현하지 않습니다.  MultipartResolver가 설정되어있는지 확인하세요");
         MultipartHttpServletRequest multiReq = (MultipartHttpServletRequest)req;

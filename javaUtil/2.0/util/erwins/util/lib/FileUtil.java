@@ -227,11 +227,20 @@ public abstract class FileUtil extends FileUtils {
 		renameTo(file, renamed); 
 	}
 
-	/** 파일을 이동한다. 동일이름은 변경된다. 실패시 예외 호출 */
-	public static void renameTo(File file, File renamed) {
+	/** 자동으로 유니크한 이름으로 변경 후 리네임한다 */
+	public static void renameToUniqueName(File file, File renamed) {
 		renamed = FileUtil.uniqueFileName(renamed);
 		boolean success = file.renameTo(renamed);
 		if(!success) throw new InputValidationException(file.getAbsolutePath() + " : file move fail");
+	}
+	
+	/** renameTo와 동일하나, 벨리데이션 체크랄 해준다. */
+	public static void renameTo(File file, File renamed) {
+		Preconditions.checkState(file.exists(), "파일이 존재하지 않습니다 " + file.getAbsolutePath());
+		Preconditions.checkState(!renamed.exists(), "renamed할 파일이 이미 존재합니다");
+		if(!renamed.getParentFile().exists()) renamed.getParentFile().mkdirs();
+    	boolean renameCheck = file.renameTo(renamed);
+    	Preconditions.checkState(renameCheck, "파일이 정상적으로 리네임 되지 못했습니다");
 	}
 	
 	/** 파일을 디렉토리로 이동시킨다. */

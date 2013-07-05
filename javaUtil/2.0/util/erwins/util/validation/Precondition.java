@@ -13,7 +13,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
  * 나중에 기능 추가할것
  */
 public abstract class Precondition extends ExceptionUtils{
-
+	
 	/**
 	 * 사용자가 정확한 값을 입력했는가?
 	 */
