@@ -18,13 +18,15 @@ import com.sun.xml.internal.stream.events.CharacterEvent;
 import com.sun.xml.internal.stream.events.EndElementEvent;
 import com.sun.xml.internal.stream.events.StartElementEvent;
 
+import erwins.util.lib.ReflectionUtil;
+
 /** vo 변환에 시간이 많이 걸릴경우 스래드 세이프하게 읽으면서, 빠른 성능을 내려면 기본 데이터만 읽고, 나머지는 별도 스래드에서 실행해야 한다.
  * ex) 복잡한 정규식 필터, DB재조회 등등  */
-public class StaxDefaultUnmarshaller implements Unmarshaller{
+public abstract class StaxDefaultUnmarshaller<T> implements Unmarshaller{
     
     /** 나중에 추가할것 */
     @Override
-    public XmlStreamEvent unmarshal(Source source) throws IOException, XmlMappingException {
+    public T unmarshal(Source source) throws IOException, XmlMappingException {
         StAXSource StAXSource = (javax.xml.transform.stax.StAXSource) source;
         DefaultFragmentEventReader reader = (DefaultFragmentEventReader) StAXSource.getXMLEventReader();
         while(reader.hasNext()){
@@ -40,7 +42,7 @@ public class StaxDefaultUnmarshaller implements Unmarshaller{
                 	if(next instanceof EndElementEvent){
                 		EndElementEvent endEvent = (EndElementEvent) next;
                 		if(endEvent.getName().equals(see.getName())){
-                			return new XmlStreamEvent(see, events, text);
+                			return eventToVo(new XmlStreamEvent(see, events, text));
                 		}
                 	}else if(next instanceof CharacterEvent){
             			text = (CharacterEvent)text;
@@ -51,6 +53,8 @@ public class StaxDefaultUnmarshaller implements Unmarshaller{
         }
         return null;
     }
+    
+    protected abstract T eventToVo(XmlStreamEvent event);
     
     public static class XmlStreamEvent{
     	/** 루트 태그. 여기서 attr 추출 가능 */
@@ -66,10 +70,12 @@ public class StaxDefaultUnmarshaller implements Unmarshaller{
 			this.text = text;
 		}
     }
+    
+    private Class<T> genericClass = ReflectionUtil.genericClass(this.getClass(), 0);
 
 	@Override
 	public boolean supports(Class<?> arg0) {
-		return true;
+		return genericClass.isAssignableFrom(arg0);
 	}
 
 }

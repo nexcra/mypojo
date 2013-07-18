@@ -24,6 +24,7 @@ public abstract class StaxUtil{
     	for(XMLEvent each : events){
     		if(each instanceof StartElementEvent){
     			start = (StartElementEvent) each;
+    			text = null;
     		}else if(each instanceof EndElementEvent){
     			EndElementEvent end = (EndElementEvent) each;
     			Preconditions.checkNotNull(start);
@@ -31,7 +32,7 @@ public abstract class StaxUtil{
     			map.put(start.getName(), new XmlStreamData(start, text));
     			start = null;
     			text = null;
-    		}else if(each instanceof CharacterEvent){
+    		}else if(each instanceof CharacterEvent){ //text는 1개만 기록된다.
     			text = (CharacterEvent)each;
     		}
     	}

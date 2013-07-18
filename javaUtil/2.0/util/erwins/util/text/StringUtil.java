@@ -14,7 +14,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.google.common.base.Strings;
 
 import erwins.util.counter.Latch;
-import erwins.util.lib.CollectionUtil;
+import erwins.util.lib.CompareUtil;
 import erwins.util.number.StringCalculator;
 
 /**
@@ -464,14 +464,14 @@ public class StringUtil extends StringUtils {
     
     /** 배열 문제 때문에 String으로 입력을 제한한다. */
     public static String formatStr(String str,String ... args) {
-    	if(CollectionUtil.isEmpty(args)) return str;
+    	if(CompareUtil.isEmpty(args)) return str;
     	for(int i=0;i<args.length;i++) str = str.replaceAll("\\{"+i+"\\}", args[i]==null ? "" : args[i].toString());
     	return str;
     }
     
     /** 임시 포매팅. null이면 0을 입력한다. */
     public static String formatNullable(String str,String nullString,Object ... args) {
-    	if(CollectionUtil.isEmpty(args)) return str;
+    	if(CompareUtil.isEmpty(args)) return str;
     	for(int i=0;i<args.length;i++) str = str.replaceAll("\\{"+i+"\\}", args[i]==null ? nullString : args[i].toString());
     	return str;
     }    

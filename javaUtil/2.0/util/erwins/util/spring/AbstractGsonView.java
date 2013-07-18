@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +36,8 @@ public abstract class AbstractGsonView implements View {
     protected JsonObject body = new JsonObject();
     protected JsonElement message;
     private boolean success = true;
+    /** true일 경우 한번 적용된다. */
+    private boolean flat = false;
     
     public AbstractGsonView(){}
     
@@ -59,10 +62,13 @@ public abstract class AbstractGsonView implements View {
     	message = toJson(obj);
         return this;
     }
+    
+    public AbstractGsonView setFlat(boolean flat) {
+		this.flat = flat;
+		return this;
+	}
 
-    
-    
-    /** 동적으로 추가할때 적용된다. 한번이라도 호출한다면 setMessage는 무시된다. */
+	/** 동적으로 추가할때 적용된다. 한번이라도 호출한다면 setMessage는 무시된다. */
     public AbstractGsonView addMessage(String key, Object obj) {
     	if(message==null) message = new JsonObject();
     	if(!JsonObject.class.isAssignableFrom(message.getClass())) message = new JsonObject();
@@ -75,9 +81,21 @@ public abstract class AbstractGsonView implements View {
     	if(obj instanceof String) return new  JsonPrimitive((String)obj);
     	if(obj instanceof Number) return new  JsonPrimitive((Number)obj);
     	if(obj instanceof Boolean) return new  JsonPrimitive((Boolean)obj);
-    	if (obj instanceof JsonElement) return (JsonElement)obj;
+    	if(obj instanceof JsonElement) {
+    		JsonElement json = (JsonElement)obj;
+    		if(flat) {
+    			flat = false;
+    			return toFlatData(json);
+    		}
+    		return json;
+    	}
     	else{
-    		return getGson().toJsonTree(obj);
+    		JsonElement json = getGson().toJsonTree(obj);
+    		if(flat) {
+    			flat = false;
+    			return toFlatData(json);
+    		}
+    		return json;
     	}
     }
     
@@ -120,7 +138,7 @@ public abstract class AbstractGsonView implements View {
 	
 	public JsonObject getBody(){
 		body.addProperty(getSuccesskey(), success);
-		if(message!=null)  body.add(getMessagekey(), message);
+		if(message!=null)  body.add(getMessagekey(), getMessage());
 		return body;
 	}
 	
@@ -129,10 +147,40 @@ public abstract class AbstractGsonView implements View {
 	}
 	
 	public JsonArray getMessageArray(){
-		return message.getAsJsonArray();
+		return getMessage().getAsJsonArray();
 	}
 	
 	public JsonObject getMessageObject(){
-		return message.getAsJsonObject();
+		return getMessage().getAsJsonObject();
 	}
+	
+	private JsonElement toFlatData(JsonElement message) {
+		if(message.isJsonObject()) return toFlatData(message.getAsJsonObject());
+		else if(message.isJsonArray()) return toFlatData(message.getAsJsonArray());
+		else return message;
+	}
+	
+	private JsonElement toFlatData(JsonArray msg) {
+		JsonArray newJson = new JsonArray();
+		for(JsonElement each : msg){
+			newJson.add(toFlatData(each));
+		}
+		return newJson;
+	}
+	
+	private JsonElement toFlatData(JsonObject msg) {
+		JsonObject newJson = new JsonObject();
+		for(Entry<String, JsonElement> entry : msg.entrySet()){
+			JsonElement value = entry.getValue();
+			if(value.isJsonPrimitive()) newJson.add(entry.getKey(), value);
+			else if(value.isJsonObject()){
+				JsonObject subMsg = (JsonObject)value;
+				for(Entry<String, JsonElement> subEntry : subMsg.entrySet()){
+					newJson.add(entry.getKey() + "." + subEntry.getKey(), subEntry.getValue());	
+				}
+			}
+		}
+		return newJson;
+	}
+	
 }

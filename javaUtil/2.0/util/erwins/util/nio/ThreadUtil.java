@@ -2,6 +2,7 @@ package erwins.util.nio;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -28,6 +29,15 @@ public abstract class ThreadUtil {
 			list.add(es.submit(callable));
 		}
 		return list;
+	}
+	
+	/** 간이 테스트 등에서 사용된다.  전부 기다려서 합을 리턴 */
+	public static <T extends Number> Long sum(List<Future<T>> list) throws InterruptedException, ExecutionException {
+		long sum = 0;
+		for(Future<T> each : list){
+			sum += each.get().longValue();
+		}
+		return sum;
 	}
 
 }

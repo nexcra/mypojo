@@ -1,8 +1,14 @@
 package erwins.util.validation;
 
+import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+
+import com.google.common.base.Preconditions;
+
+import erwins.util.lib.ReflectionUtil;
 
 /**
  * Preconditions의 추가버전
@@ -52,6 +58,17 @@ public abstract class Precondition extends ExceptionUtils{
 	    if(e instanceof ExecutionException) throw new RuntimeException(e.getCause());
 	    else if(e instanceof RuntimeException) throw (RuntimeException)e;
 	    throw new RuntimeException(e);
+	}
+	
+	/** 리플렉션으로 해당 필드들의 널 여부를 체크한다. */
+	public static void checkNotNulls(Object vo,String ... fieldNames) {
+		Map<String,Field> map = ReflectionUtil.getAllDeclaredFieldMap(vo.getClass());
+		for(String name : fieldNames){
+			Field field = map.get(name);
+			Preconditions.checkNotNull(field);
+			Object value = ReflectionUtil.getField(field, vo);
+			Preconditions.checkNotNull(value, name +" is required");
+		}
 	}
 
 

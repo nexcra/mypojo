@@ -15,12 +15,6 @@ import org.apache.commons.collections.CollectionUtils;
 public abstract class CollectionUtil extends CollectionUtils {
 	
 
-	/** 빈 배열인지. */
-	public static <T> boolean isEmpty(T[] t) {
-		if (t == null || t.length == 0) return true;
-		return false;
-	}
-
 	/**
 	 * DataAccessUtils과 유사함. Collection에서 Unique값을 추출해 낸다.
 	 * SQL 전체카운트 등을 실행했을때 

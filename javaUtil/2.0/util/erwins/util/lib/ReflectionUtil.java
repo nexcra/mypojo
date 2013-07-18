@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ClassUtils;
@@ -49,11 +51,18 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 	 * generic class에 어떤 클래스가 매핑되었는지 리턴한다. ex) BookDao extends
 	 * GenericHibernateDao<Board,Integer> ==> genericClass(BookDao.class,1) : Integer 가 리턴됨.
 	 * 익명 객체는 안되고, 컴파일 시점에서 제너릭이 결정된 클래스만 해당된다.
+	 * 제너릭한 수퍼타입이 나올때 까지 올라간다.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Class<T> genericClass(Class<?> clazz, int index) {
-		ParameterizedType genericSuperclass = (ParameterizedType) clazz.getGenericSuperclass();
-		return  (Class<T>) genericSuperclass.getActualTypeArguments()[index];
+		Type type = clazz.getGenericSuperclass();
+		if(type instanceof ParameterizedType){
+			ParameterizedType genericSuperclass = (ParameterizedType) type;
+			return  (Class<T>) genericSuperclass.getActualTypeArguments()[index];	
+		}
+		Class<?> superClass = clazz.getSuperclass(); 
+		if(superClass==null) throw new RuntimeException("ParameterizedType이 존재하지 않습니다.");
+		return genericClass(superClass,index);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -138,13 +147,22 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 		return fields;
 	}
 	
+	/** 임시 캐싱한다. 히트 오류 무시한다.
+	 * 캐시 사용전 700ms -> 사용후 27ms.   
+	 * jvm 6 기준 리플렉션 안쓰면 4ms */
+	private static final Map<Class<?>,Map<String,Field>> REFLECTION_CACHE_MAP = new ConcurrentHashMap<Class<?>, Map<String,Field>>();
+	
 	/** access를 true로 설정 후 Map으로 리턴한다. */
 	public static Map<String,Field> getAllDeclaredFieldMap(Class<?> clazz){
-		Map<String,Field> fieldMap = Maps.newHashMap();
-		List<Field> fields = getAllDeclaredFields(clazz);
-		for(Field each : fields){
-			each.setAccessible(true);
-			fieldMap.put(each.getName(), each);
+		Map<String,Field> fieldMap = REFLECTION_CACHE_MAP.get(clazz);
+		if(fieldMap==null){
+			fieldMap = Maps.newHashMap();
+			List<Field> fields = getAllDeclaredFields(clazz);
+			for(Field each : fields){
+				each.setAccessible(true);
+				fieldMap.put(each.getName(), each);
+			}
+			REFLECTION_CACHE_MAP.put(clazz, fieldMap);
 		}
 		return fieldMap;
 	}

@@ -1,10 +1,13 @@
 package erwins.util.lib;
 
+import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.common.base.Strings;
 import com.google.common.primitives.Ints;
 
 
@@ -132,6 +135,60 @@ public abstract class CompareUtil{
             if(comparator.compare(aa, bb) != 0) return false;
         }
         return true;
+    }
+    
+    /** 널과 Empty는 동등하게 취급. 
+     *  둘다 널이면 true를 리턴 */
+    public static boolean isEqualIgnoreNullEmpty(String a,String b){
+    	boolean aEmpty = Strings.isNullOrEmpty(a);
+    	boolean bEmpty = Strings.isNullOrEmpty(b);
+    	if(aEmpty && bEmpty) return true;
+    	else if(!aEmpty && !bEmpty) return a.equals(b);
+    	else  return false;
+    }
+    
+    /**  둘다 널이면 true를 리턴 */
+    public static <T> boolean isEqualIgnoreNull(T a,T b){
+    	boolean aEmpty = a == null;
+    	boolean bEmpty = b == null;
+    	if(aEmpty && bEmpty) return true;
+    	else if(!aEmpty && !bEmpty) return a.equals(b);
+    	else  return false;
+    }
+    
+    /** null safe한 isEmpty() */
+    public static boolean isEmpty(Collection<?> list){
+    	if(list==null) return true;
+    	return list.isEmpty();
+    }
+    
+	/** null safe한 isEmpty() */
+	public static <T> boolean isEmpty(T[] array) {
+		if (array == null || array.length == 0) return true;
+		return false;
+	}
+    
+    /**
+     * DB값을 더티체크할 목적으로 만들었다. 
+     * 둘다 널이면 true를 리턴 */
+    public static <T> boolean isEqualIgnoreNullEmptyIncludeFilds(T a,T b,Collection<String> includes,Collection<String> excludes){
+    	Map<String,Field> map = ReflectionUtil.getAllDeclaredFieldMap(a.getClass());
+    	if(isEmpty(includes)) includes = map.keySet();
+    	if(!isEmpty(excludes)) includes.removeAll(excludes);
+    	for(String key : includes){
+    		Field field = map.get(key);
+    		Object aValue = ReflectionUtil.getField(field, a);
+    		Object bValue = ReflectionUtil.getField(field, b);
+    		Class<?> type = field.getType();
+    		if(String.class.isAssignableFrom(type)){
+    			boolean isEqual = isEqualIgnoreNullEmpty((String)aValue,(String)bValue);
+    			if(!isEqual) return false;
+    		}else{
+    			boolean isEqual = isEqualIgnoreNull(aValue,bValue);
+    			if(!isEqual) return false;
+    		}
+    	}
+    	return true;
     }
     
     
