@@ -62,7 +62,7 @@ public abstract class CollectionUtil extends CollectionUtils {
 	// ===========================================================================================
 
 	/**
-	 * ==으로 비교한다.
+	 * ==으로 비교한다. ????
 	 */
 	public static <T> boolean isSameAny(T body, T... items) {
 		if (body == null || items.length == 0) return false;
@@ -93,6 +93,7 @@ public abstract class CollectionUtil extends CollectionUtils {
 	/**
 	 * 단일 물품의 값과 배열내의 값을. 비교한다. 하나라도 있으면 true를 리턴한다.
 	 */
+	@Deprecated
 	public static <T> boolean isEqualsAny(Collection<T> bodys, T... items) {
 		if (bodys == null || items.length == 0) return false;
 		for (T body : bodys)
@@ -104,6 +105,7 @@ public abstract class CollectionUtil extends CollectionUtils {
 	/**
 	 * 단일 물품의 값과 배열내의 값을. 비교한다. 하나라도 있으면 true를 리턴한다.
 	 */
+	@Deprecated
 	public static <T> boolean isEqualsAny(T body, T... items) {
 		if (body == null || items.length == 0) return false;
 		for (T item : items)
@@ -114,6 +116,7 @@ public abstract class CollectionUtil extends CollectionUtils {
 	/**
 	 * 배열에 null이 있는지 확인한다. 하나라도 있으면 true를 리턴한다. 배열의 size가 0이면 false이다.
 	 */
+	@Deprecated
 	public static <T> boolean isNullAny(T... items) {
 		for (T item : items)
 			if (item == null) return true;

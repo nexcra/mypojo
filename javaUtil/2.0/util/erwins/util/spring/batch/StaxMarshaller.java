@@ -47,8 +47,9 @@ public abstract class StaxMarshaller<T> implements Marshaller {
 		}
 	}
 	
-	/**  new AttributeBase("a","b"); 이런식으로 추가하자 */
-	protected abstract void writeAttribute(XMLEventWriter writer,T item) throws XMLStreamException;
+	/**  new AttributeBase("a","b"); 이런식으로 추가하자
+	 * 외부에서 사용할 일도 있음으로 public  */
+	public abstract void writeAttribute(XMLEventWriter writer,T item) throws XMLStreamException;
 
     /** 특수한경우 확장할것 */
     @Override

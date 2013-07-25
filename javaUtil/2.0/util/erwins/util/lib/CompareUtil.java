@@ -102,7 +102,78 @@ public abstract class CompareUtil{
 		return c;
 	}
 	
-    /** 두개의 리스트가 틀린지? equals()의 오버라이드 비교에 사용된다. null끼리는 같다고 비고한다. */
+    
+    /** null safe한 isEmpty() */
+    public static boolean isEmpty(Collection<?> list){
+    	if(list==null) return true;
+    	return list.isEmpty();
+    }
+    
+	/** null safe한 isEmpty() */
+	public static <T> boolean isEmpty(T[] array) {
+		if (array == null || array.length == 0) return true;
+		return false;
+	}
+    
+    /**
+     * DB값을 더티체크할 목적으로 만들었다. 
+     * 둘다 널이면 true를 리턴 */
+    public static <T> boolean isEqualIgnoreNullEmptyIncludeFilds(T a,T b,Collection<String> includes,Collection<String> excludes){
+    	Map<String,Field> map = ReflectionUtil.getAllDeclaredFieldMap(a.getClass());
+    	if(isEmpty(includes)) includes = map.keySet();
+    	if(!isEmpty(excludes)) includes.removeAll(excludes);
+    	for(String key : includes){
+    		Field field = map.get(key);
+    		Object aValue = ReflectionUtil.getField(field, a);
+    		Object bValue = ReflectionUtil.getField(field, b);
+    		Class<?> type = field.getType();
+    		if(String.class.isAssignableFrom(type)){
+    			boolean isEqual = isEqualIgnoreNullEmpty((String)aValue,(String)bValue);
+    			if(!isEqual) return false;
+    		}else{
+    			boolean isEqual = isEqualIgnoreNull(aValue,bValue);
+    			if(!isEqual) return false;
+    		}
+    	}
+    	return true;
+    }
+    
+    
+
+	/**
+	 * 배열에 null이 있는지 확인한다. 하나라도 있으면 true를 리턴한다. 배열의 size가 0이면 false이다.
+	 */
+	public static boolean isNullAny(Object ... items) {
+		for (Object item : items) if (item == null) return true;
+		return false;
+	}    
+    
+    //===================================================== 동등 비교 ==================================================
+    
+    /** null이면 false이다. 하나라도 같으면 true를 리턴한다. */
+	public static <T> boolean isEqualsAny(T body, T... items) {
+		if(body==null) return false;
+		if (isEmpty(items)) return false;
+		for (T item : items) if (item.equals(body)) return true;
+		return false;
+	}
+	
+	/** null이면 false이다. 하나라도 같으면 true를 리턴한다. */
+	public static <T> boolean isEqualsAny(T body, Collection<T> items) {
+		if(body==null) return false;
+		if (isEmpty(items)) return false;
+		for (T item : items) if (item.equals(body)) return true;
+		return false;
+	}
+	
+	/** null이면 false이다. 하나라도 같으면 true를 리턴한다. */
+	public static <T> boolean isEqualsAny(Collection<T> a, Collection<T> b) {
+		if(isNullAny(a,b)) return false;
+		for (T each : a) if (isEqualsAny(each,b)) return true;
+		return false;
+	}
+	
+	/** 두개의 리스트가 틀린지? equals()의 오버라이드 비교에 사용된다. null끼리는 같다고 비고한다. */
     public static <T extends Comparable<T>> boolean isEqualCollectionDataNullSafe(List<T> a , List<T> b){
         if(a==null && b==null) return true;
         else if(a==null && b!=null) return false;
@@ -155,41 +226,7 @@ public abstract class CompareUtil{
     	else if(!aEmpty && !bEmpty) return a.equals(b);
     	else  return false;
     }
-    
-    /** null safe한 isEmpty() */
-    public static boolean isEmpty(Collection<?> list){
-    	if(list==null) return true;
-    	return list.isEmpty();
-    }
-    
-	/** null safe한 isEmpty() */
-	public static <T> boolean isEmpty(T[] array) {
-		if (array == null || array.length == 0) return true;
-		return false;
-	}
-    
-    /**
-     * DB값을 더티체크할 목적으로 만들었다. 
-     * 둘다 널이면 true를 리턴 */
-    public static <T> boolean isEqualIgnoreNullEmptyIncludeFilds(T a,T b,Collection<String> includes,Collection<String> excludes){
-    	Map<String,Field> map = ReflectionUtil.getAllDeclaredFieldMap(a.getClass());
-    	if(isEmpty(includes)) includes = map.keySet();
-    	if(!isEmpty(excludes)) includes.removeAll(excludes);
-    	for(String key : includes){
-    		Field field = map.get(key);
-    		Object aValue = ReflectionUtil.getField(field, a);
-    		Object bValue = ReflectionUtil.getField(field, b);
-    		Class<?> type = field.getType();
-    		if(String.class.isAssignableFrom(type)){
-    			boolean isEqual = isEqualIgnoreNullEmpty((String)aValue,(String)bValue);
-    			if(!isEqual) return false;
-    		}else{
-    			boolean isEqual = isEqualIgnoreNull(aValue,bValue);
-    			if(!isEqual) return false;
-    		}
-    	}
-    	return true;
-    }
+
     
     
 
