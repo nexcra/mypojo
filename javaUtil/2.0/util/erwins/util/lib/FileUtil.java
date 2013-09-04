@@ -3,6 +3,7 @@ package erwins.util.lib;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileFilter;
@@ -736,5 +737,25 @@ public abstract class FileUtil extends FileUtils {
 			}
     	}
     }
+    
+	/** 파일에 간단한 라인을 추가할때 사용한다. */
+	public static void appendLines(File file,Charset charset,String ... lines) {
+		BufferedWriter bw = null;
+		try {
+			FileOutputStream out = new FileOutputStream(file,true);
+			OutputStreamWriter ww = new OutputStreamWriter(out,charset);
+			bw = new BufferedWriter(ww); //append mode
+			for(String line : lines){
+				bw.write(line);
+				bw.newLine();	
+			}
+			bw.flush();
+		} catch (IOException ioe) {
+			throw new RuntimeException(ioe);
+		} finally {
+			IOUtils.closeQuietly(bw);
+		}
+	}
+		
 
 }

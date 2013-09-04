@@ -1,5 +1,7 @@
 package erwins.util.spring;
 
+import java.io.File;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.disk.DiskFileItem;
@@ -7,6 +9,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import com.google.common.base.Preconditions;
+
+import erwins.util.lib.FileUtil;
 
 
 /** 
@@ -31,6 +35,19 @@ public abstract class CommonsMultipartHelper {
         Preconditions.checkState(file != null,"fieldName " + fieldName +" 에 해당하는 파일이 존재하지 않습니다. HTML을 확인해 주세요");
         return (DiskFileItem)file.getFileItem();
     }
-	
+    
+	/** 파일을 디스크에 저장한다.  */
+    public static void writeFile(DiskFileItem fileItem, File store){
+		try {
+			if(fileItem.isInMemory()) fileItem.write(store);
+			else{
+				File uploaded = fileItem.getStoreLocation();
+				FileUtil.renameTo(uploaded, store);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+	}
 	
 }

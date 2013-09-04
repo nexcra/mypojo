@@ -2,8 +2,11 @@ package erwins.util.lib;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * 
@@ -14,6 +17,8 @@ import org.apache.commons.collections.CollectionUtils;
  */
 public abstract class CollectionUtil extends CollectionUtils {
 	
+	/** 제너릭 충돌 방지를 위해 따로 설정한다. */
+	public static final Set<String> EMPTY_STRING_SET = ImmutableSet.of();
 
 	/**
 	 * DataAccessUtils과 유사함. Collection에서 Unique값을 추출해 낸다.

@@ -3,6 +3,7 @@ package erwins.util.text;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.List;
 
@@ -761,6 +762,29 @@ public class StringUtil extends StringUtils {
         else if(StringUtil.isEqualsIgnoreCase(value, "N","0","OFF","false")) return false;
         else return null;
     }
+    
+    /**  String.valueOf가 지저분해서 만듬. long값으로 계산한다. 부동소수 금지 */ 
+    public static String leftPad(Number num,int size){
+    	return leftPad(String.valueOf(num.longValue()), size,"0");
+    }
+    
+	/** KSNET이라는 허접한 PG업체가 데이터를 이렇게 줘서 어쩔 수 없이 제작함.
+	 * 문자열을 바이트로 쪼갠 후 다시 문자로 변환한다. */
+	public static String[] splitByteEachLength(String org,int[] eachLength,Charset encoding){
+		String[] result = new String[eachLength.length];
+		int nowLength = 0;
+		byte[] orgByte = org.getBytes(encoding);
+		for(int i=0;i<eachLength.length;i++){
+			int length = eachLength[i];
+			byte[] data = new byte[length];
+			for(int index=0;index<length;index++){
+				data[index] = orgByte[nowLength + index];
+			}
+			result[i] = new String(data,encoding);
+			nowLength += length; 
+		}
+		return result;
+	}
     
     
 

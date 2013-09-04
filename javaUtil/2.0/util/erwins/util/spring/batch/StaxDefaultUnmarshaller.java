@@ -11,6 +11,7 @@ import javax.xml.transform.stax.StAXSource;
 
 import org.springframework.batch.item.xml.stax.DefaultFragmentEventReader;
 import org.springframework.oxm.Unmarshaller;
+import org.springframework.oxm.UnmarshallingFailureException;
 import org.springframework.oxm.XmlMappingException;
 
 import com.google.common.collect.Lists;
@@ -27,7 +28,13 @@ public abstract class StaxDefaultUnmarshaller<T> implements Unmarshaller{
     /** 나중에 추가할것 */
     @Override
     public T unmarshal(Source source) throws IOException, XmlMappingException {
-        StAXSource StAXSource = (javax.xml.transform.stax.StAXSource) source;
+    	XmlStreamEvent event = sourceToParsedEvent(source);
+        return eventToVo(event);
+    }
+    
+    /** 해당 소스에서 XML의 읽을 부분들을 리턴해준 */
+    public static XmlStreamEvent sourceToParsedEvent(Source source){
+    	StAXSource StAXSource = (javax.xml.transform.stax.StAXSource) source;
         DefaultFragmentEventReader reader = (DefaultFragmentEventReader) StAXSource.getXMLEventReader();
         while(reader.hasNext()){
             XMLEvent event = (XMLEvent) reader.next();
@@ -42,7 +49,7 @@ public abstract class StaxDefaultUnmarshaller<T> implements Unmarshaller{
                 	if(next instanceof EndElementEvent){
                 		EndElementEvent endEvent = (EndElementEvent) next;
                 		if(endEvent.getName().equals(see.getName())){
-                			return eventToVo(new XmlStreamEvent(see, events, text));
+                			return new XmlStreamEvent(see, events, text);
                 		}
                 	}else if(next instanceof CharacterEvent){
             			text = (CharacterEvent)text;
@@ -51,7 +58,7 @@ public abstract class StaxDefaultUnmarshaller<T> implements Unmarshaller{
                 }
             }
         }
-        return null;
+        throw new UnmarshallingFailureException("data read fail.");
     }
     
     protected abstract T eventToVo(XmlStreamEvent event);

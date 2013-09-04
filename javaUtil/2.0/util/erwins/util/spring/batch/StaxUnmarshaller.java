@@ -19,8 +19,11 @@ import com.sun.xml.internal.stream.events.EndElementEvent;
 import com.sun.xml.internal.stream.events.StartElementEvent;
 
 /** StAXSource를 지원하는 간단 언마샬러.
- * 스프링배치가 XStream를 기본 지원하지만, 리플렉션 기반이라 더럽게 느리기 때문에 대체한다. 
+ * 스프링배치가 XStream를 기본 지원하지만, 리플렉션 기반이라 더럽게 느리기 때문에 대체한다.
+ * 
+ *  이제 사용하지 않는다. 나중에 삭제할것
  * @see StaxDefaultUnmarshaller */
+@Deprecated
 public abstract class StaxUnmarshaller<T> implements Unmarshaller{
 	
 	private Class<T> persistentClass;
@@ -55,7 +58,6 @@ public abstract class StaxUnmarshaller<T> implements Unmarshaller{
         }
         return null;
     }
-    
     
     /** 필요하다면 오버라이드 하자. */
     protected  void startDocumentEvent(StartDocument startDocument){

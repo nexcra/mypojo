@@ -2,8 +2,12 @@ package erwins.util.vender.etc;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -138,6 +142,25 @@ public class OpenCsv{
 			}
 		}
     }
+    
+    /** 파일에 간단한 라인을 추가할때 사용한다. */
+    public static void appendLines(File file,Charset charset,String[] ... lines){
+    	CSVWriter writer = null;
+    	try {
+			FileOutputStream out = new FileOutputStream(file,true);
+			OutputStreamWriter outWriter = new OutputStreamWriter(out,charset);
+			writer = new CSVWriter(outWriter);
+			for(String[] line : lines) writer.writeNext(line);
+			writer.flush();
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}finally{
+			closeQuietly(writer);
+		}
+    }
+	
     
     /**
      * 	private CSVWriter writer;

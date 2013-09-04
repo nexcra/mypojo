@@ -2,6 +2,7 @@ package erwins.util.root;
 
 
 
+
 /**
  * Hibernate를 이용해서 Db에 저장되는 Enum 등에 사용된다.
  */

@@ -14,6 +14,7 @@ import org.springframework.web.servlet.View;
 import com.google.common.base.Preconditions;
 
 import erwins.util.lib.FileUtil;
+import erwins.util.text.StringUtil;
 import erwins.util.vender.apache.Poi;
 import erwins.util.web.WebUtil;
 
@@ -22,6 +23,8 @@ import erwins.util.web.WebUtil;
 public class FileDownloadView implements View{
 	
 	private String fileName;
+	private boolean image = false;
+	private String contentType = WebUtil.CONTENT_TYPE_DOWNLOAD;
 	private String encoding = "UTF-8";
 	/** 임시파일이라서 다운로드 후 삭제가 필요할때 (zip파일 등) */
 	private boolean fileDeleteAfterDownload =  false;
@@ -63,7 +66,7 @@ public class FileDownloadView implements View{
 	
 	@Override
 	public String getContentType() {
-		return WebUtil.CONTENT_TYPE_DOWNLOAD;
+		return contentType;
 	}
 
 	/** 구현이 정확하지 않다. 나중에 수정할것 */
@@ -73,7 +76,16 @@ public class FileDownloadView implements View{
 			Preconditions.checkArgument(file!=null,"file이 아니라면 fileName은 필수입력값입니다");
 			fileName = file.getName();
 		}
-		WebUtil.setFileName(resp,fileName);
+		//이미지 인 경우 
+		if(image){
+			//디폴트 컨텐츠 타입이라면 수정해준다.
+			if(contentType.equals(WebUtil.CONTENT_TYPE_DOWNLOAD)){
+				String ext = StringUtil.getExtention(fileName).toLowerCase();
+				if(ext.equals("jpg")) ext = "jpeg"; //IE에서는 정확히 써줘야 열린다. 크롬은 jpg,jpeg 둘다 됨
+				contentType = "image/" + ext;
+			}
+		}else WebUtil.setFileName(resp,fileName,getContentType()); //브라우저에서 파일 형태로 다운로드 된다.
+		
 		if(file!=null){
 			WebUtil.downloadFile(resp, file);
 			if(fileDeleteAfterDownload) FileUtil.delete(file);
@@ -93,4 +105,15 @@ public class FileDownloadView implements View{
 			}
 		}else throw new IllegalArgumentException("파라메터 입력 오류");
 	}
+	
+	/** image/gif 등등으로 변경 */
+	public FileDownloadView setContentType(String contentType) {
+		this.contentType = contentType;
+		return this;
+	}
+	public FileDownloadView setImage(boolean image) {
+		this.image = image;
+		return this;
+	}
+	
 }
