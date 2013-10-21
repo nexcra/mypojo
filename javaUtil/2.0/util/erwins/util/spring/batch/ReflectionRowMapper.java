@@ -14,6 +14,11 @@ import org.springframework.jdbc.core.RowMapper;
 
 import erwins.util.lib.ReflectionUtil;
 
+/**
+ * 빈즈 규격에 맞지 않는 애들은 임시 조치해주자
+ * Map<String,Field> fieldMap = ReflectionUtil.findFieldValue(mapper, "fieldMap");
+	fieldMap.put("IMG_1_URL", fieldMap.get("IMG1_URL")); 
+ * */
 public class ReflectionRowMapper<T> implements RowMapper<T> {
 	
 	private final Class<T> persistentClass;

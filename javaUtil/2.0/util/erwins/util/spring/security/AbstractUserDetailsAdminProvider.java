@@ -27,7 +27,9 @@ public abstract class AbstractUserDetailsAdminProvider implements Authentication
 		if(user==null) return null; //예외로 처리되어야 한다. 여기서는 처리하지 않는다.
 		
 		Object details = authenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
+		if(details==null) return null;
 		
+		//여전히 UsernamePasswordAuthenticationToken를 그대로 쓴다. 대신 setDetails을 달리 해줘서 두 로그인을 구분한다.
 		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(user,
                 authentication.getCredentials(), user.getAuthorities());
         result.setDetails(details);

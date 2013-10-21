@@ -35,6 +35,7 @@ import erwins.util.text.StringEscapeUtil;
  * 
  * 고도화 하자. 로그인 해서 지속적으로 사용 가능하다.
  * HttpMethod 결과값의 302 는 리다이렉트 된것
+ * @see HttpClient3
  * @author sin
  */
 @Deprecated

@@ -63,11 +63,12 @@ public abstract class Precondition extends ExceptionUtils{
 	/** 리플렉션으로 해당 필드들의 널 여부를 체크한다. */
 	public static void checkNotNulls(Object vo,String ... fieldNames) {
 		Map<String,Field> map = ReflectionUtil.getAllDeclaredFieldMap(vo.getClass());
+		String toString = vo.toString();
 		for(String name : fieldNames){
 			Field field = map.get(name);
-			Preconditions.checkNotNull(field);
+			Preconditions.checkNotNull(field,name +" is required field : " + toString);
 			Object value = ReflectionUtil.getField(field, vo);
-			Preconditions.checkNotNull(value, name +" is required");
+			Preconditions.checkNotNull(value, name +" is required value : " + toString);
 		}
 	}
 

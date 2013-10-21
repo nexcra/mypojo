@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.aspectj.lang.JoinPoint;
@@ -21,6 +22,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.ContextLoader;
@@ -63,14 +65,24 @@ public abstract class SpringUtil {
 	}
 	
     /** 해당 url의 인터페이스로 RMI객체를 리턴한다.
-     * 해당 URL의 WAS에는 스프링 RMI객체를 서비스할 수 있도록 설정이 되어있어야 한다. */
+     * 해당 URL의 WAS에는 스프링 RMI객체를 서비스할 수 있도록 설정이 되어있어야 한다.
+     * timeoutSec를 줘서 무한대기를 방지하도록 하자
+     * 여기서는 간단한 예제이며, connection pooling, 인증등이 필요하면 새로 만들자.
+     * @see http://starplatina.tistory.com/402 */
     @SuppressWarnings("unchecked")
-    public static <T> T convertToRmiInstance(String url,Class<T> clazz){
-        HttpInvokerProxyFactoryBean b = new HttpInvokerProxyFactoryBean();
-        b.setServiceUrl(url);
-        b.setServiceInterface(clazz);
-        b.afterPropertiesSet();
-        T rmi = (T) b.getObject();
+    public static <T> T convertToRmiInstance(String url,Class<T> clazz,Integer timeoutSec){
+        HttpInvokerProxyFactoryBean httpProxy = new HttpInvokerProxyFactoryBean();
+        httpProxy.setServiceUrl(url);
+        httpProxy.setServiceInterface(clazz);
+        if(timeoutSec!=null){
+        	CommonsHttpInvokerRequestExecutor httpInvokerRequestExecutor = new CommonsHttpInvokerRequestExecutor();
+            httpInvokerRequestExecutor.setReadTimeout((int)TimeUnit.SECONDS.toMillis(timeoutSec));
+            httpInvokerRequestExecutor.setConnectTimeout((int)TimeUnit.SECONDS.toMillis(timeoutSec));	
+            httpProxy.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);
+        }
+        
+        httpProxy.afterPropertiesSet();
+        T rmi = (T) httpProxy.getObject();
         return rmi;
     }
     

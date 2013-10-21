@@ -366,6 +366,6 @@ public class Poi extends PoiRoot{
 			}
 			this.addValuesArray(values);
 		}
-    }    
+    }
     
 }

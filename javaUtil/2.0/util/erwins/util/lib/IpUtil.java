@@ -1,10 +1,17 @@
 package erwins.util.lib;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.validation.ValidationException;
 
 import erwins.util.text.StringUtil;
 
-
+/**
+ * IpUtil.addIpExpression(map, "222.222.222.100 ~ 249");
+   IpUtil.validateIp(map.keySet());
+ *  */
 public abstract class IpUtil{
     
     private static final String GOOGLE_BOT = "74.125.19.";
@@ -39,6 +46,32 @@ public abstract class IpUtil{
         for(int i=start;i<end;i++){
             map.put(prefix+i, each); 
         }
+    }
+    
+    private static final Pattern IS_IP = Pattern.compile("\\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b");
+    
+    public static boolean isIp(String ip){
+    	return IS_IP.matcher(ip).matches();
+    }
+    
+    public static void validateIp(Collection<String> ips) throws IsNotIpException{
+    	for(String ip : ips){
+    		boolean isIp = isIp(ip);
+    		if(!isIp) throw new IsNotIpException(ip);
+    	}
+    }
+    
+    public static class IsNotIpException extends ValidationException{
+		private static final long serialVersionUID = -7151055612324199091L;
+		public final String ip;
+		private IsNotIpException(String ip) {
+			super(ip + " is not ip valid expression");
+			this.ip = ip;
+		}
+		private IsNotIpException(String ip,Throwable cause) {
+			super(ip + " is not ip valid expression",cause);
+			this.ip = ip;
+		}
     }
 
 }

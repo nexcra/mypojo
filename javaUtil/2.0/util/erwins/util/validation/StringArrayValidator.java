@@ -36,7 +36,10 @@ import erwins.util.vender.mybatis.OpenCsvMybatisResultHandler;
 
 
 /** CSV나 엑셀 업로드시 사용자 입력값을 검증하는 벨리데이터
- * 아직 엑셀은 지원 안함?? */
+ * 아직 엑셀은 지원 안함??
+ * @see FlatDataBinder 
+ * */
+@Deprecated
 public class StringArrayValidator<T> implements CsvMapper<T>,CsvAggregator<T>{
 	
 	private final Class<T> clazz;

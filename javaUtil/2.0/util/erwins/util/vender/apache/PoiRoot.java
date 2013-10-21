@@ -32,6 +32,8 @@ import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
 
+import com.google.common.base.Strings;
+
 /**
  * POI가 너무 길어서 나눔
  */
@@ -625,6 +627,14 @@ public abstract class PoiRoot{
     	/** 개별 시트 너비 조정 */
     	public void accept(){
     		sheet.setColumnWidth(columnIndex, width);
+    	}
+    }
+    
+    /** 보통 두개가 같이 쓰이니 간단 표현식 추가 */
+    public void setCustomStyleAndsetComments(int sheetIndex,CellStyle style,String comments,int[] row,int[] col){
+    	setCustomStyle(style, sheetIndex, col, row);
+    	if(!Strings.isNullOrEmpty(comments) && row.length==1){
+    		setComments(comments, sheetIndex, row[0], col);	
     	}
     }
     

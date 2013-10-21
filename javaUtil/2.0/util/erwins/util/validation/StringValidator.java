@@ -17,7 +17,9 @@ import erwins.util.validation.StringArrayValidator.LineMetadata;
  * 디폴트로 포매터가 있고, 예외를 받는 시점에서 별도 포매터를 설정해줄 수도 있다
  * 타입에 무관한 체크는 반드시 null을 리턴해야 한다. ex) REQUIRED
  * 각 타입에 따른 벨리데이터가 반드시 하나이상 존재해야 하며, 여러 벨리데이터가 들어갈 경우 모두 동일 타입을 리턴해야 한다.
+ * @see FlatDataBinder
  *   */
+@Deprecated
 public interface StringValidator{
 	
 	/** null을 리턴하면 형변환을 하지 않겠다는 의미이다 */
