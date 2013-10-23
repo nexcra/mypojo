@@ -20,6 +20,7 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import erwins.util.lib.ReflectionUtil;
@@ -92,6 +93,12 @@ public class FlatDataBinder implements InitializingBean{
 			result.put(each.getFieldName(), stringValue);
 		}
 		return result;
+	}
+	
+	public <T> List<Map<String,String>> toMap(List<T> vos){
+		List<Map<String,String>> list = Lists.newArrayList();
+		for(T each : vos) list.add(toMap(each));
+		return list;
 	}
 	
 	private <T> String findStringValue(ExpressionParser parser,LineMetadata each,T vo){

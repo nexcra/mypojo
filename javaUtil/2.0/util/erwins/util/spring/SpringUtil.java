@@ -13,21 +13,30 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
+import javax.validation.ValidationException;
+
 import org.apache.commons.io.IOUtils;
 import org.aspectj.lang.JoinPoint;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.common.TemplateParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
@@ -215,6 +224,29 @@ public abstract class SpringUtil {
     	}
     	
     	return allResources.toArray(new Resource[allResources.size()]);
+    }
+    
+    
+    /** EL 표현식으로 템플릿 문자열을 생성한다.
+     * 간단한 구문에 사용하자
+     * ex) random number is #{[vo].rowSize} */
+    public static String elFormat(String pattern,Object param){
+    	ExpressionParser parser = new SpelExpressionParser();
+    	return parser.parseExpression(pattern, new TemplateParserContext()).getValue(param,String.class);
+    }
+    
+    /** 필드 예외가 발견되었다면 예외를 던진다. 
+     *  예외 포매팅을 정교하게 하려면 별도의 예외 클래스를 작성하자. */
+    public static void throwIfFieldError(BindingResult bindingResult){
+    	if(bindingResult.hasErrors()){
+    		List<String> msg = Lists.newArrayList();
+    		for(ObjectError e :  bindingResult.getAllErrors() ){
+    			if(!(e instanceof FieldError)) throw new RuntimeException("FieldError가 아닌 예외가 발견되었습니다. " + e);
+    			FieldError error = (FieldError) e ;
+    			msg.add(SpringUtil.elFormat("#{field} --> #{defaultMessage} 입력값 = [#{rejectedValue}],  ", error));
+    		}
+    		throw new ValidationException(Joiner.on("\n").join(msg));
+    	}
     }
     
 }
