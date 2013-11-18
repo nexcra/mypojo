@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
@@ -15,6 +17,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.google.common.base.Strings;
 
 import erwins.util.counter.Latch;
+import erwins.util.lib.CollectionUtil;
 import erwins.util.lib.CompareUtil;
 import erwins.util.number.StringCalculator;
 
@@ -413,6 +416,30 @@ public class StringUtil extends StringUtils {
         }
         return stringBuffer.toString();
     }
+    
+    /** 첫 문자와 _ 이후의 문자만 추출해서 대문자로 리턴한다. 
+     * ex) ACCOUNT_ID -> AI */
+    public static String getAbbr(String str) {
+        char[] chars = str.toCharArray();
+        boolean nextCharIsUpper = false;
+        boolean first = true;
+        StringBuffer stringBuffer = new StringBuffer();
+        for (char cha : chars) {
+        	if(first){
+        		stringBuffer.append(Character.toUpperCase(cha));
+        		first = false;
+        	}
+            if (cha == '_' || cha == '-') {
+                nextCharIsUpper = true;
+                continue;
+            }
+            if (nextCharIsUpper) {
+                stringBuffer.append(Character.toUpperCase(cha));
+                nextCharIsUpper = false;
+            }
+        }
+        return stringBuffer.toString();
+    }
 
     /** 두문자를 제거 후 첫 글자를 소문자로 바꾼다. ex) searchMapKey => mapKey */
     public static String escapeAndUncapitalize(String str, String header) {
@@ -514,6 +541,27 @@ public class StringUtil extends StringUtils {
         int len = str.length();
         String result = StringCalculator.Plus(str, str2, 0);
         return StringUtils.leftPad(result, len, "0");
+    }
+    
+    /** 마지막 매치된 숫자에서 +한다. 매칭은 양의 정수만 가능하다. */
+    public static String plusAsLastNumber(String text, Number num) {
+    	Pattern pattern = Pattern.compile("\\d*"); // 소수점 가능하게 하려면 [\\d||.]*로 바꾸고 로직수정
+		List<MatchResult> matchResult = RegEx.findMatch(pattern,text);
+        //Preconditions.checkState(matchResult.size() > 0);
+		if(matchResult.size() == 0){
+			return text + num;
+		}
+		
+        MatchResult lastMatch = CollectionUtil.getLast(matchResult);
+        BigDecimal byText = new BigDecimal(lastMatch.group());
+        
+        if(num instanceof BigDecimal){
+        	BigDecimal added =  byText.add((BigDecimal)num);
+        	return StringUtil.replaceBetween(text, lastMatch, added.toPlainString(), "0");
+        }else{
+        	long value = byText.longValue() +  num.longValue();
+        	return StringUtil.replaceBetween(text, lastMatch, String.valueOf(value) , "0");
+        }
     }
     
     /** 정수 덧셈을 한다. */
@@ -741,6 +789,22 @@ public class StringUtil extends StringUtils {
 		return en+ko+etc;
 	}
 	
+	/** 위와 동일하나 한글 3바이트용. 검증 안된거라 복붙 */
+	public static int getByteSize3(String s) {
+		int en = 0;
+		int ko = 0;
+		int etc = 0;
+		
+		char[] string = s.toCharArray();
+		int size = string.length;
+		for(int j=0;j<size;j++){
+			if (string[j]>='A' && string[j]<='z') en++;
+			else if (string[j]>='\uAC00' && string[j]<='\uD7A3') ko  += 3;
+			else etc++;
+		}
+		return en+ko+etc;
+	}
+	
     /**
      * BigDecimal로 변환하지 못할 경우, null을 리턴한다.
      */
@@ -785,6 +849,16 @@ public class StringUtil extends StringUtils {
 		}
 		return result;
 	}
+	
+	/** 숫자를 변경해서 교환할때 사용한다.
+	 * AAA한글003  --> AAA한글004 등 */ 
+	public static String replaceBetween(String text,MatchResult matchResukt,String replace,String lpad){
+		String group = matchResukt.group();
+		String replaceText = StringUtil.leftPad(replace, group.length(), lpad);
+		return text.substring(0, matchResukt.start()) + replaceText + text.substring(matchResukt.end(), text.length());
+	}
+	
+	
     
     
 

@@ -7,7 +7,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 /** 직접 파싱하는 방법을 사용함으로, 무거운 로직에는 사용하면 안된다. */
-public class DateTimeStringValidator implements ConstraintValidator<DateTimeString,String>{
+public class DateTimeStringFormatValidator implements ConstraintValidator<DateTimeStringFormat,String>{
 	
 	public DateTimeFormatter pattern ;
 
@@ -23,7 +23,7 @@ public class DateTimeStringValidator implements ConstraintValidator<DateTimeStri
 	}
 
 	@Override
-	public void initialize(DateTimeString annotation) {
+	public void initialize(DateTimeStringFormat annotation) {
 		pattern = DateTimeFormat.forPattern(annotation.pattern());
 	}
 	

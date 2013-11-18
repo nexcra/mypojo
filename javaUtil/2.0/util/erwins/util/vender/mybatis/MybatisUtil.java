@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.SqlMapperException;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
@@ -27,9 +26,7 @@ public abstract class MybatisUtil{
                 result.put(now.getId(), boundSql.getSql());
             } catch (ClassCastException e) {
                 //내부에서만 사용되는 객체.. 무시한다.
-            } catch (SqlMapperException e) {
-                //null입력하면 안되는것들.. 무시한다.
-            }
+            } 
         }
         return result;
     }

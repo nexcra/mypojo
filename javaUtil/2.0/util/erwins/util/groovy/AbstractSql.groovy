@@ -16,7 +16,12 @@ public abstract class AbstractSql{
    public static Format format = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //오렌지 디폴트
 
 	@Delegate
-	protected Sql db;
+	public Sql db;
+	
+	/** @Delegate가 Java에서는 되지 않는다. Java에서 쓸려고 close를 코딩해둔다. */
+	public close(){
+		db.close();
+	}
 
 	/** GString이 들어와도 정상작동하게 변경 */
 	public list(it){

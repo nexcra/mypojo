@@ -1,6 +1,10 @@
 package erwins.util.groovy
 
 
+import org.apache.poi.ss.formula.functions.T
+
+import com.google.common.collect.Sets
+
 import erwins.util.text.StringUtil
 import erwins.util.validation.InputValidationException
 
@@ -45,6 +49,65 @@ public class OracleSqlBean{
 		return map
 	}
 	
+	
+	def 참조쿼리 = """ SELECT bb.TABLE_NAME,aa.COLUMN_NAME,aa.POSITION,bb.CONSTRAINT_TYPE,cc.TABLE_NAME R_TABLE_NAME,cc.COLUMN_NAME R_COLUMN_NAME
+		FROM USER_CONS_COLUMNS aa JOIN USER_CONSTRAINTS bb on aa.CONSTRAINT_NAME = bb.CONSTRAINT_NAME
+		left JOIN USER_CONS_COLUMNS cc ON bb.R_CONSTRAINT_NAME = cc.CONSTRAINT_NAME
+		WHERE  bb.TABLE_NAME = '%s'
+		ORDER BY bb.CONSTRAINT_TYPE,aa.POSITION """
+	
+	/** 테스트용 견본이며, 실제 사이트마다 복사/붙여넣기 후 수정해서 사용
+	 * 조인절의 경우 뒷 테이블의 FK가 앞테이블의 PK에 반드시 존재해야 한다.
+	 * domainTable에는 약어를 붙이지 않는다.
+	 * ex) String sql = bean.printMybatis(Lists.newArrayList("ACCOUNT","BOARD","LOGIN_HIS","BOARD_FILE"),"BOARD");  */
+	public String printMybatis(tableList,domainTable = null){
+		
+		def ABBR중복체크 =  Sets.newHashSet()
+		def FROM = [];
+		def 테이블이름맵 = [:]
+		
+		//첫번째 / 두번때 조인 테이블은 위치가 변경되어도 상관없어야 한다.  .. 아직 미구현
+		
+		def 테이블정보들 = tableList.collect { TABLE_NAME ->
+			def 테이블정보 = [TABLE_NAME:TABLE_NAME]
+			def 제약조건_딕셔너리 = db.list String.format(참조쿼리, TABLE_NAME)
+			테이블정보.COLUMN_NAME = 제약조건_딕셔너리.collect{ it.COLUMN_NAME }
+			테이블정보.NOT_NULL = 제약조건_딕셔너리.findAll { ['C','P'].contains(it.CONSTRAINT_TYPE) }.collect{ it.COLUMN_NAME }
+			테이블정보.PK = 제약조건_딕셔너리.findAll { ['P'].contains(it.CONSTRAINT_TYPE) }.collect{ it.COLUMN_NAME }
+			테이블정보.ABBR = StringUtil.getAbbr(TABLE_NAME)
+			while(!ABBR중복체크.add(테이블정보.ABBR)){
+				테이블정보.ABBR = StringUtil.plusAsLastNumber(테이블정보.ABBR,1)
+			}
+			테이블이름맵.put(TABLE_NAME,테이블정보.ABBR)
+			//ex) [[TABLE_NAME:BOARD, COLUMN_NAME:USER_ID, POSITION:1, CONSTRAINT_TYPE:R, R_TABLE_NAME:ACCOUNT, R_COLUMN_NAME:USER_ID]]
+			//테이블정보.FK = 제약조건_딕셔너리.findAll { ['R'].contains(it.CONSTRAINT_TYPE) && 테이블이름맵.containsKey(it.R_TABLE_NAME) }
+			테이블정보.FK = 제약조건_딕셔너리.find { ['R'].contains(it.CONSTRAINT_TYPE) && 테이블이름맵.containsKey(it.R_TABLE_NAME) }
+			//println "TABLE_NAME "+테이블정보.TABLE_NAME
+			//println "PK "+테이블정보.PK
+			//println "FK "+테이블정보.FK
+			테이블정보.도메인테이블 = TABLE_NAME == domainTable
+			
+			if(테이블이름맵.size()==1){
+				FROM << "$TABLE_NAME $테이블정보.ABBR"
+			}else{
+				if(테이블정보.FK == null) FROM << "$TABLE_NAME $테이블정보.ABBR ON --"
+				else{
+					def FK테이블약어 = 테이블이름맵[테이블정보.FK.R_TABLE_NAME]
+					FROM << "JOIN $TABLE_NAME $테이블정보.ABBR ON ${FK테이블약어}.$테이블정보.FK.R_COLUMN_NAME = ${테이블정보.ABBR}.$테이블정보.FK.COLUMN_NAME"
+				}
+			}
+			return 테이블정보
+		}
+		
+		def SQL = "SELECT ";
+		SQL += 테이블정보들.collect{ 테이블정보 -> 테이블정보.COLUMN_NAME.collect {
+			테이블정보.도메인테이블 ? "${테이블정보.ABBR}.$it" :  "${테이블정보.ABBR}.$it ${테이블정보.ABBR}_$it" 
+		}.join(" , ") }.join(", \n")
+		SQL += "\nFROM " +  FROM.join("\n")
+		
+		return SQL.toString()
+	}
+	
 	/** iBatiis or MyBatis용 */
 	public printBatis(TABLE_NAME){
 		db.loadInfo("and a.TABLE_NAME = '$TABLE_NAME'").loadColumn().loadColumnKey()
@@ -73,11 +136,17 @@ public class OracleSqlBean{
 		
 		//def $$ = {'#'+it.camelize()+'#'  }; //ibatis용
 		def sqls = [:];
-		sqls['SELECT'] = 'SELECT ' + cn.collect{'a.'+it}.join(', ') + " \nFROM $TABLE_NAME a "
+		def abbr = StringUtil.getAbbr(TABLE_NAME)
+		sqls['SELECT'] = 'SELECT ' + cn.collect{"${abbr}.$it"}.join(', ') + " \nFROM $TABLE_NAME $abbr "
+		
+		sqls['SELECT_PREFIX'] = ', ' + cn.collect{"${abbr}.$it ${abbr}_$it"}.join(', ') 
+		
 		sqls['INSERT'] = "INSERT INTO $TABLE_NAME (" + cn.join(', ') + ') \nVALUES ('+ cn.collect { $$2(it) }.join(',')  +')'
 		
 		def pks = columns.findAll { it['P'] == 'P' }.collect { it.COLUMN_NAME }
 		def nonPks = columns.findAll { it['P'] != 'P' }.collect { it.COLUMN_NAME }
+		
+		def 업데이트무시컬럼 = ['REG_TIME']
 		
 		sqls['UPDATE'] = "UPDATE $TABLE_NAME SET " + cn.collect { it + ' = '+$$2(it)}.join(', ') + ' \nWHERE ' + pks.collect { it + ' = '+$$(it) }.join(' AND ')
 		
@@ -96,6 +165,7 @@ public class OracleSqlBean{
 			nonPks.each { result(property:it.camelize(),column:it)  }
 		}
 		sqls['RESULT_MAP'] = writer.toString()
+		
 		return sqls
 	}
 	

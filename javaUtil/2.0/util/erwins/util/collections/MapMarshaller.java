@@ -23,7 +23,10 @@ import erwins.util.text.StringUtil;
 
 
 /** Gson 버전으로 새로 만들었다. 전부 Gson으로 위임. 일단 기본으로 대충 다 되는듯.. 
- * 뒷자리로 배열구분을 하게 되어있으나, reflection으로 하는게 더 정확할듯 하다. 일단 그냥 놔둠 */
+ * 뒷자리로 배열구분을 하게 되어있으나, reflection으로 하는게 더 정확할듯 하다. 일단 그냥 놔둠
+ * 스프링의 DataBinder를 사용할것
+ *  */
+@Deprecated
 public class MapMarshaller {
 	
 	private Gson gson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.STATIC,Modifier.TRANSIENT).create();

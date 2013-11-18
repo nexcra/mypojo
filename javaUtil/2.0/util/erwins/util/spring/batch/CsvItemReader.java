@@ -26,6 +26,7 @@ import com.google.common.collect.Lists;
 import erwins.util.vender.etc.OpenCsv;
 
 /** 스레드 세이프하당
+ * csvMapper에서 매핑하는데 시간이 많이 걸릴것으로 예상된다면(그럴일이 많이 없겠지만) PassThroughCsvMapper를 일단 사용한 후 processor에서 변환하도록 하자.
  * FlatFileReader와 다른점은 텍스트 안에 \n가 들어있어도 정상적으로 파일을 읽는다.  */
 public class CsvItemReader<T> implements ResourceAwareItemReaderItemStream<T>,ItemReader<T>, ItemStream,InitializingBean{
 	

@@ -6,8 +6,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 import erwins.util.lib.FileUtil;
 
@@ -143,6 +147,19 @@ public enum RegEx {
         Matcher m = pattern.matcher(text);
         if(m.find()) return m.group(); 
         return null;
+    }
+    
+    /** \d*, as23dasd003 ==> [23,003]
+     *  MatchResult는 매칭결과, 시작점, 종료점 등을 가진다. */
+    public static List<MatchResult> findMatch(Pattern pattern,CharSequence  text) {
+        Matcher m = pattern.matcher(text);
+        List<MatchResult> matchResult = Lists.newArrayList();
+        while(m.find()) {
+        	String result = m.group();
+        	if(Strings.isNullOrEmpty(result)) continue;
+        	matchResult.add(m.toMatchResult());
+        }
+        return matchResult;
     }
     
  /*   public static void process(Pattern pattern,CharSequence  text,StringCallback command) {

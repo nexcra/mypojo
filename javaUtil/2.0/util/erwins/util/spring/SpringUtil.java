@@ -15,12 +15,14 @@ import java.util.concurrent.TimeUnit;
 
 import javax.validation.ValidationException;
 
+import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.io.IOUtils;
 import org.aspectj.lang.JoinPoint;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -41,6 +43,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
 import erwins.util.lib.ReflectionUtil;
+import erwins.util.root.NameValue;
 import erwins.util.text.StringUtil;
 
 /** 스프링용 유틸 모음 */
@@ -235,18 +238,46 @@ public abstract class SpringUtil {
     	return parser.parseExpression(pattern, new TemplateParserContext()).getValue(param,String.class);
     }
     
+    @SuppressWarnings("unchecked")
+	public static <T> T elValue(ExpressionParser parser,String el,Object vo){
+    	if(parser==null) parser = new SpelExpressionParser();
+    	Expression exp = parser.parseExpression(el);
+		return (T) exp.getValue(vo);
+    }
+    
     /** 필드 예외가 발견되었다면 예외를 던진다. 
      *  예외 포매팅을 정교하게 하려면 별도의 예외 클래스를 작성하자. */
     public static void throwIfFieldError(BindingResult bindingResult){
     	if(bindingResult.hasErrors()){
-    		List<String> msg = Lists.newArrayList();
-    		for(ObjectError e :  bindingResult.getAllErrors() ){
-    			if(!(e instanceof FieldError)) throw new RuntimeException("FieldError가 아닌 예외가 발견되었습니다. " + e);
-    			FieldError error = (FieldError) e ;
-    			msg.add(SpringUtil.elFormat("#{field} --> #{defaultMessage} 입력값 = [#{rejectedValue}],  ", error));
-    		}
-    		throw new ValidationException(Joiner.on("\n").join(msg));
+    		String msg = fieldErrorToString(bindingResult.getAllErrors(),"\n");
+    		throw new ValidationException(msg);
     	}
     }
+    
+    public static String fieldErrorToString(List<ObjectError> errorList,String separator){
+    	List<String> msg = Lists.newArrayList();
+    	for(ObjectError e :  errorList){
+    		if(!(e instanceof FieldError)) throw new RuntimeException("FieldError가 아닌 예외가 발견되었습니다. " + e);
+			FieldError error = (FieldError) e ;
+			msg.add(SpringUtil.elFormat("#{field} --> #{defaultMessage} 입력값 = [#{rejectedValue}],  ", error));
+    	}
+    	return Joiner.on(separator).join(msg);
+    }
+    
+    
+    /** 스프링 태그에 사용되는 기본 MAP을 리턴한다. */
+    @SuppressWarnings("unchecked")
+	public static <T extends Enum<?>>  Map<String, String> enumToSpringTagMap(Class<T> clazz) {
+		Enum<?>[] ins = clazz.getEnumConstants();
+		Map<String,String> tag = new ListOrderedMap();
+		for(Enum<?> each : ins){
+			if(each instanceof NameValue){
+				NameValue nv = (NameValue) each;
+				tag.put(nv.getValue(), nv.getName()); // ID / NAME 순이다.
+			}else tag.put(each.name(), each.name()); 
+			
+		}
+		return tag;
+	}
     
 }
