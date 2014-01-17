@@ -23,6 +23,7 @@ import org.apache.poi.ss.formula.functions.T;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.util.ReflectionUtils;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import erwins.util.collections.MapForList;
@@ -430,6 +431,20 @@ public abstract class ReflectionUtil extends ReflectionUtils {
     	}
     	return map;
     }
+    
+	/** toString이 오버라이드 됬는지 검사. */
+	public static boolean isOverridedToString(Object vo){
+		Method toString = ReflectionUtil.findMethod(vo.getClass(), "toString");
+		if(toString.getDeclaringClass() == Object.class) return false;
+		return true;
+	}
+	
+	/** lombok으로 생성된 자료는 toString()해주고, 아니라면 아파치 형태로 toString() 해준다.    */
+	public static String toStringByLombok(Object vo){
+		Preconditions.checkArgument(vo!=null, "vo is required");
+		if(isOverridedToString(vo)) return vo.toString();
+		return StringUtil.toStringByReflection(vo);
+	}
     
     
 

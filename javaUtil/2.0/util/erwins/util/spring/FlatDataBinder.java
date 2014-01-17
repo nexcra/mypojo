@@ -87,11 +87,13 @@ public class FlatDataBinder implements InitializingBean{
 		return (T) binder.getTarget();
 	}
 	
+	/** 여기서 입력된 array가 작더라도 예외가 아닌 ""값이 입력되어야 한다.   */
 	public DataBinder bindWithoutClose(String[] array,int lineNumber) throws BindException{
 		Preconditions.checkState(array.length >= maxArraySize, "too small array : " + maxArraySize);
 		MutablePropertyValues kv = new MutablePropertyValues();
 		for(LineMetadata each :lineMetadatas){
-			String value = array[each.getIndex()]; 
+			String value = ""; //인덱스에 없는 값은 무시.   이를 ""로 할지 null로 할지는 사용해보고 판단.
+			if(each.getIndex() < array.length) value = array[each.getIndex()];
 			kv.add(each.getFieldName(), value);
 		}
 		DataBinder  binder = new DataBinder(ReflectionUtil.newInstance(clazz),clazz.getSimpleName() + " - " + lineNumber);

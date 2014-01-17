@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/** 걍 NIO에 넣었다.  생성/소비자 패턴에 주로 사용할것. 
- * ExecutorService를 사용하자. 이걸 왜만들었더라? ....
+/** 걍 NIO에 넣었다.  간단한 테스트에 사용하자. 
+ * ExecutorService의 shutdown하고 다르다! 주의
+ * ex) new ThreadPool().addAll(run, 100).startup().waitThread(TimeUnit.SECONDS.toMillis(5)).shutdown().joinAll();
  * */
-public class ThreadPool implements Shutdownable{
+public class ThreadPool{
 	
 	private List<Thread> list = new ArrayList<Thread>();
 	
@@ -30,9 +31,9 @@ public class ThreadPool implements Shutdownable{
 		return this;
 	}
 
-	@Override
-	public void shutdown() {
+	public ThreadPool shutdown() {
 		for (Thread each : list) each.interrupt();
+		return this;
 	}
 	
 	public static class ThreadState{
@@ -68,6 +69,11 @@ public class ThreadPool implements Shutdownable{
 	
 	public void joinAll() throws InterruptedException {
 		for (Thread each : list) each.join();
+	}
+	
+	public ThreadPool waitThread(long mil) throws InterruptedException {
+		Thread.sleep(mil);
+		return this;
 	}
 	
 	public List<Thread> getThreads() {

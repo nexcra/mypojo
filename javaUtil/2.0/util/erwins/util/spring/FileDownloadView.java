@@ -76,21 +76,25 @@ public class FileDownloadView implements View{
 			Preconditions.checkArgument(file!=null,"file이 아니라면 fileName은 필수입력값입니다");
 			fileName = file.getName();
 		}
-		//이미지 인 경우 
+		
+		//=== 컨텐츠 타입 결정 ===  네이버 섬네일 서버 등에는 contentType과 컨텐츠길이가 없다면 리젝트 된다.
 		if(image){
 			//디폴트 컨텐츠 타입이라면 수정해준다.
 			if(contentType.equals(WebUtil.CONTENT_TYPE_DOWNLOAD)){
 				String ext = StringUtil.getExtention(fileName).toLowerCase();
 				if(ext.equals("jpg")) ext = "jpeg"; //IE에서는 정확히 써줘야 열린다. 크롬은 jpg,jpeg 둘다 됨
 				contentType = "image/" + ext;
+				resp.setContentType(getContentType()); //파일 이름을 지정하지 않는다.
 			}
 		}else WebUtil.setFileName(resp,fileName,getContentType()); //브라우저에서 파일 형태로 다운로드 된다.
+		
 		
 		if(file!=null){
 			WebUtil.downloadFile(resp, file);
 			if(fileDeleteAfterDownload) FileUtil.delete(file);
-		}else if(poi!=null) poi.write(resp);
-		else if(data!=null){
+		}else if(poi!=null){
+			poi.write(resp);
+		}else if(data!=null){
 			resp.setCharacterEncoding(encoding);
 			PrintWriter writer = resp.getWriter();
 	        IOUtils.write(data, writer,encoding);

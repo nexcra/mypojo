@@ -89,21 +89,24 @@ public class OpenCsv{
 		}
     }
     
-    public  List<String[]> readAll(File file){
+    public  List<String[]> readAll(File file,char separator){
     	CSVReader reader = null;
     	try {
-			//reader = new CSVReader(new FileReader(file));
-    		reader = new CSVReader(new InputStreamReader(new FileInputStream(file),encoding));
+    		reader = new CSVReader(new InputStreamReader(new FileInputStream(file),encoding),separator);
 			return reader.readAll();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}finally{
 			try {
 				if (reader != null) reader.close();
-			} catch (Exception e2) {
-				
+			} catch (IOException e2) {
+				throw new RuntimeException(e2);
 			}
 		}
+    }
+    
+    public  List<String[]> readAll(File file){
+    	return readAll(file,',');
     }
     
     @SuppressWarnings("unchecked")

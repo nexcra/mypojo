@@ -48,11 +48,14 @@ public abstract class Log4jUtil {
         return new File(filePath);
     }
     
-    /**  ex) com.openclick,warnFile */
+    
+    /**  루트 로거를 먼저 찾고, 없으면 해당 로거의 어펜더를 찾는다. */
     public static FileAppender getFileAppender(String loggerName,String appenderName){
     	Logger logger = Logger.getRootLogger();
-    	if(loggerName!=null) logger = Logger.getLogger(loggerName);
     	FileAppender appender = (FileAppender) logger.getAppender(appenderName);
+    	if(appender!=null) return appender;
+    	logger = Logger.getLogger(loggerName);
+    	appender = (FileAppender) logger.getAppender(appenderName);
     	return appender;
     }
     

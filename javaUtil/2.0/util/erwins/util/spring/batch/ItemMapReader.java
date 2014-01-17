@@ -21,8 +21,9 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 
-/** reader를 읽어서 부분 집합으로 만들때 사용한다. 특수용도. 
+/** reader를 읽어서 부분 집합으로 만들때 사용한다. 특수용도.
  * 같은 key끼리 묶어서 리턴하며, 메모리 때문에 최대치를 넘길경우 플러시 하고 다시 읽는다.
+ * 즉 제한된 메모리 내에서만 그루핑 된다.
  * key별로 사전 처리(Lock등)를 해야 할 경우 사용
  * 정렬되지 않은 데이터를 처리할때 사용된다 */
 public class ItemMapReader<T> implements ItemReader<Collection<T>>,ItemStream,ResourceAwareItemReaderItemStream<Collection<T>>,InitializingBean{

@@ -1,5 +1,6 @@
 package erwins.util.nio;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -26,6 +27,16 @@ public abstract class ThreadUtil {
 		ExecutorService es = Executors.newCachedThreadPool();
 		List<Future<T>> list = Lists.newArrayList();
 		for (int i = 0; i < thred; i++) {
+			list.add(es.submit(callable));
+		}
+		return list;
+	}
+	
+	/** 오래 걸리는 다수의 RMI를 동시에 실행할때 사용 */
+	public static <T> List<Future<T>> call(Collection<Callable<T>> callables) {
+		ExecutorService es = Executors.newCachedThreadPool();
+		List<Future<T>> list = Lists.newArrayList();
+		for (Callable<T> callable : callables) {
 			list.add(es.submit(callable));
 		}
 		return list;

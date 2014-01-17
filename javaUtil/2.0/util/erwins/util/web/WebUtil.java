@@ -7,12 +7,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Enumeration;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+
+import com.google.common.collect.Maps;
 
 import erwins.util.text.CharEncodeUtil;
 import erwins.util.text.StringUtil;
@@ -274,5 +278,19 @@ public abstract class WebUtil {
     	if( xRequestWith.equals("XMLHttpRequest")) return true;
     	return false;
     }
+    
+    /** 간단유틸 */
+    @SuppressWarnings("unchecked")
+	public static Map<String,String> getHeaderMap(HttpServletRequest req){
+    	Map<String,String> map = Maps.newHashMap();
+    	Enumeration<String> keys = req.getHeaderNames();
+    	while(keys.hasMoreElements()){
+    		String key = keys.nextElement();
+    		map.put(key, req.getHeader(key));
+    	}
+    	return map;
+    }
+    
+    
     
 }

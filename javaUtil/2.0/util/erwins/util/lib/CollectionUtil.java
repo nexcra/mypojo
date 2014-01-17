@@ -7,6 +7,7 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 
 /**
  * 
@@ -150,8 +151,32 @@ public abstract class CollectionUtil extends CollectionUtils {
     	if(result==null) return nullObject;
     	return result;
     }
-	
     
-	
+    /** csvItemMapWriter때문에 만들었는데.. 쓸모가 없어짐. */
+    public static <T> List<List<T>> splitBySize(Collection<T> input,int size) {
+    	List<List<T>> result = Lists.newArrayList();
+    	if(input.size()==0) return result;
+    	if(!(input instanceof List)) input = Lists.newArrayList(input);
+    	List<T>  list = (List<T>) input;
+    	int maxIndex = input.size() / size;
+    	int mode = input.size() % size;
+    	for(int i=0;i<maxIndex;i++){
+    		int start = i * size;
+    		int end = (i+1) * size;
+    		List<T> subList = list.subList(start, end);
+    		result.add(subList);
+    	}
+    	if(mode > 0){
+    		List<T> subList = list.subList(maxIndex * size, input.size());
+    		result.add(subList);
+    	}
+    	return result;
+    }
+    
+	/** 10개 max3 이면 처음 3개만 잘라서 리턴한다. */
+	public static <T> List<T> subList(List<T> adEntry,int max){
+		if(adEntry.size() > max) return adEntry.subList(0, max);
+		return adEntry;
+	}
 
 }

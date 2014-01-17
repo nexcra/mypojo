@@ -1,5 +1,6 @@
 package erwins.util.lib;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Comparator;
@@ -7,7 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import lombok.Data;
+
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 
 
@@ -32,7 +36,7 @@ public abstract class CompareUtil{
 	
 	/** 역순 Comparator를 리턴한다. */
 	public static <T> Comparator<T> rev(final Comparator<T> org){
-		return new Comparator<T>(){
+		return new Comparator<T>() {
 			@Override
 			public int compare(T arg0, T arg1) {
 				int compare = org.compare(arg0, arg1);
@@ -41,13 +45,17 @@ public abstract class CompareUtil{
 		};
 	}
 	
-    /** 스트링 역순 비교자 */
-    public static Comparator<String> STRING_REV = new Comparator<String>(){
-        @Override
-        public int compare(String o1, String o2) {
-            return o1.compareTo(o2)*-1;
-        }
-    };
+	/** 스트링 역순 비교자. Serializable때문에 이렇게 작성 */
+	@SuppressWarnings("serial")
+	public static class StringRevComparator implements Serializable,Comparator<String>{
+		@Override
+		public int compare(String o1, String o2) {
+			return o1.compareTo(o2)*-1;
+		}
+	}
+	
+	/** 스트링 역순 비교자 */
+    public static Comparator<String> STRING_REV = new StringRevComparator();
     
     /**
      * equals인데 널 무시
@@ -225,6 +233,38 @@ public abstract class CompareUtil{
     	if(aEmpty && bEmpty) return true;
     	else if(!aEmpty && !bEmpty) return a.equals(b);
     	else  return false;
+    }
+    
+    
+    /** 두개를 비교해서 틀린점을 리턴한다. */
+    public <T> List<DirtyInfo> dirtyField(T before,T after){
+    	List<DirtyInfo> dirtyFields = Lists.newArrayList();
+    	List<Field> fields = ReflectionUtil.getAllDeclaredFields(before.getClass()); 
+    	
+    	for(Field field : fields){
+    		Object aValue = ReflectionUtil.getField(field, before);
+    		Object bValue = ReflectionUtil.getField(field, after);
+    		boolean isEqual = CompareUtil.isEqualIgnoreNull(aValue, bValue);
+    		if(!isEqual) {
+    			DirtyInfo di = new DirtyInfo();
+    			di.setFieldName(field.getName());
+    			di.setBeforeValue(aValue);
+    			di.setAfterValue(bValue);
+    			dirtyFields.add(di);
+    		}
+    	}
+    	return dirtyFields;
+    }
+    
+    @Data
+    public static class DirtyInfo{
+    	private String fieldName;
+    	private Object beforeValue;
+    	private Object afterValue;
+    	@Override
+    	public String toString(){
+    		return fieldName + " : " + beforeValue + "=>" + afterValue;
+    	}
     }
 
     

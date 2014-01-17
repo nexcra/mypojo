@@ -15,10 +15,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.validation.ValidationException;
 
+import lombok.Data;
+
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.io.IOUtils;
 import org.aspectj.lang.JoinPoint;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -36,7 +39,10 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.ContextLoader;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -111,6 +117,15 @@ public abstract class SpringUtil {
         return locationSqlFiles;
     }
     
+    public static Resource[] toResources(File[] files) {
+    	if(files==null) return new Resource[0];
+    	Resource[] resources = new Resource[files.length];
+    	for(int i=0;i<files.length;i++){
+    		resources[i] = new FileSystemResource(files[i]);
+    	}
+    	return resources;
+    }
+    
     /** 간단 PS 제조기.
      *  ? 순서대로 매핑한다. */
     public static PreparedStatementSetter buildPreparedStatement(final Object ... params) {
@@ -147,6 +162,7 @@ public abstract class SpringUtil {
     }
     
     /** 어노테이션 / 메소드 매핑으로 등록된 애들도 함께 보여준다 */
+    @Deprecated
     public static List<UrlMap> getHandlerMapType(AbstractUrlHandlerMapping handlerMapping){
         Map<String,UrlMap> map =  new TreeMap<String, UrlMap>();
         
@@ -185,6 +201,25 @@ public abstract class SpringUtil {
         return Lists.newArrayList(map.values());
     }
     
+    /** rest를 사용하기도 함으로 url을 변형하지 않고 그냥 다 보여준다.
+     * 프로젝트마다 변형해서 사용할것  */
+    public static List<UrlMap> getHandlerMapType(RequestMappingHandlerMapping handlerMapping){
+        Map<String,UrlMap> map =  new TreeMap<String, UrlMap>();
+        for(Entry<RequestMappingInfo, HandlerMethod> e : handlerMapping.getHandlerMethods().entrySet()){
+        	RequestMappingInfo mappingInfo = e.getKey();
+        	HandlerMethod value = e.getValue();
+        	for(String pattern : mappingInfo.getPatternsCondition().getPatterns()){
+        		UrlMap um = new UrlMap();
+                um.url = pattern;
+                um.method = value.getMethod();
+                um.clazz = value.getBeanType();
+                um.url = pattern;
+        		map.put(um.url, um);
+        	}
+    	}
+        return Lists.newArrayList(map.values());
+    }
+    
     /** 해당 methodName으로 매핑된 메소드를 찾아낸다. 
      * rest가 아닌 XXX.do 이런식의 매핑을 찾을때 사용한다. */
     @SuppressWarnings("rawtypes")
@@ -215,6 +250,7 @@ public abstract class SpringUtil {
     
     /** ANT 매칭파일을 리소스로 돌려준다.
      * XML 파일 등을 가져올때 사용 */
+    @Deprecated
     public static Resource[] resourceByClasspath(String packageAntMatchs) throws IOException{
     	PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
     	Iterable<String> matches = Splitter.on(',').trimResults().omitEmptyStrings().split(packageAntMatchs);
@@ -229,13 +265,48 @@ public abstract class SpringUtil {
     	return allResources.toArray(new Resource[allResources.size()]);
     }
     
+    public static enum AntResourceType{
+    	classpath,file;
+    }
     
-    /** EL 표현식으로 템플릿 문자열을 생성한다.
-     * 간단한 구문에 사용하자
+    public static Resource[] antToResources(AntResourceType antResourceType,String antMatchs) throws IOException{
+    	PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+    	Iterable<String> matches = Splitter.on(',').trimResults().omitEmptyStrings().split(antMatchs);
+    	
+    	List<Resource> allResources = Lists.newArrayList();
+    	
+    	for(String match : matches){
+    		Resource[] res = resolver.getResources(antResourceType.name()+":"+match);
+    		for(Resource each : res) allResources.add(each);
+    	}
+    	
+    	return allResources.toArray(new Resource[allResources.size()]);
+    }
+    
+    
+    /**
+     * http://docs.spring.io/spring/docs/3.0.x/reference/expressions.html 
+     * EL 표현식으로 템플릿 문자열을 생성한다.
+     * 다양한 활용이 가능하다. 간단한 구문에 사용하자
      * ex) random number is #{[vo].rowSize} */
     public static String elFormat(String pattern,Object param){
     	ExpressionParser parser = new SpelExpressionParser();
     	return parser.parseExpression(pattern, new TemplateParserContext()).getValue(param,String.class);
+    }
+    
+    /** 
+     * MAP을 다이렉트로 지원하지 않는거 같다..
+     * ex) SpringUtil.elMapFormat("번호 #{map['accId']}  : #{map['rowNum'] - 3}", m) */
+    public static String elMapFormat(String pattern,Map<String,Object> param){
+    	ExpressionParser parser = new SpelExpressionParser();
+    	ElVoMap map = new ElVoMap();
+    	map.setMap(param);
+    	return parser.parseExpression(pattern, new TemplateParserContext()).getValue(map,String.class);
+    }
+    
+    @Data
+    private static class ElVoMap{
+    	private Map<String,Object> map;
     }
     
     @SuppressWarnings("unchecked")

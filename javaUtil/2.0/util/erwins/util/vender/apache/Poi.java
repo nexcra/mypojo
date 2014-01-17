@@ -26,6 +26,8 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import erwins.util.spring.SpringUtil;
+import erwins.util.text.FormatUtil;
 import erwins.util.text.StringUtil;
 import groovy.lang.Closure;
 
@@ -233,16 +235,31 @@ public class Poi extends PoiRoot{
         addValues(i, row, values);
     }
     
-    /** ROUNDUP( A@+B@,2) 이런식으로\
+    /** 
      * 추가적인 내용은 확장해서 쓰자. 
+     * ex) new PoiFormula("SUM(#{colNum}#{start}:#{colNum}#{rowNum-2})");
+     * ex) new PoiFormula("ROUND(AVERAGE(#{colNum}#{start}:#{colNum}#{rowNum-2}),5)");
+     * ex) poi.addValues("합계","-","-",sum,sum,avg,avg,sum,sum,sum,sum,sum,sum,sum,avg,sum,sum,sum,avg,sum);
      * */
     public static class PoiFormula{
-    	private final String formula;
-    	public PoiFormula(String formula) {this.formula = formula ;}
-    	public String toFormula(int rowNum){
-    		String value = formula.replaceAll("@-1",String.valueOf(rowNum-1));
-    		return value.replaceAll("@",String.valueOf(rowNum));
+    	/** =는 생략할것 */
+    	private final String pattern;
+    	public PoiFormula(String pattern) {this.pattern = pattern ;}
+		public String getPattern() {
+			return pattern;
+		}
+    }
+    /** Spring표현식을 사용하기 위해 Map이 아니라 객체로 만들었다. 귀찮지만 나중에 필요한게 있으면 여기 추가하자. */
+    public static class PoiFormulaParam{
+    	private  PoiFormulaParam(String colNum,int rowNum,int start){
+    		this.rowNum = rowNum;
+    		this.colNum = colNum;
+    		this.start = start;
     	}
+    	public final int rowNum;
+    	public final String colNum;
+    	/** 헤더를 제외한 실제 시작로우. 헤더가 2줄이면 3 */
+    	public final int start;
     }
 
     /** 최종메소드?  숫자와 문자는 구분한다. 뿌잉뿌잉~! */
@@ -256,7 +273,8 @@ public class Poi extends PoiRoot{
             	int index = wb.getSheetIndex(name);
             	int count = headerRowCount.get(index);
             	PoiFormula pf = (PoiFormula) each;
-            	String formula = pf.toFormula(row.getRowNum()+count);
+            	PoiFormulaParam param = new PoiFormulaParam( FormatUtil.intToUpperAlpha(i+1),row.getRowNum()+count,count+1);
+            	String formula = SpringUtil.elFormat(pf.getPattern(), param);
             	row.createCell(i++).setCellFormula(formula);
             }else{
             	String value = null;

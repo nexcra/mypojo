@@ -3,7 +3,6 @@ package erwins.util.spring;
 import java.util.Map;
 
 import org.apache.commons.collections.map.ListOrderedMap;
-import org.springframework.stereotype.Repository;
 
 import com.google.common.base.Preconditions;
 
@@ -15,7 +14,6 @@ import erwins.util.text.StringUtil;
 	  <form:radiobuttons path="userName" items="${enum['ALL|BulkUploadDiv']}" />
 	  이 방법이 최선인지는.. 잘 모르겠다.
  * */ 
-@Repository
 public class EnumSpringTagSupport extends SpringTagMapSupport{
 	
 	public <T extends Enum<?>> void add(Class<T> clazz) {

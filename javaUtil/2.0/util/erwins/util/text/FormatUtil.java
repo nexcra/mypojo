@@ -85,6 +85,18 @@ public enum FormatUtil {
     public static String intToAlpha(int i) {
     	return new String(new char[]{(char)(i+97)});
     }
+    
+    /** 1부터 시작하는 int를 대문자 알파벳으로 바꿔준다. 귀찮아서 벨리체크 안함 
+     * 1-> A  */
+    public static String intToUpperAlpha(int i) {
+    	return new String(new char[]{(char)(i+64)});
+    }
+    
+    /** 1부터 시작하는 int를 소문자 알파벳으로 바꿔준다. 귀찮아서 벨리체크 안함 
+     * 1-> a  */
+    public static String intToLowerAlpha(int i) {
+    	return new String(new char[]{(char)(i+96)});
+    }
 
     /**
      * 10자리 사업자등록번호를 '-'를 삽입하여 반환한다.

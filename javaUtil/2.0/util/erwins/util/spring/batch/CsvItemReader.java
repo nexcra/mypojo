@@ -2,7 +2,6 @@ package erwins.util.spring.batch;
 
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -15,20 +14,16 @@ import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
+import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
-
-import com.google.common.collect.Lists;
-
 import erwins.util.vender.etc.OpenCsv;
 
 /** 스레드 세이프하당
  * csvMapper에서 매핑하는데 시간이 많이 걸릴것으로 예상된다면(그럴일이 많이 없겠지만) PassThroughCsvMapper를 일단 사용한 후 processor에서 변환하도록 하자.
  * FlatFileReader와 다른점은 텍스트 안에 \n가 들어있어도 정상적으로 파일을 읽는다.  */
-public class CsvItemReader<T> implements ResourceAwareItemReaderItemStream<T>,ItemReader<T>, ItemStream,InitializingBean{
+public class CsvItemReader<T> implements ResourceAwareItemReaderItemStream<T>,ItemReader<T>, ItemStream{
 	
 	public static final String READ_COUNT = "read.count";
 	private CSVReader reader;
@@ -37,6 +32,7 @@ public class CsvItemReader<T> implements ResourceAwareItemReaderItemStream<T>,It
 	private String encoding = "MS949";
 	private int linesToSkip = 0;
 	private int lineCount = 0;
+	private char separator =  CSVParser.DEFAULT_SEPARATOR;
 	
 	@Override
 	public void close() throws ItemStreamException {
@@ -46,7 +42,7 @@ public class CsvItemReader<T> implements ResourceAwareItemReaderItemStream<T>,It
 	@Override
 	public void open(ExecutionContext arg0) throws ItemStreamException {
 		try {
-			reader = new CSVReader(new InputStreamReader (new BufferedInputStream(resource.getInputStream()),encoding));
+			reader = new CSVReader(new InputStreamReader (new BufferedInputStream(resource.getInputStream()),encoding),separator);
 			for (int i = 0; i < linesToSkip; i++) {
 				readLine();
 			}
@@ -71,9 +67,11 @@ public class CsvItemReader<T> implements ResourceAwareItemReaderItemStream<T>,It
 		}
 	}
 	
+	/** 자료가 없으면 카운트를 올리지 않는다. */
 	public String[] readLine() throws IOException {
-		lineCount++;
-		return   reader.readNext();
+		String[] lines = reader.readNext();
+		if(lines!=null) lineCount++;
+		return  lines;
 	}
 
 	@Override
@@ -87,11 +85,6 @@ public class CsvItemReader<T> implements ResourceAwareItemReaderItemStream<T>,It
 
 	public void setLinesToSkip(int linesToSkip) {
 		this.linesToSkip = linesToSkip;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		//non
 	}
 
 	public void setCsvMapper(CsvMapper<T> csvMapper) {
@@ -113,35 +106,13 @@ public class CsvItemReader<T> implements ResourceAwareItemReaderItemStream<T>,It
 	public static interface ListStringArrayCallback{
 		public void resultListStringArray(List<String[]> list) throws Exception;
 	}
-	
-	/** 간단 사용법 예제
-	 * ExecutionContext : read.count   */
-	public static ExecutionContext read(File in,int commitSize,ListStringArrayCallback callback) throws Exception{
-		ExecutionContext ex = new ExecutionContext();
-		CsvItemReader<String[]> reader = new CsvItemReader<String[]>();
-		reader.setCsvMapper(new PassThroughCsvMapper());
-		reader.resource = new FileSystemResource(in);
-		reader.afterPropertiesSet();
-		
-		try{
-			List<String[]> list = Lists.newArrayList();
-			reader.open(new ExecutionContext());
-			while(true){
-				String[] line = reader.read();
-				if(line==null) {
-					if(list.size()!=0) callback.resultListStringArray(list);
-					break;
-				}
-				list.add(line);
-				if(list.size() >= commitSize){
-					callback.resultListStringArray(list);
-					list = Lists.newArrayList();
-				}
-			}
-		}finally{
-			reader.close();
-		}
-		return ex;
+
+	public char getSeparator() {
+		return separator;
 	}
 
+	public void setSeparator(char separator) {
+		this.separator = separator;
+	}
+	
 }

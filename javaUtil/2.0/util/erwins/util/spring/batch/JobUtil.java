@@ -3,12 +3,6 @@ package erwins.util.spring.batch;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
@@ -32,6 +26,7 @@ import com.google.gson.internal.StringMap;
  * 컨텍스트 관련 다 빼기
  * @author sin
  */
+@Deprecated
 public abstract class JobUtil{
 	
 	public static final String COMPLETED = "COMPLETED";

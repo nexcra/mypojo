@@ -1,8 +1,10 @@
 package erwins.util.groovy
 
 
-import org.apache.poi.ss.formula.functions.T
+import org.apache.commons.collections.map.ListOrderedMap
 
+import com.google.common.collect.ArrayListMultimap
+import com.google.common.collect.Multimap
 import com.google.common.collect.Sets
 
 import erwins.util.text.StringUtil
@@ -19,6 +21,8 @@ public class OracleSqlBean{
 	/** my-batis같은거 쓸때 null예외를 회피하기위해 XML에 추가해주는 용도. => 변경을 해야함 */
 	public static def ORACLE_TO_JDBC_TYPE = ['NUMBER':'NUMERIC','DATE':'TIMESTAMP ','VARCHAR2':'VARCHAR','CHAR':'CHAR']
 	public static def ORACLE_TO_JAVA_TYPE = ['NUMBER':'BigDecimal','DATE':'Date','VARCHAR2':'String','CHAR':'String']
+	
+	public static def 업데이트무시컬럼 = ['REG_TIME','REG_ID','REG_IP']
 	
 	/** 통계성 쿼리 등 간이 SQL을 bean으로 매핑하고싶을때.  */
 	public printSqlToMyBatisBean(sql){
@@ -48,7 +52,6 @@ public class OracleSqlBean{
 		
 		return map
 	}
-	
 	
 	def 참조쿼리 = """ SELECT bb.TABLE_NAME,aa.COLUMN_NAME,aa.POSITION,bb.CONSTRAINT_TYPE,cc.TABLE_NAME R_TABLE_NAME,cc.COLUMN_NAME R_COLUMN_NAME
 		FROM USER_CONS_COLUMNS aa JOIN USER_CONSTRAINTS bb on aa.CONSTRAINT_NAME = bb.CONSTRAINT_NAME
@@ -108,6 +111,98 @@ public class OracleSqlBean{
 		return SQL.toString()
 	}
 	
+	
+	static final List 예약어 = ['AS']
+	
+	public String 약어(str,depth){
+		def 약어 = StringUtil.getAbbr(str,depth)
+		if(예약어.contains(약어)) 약어 = StringUtil.getAbbr(str,depth+1) //약어 제외
+		return 약어
+	}
+	
+	public Map<String,String> 약어만들기(List<String> tableList){
+		 Map<String,String> map = new ListOrderedMap()
+		 Multimap<String,String> 약어맵 =  ArrayListMultimap.create();
+		 tableList.each { 약어맵.put(StringUtil.getAbbr(it), it) }
+		 
+		 int depth = 1;
+		 while(true){
+			 if(약어맵.asMap().entrySet().findAll { it.value.size() > 1 }.size()==0) break; 
+			 def new약어맵 = ArrayListMultimap.create();
+			 약어맵.asMap().entrySet().each {
+				 if(it.value.size() == 1 ){
+					 new약어맵.put(it.key,it.value[0])
+				 }else{
+					 it.value.each {
+						 new약어맵.put(약어(it,depth), it) 
+					 }
+				 }
+			 }
+			 depth++
+			 약어맵 = new약어맵
+		 }
+		 
+		 약어맵.asMap().entrySet().each{ map.put(it.value[0],it.key) }
+		 
+		 return map
+	}
+	
+	/** printMybatis2 수정본
+	 *  처음게 도메인 테이블이고, 나머지가 조인 테이블들이다. */
+	public String printMybatis2(tableList){
+		
+		def 테이블이름_약어맵 = 약어만들기(tableList) 
+		def FROM = [];
+		def 테이블정보들 = []
+		tableList.eachWithIndex { TABLE_NAME,index ->
+			def 테이블정보 = [TABLE_NAME:TABLE_NAME]
+			def 제약조건_딕셔너리 = db.list String.format(참조쿼리, TABLE_NAME)
+			테이블정보.COLUMN_NAME = db.list("SELECT COLUMN_NAME FROM user_tab_columns a WHERE a.TABLE_NAME = '$TABLE_NAME' ORDER BY a.TABLE_NAME, COLUMN_ID").collect{ it.COLUMN_NAME }
+			테이블정보.NOT_NULL = 제약조건_딕셔너리.findAll { ['C','P'].contains(it.CONSTRAINT_TYPE) }.collect{ it.COLUMN_NAME }
+			//[AD_QUEUE_ID]
+			테이블정보.PK = 제약조건_딕셔너리.findAll { ['P'].contains(it.CONSTRAINT_TYPE) }.collect{ it.COLUMN_NAME }
+			테이블정보.ABBR = 테이블이름_약어맵[TABLE_NAME]
+
+			//ex) [[TABLE_NAME:BOARD, COLUMN_NAME:USER_ID, POSITION:1, CONSTRAINT_TYPE:R, R_TABLE_NAME:ACCOUNT, R_COLUMN_NAME:USER_ID]]  
+			테이블정보.FK = 제약조건_딕셔너리.findAll { ['R'].contains(it.CONSTRAINT_TYPE) && 테이블이름_약어맵.containsKey(it.R_TABLE_NAME) }
+			
+			if(index == 0){
+				FROM << "$TABLE_NAME $테이블정보.ABBR"
+			}else{
+				//먼저 자신의 PK가 앞에나온 테이블들의 FK에 있는지 검색한다. (일단은 전부 싱글키로 간주한다.)
+				def 연결된FK =  테이블정보들.collect{ it.FK }.flatten().find{ it.R_TABLE_NAME == TABLE_NAME && it.R_COLUMN_NAME == 테이블정보.PK[0] }
+				if(연결된FK == null) FROM << "$TABLE_NAME $테이블정보.ABBR ON --"
+				else{
+					def FK테이블약어 = 테이블이름_약어맵[연결된FK.TABLE_NAME]
+					FROM << "JOIN $TABLE_NAME $테이블정보.ABBR ON ${FK테이블약어}.$연결된FK.R_COLUMN_NAME = ${테이블정보.ABBR}.${테이블정보.PK[0]}"
+				}
+			}
+			테이블정보들 <<  테이블정보
+		}
+		
+		def SQL = "SELECT ";
+		SQL += 테이블정보들.collect{ 테이블정보 -> 테이블정보.COLUMN_NAME.collect {
+			테이블정보.TABLE_NAME == tableList[0] ? "${테이블정보.ABBR}.$it" :  "${테이블정보.ABBR}.$it ${테이블정보.ABBR}_$it"
+		}.join(" , ") }.join(", \n")
+		SQL += "\nFROM " +  FROM.join("\n")
+		
+		return SQL.toString()
+	}
+	
+	/** <association columnPrefix="C1_"  property="channel"  resultMap="ChannelDao.ChannelMap" />
+	 *   */
+	public String printMybatisXml(tableList){
+		def 테이블이름_약어맵 = 약어만들기(tableList)
+		def SQL = []
+		tableList.eachWithIndex { e,index ->
+			if(index==0) return
+			def 프로퍼티명 = StringUtil.getCamelize(e)
+			def 캐피탈 = StringUtil.capitalize(프로퍼티명)
+			SQL << "<association columnPrefix=\"${테이블이름_약어맵[e]}_\"  property=\"$프로퍼티명\"  resultMap=\"${캐피탈}Dao.${캐피탈}Map\" />"
+		}
+		return SQL.join('\n')
+	}
+	
 	/** iBatiis or MyBatis용 */
 	public printBatis(TABLE_NAME){
 		db.loadInfo("and a.TABLE_NAME = '$TABLE_NAME'").loadColumn().loadColumnKey()
@@ -146,9 +241,7 @@ public class OracleSqlBean{
 		def pks = columns.findAll { it['P'] == 'P' }.collect { it.COLUMN_NAME }
 		def nonPks = columns.findAll { it['P'] != 'P' }.collect { it.COLUMN_NAME }
 		
-		def 업데이트무시컬럼 = ['REG_TIME']
-		
-		sqls['UPDATE'] = "UPDATE $TABLE_NAME SET " + cn.collect { it + ' = '+$$2(it)}.join(', ') + ' \nWHERE ' + pks.collect { it + ' = '+$$(it) }.join(' AND ')
+		sqls['UPDATE'] = "UPDATE $TABLE_NAME SET " + cn.findAll{ !업데이트무시컬럼.contains(it) }.collect { it + ' = '+$$2(it)}.join(', ') + ' \nWHERE ' + pks.collect { it + ' = '+$$(it) }.join(' AND ')
 		
 		def mergeSql  = "MERGE INTO $TABLE_NAME USING dual ON ( " + pks.collect { it + ' = '+$$(it) }.join(' AND ')  + " )\n"
 		mergeSql += "WHEN matched THEN UPDATE SET " + nonPks.collect { it + ' = '+$$2(it) }.join(', ') + '\n'
@@ -180,8 +273,7 @@ public class OracleSqlBean{
 			def type = ORACLE_TO_JAVA_TYPE[it['DATA_TYPE']]
 			if(type=='BigDecimal' && it['DATA_SCALE']==0) type ='Long'
 			def name = StringUtil.getCamelize(it['COLUMN_NAME'])
-			if(it.COMMENTS==null) it.COMMENTS = 'COMMENTS를 달아주세요'
-			result << "/** $it.COMMENTS */"
+			if(it.COMMENTS!=null) result << "/** $it.COMMENTS */"
 			result << "private $type $name;"
 		}
 		return result

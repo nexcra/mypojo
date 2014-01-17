@@ -14,9 +14,13 @@ import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 
 import erwins.util.counter.Latch;
+import erwins.util.guava.FunctionSet;
 import erwins.util.lib.CollectionUtil;
 import erwins.util.lib.CompareUtil;
 import erwins.util.number.StringCalculator;
@@ -439,6 +443,14 @@ public class StringUtil extends StringUtils {
             }
         }
         return stringBuffer.toString();
+    }
+    
+    /** 첫 문자와 _ 이후의 문자만 추출해서 대문자로 리턴한다.  getAbbr()와는 달리 최대 자리수 만틈 리턴한다. 
+     * ex) getAbbr(A,2) ==> ACCOUNT_IDX -> AC_ID */
+    public static String getAbbr(String str,int max) {
+    	Iterable<String> splited = Splitter.on('_').trimResults().omitEmptyStrings().split(str);
+    	Iterable<String> transform = Iterables.transform(splited, FunctionSet.substring(max)); 
+        return Joiner.on('_').join(transform);
     }
 
     /** 두문자를 제거 후 첫 글자를 소문자로 바꾼다. ex) searchMapKey => mapKey */
