@@ -292,5 +292,12 @@ public abstract class WebUtil {
     }
     
     
+    /** WAS에서 L4나 웹서버의 IP가 찍히는 경우, 포워딩되기전 IP가 필요할때 */
+	public static String getForwardedIp(HttpServletRequest req){
+		String remoteIp = req.getHeader("x-forwarded-for");
+    	return remoteIp;
+    }
+    
+    
     
 }

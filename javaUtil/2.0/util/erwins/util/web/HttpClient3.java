@@ -4,6 +4,7 @@ package erwins.util.web;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -50,13 +51,22 @@ public class HttpClient3{
     private HttpMethod method;
     private String encode = "UTF-8";
     
-    /** 부가 설정을 해준다 
-     * 이 메소드는 차후 수정  
+    //httpclient.getParams().setParameter("http.protocol.expect-continue", false);//HttpClient POST 요청시 Expect 헤더정보 사용 x
+    //httpclient.getParams().setParameter("http.connection.timeout", useTimeout * 1000);// 원격 호스트와 연결을 설정하는 시간
+    //httpclient.getParams().setParameter("http.socket.timeout",  useTimeout * 1000);//데이터를 기다리는 시간
+    //httpclient.getParams().setParameter("http.connection-manager.timeout",  useTimeout * 1000);// 연결 및 소켓 시간 초과 
+    //httpclient.getParams().setParameter("http.protocol.head-body-timeout",  useTimeout * 1000);
+    
+    /** 부가 설정을 해준다. 이 메소드는 차후 수정  위 주석된 설정 참고
+     * 내부적으로 어떻게 타임아웃을 주는지 모르겠다. 프로토콜 옵션인지? 아니면 소스상에 박혀있는건지?
      * ex) timeoutSec 5초  */
     public HttpClient3 setHttpConnectionManager(Integer timeoutSec) {
         HttpConnectionManager manager = new SimpleHttpConnectionManager();
         HttpConnectionManagerParams connectionParam = new HttpConnectionManagerParams();
-        if(timeoutSec!=null) connectionParam.setConnectionTimeout(timeoutSec*1000);
+        if(timeoutSec!=null) {
+        	connectionParam.setConnectionTimeout(timeoutSec * 1000); // 원격 호스트와 연결을 설정하는 시간
+        	connectionParam.setSoTimeout(timeoutSec * 1000); //데이터를 기다리는 시간
+        }
         
         manager.setParams(connectionParam);
         client.setHttpConnectionManager(manager);
@@ -73,10 +83,13 @@ public class HttpClient3{
         return this;
     }
     
-    public HttpClient3 executeMethod(){
+    /** 타임아웃이 설정된 경우 SocketTimeoutException를 던진다 */
+    public HttpClient3 executeMethod() throws SocketTimeoutException{
     	try {
             client.executeMethod(method);
             return this;
+        } catch (SocketTimeoutException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

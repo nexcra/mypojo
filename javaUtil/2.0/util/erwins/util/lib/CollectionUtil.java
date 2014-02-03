@@ -2,12 +2,15 @@ package erwins.util.lib;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * 
@@ -178,5 +181,24 @@ public abstract class CollectionUtil extends CollectionUtils {
 		if(adEntry.size() > max) return adEntry.subList(0, max);
 		return adEntry;
 	}
+	
+    /** before 자료에 있던 자료와 동일한 순번으로 after를 리오더링 시켜준다.
+     * 엑셀에 데이터를 이쁘게 넣어줄때 사용했다.  */
+	public static <T> List<T> reOrderLikeBefore(List<T> before, List<T> after,T empty) {
+ 		List<T> cc = Lists.newArrayList();
+ 		Map<Integer,T> matched = Maps.newTreeMap();
+ 		for(T data : after){
+ 			int i = before.indexOf(data);
+ 			if(i < 0) cc.add(data); 
+ 			else matched.put(i, data);
+ 		}
+ 		
+ 		for(Entry<Integer, T> entry  : matched.entrySet()){
+ 			int index = entry.getKey();
+ 			while(cc.size() < index) cc.add(empty);
+ 			cc.add(index,entry. getValue());
+ 		}
+ 		return cc;
+ 	}
 
 }

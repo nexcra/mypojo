@@ -29,7 +29,7 @@ public class XMPPBotTokenClient extends XMPPBotClient {
 		public void message(Message from) {
 			if(from.getType() != Message.Type.chat){
                 XMPPError e = from.getError();
-                log.warn("error chat msg : " + e.getMessage());
+                log.warn("구독 신청이 되어있느지 확인해주세요. --> error chat msg : " + e.getMessage());
                 return;
             }
 			String body = from.getBody();
