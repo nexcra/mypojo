@@ -870,6 +870,12 @@ public class StringUtil extends StringUtils {
 		return text.substring(0, matchResukt.start()) + replaceText + text.substring(matchResukt.end(), text.length());
 	}
 	
+	/** 시리즈 추가하자. */
+	public static String nullSafeToString(Number value,String defaultValue) {
+		if(value==null) return defaultValue;
+		return String.valueOf(value);
+	}
+	
 	
     
     

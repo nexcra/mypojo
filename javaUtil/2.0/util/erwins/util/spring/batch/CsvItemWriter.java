@@ -2,6 +2,7 @@ package erwins.util.spring.batch;
 
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -16,7 +17,12 @@ import org.springframework.core.io.Resource;
 
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVWriter;
+
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Preconditions;
+
 import erwins.util.root.NotThreadSafe;
+import erwins.util.text.StringUtil;
 import erwins.util.vender.etc.OpenCsv;
 
 /** 
@@ -29,10 +35,11 @@ public class CsvItemWriter<T> implements ResourceAwareItemWriterItemStream<T>,It
 	
 	private CSVWriter writer;
 	private Resource resource;
+	private File currentFile;
 	private String encoding = "MS949";
-	/** 수동 헤더 */
+	/** 1.수동 헤더 */
 	private String[] header;
-	/** SQL등으로 생성되는 헤더 */
+	/** 2.SQL등으로 생성되는 헤더 */
 	private CsvHeaderCallback csvHeaderCallback;
 	private CsvAggregator<T> csvAggregator;
 	private int lineCount = 0;
@@ -40,6 +47,10 @@ public class CsvItemWriter<T> implements ResourceAwareItemWriterItemStream<T>,It
 	private boolean first = true;
 	/** true이면 뒤에 붙여쓴다 */
 	private boolean append = false;
+	/** 이 숫자(헤더 포함)를 넘어가면 현재 파일에 쓰기를 중단하고 다음 파일에 쓰기를 시도한다.
+	 * 엑셀로 CSV를 읽을때 제한이 1048576 인거같다. */
+	private Integer maxLineCount;
+	private int currentMaxLineCount = 0;
 	
 	public static interface CsvHeaderCallback{
 		public List<String[]> headers();
@@ -54,15 +65,25 @@ public class CsvItemWriter<T> implements ResourceAwareItemWriterItemStream<T>,It
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
 		try {
-			FileOutputStream os = new FileOutputStream(resource.getFile(),append);
-			OutputStreamWriter w = new OutputStreamWriter(os,encoding);
-			BufferedWriter ww = new BufferedWriter(w,bufferSize); //디폴트가 8192 일듯
-			char escaper = csvRead ? CSVParser.DEFAULT_ESCAPE_CHARACTER : CSVWriter.DEFAULT_ESCAPE_CHARACTER;
-			writer = new CSVWriter(ww,CSVWriter.DEFAULT_SEPARATOR,CSVWriter.DEFAULT_QUOTE_CHARACTER,escaper);
-			if(header!=null) writeLine(header);
+			currentFile = resource.getFile();
+			if(maxLineCount!=null){
+				boolean digitFileName = CharMatcher.DIGIT.matchesAnyOf(currentFile.getName());
+				Preconditions.checkArgument(digitFileName, "maxLineCount option required DIGIT fileName : " + currentFile.getName());
+				currentMaxLineCount = maxLineCount;
+			}
+			doOpen();
 		} catch (IOException e) {
 			throw new ItemStreamException(e);
 		}
+	}
+
+	private void doOpen() throws IOException {
+		FileOutputStream os = new FileOutputStream(currentFile,append);
+		OutputStreamWriter w = new OutputStreamWriter(os,encoding);
+		BufferedWriter ww = new BufferedWriter(w,bufferSize); //디폴트가 8192 일듯
+		char escaper = csvRead ? CSVParser.DEFAULT_ESCAPE_CHARACTER : CSVWriter.DEFAULT_ESCAPE_CHARACTER;
+		writer = new CSVWriter(ww,CSVWriter.DEFAULT_SEPARATOR,CSVWriter.DEFAULT_QUOTE_CHARACTER,escaper);
+		if(header!=null) writeLine(header);
 	}
 	
 	@Override
@@ -70,6 +91,7 @@ public class CsvItemWriter<T> implements ResourceAwareItemWriterItemStream<T>,It
 		executionContext.putInt(WRITE_COUNT, lineCount);
 	}
 	
+	/** 닫으면서 flush 하는것으로 추청된다. */
 	@Override
 	public void close() throws ItemStreamException {
 		OpenCsv.closeQuietly(writer);
@@ -90,6 +112,20 @@ public class CsvItemWriter<T> implements ResourceAwareItemWriterItemStream<T>,It
 	}
 	
 	public void writeLine(String[] lines){
+		if(maxLineCount!=null){
+			if(currentMaxLineCount <= lineCount){
+				String nextFileName = StringUtil.plusAsLastNumber(currentFile.getName(), 1);
+				File nextFile = new File(currentFile.getParentFile(),nextFileName);
+				currentFile = nextFile;
+				currentMaxLineCount += maxLineCount;
+				try {
+					OpenCsv.closeQuietly(writer);
+					doOpen();
+				} catch (IOException e) {
+					throw new ItemStreamException(e);
+				}
+			}
+		}
 		lineCount++;
 		writer.writeNext(lines);
 	}
@@ -146,7 +182,14 @@ public class CsvItemWriter<T> implements ResourceAwareItemWriterItemStream<T>,It
 	public void setCsvRead(boolean csvRead) {
 		this.csvRead = csvRead;
 	}
-	
+
+	public Integer getMaxLineCount() {
+		return maxLineCount;
+	}
+
+	public void setMaxLineCount(Integer maxLineCount) {
+		this.maxLineCount = maxLineCount;
+	}
 	
 
 }

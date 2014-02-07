@@ -21,6 +21,7 @@ import org.springframework.batch.item.file.transform.PassThroughLineAggregator;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.RowMapper;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Strings;
@@ -40,6 +41,7 @@ public class SpringBatchMock<T>{
 	
 	private ItemReader<T> itemReader;
 	private ItemWriter<T> itemWriter;
+	private ItemProcessor<T,T> itemProcessor;
 	private int commitInterval = 1000;
 	private ExecutionContext executionContext = new ExecutionContext();
 	
@@ -53,6 +55,7 @@ public class SpringBatchMock<T>{
 			while(true){
 				T item =  itemReader.read();
 				if(item==null) break;
+				if(itemProcessor!=null ) item = itemProcessor.process(item);
 				list.add(item);
 				if(list.size() >= commitInterval){
 					itemWriter.write(list);
@@ -119,6 +122,7 @@ public class SpringBatchMock<T>{
 	}
 	
 	/** SQL로 CSV를 생성하는 간단 샘플
+	 * ==> select로 리팩토링 하자
 	 * ex)
 	 *  DataSource dataSource = SpringBatchUtil.createDataSource(OracleDriver.class, "jdbc:oracle:thin:@182.162.16.51:1521:ORCL", "id", "pass");
 		File out = new File("C:/DATA/download/AD.csv");
@@ -217,6 +221,36 @@ public class SpringBatchMock<T>{
         
         SpringBatchMock<String[]> mock = new SpringBatchMock<String[]>();
 		mock.setCommitInterval(1000); //Groovy에서 만들어놓은거 기본 주기
+		mock.setItemReader(itemReader);
+		mock.setItemWriter(itemWriter);
+		return mock.run();
+	}
+	
+	/** 간이 SQL 실행기 */
+	public static <T> List<T> select(DataSource dataSource,RowMapper<T> rowMapper,String sql,Object ... param) throws Exception{
+		final List<T> result = Lists.newArrayList();
+		ItemWriter<T> itemWriter = new ItemWriter<T>() {
+			@Override
+			public void write(List<? extends T> arg0) throws Exception {
+				result.addAll(arg0);
+			}
+		};
+		select(dataSource,rowMapper,itemWriter,1000,sql,param);
+		return result;
+	}
+	
+	/**  itemWriter에 콜백을 넣어서 사용하자. */
+	public static <T> ExecutionContext select(DataSource dataSource,RowMapper<T> rowMapper,ItemWriter<T> itemWriter,int fetchSize,String sql,Object ... param) throws Exception{
+		JdbcCursorItemReader<T> itemReader = new JdbcCursorItemReader<T>();
+		itemReader.setDataSource(dataSource);
+		itemReader.setRowMapper(rowMapper);
+		itemReader.setFetchSize(fetchSize); 
+		itemReader.setSql(sql);
+		itemReader.setPreparedStatementSetter(SpringUtil.buildPreparedStatement(param));
+		itemReader.afterPropertiesSet();
+		
+		SpringBatchMock<T> mock = new SpringBatchMock<T>();
+		mock.setCommitInterval(fetchSize);
 		mock.setItemReader(itemReader);
 		mock.setItemWriter(itemWriter);
 		return mock.run();
