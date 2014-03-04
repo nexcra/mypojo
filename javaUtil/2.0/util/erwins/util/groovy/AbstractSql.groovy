@@ -142,6 +142,17 @@ public abstract class AbstractSql{
 		println "테이블 ${tableName}에 $success 건의 데이터가 입력되었습니다 "
 	}
 	
+	/** 로그 없는버전 */
+	public void insertListNoLog(tableName,columnNames,List list){
+		def insertSql = "INSERT INTO $tableName (" + columnNames.join(',') + ') VALUES ('+ columnNames.collect { '?' }.join(',')  +')'
+		withTransaction {
+			db.withBatch 1000,insertSql,{ ps->
+				list.each { ps.addBatch(it) }
+			}
+		}
+		list.size()	
+	}
+	
 	/** 한번에 너무많이 하지말긔~ update에 사용하자.
 	 * ex) result.splitByNumber(1000).each 백만건 이상 시.  */
 	public void withBatch(sql,List list){

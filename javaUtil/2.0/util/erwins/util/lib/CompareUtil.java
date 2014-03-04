@@ -47,10 +47,32 @@ public abstract class CompareUtil{
 	
 	/** 스트링 역순 비교자. Serializable때문에 이렇게 작성 */
 	@SuppressWarnings("serial")
+	@Deprecated
 	public static class StringRevComparator implements Serializable,Comparator<String>{
 		@Override
 		public int compare(String o1, String o2) {
 			return o1.compareTo(o2)*-1;
+		}
+	}
+	
+	/**
+	 *  toString() 으로 비교한다.
+	 * Serializable때문에 이렇게 작성 */
+	@SuppressWarnings("serial")
+	public static class StringComparator<T> implements Serializable,Comparator<T>{
+		@Override
+		public int compare(T o1, T o2) {
+			if(o1==null || o2==null) return 0;
+			return o1.toString().compareTo(o2.toString());
+		}
+	}
+	
+	
+	@SuppressWarnings("serial")
+	public static class IntegerComparator implements Serializable,Comparator<Integer>{
+		@Override
+		public int compare(Integer o1, Integer o2) {
+			return Ints.compare(o1, o2);
 		}
 	}
 	

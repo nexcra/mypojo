@@ -29,6 +29,14 @@ public class MessageBuilder{
 		lines.add(MessageFormat.format(pattern, arguments));
 		return this;
 	}
+	public MessageBuilder addFirst(String line){
+		lines.add(0,line);
+		return this;
+	}
+	public MessageBuilder addFormatFirst(String pattern,Object ... arguments){
+		lines.add(0,MessageFormat.format(pattern, arguments));
+		return this;
+	}
 	public static MessageBuilder createAddFormat(String pattern,Object ... arguments){
 		MessageBuilder builder = new MessageBuilder();
 		return builder.addFormat(pattern, arguments);

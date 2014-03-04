@@ -7,10 +7,13 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
+
+import com.google.common.collect.Maps;
 
 import erwins.util.lib.ReflectionUtil;
 
@@ -22,10 +25,21 @@ import erwins.util.lib.ReflectionUtil;
 public class ReflectionRowMapper<T> implements RowMapper<T> {
 	
 	private final Class<T> persistentClass;
-	private final Map<String,Field> fieldMap;
+	private Map<String,Field> fieldMap;
 	
 	public static <T> ReflectionRowMapper<T> create(Class<T> persistentClass){
 		ReflectionRowMapper<T> mapper = new ReflectionRowMapper<T>(persistentClass);
+		return mapper;
+	}
+	
+	/** hive에서 들고오면 죄다 소문자로 변경된다. */
+	public static <T> ReflectionRowMapper<T> createLowerCase(Class<T> persistentClass){
+		ReflectionRowMapper<T> mapper = new ReflectionRowMapper<T>(persistentClass);
+		Map<String,Field> fieldMap = Maps.newHashMap();
+		for(Entry<String, Field> entry:mapper.fieldMap.entrySet()){
+			fieldMap.put(entry.getKey().toLowerCase(), entry.getValue());
+		}
+		mapper.fieldMap = fieldMap;
 		return mapper;
 	}
     

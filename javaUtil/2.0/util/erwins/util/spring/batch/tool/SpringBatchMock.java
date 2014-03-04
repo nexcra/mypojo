@@ -3,6 +3,8 @@ package erwins.util.spring.batch.tool;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 import javax.sql.DataSource;
 
@@ -22,11 +24,13 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
+import erwins.util.nio.ThreadUtil;
 import erwins.util.spring.SpringUtil;
 import erwins.util.spring.batch.CsvItemReader;
 import erwins.util.spring.batch.CsvItemReader.PassThroughCsvMapper;
@@ -45,6 +49,18 @@ public class SpringBatchMock<T>{
 	private int commitInterval = 1000;
 	private ExecutionContext executionContext = new ExecutionContext();
 	
+	public void add(String key,long value){
+		synchronized (executionContext) {
+			long exist = executionContext.getLong(key, 0);
+			executionContext.putLong(key, exist + value);
+		}
+	}
+	public void add(String key,int value){
+		synchronized (executionContext) {
+			int exist = executionContext.getInt(key, 0);
+			executionContext.putInt(key, exist + value);
+		}
+	}
 	
 	/** 리더/라이터를 조합해서 실행한다. */
 	public ExecutionContext run(){
@@ -73,6 +89,60 @@ public class SpringBatchMock<T>{
 			SpringBatchUtil.closeIfAble(itemReader);
 			SpringBatchUtil.closeIfAble(itemWriter);
 		}
+		return executionContext;
+	}
+	
+	/** DB작업을 할 경우 반드시 ThreadLocal당 커넥션을 유지해야 한다. */
+	public ExecutionContext run(int corePoolSize){
+		SpringBatchUtil.openIfAble(itemReader,executionContext);
+		SpringBatchUtil.openIfAble(itemWriter,executionContext);
+		
+        ThreadPoolTaskExecutor ex = ThreadUtil.defaultPool(corePoolSize);
+        
+        Callable<Long> callable = new Callable<Long>() {
+			@Override
+			public Long call() throws Exception {
+				List<T> list = Lists.newArrayList();
+				long countSum = 0;
+				try {
+					while(true){
+						T item =  itemReader.read();
+						if(item==null) break;
+						if(itemProcessor!=null ) item = itemProcessor.process(item);
+						list.add(item);
+						if(list.size() >= commitInterval){
+							itemWriter.write(list);
+							SpringBatchUtil.updateIfAble(itemReader,executionContext);
+							SpringBatchUtil.updateIfAble(itemWriter,executionContext);
+							countSum += list.size();
+							list = Lists.newArrayList();
+						}
+					}
+					itemWriter.write(list);
+					SpringBatchUtil.updateIfAble(itemReader,executionContext);
+					SpringBatchUtil.updateIfAble(itemWriter,executionContext);
+					countSum += list.size();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				return countSum;
+			}
+		}; 
+        
+		try{
+			List<Future<Long>> fs = Lists.newArrayList();
+			for(int i=0;i<corePoolSize;i++){
+				fs.add(ex.submit(callable));
+			}
+			Long sum = ThreadUtil.sum(fs);
+			executionContext.putLong("totalThreadCountSum", sum);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}finally{
+			SpringBatchUtil.closeIfAble(itemReader);
+			SpringBatchUtil.closeIfAble(itemWriter);
+		}
+		
 		return executionContext;
 	}
 	
@@ -254,6 +324,22 @@ public class SpringBatchMock<T>{
 		mock.setItemReader(itemReader);
 		mock.setItemWriter(itemWriter);
 		return mock.run();
+	}
+	
+	public static <T> List<T> toList(ItemReader<T> itemReader) {
+		
+		SpringBatchMock<T> mock = new SpringBatchMock<T>();
+    	final List<T> list = Lists.newArrayList();
+		mock.setCommitInterval(1000);
+		mock.setItemReader(itemReader);
+		mock.setItemWriter(new ItemWriter<T>() {
+			@Override
+			public void write(List<? extends T> items) throws Exception {
+				list.addAll(items);
+			}
+		});
+		mock.run();
+		return list;
 	}
 	
 	

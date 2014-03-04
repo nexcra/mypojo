@@ -63,6 +63,8 @@ public class BatchContext{
         jec = je.getExecutionContext();
         ji = je.getJobInstance();
         jp = ji.getJobParameters();
+        //StepExecution에는 마지막 스탭을 추가한다.
+        
     }
     
     public BatchContext(StepExecution se){

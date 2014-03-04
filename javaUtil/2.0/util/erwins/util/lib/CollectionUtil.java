@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.map.ListOrderedMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -57,7 +58,13 @@ public abstract class CollectionUtil extends CollectionUtils {
 	/**
 	 * 마지막 객체를 반환한다.
 	 */
-	public static <T> T getLast(List<T> list) {
+	public static <T> T getLast(Collection<T> collection) {
+		List<T> list = null;
+		if(collection instanceof List){
+			list = (List<T>) collection;		
+		}else{
+			list = Lists.newArrayList(collection);
+		}
 		if (list == null || list.size() == 0) return null;
 		return list.get(list.size() - 1);
 	}
@@ -200,5 +207,27 @@ public abstract class CollectionUtil extends CollectionUtils {
  		}
  		return cc;
  	}
+	
+	/** 각각의 맵을 하나로 합친다.
+	 * Map<String,Map<K,V>>  ==> Map<K,Map<String,V>>  
+	 * 리턴되는 맵의 구현체는  newTreeMap / ListOrderedMap 이다 */
+	@SuppressWarnings("unchecked")
+	public static <K extends Comparable<K>,V> Map<K,Map<String,V>> mergeMap(Map<String,Map<K,V>> mergeSet) {
+		
+		Map<K,Map<String,V>> result = Maps.newTreeMap();
+		for(Entry<String, Map<K, V>>  sourceEntry : mergeSet.entrySet()){
+			Map<K, V> target = sourceEntry.getValue();
+			for(Entry<K, V> e : target.entrySet()){
+				Map<String,V> value = result.get(e.getKey());
+				if(value==null){
+					value = new ListOrderedMap();
+					result.put(e.getKey(), value);
+				}
+				value.put(sourceEntry.getKey(), e.getValue());
+			}
+		}
+		
+		return result;
+	}
 
 }

@@ -102,8 +102,12 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 		}
 		throw new InputValidationException("[{0}] is not found from {1}", value, clazz.getSimpleName());
 	}
-
+	/*
 	public static Enum<?>[] getEnums(Class<Enum<?>> clazz) {
+		return clazz.getEnumConstants();
+	}*/
+	
+	public static <T extends Enum<?>> T[] getEnums(Class<T> clazz) {
 		return clazz.getEnumConstants();
 	}
 

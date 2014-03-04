@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
 import com.google.common.collect.Lists;
 
 /** 뭔가 허접하다.. 쓸모없는듯 ㅠㅠ */
@@ -49,6 +51,18 @@ public abstract class ThreadUtil {
 			sum += each.get().longValue();
 		}
 		return sum;
+	}
+	
+	/**  
+	 * 간이 풀을 만들때 사용한다.
+	 * setMaxPoolSize / setQueueCapacity 은 기본 Integer.MAX 이다. */
+	public static ThreadPoolTaskExecutor defaultPool(int corePoolSize){
+		ThreadPoolTaskExecutor ex = new ThreadPoolTaskExecutor();
+        ex.setCorePoolSize(corePoolSize);
+        ex.setKeepAliveSeconds(60);
+        ex.setThreadNamePrefix("defaultPool_");
+        ex.afterPropertiesSet();
+        return ex;
 	}
 
 }

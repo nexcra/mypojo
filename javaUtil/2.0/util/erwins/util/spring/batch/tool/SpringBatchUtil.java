@@ -121,4 +121,29 @@ public abstract class SpringBatchUtil{
         return COMPLETED.equals(se.getExitStatus());
     }
     
+	/**
+	 * 대용량 벌크입력시 사용된다. 해당 예외일 경우 슬립 했다가 다시 시도한다. 
+	 * ex)DuplicateKeyException */
+	public static int retry(Runnable run,int currentTry,int limitTry,int sleepSec,Class<?>  clazz){
+		try {
+			run.run();
+		} catch (RuntimeException e) {
+			boolean able = clazz.isInstance(e);
+			if(!able){
+				Throwable cause = e.getCause();
+				if(cause!=null) able = clazz.isInstance(e);
+			}
+			if(!able) throw e;
+			currentTry++;
+			if(currentTry > limitTry) throw new RuntimeException("최대 try횟수를 넘었습니다. limitTry : " + limitTry,e);
+			retry(run,currentTry,limitTry,sleepSec,clazz);
+		}
+		return currentTry;
+	}
+	
+	/** @see retry */
+	public static int retry(Runnable run,int limitTry,int sleepSec,Class<?>  clazz){
+		return retry(run,0,limitTry,sleepSec,clazz);
+	}
+    
 }

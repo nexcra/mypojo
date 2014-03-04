@@ -160,6 +160,9 @@ public abstract class SpringUtil {
     public static Resource getEmptyResource(){
         return new InputStreamResource(IOUtils.toInputStream(""));
     }
+    public static Resource[] getEmptyResources(){
+        return new Resource[]{getEmptyResource()};
+    }
     
     /** 어노테이션 / 메소드 매핑으로 등록된 애들도 함께 보여준다 */
     @Deprecated
