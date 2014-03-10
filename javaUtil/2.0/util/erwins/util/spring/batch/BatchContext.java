@@ -160,6 +160,19 @@ public class BatchContext{
         return plused;
     }
     
+    /**  최대값만 남김. */
+    private void putMax(ExecutionContext ex, String key, Long value) {
+        Long exist = ex.getLong(key, 0L);
+        if(exist >= value) return ;
+        ex.putLong(key, value);
+    }
+    /**  최대값만 남김. */
+    private void putMax(ExecutionContext ex, String key, Integer value) {
+    	Integer exist = ex.getInt(key, 0);
+        if(exist >= value) return ;
+        ex.putInt(key, value);
+    }
+    
     /** JOB / STEP 둘다 추가한다 */
     public void add(String key,Integer value) {
         addSynchronized(jec,key,value);
@@ -181,6 +194,16 @@ public class BatchContext{
     }
     public Long addSe(String key,Long value) {
         return add(sec,key,value);
+    }
+    public void putMaxSe(String key,Integer value) {
+    	synchronized (this) {
+    		putMax(sec,key,value);	
+		}
+    }
+    public void putMaxSe(String key,Long value) {
+    	synchronized (this) {
+    		putMax(sec,key,value);	
+		}
     }
     
     //================== JOB간에 공유하는 임시데이터  =========================

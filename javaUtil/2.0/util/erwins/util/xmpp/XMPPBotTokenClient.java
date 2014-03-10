@@ -19,7 +19,9 @@ public class XMPPBotTokenClient extends XMPPBotClient {
 		super(id, pass);
 		setBotMessageListener(new XMPPBotTokenMessageListener());
 	}
-
+	
+	/** 채팅 메세지가 오류로 나오면  자동으로 친구추가를 요청한다. */
+	private boolean autoSubscribe = true;
 
 	/** 일치하는 명령이 없으면 실행하지 않는다.
 	 * 메제지의 경우 구독신청이 되어있지 않은경우에는 튕겨저 나온다. 이를 이벤트로 받아 답글을 쓸 경우 무한루프에 빠지게 된다. 
@@ -27,13 +29,14 @@ public class XMPPBotTokenClient extends XMPPBotClient {
 	public class XMPPBotTokenMessageListener implements XMPPBotMessageListener{
 		@Override
 		public void message(Message from) {
+			String fromId = from.getFrom().split("/")[0];
 			if(from.getType() != Message.Type.chat){
                 XMPPError e = from.getError();
-                log.warn("구독 신청이 되어있느지 확인해주세요. --> error chat msg : " + e.getMessage());
+                if(autoSubscribe) subscribe(fromId);
+                else log.warn("구독 신청이 되어있느지 확인해주세요. --> error chat msg : " + e.getMessage());
                 return;
             }
 			String body = from.getBody();
-			String fromId = from.getFrom().split("/")[0];
 			for(Token token:tokens){
 				if(token.executeMessage(from,fromId)) return;
 			}
@@ -85,6 +88,14 @@ public class XMPPBotTokenClient extends XMPPBotClient {
 				else if(id.startsWith("user")) addGroup(each,"USER");
 			}
 		}
+	}
+
+	public boolean isAutoSubscribe() {
+		return autoSubscribe;
+	}
+
+	public void setAutoSubscribe(boolean autoSubscribe) {
+		this.autoSubscribe = autoSubscribe;
 	}    
 
 }

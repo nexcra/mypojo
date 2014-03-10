@@ -91,6 +91,8 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
                         XMPPError e = rp.getError();
                         log.warn(e.getMessage());
                     }
+            	}else{
+            		botPacketListener.unknown((IQ)p); //추가.. 빈틈 없게
             	}
             }else botPacketListener.unknown((IQ)p);
         }

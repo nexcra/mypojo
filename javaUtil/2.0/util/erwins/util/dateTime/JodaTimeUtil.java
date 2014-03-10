@@ -3,7 +3,6 @@ package erwins.util.dateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -93,15 +92,15 @@ public abstract class JodaTimeUtil {
     	};
     }
     
-    /** 위를 이용한 샘플 */
-    public static Set<String> betweenSet(String startDate,String endDate){
+    /** 위를 이용한 샘플  .toSet() 등을 하길 바람 */
+    public static FluentIterable<String> betweenDate(String startDate,String endDate){
     	Preconditions.checkState(!Strings.isNullOrEmpty(startDate),"startDate is required");
     	Preconditions.checkState(!Strings.isNullOrEmpty(endDate),"endDate is required");
     	DateMidnight start = JodaUtil.toDateMidnight(startDate);
     	DateMidnight end = JodaUtil.toDateMidnight(endDate);
     	//크기 비교는 안함
     	List<DateTime> between = JodaUtil.between(start, end, Period.days(1));
-    	return FluentIterable.from(between).transform(JodaTimeUtil.formatFuction(JodaUtil.YMD)).toSet();
+    	return FluentIterable.from(between).transform(JodaTimeUtil.formatFuction(JodaUtil.YMD));
     }
     
     
