@@ -145,5 +145,10 @@ public abstract class SpringBatchUtil{
 	public static int retry(Runnable run,int limitTry,int sleepSec,Class<?>  clazz){
 		return retry(run,0,limitTry,sleepSec,clazz);
 	}
+	
+	/** 앞위에 간단한 페이징 구문을...? */
+	public static String appendOraclePagingSql(String sql,String option){
+		return "";
+	}
     
 }

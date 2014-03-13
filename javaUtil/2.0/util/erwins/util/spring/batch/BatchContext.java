@@ -163,13 +163,13 @@ public class BatchContext{
     /**  최대값만 남김. */
     private void putMax(ExecutionContext ex, String key, Long value) {
         Long exist = ex.getLong(key, 0L);
-        if(exist >= value) return ;
+        if(exist > value) return ;
         ex.putLong(key, value);
     }
     /**  최대값만 남김. */
     private void putMax(ExecutionContext ex, String key, Integer value) {
     	Integer exist = ex.getInt(key, 0);
-        if(exist >= value) return ;
+        if(exist > value) return ;
         ex.putInt(key, value);
     }
     

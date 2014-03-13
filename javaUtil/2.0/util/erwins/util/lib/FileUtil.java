@@ -528,6 +528,12 @@ public abstract class FileUtil extends FileUtils {
 		return file.mkdirs();
 	}
 	
+	public static void mkdirOrThrowException(File file) {
+		if(file.isDirectory()) return;
+		boolean success = file.mkdir();
+		if(!success) throw new RuntimeException("can not make dir : " + file.getAbsolutePath());
+	}
+	
 	public static boolean canReadAndWrite(File file) {
 		return file.canRead() || file.canWrite();
 	}

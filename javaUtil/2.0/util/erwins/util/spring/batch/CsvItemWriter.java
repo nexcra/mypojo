@@ -3,9 +3,11 @@ package erwins.util.spring.batch;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.springframework.batch.item.ExecutionContext;
@@ -36,29 +38,28 @@ public class CsvItemWriter<T> implements ResourceAwareItemWriterItemStream<T>,It
 	private CSVWriter writer;
 	private Resource resource;
 	private File currentFile;
-	private String encoding = "MS949";
+	protected String encoding = "MS949";
 	/** 1.수동 헤더 */
-	private String[] header;
+	protected String[] header;
 	/** 2.SQL등으로 생성되는 헤더 */
 	private CsvHeaderCallback csvHeaderCallback;
-	private CsvAggregator<T> csvAggregator;
+	protected CsvAggregator<T> csvAggregator;
 	private int lineCount = 0;
-	private int bufferSize = 1024*1024; //1메가?
+	protected int bufferSize = 1024*1024; //1메가?
 	private boolean first = true;
 	/** true이면 뒤에 붙여쓴다 */
-	private boolean append = false;
+	protected boolean append = false;
 	/** 이 숫자(헤더 포함)를 넘어가면 현재 파일에 쓰기를 중단하고 다음 파일에 쓰기를 시도한다.
 	 * 엑셀로 CSV를 읽을때 제한이 1048576 인거같다. */
 	private Integer maxLineCount;
 	private int currentMaxLineCount = 0;
+	/** CSV로 write한것을 다시 CSV로 읽으려면 동일한 이스케이퍼(\)를 사용해야 한다.
+	 * 대신 이렇게 이스케이핑 하면 MS의 엑셀 프로그램으로 읽지 못한다.(엑셀의 경우 기본 이스케이퍼(")를 사용한다.)  */
+	protected boolean csvRead = false;
 	
 	public static interface CsvHeaderCallback{
 		public List<String[]> headers();
 	}
-	
-	/** CSV로 write한것을 다시 CSV로 읽으려면 동일한 이스케이퍼(\)를 사용해야 한다.
-	 * 대신 이렇게 이스케이핑 하면 MS의 엑셀 프로그램으로 읽지 못한다.(엑셀의 경우 기본 이스케이퍼(")를 사용한다.)  */
-	private boolean csvRead = false;
 	
 	/** 확실히 버퍼는 작동하는듯 하다. F5 연타하면 깔끔하게 1메가씩 올라간다. 
 	 * 근데 성능 차이는 없는거 같다.. (확인은 안해봄) */
@@ -78,12 +79,17 @@ public class CsvItemWriter<T> implements ResourceAwareItemWriterItemStream<T>,It
 	}
 
 	private void doOpen() throws IOException {
-		FileOutputStream os = new FileOutputStream(currentFile,append);
+		writer = mekeCsvWriter(currentFile);
+		if(header!=null) writeLine(header);
+	}
+
+	/** 별도로 쓸 일이 있다. */
+	protected CSVWriter mekeCsvWriter(File file) throws FileNotFoundException,UnsupportedEncodingException {
+		FileOutputStream os = new FileOutputStream(file,append);
 		OutputStreamWriter w = new OutputStreamWriter(os,encoding);
 		BufferedWriter ww = new BufferedWriter(w,bufferSize); //디폴트가 8192 일듯
 		char escaper = csvRead ? CSVParser.DEFAULT_ESCAPE_CHARACTER : CSVWriter.DEFAULT_ESCAPE_CHARACTER;
-		writer = new CSVWriter(ww,CSVWriter.DEFAULT_SEPARATOR,CSVWriter.DEFAULT_QUOTE_CHARACTER,escaper);
-		if(header!=null) writeLine(header);
+		return new CSVWriter(ww,CSVWriter.DEFAULT_SEPARATOR,CSVWriter.DEFAULT_QUOTE_CHARACTER,escaper);
 	}
 	
 	@Override
@@ -129,6 +135,12 @@ public class CsvItemWriter<T> implements ResourceAwareItemWriterItemStream<T>,It
 		lineCount++;
 		writer.writeNext(lines);
 	}
+	
+	/** CsvItemHashWriter 에서 사용한다. */
+	/*
+	public static interface CsvItemWriterFactory{
+		public <T> CsvItemWriter<T> instance();
+	}*/
 	
 	@Override
 	public void setResource(Resource resource) {

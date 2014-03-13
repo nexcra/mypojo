@@ -1,6 +1,8 @@
 package erwins.util.guava;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -23,5 +25,21 @@ public abstract class MultiMapUtil {
 		}
 		return ranked;
 	}
+    
+    /** 졍렬된 키를 리턴한다. 주로 해시멀티맵에서 사용 */
+    public static <K extends Comparable<K>,V> List<K> sortrdKey(Multimap<K, V> multiMap){
+    	List<K> keys = Lists.newArrayList();
+		keys.addAll(multiMap.keySet());
+		Collections.sort(keys);
+		return keys;
+    }
+    
+    /** 졍렬된 키를 리턴한다. 주로 해시멀티맵에서 사용 */
+    public static <K,V> List<K> sortrdKey(Multimap<K, V> multiMap,Comparator<K> comparator){
+    	List<K> keys = Lists.newArrayList();
+		keys.addAll(multiMap.keySet());
+		Collections.sort(keys,comparator);
+		return keys;
+    }
 
 }

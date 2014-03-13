@@ -541,6 +541,15 @@ public abstract class MathUtil {
         return (p - 1) * (q - 1);
     }
     
+    /** 알고리즘같은거 없다. 걍 더한다. */
+    public static long facorial(int facorial) {
+		int sum = 0;
+		for(int i=1;i<facorial;i++){
+			sum += i;
+		}
+		return sum;
+    }
+    
     //============  구아바 확장 ==================
     
 }

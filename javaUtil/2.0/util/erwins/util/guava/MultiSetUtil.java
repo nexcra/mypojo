@@ -16,5 +16,9 @@ public abstract class MultiSetUtil {
 		}
 		return out;
 	}
+    
+    public static <T> void sort(){
+    	
+    }
 
 }

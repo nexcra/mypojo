@@ -30,7 +30,7 @@ public class LikeStringMatchMap<T> extends AbstractMapSupport<String,T>{
 	}
 	
 	/** HashEntry의 key는 매핑된 텍스트.   */
-	public List<HashEntry<T>> contains(String query){
+	public List<HashEntry<T>> matchAny(String query){
 		List<HashEntry<T>> result = Lists.newArrayList();
 		for(String subText : SpringUtil.splitWord(query,minLength)){
 			T value = map.get(subText);

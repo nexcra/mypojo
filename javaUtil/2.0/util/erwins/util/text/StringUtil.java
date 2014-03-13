@@ -18,6 +18,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 import erwins.util.counter.Latch;
 import erwins.util.guava.FunctionSet;
@@ -875,6 +876,32 @@ public class StringUtil extends StringUtils {
 		if(value==null) return defaultValue;
 		return String.valueOf(value);
 	}
+	
+	/** 마지막 length길이 만큼의 문자를 리턴한다. */
+    public static String getLast(String str, int length) {
+    	if(str.length() <= length ) return str;
+    	return str.substring(str.length()-length, str.length());
+    }
+    
+    /** 잘려진 해시 문자를 리턴한다. 
+     * 해당 key값으로 파일을 넓게 써서 인메모리에서 처리하기 위해서 사용했다.
+     * 스래드 숫자만큼 나누는게 적절해 보인다.  */
+    public static String getHashIntString(String key, int max) {
+    	int hashCode = key.hashCode();
+		if(hashCode < 0) hashCode *= -1;
+		int num = hashCode % max;
+		return StringUtil.leftPad(num, String.valueOf(max-1).length());
+    }
+    
+    /** 특수용도. 나중에 수정해서 쓰자. */
+    public static List<String> toNumberList(int max) {
+    	List<String> datas = Lists.newArrayList();
+		int length = String.valueOf(max-1).length();
+		for(int i=0;i<max;i++){
+			datas.add(StringUtil.leftPad(i, length));
+		}
+		return datas;
+    }
 	
 	
     
