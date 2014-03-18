@@ -61,6 +61,9 @@ public class TimeString {
     /** 시분초를 나누어 문자열을 제작한다. 24시간이 넘을 경우 적절히 조절한다. */
     @Override
     public String toString(){
+    	if(h==0 && MM==0 && ss==0){
+    		stop();
+    	}
     	if(h > 24){
     		int hour = h%24;
     		int day = h/24;

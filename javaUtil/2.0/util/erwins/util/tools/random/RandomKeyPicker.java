@@ -24,15 +24,15 @@ public class RandomKeyPicker<OBJ,T extends RandomObject<OBJ>> implements RandomP
 			SimpleRandomObject<OBJ> inst =  new SimpleRandomObject<OBJ>(keys[i],values[i]);
     		list.add((T) inst);
     	}
-    	inti(list);
+    	init(list);
     }
     
     /** current의 크기가 Integer.MAX_VALUE(2147483647)를 넘으면 안된다. */
     public RandomKeyPicker(List<T> list){
-        inti(list);
+        init(list);
     }
 
-	private void inti(List<T> list) {
+	private void init(List<T> list) {
 		int current = 0;
         for (T each : list) {
             map.put(current, each.getRandomObject());

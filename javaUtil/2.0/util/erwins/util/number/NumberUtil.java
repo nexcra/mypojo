@@ -1,5 +1,7 @@
 package erwins.util.number;
 
+import java.util.Collection;
+
 import org.apache.commons.lang.math.NumberUtils;
 
 
@@ -29,6 +31,21 @@ public abstract class NumberUtil extends NumberUtils {
         if(value.doubleValue() < start.doubleValue()) return false;
         if(value.doubleValue() > end.doubleValue()) return false;
         return true;
+    }
+    
+    /** 
+     * 간단 AVG 계산기
+     * max는 Collections.max 참고.
+     *  */
+    public static <T extends Number,C extends Collection<T>> long avg(C values) {
+    	long sum = 0;
+    	long count = 0;
+    	for(Number each : values){
+    		if(each==null) continue;
+    		sum += each.longValue();
+    		count++;
+    	}
+    	return sum / count;
     }
     
 
