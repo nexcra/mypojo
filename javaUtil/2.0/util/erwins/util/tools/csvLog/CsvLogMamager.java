@@ -1,6 +1,5 @@
 package erwins.util.tools.csvLog;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,6 +10,7 @@ import java.util.concurrent.BlockingQueue;
 
 import lombok.Data;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.format.DateTimeFormat;
@@ -38,6 +38,7 @@ import erwins.util.spring.batch.CsvItemWriter.CsvAggregator;
 		manager.add(new CsvLogInfo<Ad>("ad2",adDir ,agg).setType(DateTimeFieldType.secondOfDay(), 16, DateTimeFormat.forPattern("yyyy_MMdd_HHmmss")));
 		manager.startup();
  *  */
+@SuppressWarnings({"hiding" })
 public class CsvLogMamager {
 
 	public static final DateTimeFormatter DEFAULT_DATE_PATTERN = DateTimeFormat.forPattern("yyyy_MMdd");
@@ -111,10 +112,14 @@ public class CsvLogMamager {
 		
 		FileOutputStream os = new FileOutputStream(file,true);
 		OutputStreamWriter w = new OutputStreamWriter(os,csvRead ? "UTF-8" : "MS949");
-		BufferedWriter ww = new BufferedWriter(w); //강종을 고려한다면 더 짧게 잡아야 할것이다.
+		//BufferedWriter ww = new BufferedWriter(w,1024); //강종을 고려한다면 더 짧게 잡아야 할것이다.
 		char escaper = csvRead ? CSVParser.DEFAULT_ESCAPE_CHARACTER : CSVWriter.DEFAULT_ESCAPE_CHARACTER;
-		info.writer = new CSVWriter(ww,CSVWriter.DEFAULT_SEPARATOR,CSVWriter.DEFAULT_QUOTE_CHARACTER,escaper);
+		info.writer = new CSVWriter(w,CSVWriter.DEFAULT_SEPARATOR,CSVWriter.DEFAULT_QUOTE_CHARACTER,escaper);
 		info.writerFile = file; 
+		
+		if(info.header!=null){
+			info.writer.writeNext(info.header);
+		}
 	}
 
 	public <T> void close(CsvLogInfo<T> info) throws IOException {
@@ -129,18 +134,31 @@ public class CsvLogMamager {
 		FileUtil.renameTo(info.writerFile, dest);
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked"})
 	public <T> CsvLogWriter<T> getLogger(String name){
 		Preconditions.checkNotNull(queue);
 		CsvLogInfo<T> info = (CsvLogInfo<T>) csvLogInfoMap.get(name);
+		Preconditions.checkNotNull(info);
 		CsvLogWriter<T> writer = new CsvLogWriter<T>(name,info.csvAggregator,queue);
 		return writer;
+	}
+	
+	@SuppressWarnings({ "unchecked"})
+	public File getLogFile(String name,DateTime dateTime){
+		Preconditions.checkNotNull(queue);
+		CsvLogInfo<T> info = (CsvLogInfo<T>) csvLogInfoMap.get(name);
+		Preconditions.checkNotNull(info);
+		DateTime from = dateTime.property(info.dateTimeFieldType).roundFloorCopy();
+		File file = new File(info.dir,info.fileNameConverter.convert(from) + "."+fileExtention);
+		return file;
 	}
 	
 	@Data
 	public static class CsvLog{
 		final private String name;
 		final private String[] data;
+		/** 강제 플러싱 */
+		private boolean flush = false;
 	}
 	
 	/** 로그 설정파일. 
@@ -152,6 +170,7 @@ public class CsvLogMamager {
 		final private File dir;
 		final private CsvAggregator<T> csvAggregator;
 		
+		private String[] header;
 		private DateTimeFieldType dateTimeFieldType = DateTimeFieldType.dayOfYear();
 		private int interval = 1;
 		
@@ -170,7 +189,10 @@ public class CsvLogMamager {
 			this.timePattern = timePattern;
 			return this;
 		}
-		
+		public CsvLogInfo<T> setHeader(String[] header){
+			this.header = header;
+			return this;
+		}
 	}
 	
 	public static Converter<DateTime,String> getDefaultDateConverter(final String name,final DateTimeFormatter pattern){

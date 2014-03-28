@@ -8,6 +8,7 @@ import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import au.com.bytecode.opencsv.CSVWriter;
 import erwins.util.tools.csvLog.CsvLogMamager.CsvLog;
 import erwins.util.tools.csvLog.CsvLogMamager.CsvLogInfo;
 
@@ -48,7 +49,10 @@ public class CsvLogThread extends Thread{
 					csvLogMamager.reloadWriter(info);
 					log.debug("{} : 새로운 파일 생성 {}",info.getName(),info.getWriterFile().getAbsolutePath());
 				}
-				info.getWriter().writeNext(csvLog.getData());
+				CSVWriter writer = info.getWriter();
+				String[] data = csvLog.getData();
+				if(data!=null) writer.writeNext(data);
+				if(csvLog.isFlush()) writer.flush();
 			}
 		} catch (InterruptedException e) {
 			log.info("CsvLogThread 스래드 InterruptedException. 즉시 스래드를 종료합니다.");
