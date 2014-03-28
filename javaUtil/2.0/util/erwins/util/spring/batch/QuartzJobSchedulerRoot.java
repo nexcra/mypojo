@@ -49,7 +49,7 @@ public abstract class QuartzJobSchedulerRoot{
         for(JobKey each : jobKeys){
             @SuppressWarnings("unchecked")
             List<Trigger> triggers =  (List<Trigger>) scheduler.getTriggersOfJob(each);
-            assert triggers.size() == 1;
+            //이부분 주의. 트리거가 여러개 리턴될 수 있다
             if(triggers!=null && triggers.size() > 0){
                 Trigger theOneTrigger = triggers.get(0);
                 map.put(each.getName(), theOneTrigger.getNextFireTime());

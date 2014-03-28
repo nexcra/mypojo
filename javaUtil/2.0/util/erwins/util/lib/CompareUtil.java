@@ -45,6 +45,15 @@ public abstract class CompareUtil{
 		};
 	}
 	
+	public static Comparator<Object> STRING_LENGTH = new Comparator<Object>() {
+		@Override
+		public int compare(Object o1, Object o2) {
+			int a = o1==null ? 0 : o1.toString().length(); 
+			int b = o2==null ? 0 :o2.toString().length();
+			return Ints.compare(a, b);
+		}
+	};
+	
 	/** 스트링 역순 비교자. Serializable때문에 이렇게 작성 */
 	@SuppressWarnings("serial")
 	@Deprecated
@@ -289,6 +298,26 @@ public abstract class CompareUtil{
     	}
     }
 
+    
+    /** 커먼즈에 있는거 제너릭이 안되서 걍 하나 만듬. */
+    public static class ComparatorChain<T> implements Comparator<T>{
+
+    	private final Iterable<Comparator<T>> comparatorSet;
+    	
+    	public ComparatorChain(Iterable<Comparator<T>> comparatorSet){
+    		this.comparatorSet = comparatorSet;
+    	}
+    	
+		@Override
+		public int compare(T o1, T o2) {
+			for(Comparator<T> each : comparatorSet){
+				int compare = each.compare(o1, o2);
+				if(compare!=0) return compare;
+			}
+			return 0;
+		}
+    	
+    }
     
     
 

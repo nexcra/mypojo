@@ -1,5 +1,6 @@
 package erwins.util.spring.batch;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -15,16 +16,20 @@ import com.google.common.collect.Lists;
 import erwins.util.root.NotThreadSafe;
 import erwins.util.spring.batch.CsvItemWriter.CsvHeaderCallback;
 
-/** DB로우데이터를 CSV로 내릴때 사용된다.
- * 스래드 안전하지 않다.  */
+/** 
+ * DB로우데이터를 CSV로 내릴때 사용된다.
+ * 스래드 안전하지 않다.
+ * 파인드 버그때문에 임시로 Serializable 붙였다. 나중에 제거하자.
+ *   */
+@SuppressWarnings("serial")
 @NotThreadSafe
 @Data
-public class ToStringArrayRowMapper implements RowMapper<String[]>,CsvHeaderCallback{
+public class ToStringArrayRowMapper implements RowMapper<String[]>,CsvHeaderCallback,Serializable{
 
     private Integer columnCount = null;
     private List<ColumnMetaData> columnMetaDatas = Lists.newArrayList();
     
-    public static class ColumnMetaData{
+    public static class ColumnMetaData implements Serializable{
     	public final String columnLabel;
     	public final String columnClassName;
     	public final String columnTypeName;

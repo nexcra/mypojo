@@ -36,13 +36,6 @@ public class FlatFileItemReaderThreadSafe<T> implements ResourceAwareItemReaderI
         reader.afterPropertiesSet();
     }
 
-    public boolean equals(Object arg0) {
-        return reader.equals(arg0);
-    }
-
-    public int hashCode() {
-        return reader.hashCode();
-    }
 
     public boolean isSaveState() {
         return reader.isSaveState();
@@ -111,6 +104,33 @@ public class FlatFileItemReaderThreadSafe<T> implements ResourceAwareItemReaderI
     public String toString() {
         return reader.toString();
     }
+    
+    @Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((reader == null) ? 0 : reader.hashCode());
+		return result;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FlatFileItemReaderThreadSafe other = (FlatFileItemReaderThreadSafe) obj;
+		if (reader == null) {
+			if (other.reader != null)
+				return false;
+		} else if (!reader.equals(other.reader))
+			return false;
+		return true;
+	}
+    
     
     
 

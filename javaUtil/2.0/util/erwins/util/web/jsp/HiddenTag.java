@@ -1,8 +1,6 @@
 package erwins.util.web.jsp;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -28,16 +26,18 @@ public class HiddenTag extends TagSupport {
     
     /** 히든값을 세팅해준다. 이후 jsp에서 태그를 호출해야 한다.
      * 나중에 VO로 변경할것! */
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
     public static void setHiddenValue(HttpServletRequest req,String ... args){
+    	/*
         Map<String,String[] > hiddenValue = new HashMap<String, String[] >();
         if(args.length==0){
-            //List<String> names = OcUtil.enumerationToList(req.getParameterNames());
+            List<String> names = OcUtil.enumerationToList(req.getParameterNames());
         	List<String> names = null;
             args = names.toArray(new String[names.size()]);
         }
         for(String each : args) hiddenValue.put(each, req.getParameterValues(each));
         req.setAttribute(HIDDEN_KEY, hiddenValue);
+        */
     }
     
     private static final String HIDDEN_KEY = "hiddenTag";

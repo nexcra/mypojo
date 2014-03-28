@@ -830,14 +830,18 @@ public class StringUtil extends StringUtils {
 		}
     }
     
-    /** 간단 변환 */
-    public static Boolean toBoolean(Object obj){
-        if(obj==null) return null;
+    public static Boolean toBoolean(Object obj,Boolean deafaultValue){
+    	if(obj==null) return deafaultValue;
         else if(obj instanceof Boolean) return (Boolean)obj;
         String value = obj.toString();
         if(StringUtil.isEqualsIgnoreCase(value, "Y","1","ON","true")) return true;
         else if(StringUtil.isEqualsIgnoreCase(value, "N","0","OFF","false")) return false;
-        else return null;
+        else return deafaultValue;
+    }
+    
+    /** 간단 변환 */
+    public static Boolean toBoolean(Object obj){
+        return toBoolean(obj,Boolean.FALSE);
     }
     
     /**  String.valueOf가 지저분해서 만듬. long값으로 계산한다. 부동소수 금지 */ 

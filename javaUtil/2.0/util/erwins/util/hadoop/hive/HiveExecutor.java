@@ -48,7 +48,7 @@ public class HiveExecutor {
 				callback.lineResultSet(res);
 			}
 		} finally {
-			stmt.close();
+			if(stmt!=null) stmt.close();
 		}
 		return row;
 	}

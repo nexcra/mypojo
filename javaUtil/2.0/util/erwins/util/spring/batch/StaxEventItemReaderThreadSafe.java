@@ -42,14 +42,32 @@ public class StaxEventItemReaderThreadSafe<T> implements ItemReader<T>,ItemStrea
     public void afterPropertiesSet() throws Exception {
         reader.afterPropertiesSet();
     }
+    
+    @SuppressWarnings("rawtypes")
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		StaxEventItemReaderThreadSafe other = (StaxEventItemReaderThreadSafe) obj;
+		if (reader == null) {
+			if (other.reader != null)
+				return false;
+		} else if (!reader.equals(other.reader))
+			return false;
+		return true;
+	}
 
-    public boolean equals(Object obj) {
-        return reader.equals(obj);
-    }
-
-    public int hashCode() {
-        return reader.hashCode();
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((reader == null) ? 0 : reader.hashCode());
+		return result;
+	}
 
     public boolean isSaveState() {
         return reader.isSaveState();

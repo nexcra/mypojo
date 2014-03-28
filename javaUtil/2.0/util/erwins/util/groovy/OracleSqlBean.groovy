@@ -20,7 +20,9 @@ public class OracleSqlBean{
 	
 	/** my-batis같은거 쓸때 null예외를 회피하기위해 XML에 추가해주는 용도. => 변경을 해야함 */
 	public static def ORACLE_TO_JDBC_TYPE = ['NUMBER':'NUMERIC','DATE':'TIMESTAMP ','VARCHAR2':'VARCHAR','CHAR':'CHAR']
-	public static def ORACLE_TO_JAVA_TYPE = ['NUMBER':'BigDecimal','DATE':'Date','VARCHAR2':'String','CHAR':'String']
+	/** 더 많은 속성을 보고 판단해야 한다. 일단 임시 */
+	public static def ORACLE_TO_JAVA_TYPE = ['NUMBER':'Long','DATE':'Date','VARCHAR2':'String','CHAR':'String']
+	//public static def ORACLE_TO_JAVA_TYPE = ['NUMBER':'BigDecimal','DATE':'Date','VARCHAR2':'String','CHAR':'String'] 
 	
 	public static def 업데이트무시컬럼 = ['REG_TIME','REG_ID','REG_IP']
 	
@@ -204,7 +206,7 @@ public class OracleSqlBean{
 	}
 	
 	/** iBatiis or MyBatis용 */
-	public printBatis(TABLE_NAME){
+	public Map<String,Object> printBatis(TABLE_NAME){	
 		db.loadInfo("and a.TABLE_NAME = '$TABLE_NAME'").loadColumn().loadColumnKey()
 		def columns = db[TABLE_NAME].COLUMNS
 		def cn = columns.collect { it.COLUMN_NAME }
@@ -258,6 +260,22 @@ public class OracleSqlBean{
 			nonPks.each { result(property:it.camelize(),column:it)  }
 		}
 		sqls['RESULT_MAP'] = writer.toString()
+		
+		def voName = className.capitalize()+'Vo'
+		def staticConstructor = []
+		
+		def pkSet = columns.findAll { it['P'] == 'P' }
+		def pkJava = pkSet.collect { ORACLE_TO_JAVA_TYPE[it['DATA_TYPE']] + " " + it['COLUMN_NAME'].camelize() }.join(",")
+		
+		staticConstructor << "public static $voName createByPk($pkJava){"
+		staticConstructor << "  $voName vo = new $voName();"
+		pkSet.each {  
+			def name = it['COLUMN_NAME'].camelize()
+			staticConstructor << "  vo.set${name.capitalize()}(${name});"
+		}
+		staticConstructor << "  return vo;"
+		staticConstructor << "}"
+		sqls['STATIC_CONS'] = staticConstructor.join('\n')
 		
 		return sqls
 	}

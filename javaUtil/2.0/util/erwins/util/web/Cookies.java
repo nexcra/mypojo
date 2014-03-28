@@ -46,7 +46,7 @@ public class Cookies implements Iterable<Entry<String,String>>{
     public  void add(String key,Object vlaue,int maxAge){
     	String strValue =  vlaue==null ? "" : vlaue.toString();
     	if(base64Encode) strValue = BASE_64.encode(strValue);
-    	Cookie cookie = new Cookie(key,vlaue.toString());
+    	Cookie cookie = new Cookie(key,strValue.toString());
         cookie.setMaxAge(maxAge);
         cookie.setPath(path);
         resp.addCookie(cookie);  //  => URLEncoder를 사용하자

@@ -149,8 +149,8 @@ public class SpringBatchMock<T>{
 	/** CSV를 읽어서 특정 라인값의 정수 합계를 리턴하는 간단 도우미 (주로 ID를 합계내는 검증에 사용) 
 	 * ex) final File dir = new File("C:/DATA/download");
 		System.out.println(SpringBatchMock.readCsvAndSum(CharEncodeUtil.C_MS949, new File(dir,"AD.csv"), 0)); */
-	public static long readCsvAndSum(Charset encoding,File in,int columnIndex) throws Exception{
-		return readCsv(encoding,in,new CsvColumnSumProcessor(columnIndex));
+	public static long readCsvAndSum(Charset encoding,File file,int columnIndex){
+		return readCsv(encoding,file,new CsvColumnSumProcessor(columnIndex));
 	}
 	
 	/** 숫자형만 분리해서 파싱한다. */
@@ -174,20 +174,26 @@ public class SpringBatchMock<T>{
 	}
 	
 	/** CSV를 읽어서 숫자형 처리를 하는 간단 도우미. (처리할게 없으면 리턴하지 않아도 된다)  */
-	public static long readCsv(Charset encoding,File in,ItemProcessor<String[],Long> processor) throws Exception{
+	public static long readCsv(Charset encoding,File in,ItemProcessor<String[],Long> processor){
 		CsvItemReader<String[]> itemReader = new CsvItemReader<String[]>();
 		itemReader.setResource(new FileSystemResource(in));
 		itemReader.setCsvMapper(new PassThroughCsvMapper());
 		itemReader.setEncoding(encoding.name());
-		itemReader.open(new ExecutionContext());
+		
 		long sum = 0;
-		while(true){
-			String[] line = itemReader.read();
-			if(line==null) break;
-			Long result = processor.process(line);
-			if(result!=null) sum += result;
+		try{
+			itemReader.open(new ExecutionContext());
+			while(true){
+				String[] line = itemReader.read();
+				if(line==null) break;
+				Long result = processor.process(line);
+				if(result!=null) sum += result;
+			}	
+		}catch(Exception e){
+			throw new RuntimeException(e);
+		}finally{
+			itemReader.close();	
 		}
-		itemReader.close();
 		return sum;
 	}
 	

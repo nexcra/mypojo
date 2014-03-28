@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.joda.time.MutableDateTime;
@@ -101,6 +102,11 @@ public abstract class JodaTimeUtil {
     	//크기 비교는 안함
     	List<DateTime> between = JodaUtil.between(start, end, Period.days(1));
     	return FluentIterable.from(between).transform(JodaTimeUtil.formatFuction(JodaUtil.YMD));
+    }
+    
+    /** 까먹을까봐 여기 정리 */
+    public static DateTime trim(DateTime dateTime,DateTimeFieldType type){
+    	return dateTime.property(type).roundFloorCopy();
     }
     
     

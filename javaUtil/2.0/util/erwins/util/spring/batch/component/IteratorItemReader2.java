@@ -21,6 +21,12 @@ import erwins.util.root.ThreadSafe;
 public class IteratorItemReader2<T> implements ItemReader<T>{
 
 	protected Iterator<T> it;
+	
+	public IteratorItemReader2(){};
+	
+	public IteratorItemReader2(Iterator<T> it){
+		this.it = it;
+	};
 
 	@Override
 	public synchronized T read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {

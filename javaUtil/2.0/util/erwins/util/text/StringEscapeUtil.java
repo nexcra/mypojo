@@ -4,6 +4,8 @@ package erwins.util.text;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -13,7 +15,8 @@ import org.apache.commons.lang.StringEscapeUtils;
  */
 public abstract class StringEscapeUtil extends StringEscapeUtils {
 
-    // ===========================================================================================
+    public static final String REG_EX_PATTERN_ESCAPE = "[\\.\\\\+\\*\\?\\[\\^\\]\\$\\(\\)\\{\\}\\=\\!\\<\\>\\|\\:\\-]";
+	// ===========================================================================================
     //                                 기본설정
     // ===========================================================================================
     private static final String[] javaScriptescapes = new String[96];
@@ -46,12 +49,23 @@ public abstract class StringEscapeUtil extends StringEscapeUtils {
     	return escapeXml2(str);
     }
     
-    /** \는 제외. */
-    private static final String[] REG_EX = {"*","?","+","[","]","(",")","{","}","^","$",".","<","|"}; 
+    
+	/**
+	 * 패턴에 사용되는 문자를 escape한다.
+	 * 여기선 appendReplacement를 쓸수 없다.(내가 모르는걸지도) 문제되면 수정하자. 
+	 * */
+	public static String escapeRegEx(String input) {
+		Pattern pattern = Pattern.compile(REG_EX_PATTERN_ESCAPE);
+		Matcher matcher =  pattern.matcher(input);
+		while(matcher.find()) {
+        	input = matcher.replaceAll("\\\\$0");
+        }
+		return input;
+	}
+    
+    /*
+    private static final String[] REG_EX = {"*","?","+","[","]","(",")","{","}","^","$",".","<","|","/","-",":","!","~"}; 
 
-    /**
-     * 일단 임시제작. *, ?, +, [, {, (, }, ^, $ => 추후 제작.
-     */
     public static String escapeRegEx(String str) {
         str = str.replaceAll("\\\\", "\\\\\\\\");
         for(String each : REG_EX){
@@ -60,6 +74,7 @@ public abstract class StringEscapeUtil extends StringEscapeUtils {
         //return escapeXml(escapeJavaScript(str));
         return str;
     }
+    */
 
     public static String escapeUrl(String str) {
         return escapeUrl(str,CharEncodeUtil.UTF_8);

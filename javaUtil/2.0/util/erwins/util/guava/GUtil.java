@@ -5,6 +5,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Joiner.MapJoiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Splitter.MapSplitter;
+import com.google.common.collect.FluentIterable;
 
 import erwins.util.lib.ReflectionUtil;
 
@@ -48,6 +49,12 @@ public abstract class GUtil {
 	 * ex) NumberUtil.avg(FluentIterable.from(datas).transform(GUtil.fieldFunction("m5Value",Long.class)).toSet()) */
 	public static <T,K> Function<T,K> fieldFunction(final String name,Class<K> clazz,final K defaultValue){
 		return fieldFunction(name,defaultValue);
+	}
+	
+	/** 위의 펑션필드를 이용한 간단 추출 샘플.
+	 * toList() or 수정 가능한 List로 변경하려면 Lists.newArrayList() 을 사용하자 */
+	public static <T,K> FluentIterable<K> fieldFunction(Iterable<T> it, final String name,final K defaultValue){
+		return FluentIterable.from(it).transform(GUtil.fieldFunction(name,defaultValue));
 	}
 
 }

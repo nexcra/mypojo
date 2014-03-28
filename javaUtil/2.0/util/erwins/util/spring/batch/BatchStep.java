@@ -23,9 +23,11 @@ public class BatchStep extends Batch implements Comparable<BatchStep>{
     
     //추가.. 이 밑에꺼는 임시임. 정보만 제공하고 문자열 조합은 클라이언트에서 하자
     private Integer totalRead;
+    /*
     private String avgTimeStr;
     private String remainTimeStr;
     private String percentStr;
+    */
     
     public String getStepName() {
         return stepName;
@@ -97,6 +99,7 @@ public class BatchStep extends Batch implements Comparable<BatchStep>{
     public int compareTo(BatchStep arg0) {
         return stepExecutionId.compareTo(arg0.stepExecutionId);
     }
+    /*
     public String getAvgTimeStr() {
         return avgTimeStr;
     }
@@ -106,6 +109,7 @@ public class BatchStep extends Batch implements Comparable<BatchStep>{
     public String getPercentStr() {
         return percentStr;
     }
+    */
     
 
 }
