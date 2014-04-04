@@ -10,7 +10,6 @@ import java.util.concurrent.BlockingQueue;
 
 import lombok.Data;
 
-import org.apache.poi.ss.formula.functions.T;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.format.DateTimeFormat;
@@ -22,7 +21,6 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 
 import erwins.util.lib.FileUtil;
 import erwins.util.spring.batch.CsvItemWriter.CsvAggregator;
@@ -38,7 +36,6 @@ import erwins.util.spring.batch.CsvItemWriter.CsvAggregator;
 		manager.add(new CsvLogInfo<Ad>("ad2",adDir ,agg).setType(DateTimeFieldType.secondOfDay(), 16, DateTimeFormat.forPattern("yyyy_MMdd_HHmmss")));
 		manager.startup();
  *  */
-@SuppressWarnings({"hiding" })
 public class CsvLogMamager {
 
 	public static final DateTimeFormatter DEFAULT_DATE_PATTERN = DateTimeFormat.forPattern("yyyy_MMdd");
@@ -96,18 +93,20 @@ public class CsvLogMamager {
 
 	/** 현재시각 기준으로 라이터를 교체한다.
 	 * AA01.log로 저장되다가 타임이 지나면 AA02.log가 새로 생기고 기존 파일은 AA01.csv로 파일명이 변경된다. 
+	 *  ==> 이거 걍 로그4j랑 동일하게 수정하자.
 	 *  */
 	public <T> void reloadWriter(CsvLogInfo<T> info) throws IOException {
 		
+		DateTime from = new DateTime().property(info.dateTimeFieldType).roundFloorCopy();
+		
 		if(info.writer!=null && info.writerFile!=null){
-			close(info);
+			close(info,from);
 		}
 		
-		DateTime from = new DateTime().property(info.dateTimeFieldType).roundFloorCopy();
 		DateTime next = from.withFieldAdded(info.dateTimeFieldType.getDurationType(),info.interval);
 		info.nextInterval = next.getMillis();
 		
-		File file = new File(info.dir,info.fileNameConverter.convert(from) + "."+writingFileExtention);
+		File file = new File(info.dir,info.name + "."+writingFileExtention);  //로그4j 처럼 쓰는 로그파일은 고정이다. 중단된 파일이 있다면 이어쓴다.
 		FileUtil.mkdirOrThrowException(file.getParentFile());
 		
 		FileOutputStream os = new FileOutputStream(file,true);
@@ -122,15 +121,20 @@ public class CsvLogMamager {
 		}
 	}
 
-	public <T> void close(CsvLogInfo<T> info) throws IOException {
-		info.writer.close();
-		String fileName = Files.getNameWithoutExtension(info.writerFile.getName());
-		File dest = new File(info.writerFile.getParentFile(),fileName+"."+fileExtention);
+	public <T> void close(CsvLogInfo<T> info,DateTime from) throws IOException {
+		//String fileName = Files.getNameWithoutExtension(info.writerFile.getName());
+		//File dest = new File(info.writerFile.getParentFile(),fileName+"."+fileExtention);
+		
+		String fileName = info.fileNameConverter.convert(from); //파일 이름은 from 기준이다.  2014-03-11 파일은 2014-03-11 부터 쓰기 시작한 파일이다.
+		File dest = new File(info.dir,fileName + "."+fileExtention);
+		
 		//재기동 등으로 인해서 여러 파일이 생길 수 있다.
 		int index = 0;
 		while(dest.exists()){
 			dest = new File(info.writerFile.getParentFile(),fileName+"_"+ ++index +"."+fileExtention);
 		}
+
+		info.writer.close();
 		FileUtil.renameTo(info.writerFile, dest);
 	}
 	
@@ -143,10 +147,10 @@ public class CsvLogMamager {
 		return writer;
 	}
 	
-	@SuppressWarnings({ "unchecked"})
+	@SuppressWarnings({ "unchecked", "rawtypes"})
 	public File getLogFile(String name,DateTime dateTime){
 		Preconditions.checkNotNull(queue);
-		CsvLogInfo<T> info = (CsvLogInfo<T>) csvLogInfoMap.get(name);
+		CsvLogInfo info = (CsvLogInfo) csvLogInfoMap.get(name);
 		Preconditions.checkNotNull(info);
 		DateTime from = dateTime.property(info.dateTimeFieldType).roundFloorCopy();
 		File file = new File(info.dir,info.fileNameConverter.convert(from) + "."+fileExtention);

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,9 @@ public class CsvLogThread extends Thread{
 	private final CsvLogMamager csvLogMamager;
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private volatile boolean stop = false;
+	/** 로깅하던 파일 aa.log를 스래드가 중단되었을때 aa_2014-03-11.csv로 변경할것인가
+	 * 어차피 강종되면 작동하지 않는다.  */
+	private boolean renameOnInterrupted = true;
 	
 	public CsvLogThread(CsvLogMamager csvLogMamager){
 		this.queue = csvLogMamager.queue;
@@ -35,7 +39,6 @@ public class CsvLogThread extends Thread{
 	@Override
 	public void run() {
 		log.info("CsvLogThread 스래드를 기동합니다");
-		
 		try {
 			while(true){
 				if(stop && queue.size()==0){
@@ -59,13 +62,28 @@ public class CsvLogThread extends Thread{
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}finally{
-			for (Entry<String, CsvLogInfo<?>> entry : csvLogInfoMap.entrySet()) {
-				try {
-					csvLogMamager.close(entry.getValue());
-				} catch (IOException e) {
-					log.error("스레드 종료중 예외. 이 예외는 무시됨",e);
+			if(renameOnInterrupted){
+				//아마 WAS가 강제종료된다면  InterruptedException을 받지 못함으로 이 로직은 작동하지 못할것이다. 혹시나 정상종료로 인터럽트 된다면 플러시 후  해당 로그의 직전 파일로 리네임한다. 
+				for (Entry<String, CsvLogInfo<?>> entry : csvLogInfoMap.entrySet()) {
+					try {
+						CsvLogInfo<?> info = entry.getValue();
+						DateTime from = new DateTime().property(info.getDateTimeFieldType()).roundFloorCopy();
+						csvLogMamager.close(info,from);
+					} catch (IOException e) {
+						log.error("스레드 종료중 IO예외. 이 예외는 무시됨",e);
+					}
+				}
+			}else{
+				for (Entry<String, CsvLogInfo<?>> entry : csvLogInfoMap.entrySet()) {
+					CsvLogInfo<?> info = entry.getValue();
+					try {
+						info.getWriter().close();
+					} catch (IOException e) {
+						log.error("스레드 종료중 IO예외. 이 예외는 무시됨",e);
+					}
 				}
 			}
+			
 			log.info("CsvLogThread 스래드를 종료합니다. 남은 자료수 : "+queue.size());	
 		}
 	}

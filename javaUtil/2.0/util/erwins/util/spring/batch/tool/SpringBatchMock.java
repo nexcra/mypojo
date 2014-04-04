@@ -30,6 +30,7 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
+import erwins.util.lib.ExceptionUtil;
 import erwins.util.nio.ThreadUtil;
 import erwins.util.spring.SpringUtil;
 import erwins.util.spring.batch.CsvItemReader;
@@ -84,7 +85,7 @@ public class SpringBatchMock<T>{
 			SpringBatchUtil.updateIfAble(itemReader,executionContext);
 			SpringBatchUtil.updateIfAble(itemWriter,executionContext);
 		}catch(Exception e){
-			throw new RuntimeException(e);
+			ExceptionUtil.throwException(e);
 		}finally{
 			SpringBatchUtil.closeIfAble(itemReader);
 			SpringBatchUtil.closeIfAble(itemWriter);
@@ -284,7 +285,7 @@ public class SpringBatchMock<T>{
 				운영_백업.insertList("REQ_RAW", items);
 			}
 		}); */
-	public static ExecutionContext csvBatchProcess(Resource[] resources,Charset encoding,ItemWriter<String[]> itemWriter,Character separator) throws Exception{
+	public static ExecutionContext csvBatchProcess(Resource[] resources,Charset encoding,ItemWriter<String[]> itemWriter,Character separator){
 		CsvItemReader<String[]> delegate = new CsvItemReader<String[]>();
 		delegate.setCsvMapper(new PassThroughCsvMapper());
 		delegate.setEncoding(encoding.name());
@@ -297,6 +298,15 @@ public class SpringBatchMock<T>{
         
         SpringBatchMock<String[]> mock = new SpringBatchMock<String[]>();
 		mock.setCommitInterval(1000); //Groovy에서 만들어놓은거 기본 주기
+		mock.setItemReader(itemReader);
+		mock.setItemWriter(itemWriter);
+		return mock.run();
+	}
+	
+	/** 완성된 리더/라이터를 연결만 해준다. */
+	public static <T> ExecutionContext csvReadWrite(ItemReader<T> itemReader,ItemWriter<T> itemWriter,int commitInterval){
+		SpringBatchMock<T> mock = new SpringBatchMock<T>();
+		mock.setCommitInterval(commitInterval);
 		mock.setItemReader(itemReader);
 		mock.setItemWriter(itemWriter);
 		return mock.run();
