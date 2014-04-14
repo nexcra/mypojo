@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 
 import lombok.Data;
 
+import org.apache.commons.collections.map.ListOrderedMap;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
@@ -315,6 +317,39 @@ public abstract class CompareUtil{
 				if(compare!=0) return compare;
 			}
 			return 0;
+		}
+    	
+    }
+    
+    /** List를 소팅할때 사용된다.
+     * ex) OrderBy<Ad> sort1 = new OrderBy<Ad>().desc("impRank").desc("cpc"); */
+    public static class OrderBy<T> implements Comparator<T>{
+
+    	@SuppressWarnings("unchecked")
+		private Map<String,Boolean> orderInfo = new ListOrderedMap();
+    	private Map<String,Field> fieldMap;
+    	
+		@Override
+		public int compare(T o1, T o2) {
+			if(fieldMap==null) fieldMap =  ReflectionUtil.getAllDeclaredFieldMap(o1.getClass());
+			int order = 0;
+			for(Entry<String, Boolean> entry : orderInfo.entrySet()){
+				Field field = fieldMap.get(entry.getKey());
+				Comparable<?> v1 = (Comparable<?>) ReflectionUtil.getField(field, o1);
+				Comparable<?> v2 = (Comparable<?>) ReflectionUtil.getField(field, o2);
+				order = CompareUtil.nullSafeCompare(v1, v2, entry.getValue());
+				if(order!=0) return order;
+			}
+			return order;
+		}
+		
+		public OrderBy<T> asc(String name){
+			orderInfo.put(name, Boolean.TRUE);
+			return this;
+		}
+		public OrderBy<T> desc(String name){
+			orderInfo.put(name, Boolean.FALSE);
+			return this;
 		}
     	
     }

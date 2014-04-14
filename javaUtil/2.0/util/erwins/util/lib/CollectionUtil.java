@@ -1,6 +1,7 @@
 package erwins.util.lib;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -189,6 +190,16 @@ public abstract class CollectionUtil extends CollectionUtils {
 		return adEntry;
 	}
 	
+	/** subList와 비슷하지만, 복사본을 리턴하지 않고, 해당 객체를 직접 수정한다. */
+	public static <T> void removeAsOrder(List<T> adEntry,int max){
+		if(adEntry.size() <= max) return;
+		Iterator<T> it = adEntry.listIterator(max);
+		while(it.hasNext()){
+			it.next();
+			it.remove();
+		}
+	}
+	
     /** before 자료에 있던 자료와 동일한 순번으로 after를 리오더링 시켜준다.
      * 엑셀에 데이터를 이쁘게 넣어줄때 사용했다.  */
 	public static <T> List<T> reOrderLikeBefore(List<T> before, List<T> after,T empty) {
@@ -228,6 +239,13 @@ public abstract class CollectionUtil extends CollectionUtils {
 		}
 		
 		return result;
+	}
+	
+	/**  Guava의 ArrayListMultiMap을 캐스팅할때 주로 사용된다.  */
+	public static <T> List<T> toList(Collection<T> collection){
+		if(collection instanceof List){
+		}
+		return Lists.newArrayList(collection);
 	}
 
 }

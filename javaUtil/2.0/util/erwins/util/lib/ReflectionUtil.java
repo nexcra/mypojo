@@ -19,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.lang.ClassUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.util.ReflectionUtils;
 
@@ -422,7 +421,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
     
     /**  spring의 form태그 등에서 사용한다.  (itemLabel 등으로 jsp에 태그 속성을 직접 사용해도 되나, 공통모듈일 경우 통일하는게 더 좋아보인다)
      * 나중에 어노테이션 버전으로 수정해도 좋을듯   */
-    public static Map<String,String> toMap(Collection<T> list,String idField,String valueField){
+    public static <T> Map<String,String> toMap(Collection<T> list,String idField,String valueField){
     	@SuppressWarnings("unchecked")
 		Map<String,String> map = new ListOrderedMap();
     	if(CompareUtil.isEmpty(list)) return map;

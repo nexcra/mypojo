@@ -208,4 +208,12 @@ public class CsvLogMamager {
 		};
 	}
 
+	public boolean isCsvRead() {
+		return csvRead;
+	}
+
+	public void setCsvRead(boolean csvRead) {
+		this.csvRead = csvRead;
+	}
+
 }

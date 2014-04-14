@@ -28,6 +28,8 @@ import erwins.util.spring.batch.tool.SpringBatchMock;
  * 또는 다수의 WAS에서 불규칙적으로 입력되는 파일을 하나의 WAS에서 싱글스래드 처리해야할 경우에도 유용한다. (메모리를 공유하지 않음으로 Queue로는 불가능하다.)
  * 외부 리소스를 사용하지 않아 빠르게 작동함으로 주기가 짧아도 된다.
  * 싱글스래드로만 동작하게 하자.  (패턴 안겹치게 주의)
+ * 데이터를 처리하고 파일을 처리(삭제,리네임 등등)하기 전에 WAS가 강제종료된다면 트랜잭션이 없음으로 문제가 발행한다. 이렇게 안되길 기대하자 
+ * (라이터의 커밋주기가 늘어나야 안정성이 올라갈것이다.)
  * */
 public class FileMonitor extends Thread{
 
@@ -111,6 +113,16 @@ public class FileMonitor extends Thread{
 					String name = file.getName();
 					File newFile = new File(toDir,name);
 					FileUtil.renameToUniqueName(file, newFile);
+				}
+			};
+			return this;
+		}
+		public CsvLogMonitorInfo setDeleteFile(){
+			csvLogFileFinishCallback = new CsvLogFileFinishCallback() {
+				@Override
+				public void doFileFinishCallback(File file, boolean success) {
+					if(!success) return;
+					FileUtil.delete(file);
 				}
 			};
 			return this;
