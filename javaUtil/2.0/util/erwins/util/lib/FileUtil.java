@@ -530,7 +530,7 @@ public abstract class FileUtil extends FileUtils {
 	
 	public static void mkdirOrThrowException(File file) {
 		if(file.isDirectory()) return;
-		boolean success = file.mkdir();
+		boolean success = file.mkdirs();
 		if(!success) throw new RuntimeException("can not make dir : " + file.getAbsolutePath());
 	}
 	
@@ -705,7 +705,6 @@ public abstract class FileUtil extends FileUtils {
     /** stream을 닫지 않는다
      * BufferedInputStream + byte[] buffer 할것  
      * @throws IOException */ 
-    @SuppressWarnings("resource")
 	public static long writeStreamWithNoClose(InputStream in,OutputStream out,int bufferSize) throws IOException {
         Preconditions.checkNotNull(in, "stream is null!");
         Preconditions.checkNotNull(out, "stream is null!");

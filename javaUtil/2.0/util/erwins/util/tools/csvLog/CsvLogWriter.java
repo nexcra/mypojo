@@ -1,11 +1,13 @@
 package erwins.util.tools.csvLog;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import lombok.Data;
-import erwins.util.spring.batch.CsvItemWriter.CsvAggregator;
+import erwins.util.lib.ExceptionUtil;
 import erwins.util.tools.csvLog.CsvLogMamager.CsvLog;
+import erwins.util.tools.csvLog.CsvLogMamager.CsvLogInfo;
 
 
 /**
@@ -15,24 +17,42 @@ import erwins.util.tools.csvLog.CsvLogMamager.CsvLog;
 @Data
 public class CsvLogWriter<T> {
 
-	private final String name;
-	private final CsvAggregator<T> csvAggregator;
+	private final CsvLogInfo<T> csvLogInfo;
 	private final BlockingQueue<CsvLog> queue;
+	
+	/** 정확하지 않아도 된다.. */
 	private AtomicLong counter = new AtomicLong();
 	private long limie = 1000L;
+	private long timeoutSec = 2;
 	
-	public void writeLog(T item) throws InterruptedException{
+	public void writeItem(Object vo){
+		T item = csvLogInfo.getCsvLogConverter().convert(vo);
+		writeLog(item);
+	}
+	
+	public void writeItem(Object vo,boolean flush){
+		T item = csvLogInfo.getCsvLogConverter().convert(vo);
+		writeLog(item,flush);
+	}
+	
+	/** 자동으로 플러싱을 하는 모드 */
+	public void writeLog(T item){
 		long current = counter.incrementAndGet();
 		if(current % limie == 0) writeLog(item,true);
 		else writeLog(item,false);
 	}
 	
-	/** 강제 플러싱을 포함하는 경우 */
-	public void writeLog(T item,boolean flush) throws InterruptedException{
-		String[] data = item==null ? null : csvAggregator.aggregate(item);
-		CsvLog log = new CsvLog(name, data);
+	/** 강제 플러싱을 포함하는 경우  */
+	public void writeLog(T item,boolean flush){
+		String[] data = item==null ? null : csvLogInfo.getCsvAggregator().aggregate(item);
+		CsvLog log = new CsvLog(csvLogInfo.getName(), data);
 		if(flush) log.setFlush(flush);
-		queue.put(log);
+		try {
+			boolean success = queue.offer(log, timeoutSec, TimeUnit.SECONDS);
+			if(!success) throw new RuntimeException("queue.offer fail. check queue size");
+		} catch (InterruptedException e) {
+			ExceptionUtil.throwException(e);
+		}
 	}
 
 }

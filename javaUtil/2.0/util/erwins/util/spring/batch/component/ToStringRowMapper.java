@@ -4,11 +4,11 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 
-
+/** ?????? */
+@Deprecated
 public class ToStringRowMapper implements RowMapper<String>,Serializable{
 
 	@Override

@@ -46,16 +46,15 @@ public class CsvLogMamager {
 	private CsvLogThread thread;
 	
 	//private int fileLinemaxSize = 1000;
-	private int queueCapacity = 50000;
+	private int queueCapacity = Integer.MAX_VALUE; //메모리 아웃이 걱정된다면 조절해야한다.
 	private boolean csvRead = false;
 	/** 현재 파일을 열고 쓰고있는 파일의 확장자 */
 	private String writingFileExtention =  "log";
 	private String fileExtention =  "csv";
 	
 	public synchronized void startup(){
-		Preconditions.checkState(queue == null);
+		Preconditions.checkState(queue != null);
 		Preconditions.checkState(csvLogInfoMap.size() > 0);
-		queue = new ArrayBlockingQueue<CsvLogMamager.CsvLog>(queueCapacity);
 		thread = new CsvLogThread(this);
 		thread.start();
 	}
@@ -75,7 +74,9 @@ public class CsvLogMamager {
 	}
 	
 	public synchronized <T> void add(CsvLogInfo<T> info){
-		Preconditions.checkState(queue == null);
+		if(queue==null){
+			queue = new ArrayBlockingQueue<CsvLogMamager.CsvLog>(queueCapacity);
+		}
 		Preconditions.checkState(info.writer==null);
 		Preconditions.checkState(info.writerFile==null);
 		
@@ -87,6 +88,8 @@ public class CsvLogMamager {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		
+		info.csvLogWriter = new CsvLogWriter<T>(info,queue);
 		
 		csvLogInfoMap.put(info.name,info);
 	}
@@ -138,13 +141,13 @@ public class CsvLogMamager {
 		FileUtil.renameTo(info.writerFile, dest);
 	}
 	
+	/** 로거를 따로 두는 이유는  csvLogInfoMap.get 하는짓을 매번 하기 싫어서.. 근데 큰 효율은 안날거 같다.  */
 	@SuppressWarnings({ "unchecked"})
 	public <T> CsvLogWriter<T> getLogger(String name){
 		Preconditions.checkNotNull(queue);
 		CsvLogInfo<T> info = (CsvLogInfo<T>) csvLogInfoMap.get(name);
 		Preconditions.checkNotNull(info);
-		CsvLogWriter<T> writer = new CsvLogWriter<T>(name,info.csvAggregator,queue);
-		return writer;
+		return info.getCsvLogWriter();
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes"})
@@ -186,6 +189,9 @@ public class CsvLogMamager {
 		private CSVWriter writer;
 		private File writerFile;
 		private long nextInterval;
+		
+		private CsvLogWriter<T> csvLogWriter;
+		private Converter<Object,T> csvLogConverter;
 		
 		public CsvLogInfo<T> setType(DateTimeFieldType dateTimeFieldType,int interval,DateTimeFormatter timePattern){
 			this.dateTimeFieldType = dateTimeFieldType;

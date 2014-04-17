@@ -84,7 +84,10 @@ public class FileMonitor extends Thread{
 		private CsvLogFileCallback csvLogFileCallback;
 		private CsvLogFileFinishCallback csvLogFileFinishCallback;
 		
-		/** fileFilter를 Ant표현식으로 대체한다. */
+		/** fileFilter를 Ant표현식으로 대체한다. 윈도우와 리눅스의 파일패스 표현이 틀림으로 주의!
+		 * ex) 윈도우 : ** / *.csv    <-- C:/~~ 이렇게 시작
+		 * ex) 유닉스 : / ** / *.csv  <-- /~~ 이렇게 시작
+		 * */
 		public CsvLogMonitorInfo setAntPath(String antPath){
 			fileFilter = new AntPathMatchFilePathFilter(antPath).setDirectory(false);
 			return this;
