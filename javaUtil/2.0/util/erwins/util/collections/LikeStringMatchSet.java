@@ -23,6 +23,10 @@ public class LikeStringMatchSet extends AbstractSetSupport<String>{
 		return set.add(e);
 	}
 	
+	/** 
+	 * 10자 텍스트의 경우 minLength=1 이라면 set에서 55번의 검색을 하게된다.
+	 *  즉 10+9+8+7+6+5+4+3+2+1 = 55
+	 *    */
 	public List<String> matchAny(String query){
 		List<String> result = Lists.newArrayList();
 		for(String subText : SpringUtil.splitWord(query,minLength)){

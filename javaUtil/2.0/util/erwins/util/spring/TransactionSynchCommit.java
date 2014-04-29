@@ -6,11 +6,13 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 /** 
  * static 범용으로 제작.
  * 한개만 등록된다고 가정하고 심플하게 제작함.
+ * 
+ * 다수 등록시에는 CsvLogWriter 처럼 코딩해야함
  */
 public abstract class TransactionSynchCommit{
 	
 	@SuppressWarnings("unchecked")
-	public static <T extends AfterCompletionAble> T  getResource(Class<T> clazz){
+	public static <T extends AfterCompletionAble> T  getResource(Class<?> clazz){
 		if(!TransactionSynchronizationManager.isSynchronizationActive()) throw new IllegalStateException("transaction is not Avtive");
 		return (T) TransactionSynchronizationManager.getResource(clazz);
 	}

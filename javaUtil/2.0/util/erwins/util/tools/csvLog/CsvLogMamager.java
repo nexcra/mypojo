@@ -42,11 +42,11 @@ public class CsvLogMamager {
 	public static final DateTimeFormatter DEFAULT_TIME_PATTERN = DateTimeFormat.forPattern("yyyy_MMdd_HHmm");
 	
 	final Map<String,CsvLogInfo<?>> csvLogInfoMap = Maps.newHashMap();
-	BlockingQueue<CsvLog> queue;
+	protected BlockingQueue<CsvLog> queue;
 	private CsvLogThread thread;
 	
 	//private int fileLinemaxSize = 1000;
-	private int queueCapacity = Integer.MAX_VALUE; //메모리 아웃이 걱정된다면 조절해야한다.
+	private int queueCapacity = 50000; //메모리 아웃이 걱정된다면 조절해야한다.
 	private boolean csvRead = false;
 	/** 현재 파일을 열고 쓰고있는 파일의 확장자 */
 	private String writingFileExtention =  "log";
@@ -70,7 +70,7 @@ public class CsvLogMamager {
 	 *  */
 	public synchronized void stopAndjoin() throws InterruptedException{
 		thread.setStop(true);
-		thread.join();
+		thread.join(1000*10); //스프링에서 컨테이너 빌드세 예외가 발생하면 destry하는데, 여기서 행이 걸리수도 있다. 때문에  10초간 기다린다. 
 	}
 	
 	public synchronized <T> void add(CsvLogInfo<T> info){
@@ -212,6 +212,18 @@ public class CsvLogMamager {
 				return name+"_"+pattern.print(source);
 			}
 		};
+	}
+	
+	public int size() {
+		return queue.size();
+	}
+	
+	public int getQueueCapacity() {
+		return queueCapacity;
+	}
+
+	public void setQueueCapacity(int queueCapacity) {
+		this.queueCapacity = queueCapacity;
 	}
 
 	public boolean isCsvRead() {

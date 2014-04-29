@@ -27,8 +27,9 @@ import erwins.util.nio.ThreadUtil;
 import erwins.util.text.StringUtil;
 
 /**  
+ * 이름이 머지소터지만 사실 머지소팅하지 않는다능...
  * 잘됨. 검증완료
- * 2.9G 파일 SSD 노트북 기준 3분 41초
+ * 2.9G 파일 SSD 노트북 기준 3분 41초. 네이티와 크게 차이나지 않는다.
  *  */
 public class MergeSortor<T> {
 	

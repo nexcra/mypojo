@@ -39,6 +39,8 @@ public abstract class JodaUtil extends JodaTimeUtil {
     
     /** 파싱용 간단 객체 */
     public enum Joda{
+    	DATE_KR(JodaUtil.DATE_KR),
+    	TIME_KR(JodaUtil.TIME_KR),
     	YMDHMSS(JodaUtil.YMDHMSS),
     	YMDHMS(JodaUtil.YMDHMS),
     	YMDH(JodaUtil.YMDH),

@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.MessageFormat;
 
+import org.joda.time.DateTime;
+
 /**
  * 시분초를 문자열로 바꿔준다.
  */
@@ -24,6 +26,12 @@ public class TimeString {
     	this.millis = millis;
     	initTime();
     }
+    
+    public static TimeString between(DateTime from ,DateTime to){
+    	TimeString ts = new TimeString(to.getMillis() - from.getMillis());
+    	return ts;
+    }
+    
     
     public TimeString(int[] time) {
     	if(time==null || time.length > 3) throw new IllegalArgumentException();

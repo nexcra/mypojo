@@ -29,6 +29,9 @@ import erwins.util.text.StringUtil;
  * 근데 병렬 처리가 불가능하니.. 불필요 하지 않을까 하다.
  * 중간에 예외가 발생하면 복구가 불가능하다.
  * 
+ * CsvItemHashWriter가 더 좋아보인다. 
+ * 파일을 나눈다는 작업은 동일하지만 병렬처리 가능하냐의 차이가 있다.
+ * 
  * 50G, 0.7억 로우의 파일 분리 / 검증해봤음.
  */
 @NotThreadSafe
