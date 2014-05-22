@@ -29,6 +29,11 @@ public class LikeStringMatchMap<T> extends AbstractMapSupport<String,T>{
 		return map.get(key);
 	}
 	
+	@Override
+	public void clear() {
+		map.clear();
+	}
+	
 	/** HashEntry의 key는 매핑된 텍스트.   */
 	public List<HashEntry<T>> matchAny(String query){
 		List<HashEntry<T>> result = Lists.newArrayList();
@@ -39,6 +44,19 @@ public class LikeStringMatchMap<T> extends AbstractMapSupport<String,T>{
 		}
 		return result;
 	}
+	
+	/** matchAny와 동일하나 뒷 like로 매칭된다.  %문자  */
+	public List<HashEntry<T>> matchAnySuffix(String query){
+		List<HashEntry<T>> result = Lists.newArrayList();
+		for(String subText : SpringUtil.splitWordSuffix(query,minLength)){
+			T value = map.get(subText);
+			if(value==null) continue;
+			result.add(new HashEntry<T>(subText,value));
+		}
+		return result;
+	}
+	
+	
 
 	public int getMinLength() {
 		return minLength;

@@ -11,6 +11,8 @@ import org.springframework.batch.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.batch.retry.listener.RetryListenerSupport;
 import org.springframework.batch.retry.policy.SimpleRetryPolicy;
 import org.springframework.batch.retry.support.RetryTemplate;
+import org.springframework.dao.DeadlockLoserDataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 
 import com.google.common.collect.Maps;
 
@@ -18,6 +20,7 @@ import com.google.common.collect.Maps;
  * 간단 리트라이 테스트기.  이름이 겹치면 다른걸로 바꾸자.
  * backoff 설정에 유의해야 한다. 2개의 스래드가 PK중복 오류로 backoff됬는데 동일시간을 sleep하다가 또 동시에 실행된다면 다시 PK중복이 일어날것이다. 
  * 
+ * of()로 간단 생성
  * 신규 버전에서는 패키지 이동이 있다. 주의할것 
  * */
 public class SpringRetryConfig {
@@ -30,6 +33,12 @@ public class SpringRetryConfig {
 	private Integer backoffSec;
 	/** backoff가 설정된 경우 최대 대기시간 */
 	private Integer maxIntervalMin = 10;
+	
+	/** 간단 메소드 */
+	public static SpringRetryConfig of(){
+		return new SpringRetryConfig()
+		.addRetryableExceptions(DuplicateKeyException.class).addRetryableExceptions(DeadlockLoserDataAccessException.class);
+	}
 	
 	public SpringRetryConfig addRetryableExceptions(Class<? extends Throwable> clazz) {
 		this.retryableExceptions.put(clazz, Boolean.TRUE);

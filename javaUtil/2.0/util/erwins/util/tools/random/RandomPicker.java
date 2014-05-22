@@ -14,6 +14,8 @@ public class RandomPicker<T> implements RandomPick<T>{
     private Random random = new Random();
     private int sum;
 
+    public RandomPicker(){}
+    
     /** 인라인 용 */
 	public RandomPicker(T[] valueSet,int[] rateSet){
     	Precondition.isEquals(valueSet.length, rateSet.length);
@@ -24,6 +26,12 @@ public class RandomPicker<T> implements RandomPick<T>{
 		}
         sum = current;
     }
+	
+	/** 스래드 안전하지 않다. */
+	public  void addItem(int weight,T value){
+		map.put(sum, value);
+		sum += weight;
+	}
 	    
     public T getRandom(){
         int search = random.nextInt(sum);

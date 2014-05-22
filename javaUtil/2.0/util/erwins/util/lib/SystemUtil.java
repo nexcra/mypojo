@@ -41,6 +41,16 @@ public abstract class SystemUtil extends SystemUtils{
     	return MathUtil.round(Runtime.getRuntime().totalMemory() / 1024.0 / 1024.0,1);
     }
     
+    /** MB이다. */
+    public static BigDecimal totalMemoryMb(){
+    	return new BigDecimal(Runtime.getRuntime().totalMemory() / 1024 / 1024 );
+    }
+    
+    /** MB이다. */
+    public static BigDecimal nowUsedMemoryMb(){
+    	return new BigDecimal((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024 );
+    }
+    
     /**
      * @param 현재 가동중인 JVM의 IP 
      */

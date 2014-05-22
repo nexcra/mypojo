@@ -354,8 +354,8 @@ public abstract class SpringUtil {
 		return tag;
 	}
     
-	/** 단어를 잘게 나눈다.
-	 * 주로 like 검사를 할때 사용된다.  */
+	/** 단어를 잘게 나눈다. 주로 like 검사를 할때 사용된다. 
+	 *  %문자% */
 	public static List<String> splitWord(String text,int minLength){
 		List<String> words = Lists.newArrayList();
 		for(int i=0;i<=text.length();i++){ // <= 이다 주의.
@@ -364,6 +364,18 @@ public abstract class SpringUtil {
 				if(subkey.length() < minLength) continue;
 				words.add(subkey);
 			}
+		}
+		return words;
+	}
+	
+	/** 단어를 잘게 나눈다. 주로 like 검사를 할때 사용된다.
+	 *  %문자 =>  */
+	public static List<String> splitWordSuffix(String text,int minLength){
+		List<String> words = Lists.newArrayList();
+		for(int i=0;i<=text.length();i++){ // <= 이다 주의.
+			String subkey = text.substring(i,text.length());
+			if(subkey.length() < minLength) continue;
+			words.add(subkey);
 		}
 		return words;
 	}

@@ -21,6 +21,7 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.params.CookiePolicy;
 
 import com.google.common.base.Preconditions;
 
@@ -70,7 +71,17 @@ public class HttpClient3{
         
         manager.setParams(connectionParam);
         client.setHttpConnectionManager(manager);
+        
+        client.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+        
         return this;
+    }
+    
+    /** 예외 사항을 기술하기 위해서 쓴다. 
+     * ex) client.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY); (rfc 2109 domain must start with a dot)
+     *  */
+    public HttpClient getClient(){
+    	return client;
     }
     
     public HttpClient3 get(String url){

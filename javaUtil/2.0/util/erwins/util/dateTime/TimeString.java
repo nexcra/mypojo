@@ -28,7 +28,11 @@ public class TimeString {
     }
     
     public static TimeString between(DateTime from ,DateTime to){
-    	TimeString ts = new TimeString(to.getMillis() - from.getMillis());
+    	long fromMs = from.getMillis();
+    	long toMs = to.getMillis();
+    	long interval = toMs - fromMs;
+    	if(interval < 0 ) interval *= -1;
+    	TimeString ts = new TimeString(interval);
     	return ts;
     }
     

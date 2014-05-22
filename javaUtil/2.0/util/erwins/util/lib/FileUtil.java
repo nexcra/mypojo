@@ -18,6 +18,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
@@ -32,7 +33,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import erwins.util.root.StringCallback;
 import erwins.util.text.CharEncodeUtil;
@@ -238,10 +241,10 @@ public abstract class FileUtil extends FileUtils {
 	/** renameTo와 동일하나, 벨리데이션 체크랄 해준다. */
 	public static void renameTo(File file, File renamed) {
 		Preconditions.checkState(file.exists(), "파일이 존재하지 않습니다 " + file.getAbsolutePath());
-		Preconditions.checkState(!renamed.exists(), "renamed할 파일이 이미 존재합니다");
+		Preconditions.checkState(!renamed.exists(), "renamed할 파일이 이미 존재합니다 " + renamed.getAbsolutePath());
 		if(!renamed.getParentFile().exists()) renamed.getParentFile().mkdirs();
     	boolean renameCheck = file.renameTo(renamed);
-    	Preconditions.checkState(renameCheck, "파일이 정상적으로 리네임 되지 못했습니다");
+    	Preconditions.checkState(renameCheck, "파일이 정상적으로 리네임 되지 못했습니다 " + file.getAbsolutePath() + " -> " + renamed.getAbsolutePath());
 	}
 	
 	/** 파일을 디렉토리로 이동시킨다. */
@@ -759,6 +762,44 @@ public abstract class FileUtil extends FileUtils {
 			throw new RuntimeException(ioe);
 		} finally {
 			IOUtils.closeQuietly(bw);
+		}
+	}
+	
+
+	/** 
+	 * readLine 기준으로 뒤에서부터 읽는다. 
+	 * 주로 로그의 마지막 부분을 읽을때 사용된다. (List<String>를 리턴하지 않고 text를 리턴한다.)
+	 * 바이트 단위로 seek함으로, 특정 인코딩 지정은 못하고, 8859_1를 사용한다.
+	 * readOffset의 단위는 kb이다
+	 *  */
+	public static String readLineAsLength(File file,int readOffset,Charset charset){
+		Preconditions.checkArgument(readOffset > 0);
+		Preconditions.checkArgument(readOffset < 1024*1024*50,"메모리 아웃을 염려해서.. 50MB로 제한했다.");
+		List<String> reads = Lists.newArrayList();
+		
+		RandomAccessFile fo = null;
+		try {
+			fo = new RandomAccessFile(file, "r");
+			long size = fo.length();
+			long seek = size - 1024 * readOffset; 
+			if(seek > 0) fo.seek(seek);
+			
+			String read = null;
+			while((read = fo.readLine())!=null){
+				reads.add(new String(read.getBytes(CharEncodeUtil.C_8859_1),charset));
+			}
+			reads.remove(0); //첫 read는 버린다.
+			return Joiner.on('\n').join(reads);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}finally{
+			try {
+				if(fo!=null) fo.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 		

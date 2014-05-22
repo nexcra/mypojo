@@ -53,7 +53,7 @@
 			<attribute name="toDir"/>
 		<sequential>
 			<mkdir dir="${temp.dir}"/>
-			<delete file="@{toDir}/@{jarName}.jar" />
+			<delete file="@{toDir}/@{jarName}.jar"  />
 			<signjar signedjar="@{toDir}/@{jarName}.jar"  jar="@{orgDir}/@{jarName}.jar" alias="${this.alias}" 
 				keystore="${this.keystore}/${this.keyName}" storepass="${this.storepass}" />
 		</sequential>

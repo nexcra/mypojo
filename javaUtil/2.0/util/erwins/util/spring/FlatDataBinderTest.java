@@ -14,6 +14,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -27,6 +28,9 @@ public class FlatDataBinderTest {
 	
 	@Test
 	public void test() throws Exception {
+		
+		LocalValidatorFactoryBean tempValidator = new LocalValidatorFactoryBean(); 
+		tempValidator.afterPropertiesSet();
 		
 		DefaultConversionService conversionService = new DefaultConversionService();
 		conversionService.addConverter(new Converter<String,AtomicLong>() {
@@ -55,7 +59,7 @@ public class FlatDataBinderTest {
 		lineMetadatas.add(new LineMetadata(index++,"foos[0].atomicLong","FooList-커스텀에디터"));
 		lineMetadatas.add(new LineMetadata(index++,"foos[0].fooBar","FooList-ENUM"));
 		
-		FlatDataBinder binder = new FlatDataBinder();
+		FlatDataBinder<Foo> binder = new FlatDataBinder<Foo>();
 		binder.setClazz(Foo.class);
 		binder.setLineMetadatas(lineMetadatas);
 		binder.setConversionService(conversionService);

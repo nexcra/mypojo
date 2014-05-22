@@ -55,12 +55,15 @@ public class ReflextionCsvConverter<T> implements CsvMapper<T>,CsvAggregator<T>{
 				ReflectionUtil.setField(field, vo, null); 
 			}else{
 				Object value = null;
+				
 				if(String.class.isAssignableFrom(type)){
 					value = stringValue;
-				}else if(Long.class.isAssignableFrom(type)){
+				}else if(ReflectionUtil.isAssignableFrom(type, Long.class,long.class)){
 					value = Long.valueOf(stringValue);
-				}else if(Integer.class.isAssignableFrom(type)){
+				}else if(ReflectionUtil.isAssignableFrom(type, Integer.class,int.class)){
 					value = Integer.valueOf(stringValue);
+				}else if(ReflectionUtil.isAssignableFrom(type, Boolean.class,boolean.class)){
+					value = Boolean.parseBoolean(stringValue);					
 				//}else if(Date.class.isAssignableFrom(type)){
 					//value = dateTimeFormatter.parseDateTime(stringValue).toDate();
 				}else if(BigDecimal.class.isAssignableFrom(type)){

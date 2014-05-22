@@ -50,7 +50,7 @@ import erwins.util.spring.batch.CsvItemWriter.CsvAggregator;
  * 
  *  */
 @Data
-public class FlatDataBinder<T> implements InitializingBean{
+public class CopyOfFlatDataBinder<T> implements InitializingBean{
 
 	private Class<?> clazz;
 	private Integer maxArraySize;
@@ -84,7 +84,7 @@ public class FlatDataBinder<T> implements InitializingBean{
 	}
 	
 	/** CompareUtil.isEqualIgnoreNull 로 비교한다. 그냥 CompareUtil를 쓰는게 더 나을듯 */
-	public boolean isEquals(T a,T b){
+	public <T> boolean isEquals(T a,T b){
 		ExpressionParser parser = new SpelExpressionParser();
 		for(LineMetadata each :lineMetadatas){
 			Object aValue = SpringUtil.elValue(parser, each.getFieldName(), a);
@@ -96,13 +96,13 @@ public class FlatDataBinder<T> implements InitializingBean{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public T bind(String[] array,int lineNumber) throws BindException{
+	public <T> T bind(String[] array,int lineNumber) throws BindException{
 		DataBinder binder = bindWithoutClose(array,lineNumber);
 		binder.close();
 		return (T) binder.getTarget();
 	}
 	
-	public CsvMapper<T> getCsvMapper(){
+	public <T> CsvMapper<T> CsvMapper(){
 		return new CsvMapper<T>() {
 			@Override
 			public T mapLine(String[] lines, int lineNumber) throws Exception {
@@ -129,7 +129,7 @@ public class FlatDataBinder<T> implements InitializingBean{
 	}
 	
 	/** 프로퍼티 에디터 적용은 나중에 만들자 */
-	public String[] toStringArray(T vo){
+	public <T> String[] toStringArray(T vo){
 		String[] result = new String[maxArraySize];
 		ExpressionParser parser = new SpelExpressionParser();
 		for(LineMetadata each :lineMetadatas){
@@ -139,7 +139,7 @@ public class FlatDataBinder<T> implements InitializingBean{
 		return result;
 	}
 	
-	public CsvAggregator<T> getCsvAggregator(){
+	public <T> CsvAggregator<T> getCsvAggregator(){
 		return new CsvAggregator<T>(){
 			@Override
 			public String[] aggregate(T item) {
@@ -148,8 +148,21 @@ public class FlatDataBinder<T> implements InitializingBean{
 		};
 	}
 	
+	/** 타입 때문에 새로운 객체를 생성하도록 변경 */
+	/*
+	public <T> CsvAggregator<T> csvAggregator() {
+		return new CsvAggregator<T>(){
+			@Override
+			public String[] aggregate(T item) {
+				return toStringArray(item);
+			}
+		};
+	}
+	*/
+	
+	
 	/** 프로퍼티 에디터 적용은 나중에 만들자. map의 경우 인덱스는 무시한다. */
-	public Map<String,String> toMap(T vo){
+	public <T> Map<String,String> toMap(T vo){
 		Map<String,String> result = Maps.newConcurrentMap();
 		ExpressionParser parser = new SpelExpressionParser();
 		for(LineMetadata each :lineMetadatas){
@@ -159,13 +172,13 @@ public class FlatDataBinder<T> implements InitializingBean{
 		return result;
 	}
 	
-	public List<Map<String,String>> toMap(List<T> vos){
+	public <T> List<Map<String,String>> toMap(List<T> vos){
 		List<Map<String,String>> list = Lists.newArrayList();
 		for(T each : vos) list.add(toMap(each));
 		return list;
 	}
 	
-	private String findStringValue(ExpressionParser parser,LineMetadata each,T vo){
+	private <T> String findStringValue(ExpressionParser parser,LineMetadata each,T vo){
 		Object value = SpringUtil.elValue(parser, each.getFieldName(), vo);
 		if(value==null) return null;
 		if(conversionService.canConvert(value.getClass(), String.class)){
