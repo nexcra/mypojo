@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import com.google.common.collect.Table.Cell;
 
 /**
  * 테이블로 숫자세기. 옵션을 2종으로 나눌 수 있을때 유용하다.  
@@ -20,6 +21,13 @@ public class TableCounter implements Serializable,Iterable<Entry<Object, Map<Obj
 	private static final long serialVersionUID = -7099543615031178498L;
 	
 	private Table<Object,Object,AtomicLong> map = HashBasedTable.create();
+	
+	/** 다 더하는 위임메소드.  Table의 putAll과는 완전히 틀리다. 오버라이드가 아니라 값을 더한다. */
+	public void putAll(TableCounter other){
+		for(Cell<Object, Object, AtomicLong> cell : other.map.cellSet()){
+			this.addAndGet(cell.getRowKey(), cell.getColumnKey(), cell.getValue().longValue());
+		}
+	}
 
     public long incrementAndGet(Object row,Object col){
         AtomicLong value = get(row,col);
@@ -75,6 +83,11 @@ public class TableCounter implements Serializable,Iterable<Entry<Object, Map<Obj
 	@Override
 	public Iterator<Entry<Object, Map<Object, AtomicLong>>> iterator() {
 		return map.rowMap().entrySet().iterator();
+	}
+	
+	@Override
+	public String toString() {
+		return map.toString();
 	}
     
     

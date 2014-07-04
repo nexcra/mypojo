@@ -906,6 +906,18 @@ public class StringUtil extends StringUtils {
 		}
 		return datas;
     }
+    
+	/** 주로 CSV를 만들때 사용한다.  null이면 공백문자 
+	 * 중복검사 안함.. */
+	public static String[] toStringArray(Object ... args){
+		String[] lines = new String[args.length];
+		for(int i=0;i<args.length;i++){
+			Object each = args[i];
+			String value = each==null ? "" : each.toString();
+			lines[i] = value;
+		}
+		return lines;
+	}
 	
 	
     

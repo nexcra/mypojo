@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.KeySpec;
@@ -24,6 +25,8 @@ import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.DESedeKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+
+import erwins.util.text.CharEncodeUtil;
 
 /**
  * Cryptor 대신에 사용하자. 각종 옵션이 가능하도록 변경하였다.
@@ -79,6 +82,23 @@ public class Cryptor {
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	/** Base64 간단버전  */
+	public static String encodeBase64(String str,Charset charset){
+		return new String(Base64.encodeBase64(str.getBytes()),charset);
+	}
+	/** Base64 간단버전  */
+	public static String encodeBase64(String str){
+		return new String(Base64.encodeBase64(str.getBytes()),CharEncodeUtil.C_UTF_8);
+	}
+	/** Base64 간단버전  */
+	public static String decodeBase64(String str,Charset charset){
+		return new String(Base64.decodeBase64(str.getBytes()),charset);
+	}
+	/** Base64 간단버전  */
+	public static String decodeBase64(String str){
+		return new String(Base64.decodeBase64(str.getBytes()),CharEncodeUtil.C_UTF_8);
 	}
 	
 	/** 바이트만을 내보낸다. 이후 Base64등으로 문자화 하자. */

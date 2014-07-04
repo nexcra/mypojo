@@ -56,6 +56,17 @@ public class LikeStringMatchMap<T> extends AbstractMapSupport<String,T>{
 		return result;
 	}
 	
+	/** matchAny와 동일하나 앞 like로 매칭된다.  문자%  */
+	public List<HashEntry<T>> matchAnyPrefix(String query){
+		List<HashEntry<T>> result = Lists.newArrayList();
+		for(String subText : SpringUtil.splitWordPrefix(query,minLength)){
+			T value = map.get(subText);
+			if(value==null) continue;
+			result.add(new HashEntry<T>(subText,value));
+		}
+		return result;
+	}
+	
 	
 
 	public int getMinLength() {

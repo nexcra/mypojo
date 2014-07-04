@@ -107,6 +107,13 @@ public class MapIdSimpleCounter<ID> extends AbstractMapSupport<ID,Long> implemen
     		addAndGet(entry.getKey(), entry.getValue().longValue());
     	}
 	}
+	
+	/** 동일한거 */
+	public void putAllNumber(Map<? extends ID, ? extends Number> other) {
+		for(java.util.Map.Entry<? extends ID, ? extends Number> entry : other.entrySet()){
+    		addAndGet(entry.getKey(), entry.getValue().longValue());
+    	}
+	}
 
 	public Set<ID> keySet() {
 		return map.keySet();

@@ -20,10 +20,13 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.lang.ClassUtils;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.ReflectionUtils;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 
 import erwins.util.collections.MapForList;
 import erwins.util.root.EntityId;
@@ -344,7 +347,8 @@ public abstract class ReflectionUtil extends ReflectionUtils {
         }
     }
     
-    /** 간단 복사. A값이 null이고 B값이 null이 아니라면 B의값을 A로 복사한다. */
+    /** 간단 복사. 널체크 안하고 B를 A로 복사한다. 
+     * @see shallowCopyNull */
     public static <T> void  shallowCopy(T a,T b){
         @SuppressWarnings("unchecked")
         Class<T> clazz =  (Class<T>) b.getClass(); //A에는 있으나 B에는 없는 필드는 복사하지 않는다.  ex) A extends B
@@ -387,6 +391,33 @@ public abstract class ReflectionUtil extends ReflectionUtils {
         List<T> result = new ArrayList<T>();
         for (Entry<String, List<T>> entry : map.entrySet()) {
             List<T> value = entry.getValue();
+            if(value.size()==1) result.add(value.get(0));
+            else{
+                T firstValue = value.get(0);
+                for(int i=1;i<value.size();i++) ReflectionUtil.shallowCopyNull(firstValue, value.get(i));
+                result.add(firstValue);
+            }
+        }
+        return result;
+    }
+    
+
+	/** 
+	 * 모든 객체를 key 중심으로 조인한다.  VO에는 두개의 테이블A,B의 컬럼 모두가 포함되어야 한다. 
+     * 결과는 걍 첫번째 객체 기준으로  value들을 더해서 리턴한다.(입력인자중 어느게 될지 모름)
+	 * 위 hashJoin과 동일하지만 특정 인터페이스를 구현하지 않아도 됨 */
+    public static <ID,T extends EntityId<String>> List<T>  hashJoin(Converter<T,ID> idConverter,List<T> ... listArray){
+        Multimap<ID,T> map = ArrayListMultimap.create();
+        for(List<T> list : listArray) {
+        	for(T each : list) {
+        		ID id = idConverter.convert(each);
+        		map.put(id, each);
+        	}
+        }
+        
+        List<T> result = new ArrayList<T>();
+        for (Entry<ID, Collection<T>> entry : map.asMap().entrySet()) {
+            List<T> value = CollectionUtil.toList(entry.getValue());
             if(value.size()==1) result.add(value.get(0));
             else{
                 T firstValue = value.get(0);

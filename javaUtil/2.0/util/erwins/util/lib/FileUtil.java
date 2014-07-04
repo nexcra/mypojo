@@ -788,7 +788,7 @@ public abstract class FileUtil extends FileUtils {
 			while((read = fo.readLine())!=null){
 				reads.add(new String(read.getBytes(CharEncodeUtil.C_8859_1),charset));
 			}
-			reads.remove(0); //첫 read는 버린다.
+			if(reads.size() > 0) reads.remove(0); //첫 read는 버린다.
 			return Joiner.on('\n').join(reads);
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);

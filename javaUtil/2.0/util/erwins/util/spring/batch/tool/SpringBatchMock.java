@@ -252,7 +252,37 @@ public class SpringBatchMock<T>{
 		return mock.run();
 	}
 	
-	/** 대용량 파일 조건에 따라 나누기 샘풀 */
+	/** 인메모리만큼 쪼개서 나누기 */
+	public static ExecutionContext fileSplit(final File file,final Charset encoding,int commitInterval) throws Exception{
+		FlatFileItemReader<String> itemReader = new FlatFileItemReader<String>();
+		itemReader.setLineMapper(new PassThroughLineMapper());
+		itemReader.setEncoding(encoding.name());
+		itemReader.setResource(new FileSystemResource(file));
+		itemReader.afterPropertiesSet();
+		
+		ItemWriter<String> itemWriter = new ItemWriter<String>() {
+			int count = 0;
+			@Override
+			public void write(List<? extends String> items) throws Exception {
+				FlatFileItemWriter<String> flatWriter = new FlatFileItemWriter<String>();
+		        flatWriter.setResource(new FileSystemResource(new File(file.getParentFile(),file.getName() + "_" + count++)));
+		        flatWriter.setLineAggregator(new  PassThroughLineAggregator<String>());
+		        flatWriter.setEncoding(encoding.name());
+		        flatWriter.afterPropertiesSet();
+		        flatWriter.open(new ExecutionContext());
+		        flatWriter.write(items);
+		        flatWriter.close();
+			}
+		};
+        
+        SpringBatchMock<String> mock = new SpringBatchMock<String>();
+		mock.setCommitInterval(commitInterval);
+		mock.setItemReader(itemReader);
+		mock.setItemWriter(itemWriter);
+		return mock.run();
+	}
+	
+	/** CSV 파일을  대용량 파일 조건에 따라 나누기 샘풀 */
 	public static ExecutionContext fileSplit(Charset encoding,File out,Converter<String[], String> idConverter,Converter<String, String> IdToFileNameConverter){
 		CsvItemReader<String[]> itemReader = new CsvItemReader<String[]>();
 		itemReader.setResource(new FileSystemResource(out));
@@ -356,6 +386,28 @@ public class SpringBatchMock<T>{
 		});
 		mock.run();
 		return list;
+	}
+	
+	/**  
+	 * value와 일치하는 라인 카운트 가져오기
+	 * Flat만 해당된다.
+	 *  */
+	public static int findLineCount(File file,String findValue) throws Exception{
+		FlatFileItemReader<String> itemReader = new FlatFileItemReader<String>();
+    	itemReader.setLineMapper(new PassThroughLineMapper());
+    	itemReader.setEncoding("UTF-8");
+    	itemReader.setResource(new FileSystemResource(file));
+    	itemReader.afterPropertiesSet();
+    	
+    	itemReader.open(new ExecutionContext());
+    	int i=0;
+    	while(true){
+    		String line = itemReader.read();
+    		i++;
+    		if(line==null) break;
+    		if(line.equals(findValue)) return i;
+    	}
+		return -1;
 	}
 	
 	

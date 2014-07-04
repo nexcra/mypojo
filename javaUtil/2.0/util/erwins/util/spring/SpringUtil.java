@@ -379,5 +379,17 @@ public abstract class SpringUtil {
 		}
 		return words;
 	}
+	
+	/** 단어를 잘게 나눈다. 주로 like 검사를 할때 사용된다.
+	 *  %문자 =>  */
+	public static List<String> splitWordPrefix(String text,int minLength){
+		List<String> words = Lists.newArrayList();
+		for(int i=0;i<=text.length();i++){ // <= 이다 주의.
+			String subkey = text.substring(0,i);
+			if(subkey.length() < minLength) continue;
+			words.add(subkey);
+		}
+		return words;
+	}
     
 }

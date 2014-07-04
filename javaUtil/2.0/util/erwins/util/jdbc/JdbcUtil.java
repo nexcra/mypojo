@@ -7,8 +7,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.collections.map.ListOrderedMap;
-import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -23,14 +24,13 @@ public class JdbcUtil {
 
 	/** 부분 커밋하면서 입력한다.
 	 * ex) batchInsert(dataSource,"QQ", params, 1000); */
-	public static void batchInsert(BasicDataSource dataSource,String tableName,List<Object[]> params,int commitInterval){
+	public static void batchInsert(DataSource dataSource,String tableName,List<Object[]> params,int commitInterval){
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
 			QueryRunner runner = new QueryRunner(dataSource);
-			
 			
 			StringAppender appender = new StringAppender();
 			appender.appendLine("SELECT a.TABLE_NAME,a.COLUMN_NAME,COMMENTS,DATA_TYPE,DATA_LENGTH,DATA_PRECISION,DATA_SCALE");
@@ -48,6 +48,27 @@ public class JdbcUtil {
 			
 			String sql = "INSERT INTO "+tableName+" ("+StringUtil.join(columnNames,",")+") values ("+StringUtil.iterateStr("?", ",", columnNames.size())+")";
 			
+			List<List<Object[]>> splited = CollectionUtil.splitBySize(params, commitInterval); 
+			for(List<Object[]> each : splited){
+				runner.batch(conn, sql, each.toArray(new Object[each.size()][]));
+				conn.commit();
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}finally{
+			DbUtils.closeQuietly(conn);
+		}
+		
+	}
+	
+	/** SQL을 직접 사용하는건 다 이쪽이다. 내부 API 호출은 batchInsert와 동일 */
+	public static void batchUpdate(DataSource dataSource,String sql,List<Object[]> params,int commitInterval){
+		Connection conn = null;
+		try {
+			conn = dataSource.getConnection();
+			conn.setAutoCommit(false);
+			
+			QueryRunner runner = new QueryRunner(dataSource);
 			List<List<Object[]>> splited = CollectionUtil.splitBySize(params, commitInterval); 
 			for(List<Object[]> each : splited){
 				runner.batch(conn, sql, each.toArray(new Object[each.size()][]));
