@@ -1,4 +1,4 @@
-package erwins.util.spring;
+package erwins.util.spring.view;
 
 import java.io.File;
 import java.io.InputStream;

@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
@@ -19,6 +20,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import erwins.util.counter.Latch;
 import erwins.util.guava.FunctionSet;
@@ -917,6 +919,28 @@ public class StringUtil extends StringUtils {
 			lines[i] = value;
 		}
 		return lines;
+	}
+	
+	/** 
+	 * 숫자 범위를 크론 표현식처럼 적어주면 개별숫자로 리턴한다.
+	 * 일단 HourOfDayCondition에 사용
+	 * */
+	public static Set<Long> parseStringToLongSet(String text){
+		Set<Long> set = Sets.newHashSet();
+		for(String each : Splitter.on(',').split(text)){
+			if(each.contains("~")){
+				String[] lines = each.split("~");
+				long start = Long.parseLong(lines[0]);
+				long end = Long.parseLong(lines[1]);
+				for(long i=start;i<end;i++){
+					set.add(i);
+				}
+				set.add(end);
+			}else{
+				set.add(Long.parseLong(each));
+			}
+		}
+		return set;
 	}
 	
 	
