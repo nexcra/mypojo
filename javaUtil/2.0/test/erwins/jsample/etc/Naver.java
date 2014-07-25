@@ -1,22 +1,16 @@
 
 package erwins.jsample.etc;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
-import org.apache.ecs.html.Script;
-
-import erwins.util.web.html.HtmlOptionBuilder;
 
 
 /**
  * 네이버의 각종 API에 관한 결과를 래핑한다.
  */
 public abstract class Naver{
-
-    /**
+/*
+    *//**
      * 지오코딩 결과를 HTML Option으로 제공한다.
-     */
+     *//*
     public static String getGeoCode(String address){
         
         String query = null;
@@ -34,12 +28,12 @@ public abstract class Naver{
         HtmlOptionBuilder o = new HtmlOptionBuilder();
         o.addDefault("원하시는 지역을 골라주세요");
         
-        /*for(Map<String,String> result : results){
+        for(Map<String,String> result : results){
             o.add(result.get("x")+","+result.get("y"), result.get("address"));
-        }*/
+        }
         return o.toString();
         
-    }
+    }*/
 
     //URL
     private static final String NAVER_GEOCODE_URL = "http://maps.naver.com/api/geocode.php";
@@ -58,15 +52,16 @@ public abstract class Naver{
         //return SystemInfo.isServer() ? NAVER_SERVER_MAP_KEY : NAVER_LOCAL_MAP_KEY;
     	return NAVER_SERVER_MAP_KEY;
     }
-    /**
+    /*
+    *//**
      * 주소 변경시 일괄 적용 위함 
-     */    
+     *//*    
     public static String getNaverScript(){
         Script wqe = new Script();
         wqe.setSrc(NAVER_MAP_JS_URL+"?key="+getNaverMapKey());
         wqe.setType("text/JavaScript");
         return wqe.toString();
-    }
+    }*/
    
 
 }

@@ -13,6 +13,8 @@ import erwins.util.number.MathUtil;
 /**
  * 서버 정보에 대한 전반적인 사항을 다룬다.
  * 이걸 이용해서 실서버인지 판단하는, 하드코딩된 static 클래스가 필요하다?
+ * 
+ * 대충 쓰다 말거라 안고침
  **/
 public abstract class SystemUtil extends SystemUtils{
     

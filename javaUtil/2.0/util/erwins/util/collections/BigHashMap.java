@@ -10,7 +10,10 @@ import com.google.common.collect.Maps;
 
 import erwins.util.root.NotThreadSafe;
 
-/** 1000만건 이상의 데이터를 해시하기위한 꼼수. 정상작동하는지는 의문이다. */
+/** 
+ * 1000만건 이상의 데이터를 해시하기위한 꼼수. 정상작동하는지는 의문이다.
+ * 아래 부분은 귀찮아서 아직 구현 안함
+ *  */
 @NotThreadSafe
 public class BigHashMap<K,V> implements Map<K,V>{
 	

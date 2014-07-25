@@ -42,10 +42,6 @@ public class MultiTable<R,C,V> implements Iterable<Entry<R, Multimap<C, V>>>{
 	public int size() {
 		return table.size();
 	}
-	
-	
-    
-
     
 
 }

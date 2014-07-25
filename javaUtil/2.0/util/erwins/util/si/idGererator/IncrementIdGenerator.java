@@ -5,7 +5,7 @@ import javax.annotation.Resource;
 /**
  * 오라클 시퀀스 같은 Increment 베이스의 채번기이다. Hibernate의 시퀀스를 흉내내어 만들었다. 
  * 동일 DB를 사용하는 모든 어플리케이션에서 빠른 성능과 무결성을 보장한다.
- * 모든 채번은 WAS에서만 이루어진다. DB에서 SEQ를 따는일은 없다
+ * 모든 채번은 WAS에서만 이루어진다. DB에서 SEQ를 따지 않는다.
  * 오라클 시퀀스 1개당 LIMIT만큼의 키를 뻥튀기 / 캐싱 하여 사용한다
  * @author sin
  */
@@ -36,8 +36,6 @@ public class IncrementIdGenerator {
     public String nextvalString(){
         return String.valueOf(nextval());
     }
-    
-    
 
 	public int getLimit() {
 		return limit;
@@ -50,8 +48,6 @@ public class IncrementIdGenerator {
 	public void setSeqDao(IncrementIdDao seqDao) {
 		this.seqDao = seqDao;
 	}
-    
-    
     
     
 }

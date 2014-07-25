@@ -16,9 +16,10 @@ import org.springframework.core.io.FileSystemResource;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import erwins.util.lib.FileList;
-import erwins.util.lib.FileList.AntPathMatchFilePathFilter;
+import erwins.util.collections.FileList;
+import erwins.util.collections.FileList.AntPathMatchFilePathFilter;
 import erwins.util.lib.FileUtil;
+import erwins.util.lib.SystemUtil;
 import erwins.util.spring.batch.tool.SpringBatchMock;
 
 
@@ -30,12 +31,15 @@ import erwins.util.spring.batch.tool.SpringBatchMock;
  * 싱글스래드로만 동작하게 하자.  (패턴 안겹치게 주의)
  * 데이터를 처리하고 파일을 처리(삭제,리네임 등등)하기 전에 WAS가 강제종료된다면 트랜잭션이 없음으로 문제가 발행한다. 이렇게 안되길 기대하자 
  * (라이터의 커밋주기가 늘어나야 안정성이 올라갈것이다.)
+ * 
+ * 나중에 추가 요구사항이 온다면 스케쥴 스래드풀로 수정
  * */
 public class FileMonitor extends Thread{
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	private int intervalSec =  5;
 	private List<CsvLogMonitorInfo> checkList = Lists.newArrayList();
+	
+	private int intervalSec =  5;
 	
 	/** 모니터링할 패턴을 입력한다.
 	 * ex) new CsvLogMonitorInfo(new File("C:/DATA/download/로그파일"))
@@ -87,8 +91,10 @@ public class FileMonitor extends Thread{
 		/** fileFilter를 Ant표현식으로 대체한다. 윈도우와 리눅스의 파일패스 표현이 틀림으로 주의!
 		 * ex) 윈도우 : ** / *.csv    <-- C:/~~ 이렇게 시작
 		 * ex) 유닉스 : / ** / *.csv  <-- /~~ 이렇게 시작
+		 * 자동으로 변환하게 만들었으니, 유닉스 스타일로만 쓰자.
 		 * */
 		public CsvLogMonitorInfo setAntPath(String antPath){
+			if(SystemUtil.IS_OS_WINDOWS && antPath.startsWith("/") && antPath.length() > 1) antPath = antPath.substring(1);
 			fileFilter = new AntPathMatchFilePathFilter(antPath).setDirectory(false);
 			return this;
 		}
@@ -133,6 +139,7 @@ public class FileMonitor extends Thread{
 		
 	}
 	
+	/** 예외가 발생하지않게 잘 조절할것? */
 	public static interface CsvLogFileCallback{
 		public void doFileCallback(File file);
 	}
@@ -148,6 +155,5 @@ public class FileMonitor extends Thread{
 	public void setIntervalSec(int intervalSec) {
 		this.intervalSec = intervalSec;
 	}
-	
 
 }

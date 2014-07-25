@@ -23,7 +23,11 @@ import erwins.util.collections.ListStore;
 /** 
  * reader를 읽어서 부분 집합으로 만들때 사용한다. 특수용도.
  * 입력되는 데이터는 반드시 정렬되어있어야 한다.
+ * 
+ * 너무 복잡하다. 차라리 파일로 떨군 후 소트머지 할것
+ * @see MergeSortor
  *  */
+@Deprecated
 public class ItemListReader<T> implements ItemReader<List<T>>,ItemStream,ResourceAwareItemReaderItemStream<List<T>>,InitializingBean{
 	
 	/** 유효한 ITEM을 읽은 수 */

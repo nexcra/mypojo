@@ -16,7 +16,7 @@ import com.google.gson.JsonSerializer;
 
 import erwins.util.counter.MapIdCounter;
 import erwins.util.lib.ReflectionUtil;
-import erwins.util.spring.SpringConversionUtil;
+import erwins.util.spring.SpringConversions;
 
 public abstract class GsonUtil {
 	
@@ -46,7 +46,7 @@ public abstract class GsonUtil {
 	 * GsonBuilder의 registerTypeHierarchyAdapter로 등록해서 사용 */
 	public static JsonSerializer<Enum<?>> generateEnumJsonSerializer(Converter<Object,Object> converter){
 		@SuppressWarnings("unchecked")
-		final Converter<Object,Object> innerConverter = (Converter<Object, Object>) (converter==null ? SpringConversionUtil.TO_STRING_DEFAULT : converter);
+		final Converter<Object,Object> innerConverter = (Converter<Object, Object>) (converter==null ? SpringConversions.TO_STRING_DEFAULT : converter);
 		return new JsonSerializer<Enum<?>>() {
             @Override
             public JsonElement serialize(Enum<?> object, Type arg1, JsonSerializationContext arg2) {

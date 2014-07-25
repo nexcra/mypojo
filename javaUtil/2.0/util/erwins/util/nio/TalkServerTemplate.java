@@ -19,7 +19,7 @@ import erwins.util.validation.InputValidationException;
 
 /** 나중에 소스참고를 위해 범용적인 부분을 나눈다. 
  * 일단 성능은 생각하지 않고 String으로 구현한다. */
-public abstract class TalkServerTemplate implements Shutdownable {
+public abstract class TalkServerTemplate{
 	
 	private Selector selector;
 	
@@ -82,7 +82,6 @@ public abstract class TalkServerTemplate implements Shutdownable {
 	}
 	
 	/** 메인 스래드를 닫아주자. */
-	@Override
 	public void shutdown() {
 		acceptor.interrupt();
 	}

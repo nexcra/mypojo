@@ -11,8 +11,8 @@ import com.google.common.collect.Sets;
 import erwins.util.root.NotThreadSafe;
 import erwins.util.spring.SpringUtil;
 
-/** 앞뒤 like인 자료를 리턴한다. 10만건 내외 자료를 매우 빠르게 탐색할 용도로 사용한다.
- *  양이 많으면 쓰면 안된다.
+/** 
+ * 단어들(긴 단어)을 메모리에 미리 넣어놓고, 키워드들(짧은 단어)를 매칭할때 사용된다.
  *  
  *  LikeStringSet map = new LikeStringSet();
 		map.add("값싼청바지");
@@ -22,11 +22,8 @@ import erwins.util.spring.SpringUtil;
 		map.add("값싼키보드");
 		map.add("값싼키위");
 		
-		System.out.println(map.endsWith("바지"));
-		System.out.println(map.endsWith("싼청바지"));
-		
-		System.out.println(map.startsWith("값싼"));
-		System.out.println(map.startsWith("값싼키"));
+		System.out.println(map.contains("바지"));
+		System.out.println(map.contains("싼청바지"));
  *   */
 @NotThreadSafe
 public class LikeStringSet extends AbstractSetSupport<String>{

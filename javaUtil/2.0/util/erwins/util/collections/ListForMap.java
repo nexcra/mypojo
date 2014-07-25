@@ -13,7 +13,10 @@ import erwins.util.root.PairObject;
  * 이하의 간단 버전이다.
  * 레거시 소스에서 SQL의 결과를 Map으로 받을때 사용한다.
  * private List<Map<String,T>> list = new ArrayList<Map<String,T>>();
+ * 
+ * .. 나중에 보니 별 쓸모없는듯. 직접 mybatis와 매핑되도록 만들던가 해야겠다.
  */
+@Deprecated
 public class ListForMap<T> implements Iterable<Map<String,T>>{
 	
 	private List<Map<String,T>> list;

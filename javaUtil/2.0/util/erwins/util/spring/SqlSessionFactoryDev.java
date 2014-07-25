@@ -21,8 +21,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
-/** 개발용 sql.xml 리로더.
- * setMapperLocations로 올리면 jrebel이 인식하지 못해서 대체하기위해 네이버 검색후 작성  */
+import erwins.util.spring.SpringUtil.AntResourceType;
+
+/** 
+ * 개발용 sql.xml 리로더.
+ * setMapperLocations로 올리면 jrebel이 인식하지 못해서 대체하기위해 네이버 검색후 작성 
+ *  */
 public class SqlSessionFactoryDev extends SqlSessionFactoryBean {
     
     private Logger log = LoggerFactory.getLogger(this.getClass());
@@ -44,7 +48,7 @@ public class SqlSessionFactoryDev extends SqlSessionFactoryBean {
     
     /** ,로 분리해서 넣자. classpath:가 기준이 된다.  */
     public void setMapperLocationsByAnt(String packageAntMatchs) throws IOException {
-    	Resource[] mappingLocations = SpringUtil.resourceByClasspath(packageAntMatchs);
+    	Resource[] mappingLocations = SpringUtil.antToResources(AntResourceType.classpath,packageAntMatchs);
     	setMapperLocations(mappingLocations);
     }
     

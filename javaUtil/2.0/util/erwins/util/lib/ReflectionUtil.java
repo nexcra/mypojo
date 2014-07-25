@@ -28,7 +28,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
-import erwins.util.collections.MapForList;
 import erwins.util.root.EntityId;
 import erwins.util.root.Pair;
 import erwins.util.text.StringUtil;
@@ -385,12 +384,13 @@ public abstract class ReflectionUtil extends ReflectionUtils {
     /** 모든 객체를 key 중심으로 조인한다.  VO에는 두개의 테이블A,B의 컬럼 모두가 포함되어야 한다. 
      * 결과는 걍 첫번째 객체 기준으로  value들을 더해서 리턴한다.(입력인자중 어느게 될지 모름) */
     public static <T extends EntityId<String>> List<T>  hashJoin(List<T> ... listArray){
-        MapForList<T> map = new MapForList<T>();
-        for(List<T> list : listArray) for(T each : list) map.add(each.getId(), each);
+        //MapForList<T> map = new MapForList<T>();
+        Multimap<String, T> map = ArrayListMultimap.create();
+        for(List<T> list : listArray) for(T each : list) map.put(each.getId(), each);
         
         List<T> result = new ArrayList<T>();
-        for (Entry<String, List<T>> entry : map.entrySet()) {
-            List<T> value = entry.getValue();
+        for (Entry<String, Collection<T>> entry : map.asMap().entrySet()) {
+            List<T> value = CollectionUtil.toList(entry.getValue());
             if(value.size()==1) result.add(value.get(0));
             else{
                 T firstValue = value.get(0);

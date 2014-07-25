@@ -1,17 +1,17 @@
 package erwins.util.lib;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 
-public abstract class ExceptionUtil{
-    
+
+/** 
+ * 별 필요없다..  아래 클래스들 참조해서 없는거 추가.
+ * org.apache.commons.lang.exception.ExceptionUtils
+ * com.google.common.base.Throwables
+ * 
+ * Throwables.propagate(e); 요런것
+ *   */
+public abstract class ExceptionUtil extends ExceptionUtils{
+
 	
-	/** 런타임 예외라면 그냥 던지고, 아니라면 래핑해서 던진다 */
-	public static void throwException(Throwable e) throws RuntimeException{
-		if(e instanceof RuntimeException){
-			RuntimeException r = (RuntimeException) e;
-			throw r;
-		}
-		throw new RuntimeException(e);
-	}
-
 }

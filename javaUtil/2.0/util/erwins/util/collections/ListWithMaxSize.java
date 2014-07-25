@@ -2,6 +2,7 @@ package erwins.util.collections;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -11,10 +12,13 @@ import com.google.common.collect.Lists;
 /**
  * 최대 한계가 있는 간이 로그저장 용도로 사용 
  * size를 넘어가면 add할때 이전 데이터를 지우고 넣는다.
- * 스래드 세이프하지 않다.  */
+ * 스래드 세이프하지 않다.
+ * 
+ *  필요할때 아래 추가..
+ *   */
 public class ListWithMaxSize<T> implements List<T>{
 	
-	private List<T> list =  Lists.newArrayList(); 
+	private LinkedList<T> list =  Lists.newLinkedList();  //newLinkedList 주의
 	private final int size;
 	
 	public ListWithMaxSize(int size){
@@ -26,6 +30,11 @@ public class ListWithMaxSize<T> implements List<T>{
 		while(list.size() > size) list.remove(0);
 		return result;
 	}
+	
+	
+	
+	
+	//============== 이하 전부 위임메서드 ====================
 
 	public int size() {
 		return list.size();

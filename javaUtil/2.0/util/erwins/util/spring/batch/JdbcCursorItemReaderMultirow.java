@@ -34,6 +34,7 @@ import org.springframework.util.ClassUtils;
  * RowMapper에서 null을 리턴하면 그 라인은 데이터가 완전히 채워지지 않은것으로 간주하고 다음 로우를 읽는다.
  * 스프링에서 왜 멀티라인 커서를 지원하지 않는지 모르겠다. 있는데 못찾는것 일수도 있다.
  * 해당 라인에서 아이템이 완성되는지 알아야 함으로 CASE WHEN QUERY =  MAX(QUERY) OVER(PARTITION BY USER_IP) THEN 1 ELSE 0 END LAST_ROW 같은 처리가 SQL에서 필요하다.
+ * @see MultiRowMapper
  */
 public class JdbcCursorItemReaderMultirow<T> extends AbstractItemCountingItemStreamItemReaderNotFinal<T> implements InitializingBean{
     

@@ -30,31 +30,37 @@ public abstract class CollectionUtil extends CollectionUtils {
 	 * DataAccessUtils과 유사함. Collection에서 Unique값을 추출해 낸다.
 	 * SQL 전체카운트 등을 실행했을때 
 	 */
-	public static Number getNumber(List<?> list) {
-		if (list == null) throw new IllegalArgumentException("list is null . collection must be not null");
-		if (list.size() != 1) throw new IllegalArgumentException(list.size() + " collection must be unique");
-		Object obj = list.get(0);
+	public static Number getNumber(Collection<?> list) {
+		Object obj = getUnique(list);
 		if (obj instanceof Number) return ((Number) obj);
-		throw new IllegalArgumentException("list result is not number");
+		throw new IllegalArgumentException("list result is not instanceof Number");
 	}
 
 	/**
 	 * DataAccessUtils과 유사함. Collection에서 Unique값을 추출해 낸다.
 	 */
-	public static <T> T getResultUnique(Collection<T> list) {
-		if (list == null) throw new IllegalArgumentException(" collection is null! ");
+	public static <T> T getUnique(Collection<T> list) {
+		if (list == null) throw new IllegalArgumentException(" collection is null! collection must be not null");
 		else if (list.size() != 1) throw new IllegalArgumentException(list.size() + " collection must be unique : "
 				+ list.iterator().next().toString());
 		else return list.iterator().next();
 	}
 
-	/** 1개만 추출해 낸다. 없다면 null을 리턴한다. */
-	public static <T> T getUniqNullable(Collection<T> sets) {
-		if (sets.size() == 0) return null;
-		else if (sets.size() == 1) return sets.iterator().next();
-		else throw new IllegalArgumentException(sets.size() + " collection must be unique or zero size : "
-				+ sets.iterator().next().toString());
+	/** getUnique()와 동일하지만  없다면 null을 리턴한다. */
+	public static <T> T getUniqueNullable(Collection<T> list) {
+		if (list == null) return null;
+		else if (list.size() == 0) return null;
+		else if (list.size() == 1) return list.iterator().next();
+		else throw new IllegalArgumentException(list.size() + " collection must be unique or zero size : "
+				+ list.iterator().next().toString());
 	}
+	
+	public static <T> T getFirst(Collection<T> list) {
+		if (list == null) return null;
+		else if (list.size() == 0) return null;
+		return list.iterator().next();
+	}
+	
 
 	/**
 	 * 마지막 객체를 반환한다.
@@ -72,72 +78,6 @@ public abstract class CollectionUtil extends CollectionUtils {
 
 	public static <T> T getLast(T[] list) {
 		return list[list.length - 1];
-	}
-
-	// ===========================================================================================
-	// 비교하기 각기 3종류를 가진다.
-	// ===========================================================================================
-
-	/**
-	 * ==으로 비교한다. ????
-	 */
-	public static <T> boolean isSameAny(T body, T... items) {
-		if (body == null || items.length == 0) return false;
-		for (T item : items)
-			if (body == item) return true;
-		return false;
-	}
-
-	/**
-	 * 배열에 해당 물품을 가지고 있는지 검사한다. 하나라도 있으면 true를 리턴한다. T에 collection이 오면 안된다.
-	 */
-	public static <T> boolean isEqualsAny(T[] bodys, T... items) {
-		if (bodys == null || items.length == 0) return false;
-		for (T body : bodys)
-			for (T item : items)
-				if (item.equals(body)) return true;
-		return false;
-	}
-
-	public static <T> boolean isEqualsAny(T[] bodys, Collection<T> items) {
-		if (bodys == null || items.size() == 0) return false;
-		for (T body : bodys)
-			for (T item : items)
-				if (item.equals(body)) return true;
-		return false;
-	}
-
-	/**
-	 * 단일 물품의 값과 배열내의 값을. 비교한다. 하나라도 있으면 true를 리턴한다.
-	 */
-	@Deprecated
-	public static <T> boolean isEqualsAny(Collection<T> bodys, T... items) {
-		if (bodys == null || items.length == 0) return false;
-		for (T body : bodys)
-			for (T item : items)
-				if (item.equals(body)) return true;
-		return false;
-	}
-
-	/**
-	 * 단일 물품의 값과 배열내의 값을. 비교한다. 하나라도 있으면 true를 리턴한다.
-	 */
-	@Deprecated
-	public static <T> boolean isEqualsAny(T body, T... items) {
-		if (body == null || items.length == 0) return false;
-		for (T item : items)
-			if (item.equals(body)) return true;
-		return false;
-	}
-
-	/**
-	 * 배열에 null이 있는지 확인한다. 하나라도 있으면 true를 리턴한다. 배열의 size가 0이면 false이다.
-	 */
-	@Deprecated
-	public static <T> boolean isNullAny(T... items) {
-		for (T item : items)
-			if (item == null) return true;
-		return false;
 	}
 
 

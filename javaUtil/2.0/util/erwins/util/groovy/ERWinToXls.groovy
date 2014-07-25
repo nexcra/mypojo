@@ -17,8 +17,13 @@ import erwins.util.vender.apache.PoiReaderFactory
  * ER-WIN에서 도메인 입력시 물리가 논리명 입력한계보다 작다. 따라서 물리명은 짤리는수가 있음으로 논리명을 사용한다.
  * Column Null Option : NOT NULL or NULL 
  * Column Is PK : Yes or No
- * Domain Name : _default_  */
+ * Domain Name : _default_  
+ * 
+ * 오래되서 뭔지 모르겠다. 이걸 다시 쓸날이 오진 않을듯
+ * */
+@Deprecated
 public class ERWinToXls implements Iterable {
+	
 	def tables = new MapForList(MapType.ListOrderd)
 	
 	public Iterator iterator(){

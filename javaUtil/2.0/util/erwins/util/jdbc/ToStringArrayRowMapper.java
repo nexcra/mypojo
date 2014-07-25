@@ -1,4 +1,4 @@
-package erwins.util.spring.batch;
+package erwins.util.jdbc;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import erwins.util.root.NotThreadSafe;
+import erwins.util.spring.batch.CsvItemWriter;
 import erwins.util.spring.batch.CsvItemWriter.CsvHeaderCallback;
 
 /** 

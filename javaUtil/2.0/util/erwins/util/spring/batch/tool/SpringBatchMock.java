@@ -28,17 +28,19 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 
-import erwins.util.lib.ExceptionUtil;
+import erwins.util.jdbc.ToStringArrayRowMapper;
 import erwins.util.nio.ThreadUtil;
 import erwins.util.spring.SpringUtil;
 import erwins.util.spring.batch.CsvItemReader;
 import erwins.util.spring.batch.CsvItemReader.PassThroughCsvMapper;
 import erwins.util.spring.batch.CsvItemWriter;
 import erwins.util.spring.batch.CsvItemWriter.PassThroughCsvAggregator;
-import erwins.util.spring.batch.ToStringArrayRowMapper;
 import erwins.util.spring.batch.component.CsvItemMultiMapWriter;
+import erwins.util.text.StringUtil;
 
 /** 스프링 배치를 간단히 로컬에서 돌려볼 수 있는 테스트기 */
 @Data
@@ -84,8 +86,8 @@ public class SpringBatchMock<T>{
 			itemWriter.write(list);
 			SpringBatchUtil.updateIfAble(itemReader,executionContext);
 			SpringBatchUtil.updateIfAble(itemWriter,executionContext);
-		}catch(Exception e){
-			ExceptionUtil.throwException(e);
+		}catch(Throwable e){
+			Throwables.propagate(e);
 		}finally{
 			SpringBatchUtil.closeIfAble(itemReader);
 			SpringBatchUtil.closeIfAble(itemWriter);
@@ -253,19 +255,24 @@ public class SpringBatchMock<T>{
 	}
 	
 	/** 인메모리만큼 쪼개서 나누기 */
-	public static ExecutionContext fileSplit(final File file,final Charset encoding,int commitInterval) throws Exception{
+	public static ExecutionContext fileSplit(final File largeFile,final Charset encoding,int commitInterval) throws Exception{
 		FlatFileItemReader<String> itemReader = new FlatFileItemReader<String>();
 		itemReader.setLineMapper(new PassThroughLineMapper());
 		itemReader.setEncoding(encoding.name());
-		itemReader.setResource(new FileSystemResource(file));
+		itemReader.setResource(new FileSystemResource(largeFile));
 		itemReader.afterPropertiesSet();
 		
 		ItemWriter<String> itemWriter = new ItemWriter<String>() {
 			int count = 0;
 			@Override
 			public void write(List<? extends String> items) throws Exception {
+				String fileExt =  Files.getFileExtension(largeFile.getName());
+				String name = Files.getNameWithoutExtension(largeFile.getName());
+				String countName = StringUtil.leftPad(count++, 4);
+				File newFile = new File(largeFile.getParentFile(),name + "_" + countName + "." + fileExt);
+				
 				FlatFileItemWriter<String> flatWriter = new FlatFileItemWriter<String>();
-		        flatWriter.setResource(new FileSystemResource(new File(file.getParentFile(),file.getName() + "_" + count++)));
+		        flatWriter.setResource(new FileSystemResource(newFile));
 		        flatWriter.setLineAggregator(new  PassThroughLineAggregator<String>());
 		        flatWriter.setEncoding(encoding.name());
 		        flatWriter.afterPropertiesSet();

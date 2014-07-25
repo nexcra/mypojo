@@ -1,4 +1,4 @@
-package erwins.util.spring;
+package erwins.util.guava;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,7 +11,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import erwins.util.collections.AbstractMapSupport;
-import erwins.util.guava.GsonUtil;
 import erwins.util.text.StringUtil;
 
 
@@ -23,6 +22,7 @@ public class EnumJsonSupport extends AbstractMapSupport<String,JsonObject>{
 	protected Map<String,JsonObject> jsonMap = new ConcurrentHashMap<String,JsonObject>();
 	private Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Enum.class, GsonUtil.generateEnumJsonSerializer(null)).create();
 	
+	/** enum array 들을 name을 key로 가지는 map으로 저장해준다. */
 	public <T extends Enum<?>> void add(Class<T> clazz) {
 		JsonArray array = (JsonArray) gson.toJsonTree(clazz.getEnumConstants()); 
 		JsonObject map = new JsonObject();
@@ -39,7 +39,6 @@ public class EnumJsonSupport extends AbstractMapSupport<String,JsonObject>{
 	
 	/** code에 추가로 각종 옵션을 줄 수 있다.
 	 * ex) select 박스에 전체 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public JsonObject get(Object key) {
 		JsonObject json = jsonMap.get(key);

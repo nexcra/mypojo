@@ -16,10 +16,14 @@ import org.springframework.batch.item.UnexpectedInputException;
 
 import erwins.util.text.CharEncodeUtil;
 
-/** 스프링배치에서 지원하지 않아서(정확히 확인안해봄) 만듬.
+/** 
+ * 스프링배치에서 지원하지 않아서(정확히 확인안해봄) 만듬.
  * 여러 줄의 데이터가 하나의 item을 구성할때 사용한다. (이렇게 만드는것은 매우 비추!)
  * ex) ebay의 옥션이 이런식으로 데이터를 전송. 
- * 아마 위임으로도 가능할듯 하지만, 귀찮아서 스킵  */ 
+ * 아마 위임으로도 가능할듯 하지만, 귀찮아서 스킵
+ * 
+ * 아마 플랫파일 리더가 될거같다. 거기 옵션 봐보기
+ *   */ 
 public abstract class MultilineReader<T> implements ItemReader<T>,ItemStream{
     
     private BufferedReader br;

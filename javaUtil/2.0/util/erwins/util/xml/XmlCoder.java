@@ -1,8 +1,6 @@
-package erwins.util.tools;
+package erwins.util.xml;
 
 import java.util.Deque;
-
-import org.apache.ecs.xml.XML;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Queues;
@@ -121,11 +119,11 @@ public class XmlCoder{
         return newXml;
     }
     */
-    
-    /** 나중에 Document로 고칠것 */
+    /*
+    *//** 나중에 Document로 고칠것 *//*
     public static String makeXml(XML xml) {
         //if(isLocal) xml.setPrettyPrint(true);
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+xml.toString(); // \n 조심
-    }
+    }*/
 
 }

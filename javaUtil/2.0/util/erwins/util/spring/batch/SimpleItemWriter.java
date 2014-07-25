@@ -9,6 +9,7 @@ import org.springframework.batch.item.ItemWriter;
  * ItemWriter의 scope는 언제나 step이다. (ExecutionContext를 쓴다면)
  * @author sin
  */
+@Deprecated
 public abstract class SimpleItemWriter<T> implements ItemWriter<T>{
     
     protected ExecutionContext ec;

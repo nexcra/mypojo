@@ -29,9 +29,7 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 import org.springframework.validation.BindingResult;
@@ -54,10 +52,6 @@ import erwins.util.text.StringUtil;
 
 /** 스프링용 유틸 모음 */
 public abstract class SpringUtil {
-	
-	/** jdbc의 result맵을 Map으로 변형해준다. 리턴값은 가능하다면 apache의 ListOrderedMap를 리턴한다. */
-	@SuppressWarnings("rawtypes")
-	public static RowMapper RESULTMAP_TO_MAP = new ColumnMapRowMapper();
 	
 	public static ApplicationContext getApplicationContext() {
 		return ContextLoader.getCurrentWebApplicationContext();

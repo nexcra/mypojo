@@ -12,6 +12,7 @@ import org.apache.commons.lang.math.NumberUtils;
  */
 public abstract class NumberUtil extends NumberUtils {
     
+	/** 0이면 비어있다고 판단 */
     public static boolean isEmpty(Number num) {
         if(num==null) return true;
         if(num.doubleValue() == 0) return true;

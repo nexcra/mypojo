@@ -122,7 +122,7 @@ public class HqlBuilderRoot implements HqlBuilder{
     }
     
     public HqlBuilder orderBy(String str,boolean desc){
-        if(orderBy.next()) add(hql,"order by");
+        if(orderBy.first()) add(hql,"order by");
         else add(hql,","); 
         add(hql,str);
         if(desc) add(hql,"desc");
@@ -135,9 +135,9 @@ public class HqlBuilderRoot implements HqlBuilder{
      * 최초에만 where을 붙인다.
      */
     private void where(String field){
-        if(where.next()) add("where");
+        if(where.first()) add("where");
         else{
-            if(open==null || !open.next()){
+            if(open==null || !open.first()){
                 if(open==null) add("and");
                 else add("or");
             }

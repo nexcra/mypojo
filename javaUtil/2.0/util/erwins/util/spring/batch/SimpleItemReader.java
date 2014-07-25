@@ -14,7 +14,10 @@ import org.springframework.batch.item.UnexpectedInputException;
 
 /** 기존꺼 건드리기 싫어서 2로 만듬
  * DB에서 읽은 정보 전체를 메모리에 놓고 하나씩 읽어쓸때 사용된다.
- * 멀티스래드를 위해 synchronized를 사용한다.  */
+ * 멀티스래드를 위해 synchronized를 사용한다.
+ * @see IteratorItemReader2 
+ *  */
+@Deprecated
 public abstract class SimpleItemReader<T> implements ItemReader<T>{
     
     private Iterator<T> it;

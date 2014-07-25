@@ -10,11 +10,21 @@ import erwins.util.text.StringUtil;
 
 
 /** 
- * ex)<form:select path="password" items="${enum['BulkUploadDiv']}" />
+ * 스프링 태그가 언제까지 사용될지는 모르겠다. 
+ * ex)
+ * 
+ * 	@PostConstruct
+	public void init(){
+		springTag.put("ALL", ALL);
+		//add(BulkUploadDiv.class);
+		add(OracleInstance.class);
+	}
+ * 
+ * <form:select path="password" items="${enum['BulkUploadDiv']}" />
 	  <form:radiobuttons path="userName" items="${enum['ALL|BulkUploadDiv']}" />
 	  이 방법이 최선인지는.. 잘 모르겠다.
  * */ 
-public class EnumSpringTagSupport extends SpringTagMapSupport{
+public class EnumSpringTagSupport extends AbstractSpringTagMapSupport{
 	
 	public <T extends Enum<?>> void add(Class<T> clazz) {
 		Map<String,String> tag = SpringUtil.enumToSpringTagMap(clazz);

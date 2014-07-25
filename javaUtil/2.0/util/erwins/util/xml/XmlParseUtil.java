@@ -1,4 +1,4 @@
-package erwins.util.tools;
+package erwins.util.xml;
 
 import java.io.IOException;
 import java.io.InputStream;

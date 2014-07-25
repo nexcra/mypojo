@@ -8,8 +8,8 @@ import com.google.common.base.Preconditions;
 import erwins.util.root.NotThreadSafe;
 
 /**
+ * 스케일 정해놓고 계산하는 임시 계산기. 성능 무시 간단 계산시 사용
  * 빅데시말을 위임한다. 
- * 성능 무시 간단 계산시 사용
  * 나누기 계산중에는 scale의 두배로 계산한다.
  * @author sin
  */

@@ -22,6 +22,8 @@ import erwins.util.text.StringUtil;
 /**
  * 배치와, 스템간의 연결관계를 만들어준다.
  * 여기에 적절한 한글 이름을 달아주면 된다.
+ * 
+ * 일단 뭔지 잘 모르겠다. 나중에 볼것
  */
 public class JobFlowFinder {
     

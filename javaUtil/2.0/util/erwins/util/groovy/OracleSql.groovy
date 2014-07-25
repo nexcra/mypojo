@@ -119,6 +119,7 @@ public class OracleSql extends AbstractSql implements Iterable<Tb>{
 	   def columnNames = columns(tableName).collect { it.COLUMN_NAME }
 	   insertList(tableName,columnNames,list)
    }
+   
    public void insertListNoLog(tableName,List list){
 	   def columnNames = columns(tableName).collect { it.COLUMN_NAME }
 	   insertListNoLog(tableName,columnNames,list)

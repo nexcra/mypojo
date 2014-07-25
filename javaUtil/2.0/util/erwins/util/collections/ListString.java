@@ -8,7 +8,9 @@ import java.util.ListIterator;
 import com.google.common.collect.Lists;
 
 
-/** CSV에 들어갈 String[]을 만들때 주로 사용된다. 날코딩할때 사용 */
+/** 
+ * CSV에 들어갈 String[]을 만들때 주로 사용된다.   
+ * 널체크 하기 귀찮은 날코딩할때 사용 */
 public class ListString implements List<String>{
 	
 	private List<String> list = Lists.newArrayList();

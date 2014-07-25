@@ -2,17 +2,12 @@
 package erwins.util.tools;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.apache.ecs.wml.Td;
-import org.apache.ecs.wml.Tr;
 
 import erwins.util.dateTime.ShowTime;
 import erwins.util.number.MathUtil;
 import erwins.util.text.FormatUtil;
-import erwins.util.text.StringUtil;
 
 /**
  * @author  Rod Johnson
@@ -263,8 +258,8 @@ public class StopWatch {
         stopWatch.stop();
         return stopWatch;
     }
-
-    /** table을 리턴한다. */
+/*
+    *//** table을 리턴한다. *//*
     public String buildTable() {
         
         List<Tr> list = new ArrayList<Tr>();
@@ -287,6 +282,6 @@ public class StopWatch {
             list.add(tr);
         }
         return StringUtil.joinTemp(list,"");
-    }
+    }*/
 
 }

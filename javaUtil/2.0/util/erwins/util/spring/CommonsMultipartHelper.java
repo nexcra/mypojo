@@ -23,6 +23,8 @@ import erwins.util.lib.FileUtil;
  * 
  * 스프링은 스트리밍 API를 지원하지 않느듯 하다. (올리는 도중 벨리데이션 처리해서, 요청을 스킵하는 등의 스트리밍 업로드를 사용하고싶으면 커먼스를 직접 사용하자)
  * 게다가 리졸버가 한번 등록되면 전역 적용이라 별도 구간에 스트리밍 업로드를 적용하기 힘들듯 하다.
+ * 
+ * ..  하지만 컨트롤러에서 HttpServletRequest를 직접 파라메터로 받지 않는게 좋아보인다.
  * */
 public abstract class CommonsMultipartHelper {
 	

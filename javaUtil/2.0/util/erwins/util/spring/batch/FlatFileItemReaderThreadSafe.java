@@ -18,7 +18,10 @@ import org.springframework.core.io.Resource;
 
 /** FlatFileItemReader를 위임한다
  * 멀티 라인의 경우 RecordSeparatorPolicy를 조절하면 해결 가능한것으로 보인다(추정)
- *  -> mapper가 null을 리턴하는것과, 실제 데이터가 없어서 null을 리턴하는것을 구분할 수 없다 */
+ *  -> mapper가 null을 리턴하는것과, 실제 데이터가 없어서 null을 리턴하는것을 구분할 수 없다
+ *  @see DelegateThreadsafeItemReader
+*/
+@Deprecated
 public class FlatFileItemReaderThreadSafe<T> implements ResourceAwareItemReaderItemStream<T>, InitializingBean,ItemReader<T>, ItemStream {
 
     FlatFileItemReader<T> reader = new FlatFileItemReader<T>();

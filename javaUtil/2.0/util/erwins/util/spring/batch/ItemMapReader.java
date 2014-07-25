@@ -25,7 +25,13 @@ import com.google.common.collect.Multimap;
  * 같은 key끼리 묶어서 리턴하며, 메모리 때문에 최대치를 넘길경우 플러시 하고 다시 읽는다.
  * 즉 제한된 메모리 내에서만 그루핑 된다.
  * key별로 사전 처리(Lock등)를 해야 할 경우 사용
- * 정렬되지 않은 데이터를 처리할때 사용된다 */
+ * 정렬되지 않은 데이터를 처리할때 사용된다
+ * 
+ * 너무 복잡하다. 차라리 파일로 떨군 후 소트머지 할것
+ * @see MergeSortor
+ * 
+ *  */
+@Deprecated
 public class ItemMapReader<T> implements ItemReader<Collection<T>>,ItemStream,ResourceAwareItemReaderItemStream<Collection<T>>,InitializingBean{
 	
 	@SuppressWarnings("unchecked")

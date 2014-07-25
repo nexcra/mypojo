@@ -1,4 +1,4 @@
-package erwins.util.root;
+package erwins.util.jdbc;
 
 import java.io.Closeable;
 import java.io.File;
@@ -16,7 +16,10 @@ import org.springframework.core.io.FileSystemResource;
 import erwins.util.spring.batch.CsvItemWriter;
 import erwins.util.spring.batch.CsvItemWriter.PassThroughCsvAggregator;
 
-/** 일단 HIVE실행기 사용 목적으로 만듬 */
+/** 
+ * 일단 HIVE실행기 사용 목적으로 만듬
+ * 필요하면 각 구현체는 분리
+ *  */
 public interface JdbcResultSetCallback {
 	
 	public void lineResultSet(ResultSet resultSet) throws SQLException;

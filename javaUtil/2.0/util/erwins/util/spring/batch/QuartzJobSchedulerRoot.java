@@ -20,7 +20,10 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 
-/** 스케줄러를 기동한다. */
+/** 
+ * 스케줄러를 기동한다.
+ * 추상객체보다 유틸로 만드는게 좋아보인다?
+ *  */
 public abstract class QuartzJobSchedulerRoot{
     
     protected Scheduler scheduler;

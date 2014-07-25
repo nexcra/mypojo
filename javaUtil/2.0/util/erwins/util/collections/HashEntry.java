@@ -1,7 +1,10 @@
 package erwins.util.collections;
 
 
-/** key를 해시로 사용하는 엔트리.  기본적으로 key , value 구조이다.   */
+/** 
+ * key를 해시로 사용하는 엔트리.  기본적으로 key , value 구조이다.
+ * Map의 KEY로 사용하기 위해 만들었다. 즉 value를 가진 해시되는 key 
+ *   */
 public class HashEntry<T>{
 	
 	private String key;

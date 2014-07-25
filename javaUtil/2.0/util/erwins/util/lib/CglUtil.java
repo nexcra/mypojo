@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /** 
  * LazyLoader할때 역시 사용된다.
+ * 거의 Hibernate랑 같이 사용됨.
  * 걍 레퍼런스용
  *  */ 
 public abstract class CglUtil {

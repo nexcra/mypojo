@@ -12,7 +12,7 @@ import erwins.util.collections.AbstractMapSupport;
 /** 
  * EL에서 MAP 형식으로 HTML을 구성하도록 도와주는 헬퍼
  * */ 
-public abstract class SpringTagMapSupport extends AbstractMapSupport<String,Map<String,String>>{
+public abstract class AbstractSpringTagMapSupport extends AbstractMapSupport<String,Map<String,String>>{
 	
 	protected Splitter splitter = Splitter.on('|').omitEmptyStrings().trimResults();
 	protected Map<String,Map<String,String>> springTag = new ConcurrentHashMap<String, Map<String,String>>();

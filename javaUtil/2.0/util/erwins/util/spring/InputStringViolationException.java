@@ -8,6 +8,7 @@ import erwins.util.validation.StringArrayValidator.LineMetadata;
 
 /** StringValidator 가 던지는 예외.
  * 여러 벨리데이션은 추가로 하나 더 만들자 */
+@Deprecated
 public class InputStringViolationException extends ValidationException{
 
 	private static final long serialVersionUID = -6083404627158480484L;

@@ -10,8 +10,7 @@ import erwins.util.root.NotThreadSafe;
 import erwins.util.spring.SpringUtil;
 
 /** 
- * LikeStringMap 하고 비슷하지만, map구성 안에 서치할 항목이 들어가고, 비교인자로 문자텍스트가 온다. 
- * 이걸 더 늦게 만들었는데... 이게 더 많이 쓰이는듯 ㅠㅠ
+ * 키워드들(짧은 단어)를 메모리에 미리 넣어놓고, 단어들(긴 단어)을 매칭할때 사용된다.
  *   */
 @NotThreadSafe
 public class LikeStringMatchMap<T> extends AbstractMapSupport<String,T>{

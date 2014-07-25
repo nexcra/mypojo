@@ -16,8 +16,10 @@ import erwins.util.lib.ReflectionUtil;
 
 /**
  * 한개 테이블에 다양한 VO를 입력할때 사용된다.
+ * ... 걍 쓰지 말자.  왜만들었는지 모르겠다.
  * @author sin
  */
+@Deprecated
 public class HbaseVoMapSerializer<T extends RowKeyAble> implements HbaseSerializer<T>{
 	
 	/** 기본패밀리 */

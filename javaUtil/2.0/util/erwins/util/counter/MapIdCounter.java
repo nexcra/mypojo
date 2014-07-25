@@ -11,11 +11,15 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.google.common.collect.Maps;
 
 import erwins.util.collections.AbstractMapSupport;
+import erwins.util.root.NotThreadSafe;
+import erwins.util.root.ThreadSafe;
 
 /**
  * 맵으로 숫자세기.  MultiSet이 int 단위밖에 안되서 대체 사용한다 (로그 카운트용)
- * @author sin
+ * 
+ * 나중에 AtomicLong으로 다 되게 변경하자..
  */
+@ThreadSafe
 public class MapIdCounter<ID> extends AbstractMapSupport<ID,Long> implements Iterable<Entry<ID,AtomicLong>>,Serializable {
     
 	private static final long serialVersionUID = 5436538814969364085L;
@@ -91,6 +95,7 @@ public class MapIdCounter<ID> extends AbstractMapSupport<ID,Long> implements Ite
 	
 	/** 스래드 안전하지 않다. 변환용 */
 	@Override
+	@NotThreadSafe
 	public Set<Entry<ID, Long>> entrySet() {
 		Map<ID,Long> entryMap = Maps.newHashMap();
 		for(Entry<ID, AtomicLong> entry : map.entrySet()){

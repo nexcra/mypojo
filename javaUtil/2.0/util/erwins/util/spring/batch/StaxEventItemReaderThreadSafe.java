@@ -15,9 +15,13 @@ import org.springframework.oxm.Unmarshaller;
 import erwins.util.spring.SpringUtil;
 
 
-/** 기본제공되는 StaxEventItemReader는 read()가 final이며  스래드 세이프하이 않기 때문에 StaxEventItemReader를 위임한다
+/** 
+ * 기본제공되는 StaxEventItemReader는 read()가 final이며  스래드 세이프하이 않기 때문에 StaxEventItemReader를 위임한다
  *  read()에 final을 삭제하고 synchronized를 붙였다.
- *  향후 오버라이드 할것 */
+ *  향후 오버라이드 할것 
+ *  @see  DelegateThreadsafeItemReader
+ *  */
+@Deprecated
 public class StaxEventItemReaderThreadSafe<T> implements ItemReader<T>,ItemStream,InitializingBean,ResourceAwareItemReaderItemStream<T>{
     
     private StaxEventItemReader<T> reader = new StaxEventItemReader<T>();

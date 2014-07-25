@@ -3,6 +3,7 @@ package erwins.util.groovy
 
 
 import static org.junit.Assert.*
+import erwins.util.text.StringUtil
 import groovy.util.slurpersupport.NodeChild
 
 import org.cyberneko.html.parsers.SAXParser
@@ -47,5 +48,21 @@ class GroovyXml {
 	public void parseEach(NodeChild node,c){
 		if( node.children().size()==0) c(node)
 		else node.children().each { c(node); parseEach it,c } 
+	}
+	
+	
+	//이하 가져다붙인것. 필요할때 수정해서 사용
+	
+	/**  ex) def html = new XmlSlurper(new SAXParser()).parseText(text)
+	 * Node에  attributes() 해야 속성조절이 가능하다. */
+	
+	/** 까먹기 말기용
+	 * ex) def list = html.BODY[0].DIV[1]  */
+	public static void printChild(node,search=''){
+		node.childNodes().each {
+			int size = it.childNodes().size()
+			boolean match =  StringUtil.isMatch(it.text(), search);
+			println it.name() + ' : ' + size + ' : ' + it.attributes['id'] + ' : ' + match
+		}
 	}
 }

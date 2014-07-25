@@ -5,6 +5,5 @@ public interface NameValue{
     
 	public String getName() ;
 	public String getValue();
-    
 	
 }

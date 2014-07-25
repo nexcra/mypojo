@@ -1,4 +1,4 @@
-package erwins.util.lib;
+package erwins.util.collections;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -32,6 +32,7 @@ public class FileList implements List<File>{
 		/** 디렉토리 포함여부 */
 		private boolean directory  = true;
 		
+		/** 여기서의 antPath는 루트부터이다. */
 		public AntPathMatchFilePathFilter(String antPath) {
 			this.antPath = antPath;
 			Preconditions.checkArgument(antPathMatcher.isPattern(antPath),"invalid antPath");
@@ -147,8 +148,5 @@ public class FileList implements List<File>{
 	public List<File> subList(int fromIndex, int toIndex) {
 		return files.subList(fromIndex, toIndex);
 	}
-	
-	
-	
 	
 }

@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import erwins.util.lib.CollectionUtil;
+import erwins.util.lib.CompareUtil;
 
 /**
  * 이 클래스는 수학 관련 함수를 제공합니다. inner static class 패턴 by Effective Java
@@ -143,8 +143,8 @@ public abstract class MathUtil {
      * 하나로도 zero이면 true를 리턴한다.
      */
     public static boolean isZero(BigDecimal ... values){
-        if(CollectionUtil.isNullAny(values)) return true;
-        if(CollectionUtil.isEqualsAny(BigDecimal.ZERO,values)) return true;
+        if(CompareUtil.isNullItemAny(values)) return true;
+        if(CompareUtil.isEqualsAny(BigDecimal.ZERO,values)) return true;
         return false;
     }
     

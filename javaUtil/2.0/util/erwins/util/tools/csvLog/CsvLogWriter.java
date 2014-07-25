@@ -7,9 +7,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import lombok.Data;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
-import erwins.util.lib.ExceptionUtil;
 import erwins.util.spring.TransactionSynchCommit;
 import erwins.util.spring.TransactionSynchCommit.AfterCompletionAble;
 import erwins.util.tools.csvLog.CsvLogMamager.CsvLog;
@@ -105,7 +105,7 @@ public class CsvLogWriter<T> {
 			boolean success = queue.offer(log, timeoutSec, TimeUnit.SECONDS);
 			if(!success) throw new RuntimeException("queue.offer fail. check queue size");
 		} catch (InterruptedException e) {
-			ExceptionUtil.throwException(e);
+			Throwables.propagate(e);
 		}
 	}
 

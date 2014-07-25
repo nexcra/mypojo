@@ -7,16 +7,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.ecs.html.A;
-import org.apache.ecs.wml.Td;
-import org.apache.ecs.wml.Tr;
 
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
-
-import erwins.util.text.StringUtil;
 
 
 /**
@@ -121,10 +116,11 @@ public enum RssSample {
     public static List<SyndEntry> getEntry(SyndFeed feed){
         return feed.getEntries();
     }
+    /*
     
-    /**
+    *//**
      * 흠냐.. tbody안에 들어갈 테이블 제작
-     */
+     *//*
     public static String makeTable(SyndFeed feed){
         if(feed==null) return "";
         Tr tr = null;
@@ -154,6 +150,6 @@ public enum RssSample {
         tr.addElement(td1);
         tr.addElement(td2);
     }
-
+*/
 
 }

@@ -18,7 +18,10 @@ import com.google.common.collect.Multimap;
 import erwins.util.spring.TransactionSynchCommit.AfterCompletionAble;
 
 /**
- * 해당 DB의 트랜잭션이 정상적으로 커밋되면 HBase에도 입력한다. 
+ * 프로세스 진행중의 모든 입력/삭제 VO를 PUT으로 변경해서 가지고 있다가 동시에 커밋처리한다.
+ * ==> 즉 제너릭<VO> 형태의 DAO가 아니다.  제너릭의 형태는 HbaseDao가 가진다.
+ * 
+ * 해당 DB의 트랜잭션이 정상적으로 커밋되면 HBase에도 입력한다.
  * 로그성 데이터도 많음으로 readOnly 트랜잭션이라도 무시하고 입력해야 한다.
  * @author sin
  */

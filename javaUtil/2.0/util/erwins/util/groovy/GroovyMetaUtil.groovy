@@ -7,6 +7,9 @@ import oracle.sql.TIMESTAMP
 
 import org.apache.commons.collections.map.ListOrderedMap
 
+import com.google.common.collect.ArrayListMultimap
+import com.google.common.collect.Multimap
+
 import erwins.util.collections.MapForList
 import erwins.util.collections.MapType
 import erwins.util.lib.CompareUtil
@@ -169,9 +172,9 @@ public class GroovyMetaUtil{
 		}
 		/**  파일 이름에 관계없이 동일파일을 Hash기준으로 알려준다. */
 		File.metaClass."duplicated" = {endsWith = null ->
-			MapForList<File> map = new MapForList<File>(MapType.ListOrderd);
-			delegate.listAll(endsWith).each { map.add MD5.getHashHexString(it.name), it  }
-			return map
+			Multimap<String,File> map = ArrayListMultimap.create();
+			delegate.listAll(endsWith).each { map.put MD5.getHashHexString(it.name), it  }
+			return map.asMap()
 		}
 	}
 
@@ -189,6 +192,7 @@ public class GroovyMetaUtil{
 		ArrayList.metaClass."toUnderscore" = { key ->
 			delegate.collect { it.toUnderscore() }
 		}
+		
 		/** List<Map> 을 Map<List<Map>> 으로 변경 */
 		ArrayList.metaClass."mapping" = {String key ->
 			def mapList = new MapForList(MapType.ListOrderd) //일단 기본정렬순으로
@@ -203,6 +207,7 @@ public class GroovyMetaUtil{
 			}
 			return mapList
 		}
+		
 		/** 그냥 split은 true / false 구조로 무조건 2개로 나눈다. 이는 그것을 개량한것이다.
 		 * separator이 true로 나올때마다 하나의 리스트를 추가한다.
 		 * List<List>의 구조를 가진다. 첫번째 separator는 무조건 true가 나와야 한다. */

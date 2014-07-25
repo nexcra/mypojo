@@ -12,26 +12,7 @@ import erwins.util.root.NotThreadSafe;
 import erwins.util.spring.SpringUtil;
 
 /** 
- * set 버전과 동일.  이쪽은 걍 contains임...
- *  
- *  ikeStringMap map = new LikeStringMap();
-		map.put("값싼블루청바지","123123");
-		map.put("값싼청바지","123123");
-		map.put("엄청싼청바지","123");
-		map.put("블루청바지","123123");
-		map.put("값싼모조장비","123");
-		map.put("값싼키보드","123");
-		map.put("값싼키위","123");
-		
-		System.out.println(map.contains("바지"));
-		System.out.println(map.contains("싼청바지"));
-		
-		System.out.println(map.contains("값싼"));
-		System.out.println(map.contains("값싼키"));
-		
-		System.out.println(map.contains("장비"));
-		System.out.println(map.contains("모조"));
-		System.out.println(map.contains("싼청"));
+ * 단어들(긴 단어)을 메모리에 미리 넣어놓고, 키워드들(짧은 단어)를 매칭할때 사용된다.
  *   */
 @NotThreadSafe
 public class LikeStringMap<T> extends AbstractMapSupport<String,T>{

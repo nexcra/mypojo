@@ -3,9 +3,6 @@ package erwins.util.reflexive;
 import java.io.Serializable;
 import java.util.List;
 
-import org.apache.ecs.html.A;
-import org.apache.ecs.html.LI;
-import org.apache.ecs.html.UL;
 import org.springframework.core.convert.converter.Converter;
 
 import com.google.common.base.Joiner;
@@ -19,8 +16,13 @@ import erwins.util.tools.StringAppender;
 /** 패턴을 유사하게 만들기 위해 합쳤다. */
 public abstract class RecursiveCall{
 	
-	/** HTML의 UL / LI 태그를 만들어 낸다. 각종 메뉴, 트리 등에 사용될 수 있다.
-	 * DATA만 남긴 후 HTML에서 조합하는거도 괜찮지만, 성능이 안나오는 경우가 많고 편의상 이렇게 한다. (JSP에서 재귀호출이 되나? ) */
+	
+	
+/*	
+ * 나중에 https://code.google.com/p/jatl/wiki/JSPExample  로 수정하자
+ * *//** HTML의 UL / LI 태그를 만들어 낸다. 각종 메뉴, 트리 등에 사용될 수 있다.
+	 * DATA만 남긴 후 HTML에서 조합하는거도 괜찮지만, 성능이 안나오는 경우가 많고 편의상 이렇게 한다. (JSP에서 재귀호출이 되나? ) *//*
+	
 	public static <ID extends Serializable,VO extends Connectable<ID,VO>> UL buildHtml(List<VO> roots,Converter<VO,String> toHref) {
 		UL ul = new UL();
     	for(VO each : roots){
@@ -42,7 +44,7 @@ public abstract class RecursiveCall{
     		ul.addElement(li);
     	}
     	return ul;
-    }
+    }*/
 	
 	private static final Joiner LINE = Joiner.on('\n').skipNulls();
 	

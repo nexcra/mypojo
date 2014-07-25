@@ -1,10 +1,9 @@
 package erwins.util.groovy
 
 
-import java.text.Format
-
-import erwins.util.dateTime.ShowTime
 import groovy.sql.Sql
+
+import java.text.Format
 
 /** 벤더별로 만들어 사용하자.
  *  sql.execute 로 테이블생성 등이 가능 */
@@ -65,7 +64,6 @@ public abstract class AbstractSql{
 		}catch (Exception e) {
 			db.rollback()
 			throw e
-			//e.printStackTrace()
 		}finally{
 			//reset resultSetsConcurrency back to read only (no further changes required)  데이터 변경 못하게 막는다.
 			db.resultSetConcurrency = java.sql.ResultSet.CONCUR_READ_ONLY
@@ -103,24 +101,6 @@ public abstract class AbstractSql{
 	
 	/** false이면 예외를 던진다. */
 	protected abstract void exceptionHandle(Exception e,String sql,List param)
-	
-	/** 배치를 상용하지 않는 입력이다.  */
-	public int insertListEach(tableName,columnNames,List list){
-		def insertSql = "INSERT INTO $tableName (" + columnNames.join(',') + ') VALUES ('+ columnNames.collect { '?' }.join(',')  +')'
-		int success=0
-		withTransaction {
-			list.each {
-				try{
-					db.executeInsert(insertSql, it)
-					success++
-				}catch(e){
-					exceptionHandle(e,insertSql,it)
-				}
-			}
-		}
-		println "테이블 ${tableName}에 $success 건의 데이터가 입력되었습니다 "
-		return success
-	}
 	
 	/** 그루비로 가져온 map파일을 다이렉트로 인서트 가능하다.
 	 * ex) DB  마이그레이션  */
@@ -165,41 +145,4 @@ public abstract class AbstractSql{
 		println "$success 건의 sql이 실행되었습니다."
 	}
 	
-	/** 일반 페이징 쿼리가 너무 느릴때 사용한다. 키값으로 페이징 처리함으로 인덱스를 타기때문에 로드시 부하가 적다.
-	*  --> 2천만건 이상 데이터가 있을때 모두 페이징 처리 해야하는경우. 100만건 이하는 걍 해도 빠르다.
-	*  숫자형? 유일키가 있어야 사용 가능하며, 한번의 배치당 진행되는 숫자는 다를 수 있다. (키값 사이의 공백) */
-  public void batchByKey(tableName,keyName,batchSize,callback,startPage=1,sqlAppend='',isStringKey=false){
-	  int start = oneValue("select min($keyName) from $tableName").toInteger();
-	  int end = oneValue("select max($keyName) from $tableName").toInteger();
-	  int maxCount = end - start +1
-	  int maxPage = Math.round( maxCount / batchSize )
-	  long beforeTime = 0
-	  long cumulatedTime = 0
-	  def sql = "select * from $tableName where $keyName between ? and ? $sqlAppend".toString()
-	  for(int i=startPage-1;i<maxPage;i++){
-		  long startTime = System.nanoTime()
-		  if(beforeTime==0) println "$i / $maxPage 파일 처리중...."
-		  else{
-			  def nowTime = new ShowTime(beforeTime).toString()
-			  long avg = Math.round(cumulatedTime / i)
-			  def avgTime = new ShowTime( avg ).toString()
-			  def maxTime = new ShowTime(avg * (maxPage - i + 1)).toString()
-			  println "$i / $maxPage 파일 처리중... 이전배치동작시간 $nowTime / 평균 $avgTime / 남은예상시간 $maxTime "
-		  }
-		  def s = start + (batchSize * i)
-		  def e = start + (batchSize * (i+1)) -1
-		  if(e > end) e = end
-		  //타입을 마춰주어야 인덱스를 탄다.
-		  def param = isStringKey ? [s.toString(),e.toString()] : [s,e]
-		  def list = db.rows(sql,param)
-		  if(list.size()==0){
-			  println '데이터가 없습니다.'
-			  return;
-		  }
-		  callback(list,i);
-		  beforeTime = System.nanoTime() - startTime
-		  cumulatedTime += beforeTime
-	  }
-	  println '배치의 maxSize에 도달했습니다. 배치를 종료합니다.'
-  }
 }

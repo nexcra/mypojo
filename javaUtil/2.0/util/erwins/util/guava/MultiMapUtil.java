@@ -13,6 +13,7 @@ import erwins.util.root.KeyValueVo;
 
 public abstract class MultiMapUtil {
 	
+	/** map을 key,value의 List로 만들어준다. */
     public static List<KeyValueVo<Integer, String>> toList(Multimap<Integer, String> treeMap) {
 		List<KeyValueVo<Integer, String>> ranked = Lists.newArrayList();
 		for(Entry<Integer, Collection<String>> each :treeMap.asMap().entrySet()){

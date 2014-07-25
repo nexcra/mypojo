@@ -12,10 +12,12 @@ import java.util.Map;
 
 import com.google.common.collect.Lists;
 
-import erwins.util.root.JdbcResultSetCallback;
-import erwins.util.root.JdbcResultSetCallback.JdbcMapCallback;
+import erwins.util.jdbc.JdbcResultSetCallback;
+import erwins.util.jdbc.JdbcResultSetCallback.JdbcMapCallback;
 
-/** 간이 HIVE실행기. 어플에서 쓸때는 ThreadLocal에 놓고 써라. */
+/** 간이 HIVE실행기. 
+ * 자체 커넥션을 가짐으로 어플에서 쓸때는 ThreadLocal에 놓고 써라.
+ *  */
 public class HiveExecutor {
 	
 	private Connection con = null;

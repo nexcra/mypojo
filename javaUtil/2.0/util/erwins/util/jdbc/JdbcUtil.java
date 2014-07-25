@@ -20,6 +20,9 @@ import erwins.util.lib.CollectionUtil;
 import erwins.util.text.StringUtil;
 import erwins.util.tools.StringAppender;
 
+/** 
+ * 자주 쓰는거만 일단 만듬. 
+ * 향후 추가하자. */
 public class JdbcUtil {
 
 	/** 부분 커밋하면서 입력한다.
@@ -62,7 +65,7 @@ public class JdbcUtil {
 	}
 	
 	/** SQL을 직접 사용하는건 다 이쪽이다. 내부 API 호출은 batchInsert와 동일 */
-	public static void batchUpdate(DataSource dataSource,String sql,List<Object[]> params,int commitInterval){
+	public static  void batchUpdate(DataSource dataSource,String sql,List<Object[]> params,int commitInterval){
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
@@ -74,6 +77,25 @@ public class JdbcUtil {
 				runner.batch(conn, sql, each.toArray(new Object[each.size()][]));
 				conn.commit();
 			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}finally{
+			DbUtils.closeQuietly(conn);
+		}
+		
+	}
+	
+	/** DDL 같은거 날릴때 사용. 잘 되는지는 의문 */
+	public static void execute(DataSource dataSource,String sql,Object[] params){
+		Connection conn = null;
+		try {
+			conn = dataSource.getConnection();
+			conn.setAutoCommit(false);
+			
+			QueryRunner runner = new QueryRunner(dataSource);
+			runner.update(conn, sql, params);
+			conn.commit();
+			
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}finally{

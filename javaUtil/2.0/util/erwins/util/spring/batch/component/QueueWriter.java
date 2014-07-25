@@ -10,9 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
-
-import erwins.util.lib.ExceptionUtil;
 
 /**
  *  Queue에는 병렬로 데이터가 입력된다. 
@@ -20,6 +19,8 @@ import erwins.util.lib.ExceptionUtil;
  *  2. Queue에 데이터가 없어서 timeout만큼 대기했다면
  *  itemWriter를 작동시킨다. 
  *  많은 요청을 단일 스래드로 배치 처리할때 주로 사용된다. (불특정 다수 로그의 DB입력 등)
+ *  
+ *  물론 WAS가 강제종료 되는경우 메모리에있던 값이 전부 소실됨으로 주의!
  *  */
 @Data
 public class QueueWriter<T> implements Runnable{
@@ -51,7 +52,7 @@ public class QueueWriter<T> implements Runnable{
 			}
 		} catch (InterruptedException e) {
 			//마지막 남은 큐를 처리하고 죽는다.
-			log.info(this.getClass().getSimpleName() + " Interrupted! remain queue size : " + queue.size());
+			log.warn(this.getClass().getSimpleName() + " Interrupted! remain queue size : " + queue.size());
 			doItemWrite(items);
 			current.interrupt(); //혹시나. while밖에 있어서 안해도 끝나긴 한다.
 		}
@@ -65,7 +66,7 @@ public class QueueWriter<T> implements Runnable{
 				items.clear();
 			}
 		} catch (Exception e) {
-			ExceptionUtil.throwException(e);
+			Throwables.propagate(e);
 		}
 	}
 

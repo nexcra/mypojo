@@ -19,6 +19,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
  * SpringMailHelper helper = new SpringMailHelper(HOST);
         helper.setFrom("영감님", FROM,"");
         helper.send(TO,"hellow","asd {0}","id");
+
+        걍 소스참고용?
  */
 public class SpringMailHelper{
 

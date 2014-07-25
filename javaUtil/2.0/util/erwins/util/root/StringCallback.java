@@ -7,6 +7,7 @@ package erwins.util.root;
  * 지우기 힘드네..
  */
 public interface StringCallback {
+	
     public void process(String line);
     
 }

@@ -17,7 +17,7 @@
  * This code is available from the Google Code repository at:
  * http://code.google.com/p/java-xmlbuilder
  */
-package erwins.util.rep;
+package erwins.util.repack.xml;
 
 import java.io.File;
 import java.io.FileReader;

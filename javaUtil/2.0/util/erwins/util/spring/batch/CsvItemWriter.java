@@ -56,6 +56,8 @@ public class CsvItemWriter<T> implements ResourceAwareItemWriterItemStream<T>,It
 	/** CSV로 write한것을 다시 CSV로 읽으려면 동일한 이스케이퍼(\)를 사용해야 한다.
 	 * 대신 이렇게 이스케이핑 하면 MS의 엑셀 프로그램으로 읽지 못한다.(엑셀의 경우 기본 이스케이퍼(")를 사용한다.)  */
 	protected boolean csvRead = false;
+	/** 가끔 tap \t 으로 요구할때도 있다. */
+	private char separator = CSVWriter.DEFAULT_SEPARATOR;
 	
 	public static interface CsvHeaderCallback{
 		public List<String[]> headers();
@@ -89,7 +91,7 @@ public class CsvItemWriter<T> implements ResourceAwareItemWriterItemStream<T>,It
 		OutputStreamWriter w = new OutputStreamWriter(os,encoding);
 		BufferedWriter ww = new BufferedWriter(w,bufferSize); //디폴트가 8192 일듯
 		char escaper = csvRead ? CSVParser.DEFAULT_ESCAPE_CHARACTER : CSVWriter.DEFAULT_ESCAPE_CHARACTER;
-		return new CSVWriter(ww,CSVWriter.DEFAULT_SEPARATOR,CSVWriter.DEFAULT_QUOTE_CHARACTER,escaper);
+		return new CSVWriter(ww,separator,CSVWriter.DEFAULT_QUOTE_CHARACTER,escaper);
 	}
 	
 	@Override
@@ -201,6 +203,10 @@ public class CsvItemWriter<T> implements ResourceAwareItemWriterItemStream<T>,It
 
 	public void setMaxLineCount(Integer maxLineCount) {
 		this.maxLineCount = maxLineCount;
+	}
+
+	public void setSeparator(char separator) {
+		this.separator = separator;
 	}
 	
 

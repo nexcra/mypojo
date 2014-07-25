@@ -13,16 +13,17 @@ import erwins.util.text.StringUtil;
 
 /**
  * 스프링 bean을 가져오는 코드 추가
+ * getBean()의 소스를 하드코딩하는게 싫어서 만듬.
  * @author sin 
  */
 @SuppressWarnings("serial")
-public class SpringTagSupport extends TagSupport {
+public class AbstractSpringTagSupport extends TagSupport {
 	
 	@SuppressWarnings("unchecked")
 	protected <T> T getBean(String beanName){
 		WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(pageContext.getServletContext());
-    	T tree = (T) ctx.getBean(beanName);
-    	return tree;
+    	T bean = (T) ctx.getBean(beanName);
+    	return bean;
 	}
 	
 	/** 예외를 래핑하기 위한 간편 메소드  */

@@ -10,7 +10,8 @@ import erwins.util.root.NotThreadSafe;
 import erwins.util.spring.SpringUtil;
 
 /** 
- * LikeStringMatchMap
+ *  키워드들(짧은 단어)를 메모리에 미리 넣어놓고, 단어들(긴 단어)을 매칭할때 사용된다.
+ *   
  *   */
 @NotThreadSafe
 public class LikeStringMatchSet extends AbstractSetSupport<String>{

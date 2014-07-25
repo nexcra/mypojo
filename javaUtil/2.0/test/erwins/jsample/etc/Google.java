@@ -1,16 +1,6 @@
 
 package erwins.jsample.etc;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.apache.ecs.html.Script;
-import org.apache.ecs.wml.Img;
-
-import erwins.util.text.StringUtil;
 
 
 /**
@@ -32,15 +22,15 @@ public class Google{
     	return GOOGLE_SERVER_MAP_KEY;
     }
 
-    /**
+/*    *//**
      * 주소 변경시 일괄 적용 위함 
-     */
+     *//*
     public static String getGoogleScript(){
         Script js = new Script();
         js.setSrc(GOOGLE_MAP_URL+"?file=api&amp;v=2&amp;key="+getGoogleMapKey());
         js.setType("text/JavaScript");
         return js.toString();
-    }
+    }*/
     
     // ===========================================================================================
     //                                   API
@@ -53,9 +43,9 @@ public class Google{
         }
     }
     
-    /**
+/*    *//**
      * 구글 차트 정보를 img태그로 리턴한다.
-     */
+     *//*
     public static String getChart(Map<String,Object> map,int width,int height){
         String size = MessageFormat.format("chs={0}x{1}", width,height);
         List<String> label = new ArrayList<String>();
@@ -70,7 +60,7 @@ public class Google{
         
         Img img = new Img(GOOGLE_CHART_URL+"?"+size+"&"+a+"&"+b+"&"+ChartMode.p3.get());
         return img.toString();
-    }
+    }*/
     
     /** 구글 날씨를 XML로 리턴한다. */
     /*

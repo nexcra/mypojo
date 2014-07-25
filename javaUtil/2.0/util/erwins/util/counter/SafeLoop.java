@@ -1,40 +1,32 @@
 
 package erwins.util.counter;
 
+import org.apache.commons.lang.mutable.MutableLong;
+
+import erwins.util.root.NotThreadSafe;
+
 
 
 /**
  * 무한루프 방지용
+ * increment() 호출시 임계치를 넘어가면 예외를 던진다.
  */
-public class SafeLoop extends AccumulatorTemplit{
+@SuppressWarnings("serial")
+@NotThreadSafe
+public class SafeLoop extends MutableLong{
     
-    public SafeLoop(int threshold, Runnable command) {
-        super(threshold, command);
+	private final long threshold;
+	
+    public SafeLoop(long threshold) {
+    	this.threshold = threshold;
     }
-
-    public SafeLoop(int threshold) {
-        super(threshold);
-    }
-
-    /**
-     * 항상 true를 리턴한다.
-     * 임계치를 넘어가면 command나 예외를 던진다.
-     */
-    public boolean next(){
-        now++;
-        if(now > threshold){
-            if(command==null) throw new RuntimeException(now + " is too many loop");
-            now = 0;
-            command.run();
-            return false;
+    
+    @Override
+    public void increment() {
+    	super.increment();
+    	if(longValue() > threshold){
+        	throw new RuntimeException("too many loop : " + longValue());
         }
-        return true;
     }
-
-	@Override
-	public int count() {
-		return now;
-	}
-
 
 }

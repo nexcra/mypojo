@@ -2,16 +2,12 @@ package erwins.util.reflexive;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.Lists;
-
-import erwins.util.root.Pair;
-import erwins.util.web.html.HtmlOptionBuilder;
 
 
 /**
@@ -199,14 +195,14 @@ public class Connector<ID extends Serializable,T extends Connectable<ID,T>> {
     //                                   html생성 관련
     // ===========================================================================================
     
-    @SuppressWarnings("unchecked")
+   /* @SuppressWarnings("unchecked")
     public String option(ID parentId,boolean all){
         return HtmlOptionBuilder.option((Collection<Pair>)$$(parentId), all);
     }
     
-    /**
+    *//**
      * 그룹 옵션을 정의한다. 그룹옵션은 계층형 임으로 여기에서만 정의된다.
-     */
+     *//*
     public String groupOption(ID ... parentId) {
         Collection<T> all = new ArrayList<T>();
         for(int i=0;i<parentId.length;i++){
@@ -230,7 +226,7 @@ public class Connector<ID extends Serializable,T extends Connectable<ID,T>> {
     @SuppressWarnings("unchecked")
     public String checkBox(ID parentId,String entityName) {
         return HtmlOptionBuilder.checkBox((List<Pair>)$$(parentId), entityName);
-    }
+    }*/
     
     
 }

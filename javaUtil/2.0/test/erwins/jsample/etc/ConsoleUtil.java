@@ -1,4 +1,4 @@
-package erwins.util.lib;
+package erwins.jsample.etc;
 
 import java.util.Scanner;
 
@@ -6,6 +6,7 @@ import erwins.util.root.StringCallback;
 import groovy.lang.Closure;
 
 /**  ㅅㅂ 한글안되무니다 */
+@Deprecated
 public abstract class ConsoleUtil{
 	
 	public static void start(StringCallback callback){

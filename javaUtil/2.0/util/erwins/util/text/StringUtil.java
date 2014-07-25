@@ -16,6 +16,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -694,9 +695,9 @@ public class StringUtil extends StringUtils {
     /** '--'같은 문자열은 인코딩 변경시 바이트 코드가 변경?된다. 이를 확인하는 디버깅용 메소드 이다. */
     public static String getByteString(String line) {
     	StringBuilder b = new StringBuilder();
-    	Latch l = new Latch();
+    	Latch latch = new Latch();
     	for(byte each : line.getBytes()){
-    		if(!l.next()) b.append("|"); 
+    		if(!latch.first()) b.append("|"); 
     		b.append(each);
 		}
     	return b.toString();
@@ -941,6 +942,23 @@ public class StringUtil extends StringUtils {
 			}
 		}
 		return set;
+	}
+	
+	/** 
+	 * 바이트를 초과하면 뒤에서부터 자른다.
+	 * 성능 같은거 신경안쓰고 만들었으니 주의
+	 *  */
+	public static String substringByByteSize(String text,Charset charset,int limit){
+		Preconditions.checkArgument(limit > 0);
+		Preconditions.checkArgument(limit <= 4000); //혹시나 해서
+		if(text==null) return "";
+		if(text.length() > limit) text = text.substring(0,limit);
+		while(true){
+			int byteLength = text.getBytes(charset).length;
+			if(byteLength <= limit) break;
+			text = text.substring(0,text.length()-1);
+		}
+		return text;
 	}
 	
 	

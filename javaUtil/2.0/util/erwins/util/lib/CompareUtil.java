@@ -187,13 +187,27 @@ public abstract class CompareUtil{
 	public static boolean isNullAny(Object ... items) {
 		for (Object item : items) if (item == null) return true;
 		return false;
-	}    
+	}
+	
+	/** ... 파라메터가 어레이를 구분하지 못하는 오류를 방지하기위해 이름 변경 */
+	public static <T> boolean isNullItemAny(Collection<T>  items) {
+		for (T item : items) if (item == null) return true;
+		return false;
+	}
+	
+	/** ... 파라메터가 어레이를 구분하지 못하는 오류를 방지하기위해 이름 변경 */
+	public static <T> boolean isNullItemAny(T[]  items) {
+		for (T item : items) if (item == null) return true;
+		return false;
+	}
     
     //===================================================== 동등 비교 ==================================================
     
-    /** null이면 false이다. 하나라도 같으면 true를 리턴한다. */
-	public static <T> boolean isEqualsAny(T body, T... items) {
+    /** null이면 false이다. 하나라도 같으면 true를 리턴한다.
+     * 주의! T가 Object로 분류될수도 있다. 컴파일러가 이를 잡아내지 못한다. */
+	public static <T> boolean isEqualsAny(T body, T ... items) {
 		if(body==null) return false;
+		if(body instanceof Collection) throw new IllegalArgumentException("body에는 Collection이 들어오면 안됩니다. isEqualsCollectionAny를 사용해 주세요.");
 		if (isEmpty(items)) return false;
 		for (T item : items) if (item.equals(body)) return true;
 		return false;
@@ -206,24 +220,36 @@ public abstract class CompareUtil{
 		for (T item : items) if (item.equals(body)) return true;
 		return false;
 	}
+
+	/**
+	 * ==으로 비교한다. ????
+	 */
+	public static <T> boolean isSameAny(T body, T... items) {
+		if (body == null || items.length == 0) return false;
+		for (T item : items)
+			if (body == item) return true;
+		return false;
+	}
 	
 	/** null이면 false이다. 하나라도 같으면 true를 리턴한다. */
-	public static <T> boolean isEqualsAny(Collection<T> a, Collection<T> b) {
+	public static <T> boolean isEqualsCollectionAny(Collection<T> a, Collection<T> b) {
 		if(isNullAny(a,b)) return false;
 		for (T each : a) if (isEqualsAny(each,b)) return true;
 		return false;
 	}
+
 	
-	/** 두개의 리스트가 틀린지? equals()의 오버라이드 비교에 사용된다. null끼리는 같다고 비고한다. */
+	/** 두개의 리스트가 틀린지? equals()의 오버라이드 비교에 사용된다.
+	 *  두 컬렉션이 null이라면 같다고 비고한다. */
     public static <T extends Comparable<T>> boolean isEqualCollectionDataNullSafe(List<T> a , List<T> b){
         if(a==null && b==null) return true;
         else if(a==null && b!=null) return false;
         else if(a!=null && b==null) return false;
         return isEqualCollectionData(a,b);
     }
-    
 
-    /** 두 리스트의 데이터(DB에서 가져온 데이터 등) 비교가 모두 같을경우 true */
+    /** 두 리스트의 데이터(DB에서 가져온 데이터 등) 비교가 모두 같을경우 true
+     * 내용물중 null이라면 오류.. (수정?)  */
     public static <T extends Comparable<T>> boolean isEqualCollectionData(List<T> a , List<T> b){
         if(a==null || b==null) return false;
         if(a.size() != b.size()) return false;
@@ -299,7 +325,6 @@ public abstract class CompareUtil{
     		return fieldName + " : " + beforeValue + "=>" + afterValue;
     	}
     }
-
     
     /** 커먼즈에 있는거 제너릭이 안되서 걍 하나 만듬. */
     public static class ComparatorChain<T> implements Comparator<T>{
@@ -320,7 +345,7 @@ public abstract class CompareUtil{
 		}
     	
     }
-    
+
     /** List를 소팅할때 사용된다.
      * ex) OrderBy<Ad> sort1 = new OrderBy<Ad>().desc("impRank").desc("cpc"); */
     public static class OrderBy<T> implements Comparator<T>{
