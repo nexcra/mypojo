@@ -1,0 +1,6 @@
+## Interface: 50001
+## Title: Lib: ErwinsUtil
+## Notes: 영감님 유틸
+## Credits: sin
+
+ErwinsUtil.lua

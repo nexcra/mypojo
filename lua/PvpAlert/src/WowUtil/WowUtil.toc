@@ -1,0 +1,6 @@
+## Interface: 50001
+## Title: Lib: WowUtil
+## Notes: 영감님 WOW 유틸
+## Credits: sin
+
+WowUtil.lua

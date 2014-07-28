@@ -1,0 +1,12 @@
+﻿## Interface: 50400
+## Title: |cff00cccc영감님|r
+## Notes: 영감님 테스트 22
+
+## 라이브러리
+#@no-lib-strip@
+libs\LibStub\LibStub.lua
+libs\AceTimer-3.0\AceTimer-3.0.xml
+src\ErwinsUtil\ErwinsUtil.lua
+src\WowUtil\WowUtil.lua
+#@end-no-lib-strip@
+PvpAlert.lua
