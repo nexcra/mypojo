@@ -1,14 +1,6 @@
 require('ErwinsUtil.ErwinsUtil')
-
-local onEvent = {a=0,b=3}
-
+require('WowUtil.WowUtil')
 
 
-function onEvent.UNIT_HEALTH(event, ...)
-  
-end
 
-
---print(onEvent.UNIT_HEALTH)
---print(onEvent['UNIT_HEALTH'])
-u.info(onEvent)
+print ( TextColor.pink('asd',' ~~'))

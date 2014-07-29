@@ -1,19 +1,14 @@
 print ('=== ErwinsUtil loaded ===')
 
 -- =========== static 상수 ================
-Color = {sky='cff00cccc',pink='cffff66cc',purple='cff00cccc'}
-
 u = {}
 
-
-
---칼라를 입혀준다. 패턴 다시보기
---
-u.color = function(color,text)
-  return "|".. color ..text.."|r"
-end
-
+-- 간단한 테이블 내용물 검색기
 u.info = function(table)
+  if(type(table) ~= 'table') then
+    print('- IS NOT TABLE : ' .. type(table) .. ' ' .. table)
+    return
+  end  
   local size = #table
   if(size==0) then
     print('- key-value size =  0')
