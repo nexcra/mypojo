@@ -2,15 +2,17 @@
 local addonName = ...
 local _thisFrame = CreateFrame("frame",addonName)
 local soundPath = "Interface\\AddOns\\"..addonName.."\\sounds\\" -- /로 수정해보기
+
 --칼라 입히기
 local author = "매일매일배고파 - 세나리우스"
-local scheduleTimer = LibStub("AceTimer-3.0").ScheduleTimer
+--local scheduleTimer = LibStub("AceTimer-3.0").ScheduleTimer
+local AceTimer = {ScheduleTimer = LibStub("AceTimer-3.0").ScheduleTimer}
 
 function userCommand(msg)
   if msg == '' then msg = '명령어를 입력해주세요' end
-  print(u.color(Color.pink,msg))
-  --테스트
-  scheduleTimer(OnCallback_PlaySoundFile, 3, soundPath.."당신쥬금"..math.random(0,3)..".mp3")
+  print(TextColor.sky(msg))
+  local randomSoundPath = soundPath.."죽지마"..math.random(0,4)..".mp3"
+  AceTimer:ScheduleTimer(PlaySoundFile,1,randomSoundPath,"Master")
 end
 
 --좃같다. SLASH_#{이름}1 이런식으로 설정해야된다. ㅅㅂ
@@ -20,9 +22,9 @@ SlashCmdList["PVP_ALERT"] = userCommand
 ------------------------------------------------------------------------------
 -- 이벤트 정의
 ------------------------------------------------------------------------------
-local onEvents = {}
+local OnEvents = {}
 
-onEvents.UNIT_HEALTH = function(unit)
+OnEvents.UNIT_HEALTH = function(unit)
 
   if unit ~= "player" then return end
 
@@ -70,35 +72,29 @@ onEvents.UNIT_HEALTH = function(unit)
   end
 end
 
-onEvents.COMBAT_LOG_EVENT_UNFILTERED = function(event, ...)
+OnEvents.COMBAT_LOG_EVENT_UNFILTERED = function(...)
   --한번 죽어보기
+  --print(select(2, ...))
   local eventType = select(2, ...)
   if eventType == 'UNIT_DIED' then
-    local destGUID = select(8, ...)
-    -- 이거 정상화시켜주기
-    local function OnCallback_PlaySoundFile(path)
-      PlaySoundFile(path,"Master")
-    end
-    if ns.playerGUID==destGUID then
-      scheduleTimer(OnCallback_PlaySoundFile, 3, soundPath.."당신쥬금"..math.random(0,3)..".mp3")
-    end
+    local randomSoundPath = soundPath.."당신쥬금"..math.random(0,3)..".mp3"
+    AceTimer:ScheduleTimer(PlaySoundFile,3,randomSoundPath,"Master")
   end
 end
 
-onEvents.PLAYER_ENTERING_WORLD = function(event, ...)
-  print('['..u.color(Color.pink,addonName)..'] 제작 : '..u.color(Color.sky,author))
+OnEvents.PLAYER_ENTERING_WORLD = function(...)
+  print('['..TextColor.pink(addonName)..'] 제작 : '..TextColor.sky(author))
 end
 
 ------------------------------------------------------------------------------
 -- 이벤트 등록.  이벤트 key를 등록하면 콜백이 넘어오는듯?
 ------------------------------------------------------------------------------
-for key in pairs(onEvents) do
+for key in pairs(OnEvents) do
   _thisFrame:RegisterEvent(key)
 end
---콜백 처리
 _thisFrame:SetScript("OnEvent",
   function(frame, event, ...)
     --파라메터 뭐있는지 찍어보자
-    onEvents[event](...)
+    OnEvents[event](...)
   end
 )
