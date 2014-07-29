@@ -16,10 +16,12 @@ end
 u.info = function(table)
   local size = #table
   if(size==0) then
-    print('size 0')
-    return
+    print('- key-value size =  0')
   end
   for key in pairs(table) do
-    print(key..' = '..t2[key])
+    local value = table[key]
+    local type = type(value)
+    if(type=='function') then  value = 'function' end 
+    print('- ' .. key .. ' = ' .. value)
   end
 end

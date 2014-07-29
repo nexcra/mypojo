@@ -1,0 +1,5 @@
+## Interface: 50001
+## Title: Cirk's Badapples Fan's Update
+## Notes-koKR: 무개념 플레이어를 추가, 삭제할 수 있으며 따로 관리할 수 있습니다.
+## SavedVariables: BadapplesState
+Badapples.xml
