@@ -1,5 +1,5 @@
 --======= 공통 설정파일 ==========
-local addonName = ...
+local addonName , ns = ...
 local _thisFrame = CreateFrame("frame",addonName)
 local soundPath = "Interface\\AddOns\\"..addonName.."\\sounds\\" -- /로 수정해보기
 
@@ -74,9 +74,14 @@ end
 
 OnEvents.COMBAT_LOG_EVENT_UNFILTERED = function(...)
   --한번 죽어보기
-  --print(select(2, ...))
   local eventType = select(2, ...)
-  if eventType == 'UNIT_DIED' then
+  local destGUID=select(8, ...)
+  
+  local timestamp, type, isHideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2 = select(1, ...)
+  --print(type(arg))
+  --print(type .. ' : ' .. sourceName)
+  
+  if eventType == 'UNIT_DIED' and ns.playerGUID==destGUID then
     local randomSoundPath = soundPath.."당신쥬금"..math.random(0,3)..".mp3"
     AceTimer:ScheduleTimer(PlaySoundFile,3,randomSoundPath,"Master")
   end
