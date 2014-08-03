@@ -1,7 +1,8 @@
 print ('=== ErwinsUtil loaded ===')
 
 -- =========== static 상수 ================
-local ErwinsUtil = {}
+--local ErwinsUtil = {}
+ErwinsUtil = {}
 
 -- 간단한 테이블 내용물 검색기 -> 인라인 처리기 하나 만들자.
 ErwinsUtil.info = function(table)
@@ -10,7 +11,7 @@ ErwinsUtil.info = function(table)
     return
   end  
   print('- list size =  ' .. #table)
-  for key in pairs(table) do
+  for key in sortedPairs(table) do
     local value = table[key]
     local type = type(value)
     if(type=='function') then  value = 'function' end

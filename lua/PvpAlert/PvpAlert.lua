@@ -24,62 +24,15 @@ SlashCmdList["PVP_ALERT"] = userCommand
 ------------------------------------------------------------------------------
 local OnEvents = {}
 
-OnEvents.UNIT_HEALTH = function(unit)
-
-  if unit ~= "player" then return end
-
-  --이하 리팩토링 하기
-  local lhper1 = 0.65
-  local lhper2 = 0.3
-  local lowhealth1 = 0
-  local lowhealth2 = 0
-
-  if (UnitHealth(unit)/UnitHealthMax(unit) > lhper1) then
-    lowhealth2=0
-    lowhealth1=0
-  end
-
-  if (UnitHealth(unit)/UnitHealthMax(unit) > lhper2) then
-    lowhealth2=0
-  end
-
-  --아프지마
-  if (UnitHealth(unit)/UnitHealthMax(unit) <= lhper1) and lowhealth1==0 then
-    lowhealth1 = 1
-  end
-
-  --죽지마
-  if (UnitHealth(unit)/UnitHealthMax(unit) <= lhper2) and lowhealth2==0 then
-    lowhealth2 = 1
-  end
-
-  if lowhealth1==1 then
-    if lowhealth1==1 and lowhealth2==1 then
-      lowhealth1=2
-    else
-      lowhealth1=2
-      if(not UnitIsDeadOrGhost("player")) then
-        PlaySoundFile(soundPath.."아프지마"..math.random(0,6)..".mp3","Master")
-      end
-    end
-  end
-
-  if lowhealth2==1 then
-    lowhealth2=2
-    if(not UnitIsDeadOrGhost("player")) then
-      PlaySoundFile(soundPath.."죽지마"..math.random(0,4)..".mp3","Master")
-    end
-  end
-end
-
 OnEvents.COMBAT_LOG_EVENT_UNFILTERED = function(...)
   --한번 죽어보기
-  local eventType = select(2, ...)
-  local destGUID=select(8, ...)
-  
-  local timestamp, type, isHideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2 = select(1, ...)
-  --print(type(arg))
+  local timestamp, eventType, isHideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2 = select(1, ...)
+  local args = {...}
+  --print(args[5])
   --print(type .. ' : ' .. sourceName)
+  if(sourceName == '변신이안되요') then
+    print(table.concat({...},','))
+  end
   
   if eventType == 'UNIT_DIED' and ns.playerGUID==destGUID then
     local randomSoundPath = soundPath.."당신쥬금"..math.random(0,3)..".mp3"
