@@ -29,7 +29,7 @@ Badapples = {};								-- Badapples global function table
 BadapplesState = {};						-- Will be overridden when loaded
 
 BADAPPLES_FRAME_SCROLL_HEIGHT = 16;
-BADAPPLES_DISPLAY_COUNT = 17;
+BADAPPLES_DISPLAY_COUNT = 17; 
 
 ------------------------------------------------------------------------------
 -- Text strings
@@ -133,7 +133,6 @@ local _chatEventList = {
   ["CHAT_MSG_DND"] = 1,
 };
 
-
 ------------------------------------------------------------------------------
 -- StaticPopup definitions
 ------------------------------------------------------------------------------
@@ -230,6 +229,7 @@ local _badapplesConfirmRemoveAllPopup = {
 ------------------------------------------------------------------------------
 -- Utility functions
 ------------------------------------------------------------------------------
+--???
 function Badapples.GetNextParam(text)
   -- Extracts the next parameter out of the passed text, and returns it and
   -- the rest of the string
@@ -239,7 +239,7 @@ function Badapples.GetNextParam(text)
   return text;
 end
 
-
+--?? 안쓰일듯
 function Badapples.FormatName(text)
   -- Formats the indicated name as a player name (only first letter can be
   -- uppercase).  Here we are careful to handle UTF-8 coding (which is what
@@ -253,21 +253,20 @@ function Badapples.FormatName(text)
   return string.upper(firstChar)..string.lower(remain);
 end
 
-
+--요건 참조할만함.. 근데?
 function Badapples.NameToLink(name)
   -- Converts the passed name to a player name link (that can be clicked on)
   -- but without showing the usual [..] around the name
   return "|Hplayer:"..name.."|h"..name.."|h";
 end
 
-
+--무슨효과일지 써보자
 function Badapples.UpdateHighlightText()
   local r = floor((255 * _highlightColors.r) + 0.5);
   local g = floor((255 * _highlightColors.g) + 0.5);
   local b = floor((255 * _highlightColors.b) + 0.5);
   BAD_ON = format("|cff%02x%02x%02x", r, g, b);
 end
-
 
 function Badapples.SetHighLightColor(values)
   if (values) then
@@ -296,6 +295,7 @@ function Badapples.NotifyPlayer(notifyText, name, reason, errorText, frame)
     if (not _lastBadappleWarningExpires or (time > _lastBadappleWarningExpires) or (text ~= _lastBadappleWarning) or frame) then
       _lastBadappleWarning = text;
       _lastBadappleWarningExpires = time + BADAPPLES_REWARN_DELAY;
+      --이거 모듈화 해보기
       if (frame) then
         frame:AddMessage(text);
       else
@@ -376,7 +376,7 @@ function Badapples.SortList()
   table.sort(_listSorted, Badapples.CompareOnNameAtoZ);
 end
 
-
+--확인해보기
 function Badapples.CheckForOtherModTab()
   -- Returns 1 if there is another mod already using a 6th social tab, or
   -- nil otherwise
@@ -607,6 +607,7 @@ end
 ------------------------------------------------------------------------------
 -- Initialization functions
 ------------------------------------------------------------------------------
+--3개뿐??
 function Badapples.RegisterEvents(register)
   -- If register is set, then register for events, otherwise unregister
   if (register == 1) then
@@ -679,6 +680,7 @@ function Badapples.VariablesLoaded()
   Badapples.HookNeededFunctions();
 
   -- Update _listCount
+  --??? 왜 이런짓을 하지?
   _listCount = 0;
   for name in pairs(BadapplesState.List) do
     _listCount = _listCount + 1;

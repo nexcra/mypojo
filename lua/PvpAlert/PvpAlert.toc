@@ -1,6 +1,6 @@
 ﻿## Interface: 50400
-## Title: |cff00cccc영감님|r
-## Notes: 영감님 테스트 22
+## Title: |cff00ccccPVP경고|r
+## Notes: ID를 등록하면 채팅메세지에 추가 문구를 보여줍니다.
 
 ## 라이브러리
 #@no-lib-strip@

@@ -4,19 +4,29 @@ print ('=== ErwinsUtil loaded ===')
 --local ErwinsUtil = {}
 ErwinsUtil = {}
 
--- 간단한 테이블 내용물 검색기 -> 인라인 처리기 하나 만들자.
-ErwinsUtil.info = function(table)
-  if(type(table) ~= 'table') then
-    print('- IS NOT TABLE : ' .. type(table) .. ' ' .. table)
-    return
-  end  
-  print('- list size =  ' .. #table)
-  for key in sortedPairs(table) do
-    local value = table[key]
-    local type = type(value)
-    if(type=='function') then  value = 'function' end
-    if(type=='table') then  value = 'table' end
-    print('- ' .. key .. ' = ' .. value)
+ErwinsUtil.info = function(t,limitDepth)
+  local depth = limitDepth or 5
+  print(ErwinsUtil.toString(t,depth))
+end
+
+--재귀호출 주의!
+ErwinsUtil.toString = function(t,limitDepth)
+  local depth = limitDepth or 1
+  local argType = type(t)
+  if(argType=='string') then  return "'" .. t .. "'"
+  elseif(argType=='number') then return t .. '' --의미가 없을듯
+  elseif(argType=='function') then  return 'function'
+  elseif(argType=='table') then    
+    if(depth==0) then return 'table' end
+    local logs = {}
+    for key in ErwinsUtil.sortedPairs(t) do
+      local value = t[key]
+      local strValue = ErwinsUtil.toString(value,limitDepth-1)
+      logs[#logs+1] = string.format("%s=%s",key,strValue)
+    end
+    return '{'..table.concat(logs,',')..'}'
+  else
+    error(argType .. ' is unknown')
   end
 end
 
@@ -25,13 +35,13 @@ ErwinsUtil.join = function(...)
   local append = ''
   for i=0,arg.n do
     local obj = arg[i]
-    --if(obj == nil ) append += 
+    --if(obj == nil ) append +=
     --if(type(obj))
-  end 
+  end
 end
 
 
---숫자 먼저 나오고난 후 문자를 정렬해서 리턴 
+--숫자 먼저 나오고난 후 문자를 정렬해서 리턴
 --나중에 리팩토링 하자.
 ErwinsUtil.defaultComparator = function(a,b)
   local atype = type(a)
@@ -65,6 +75,6 @@ ErwinsUtil.readOnly = function(t)
   }
   setmetatable(proxy,mt)
   return proxy
-end 
+end
 
 return ErwinsUtil
