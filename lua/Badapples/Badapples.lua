@@ -706,11 +706,16 @@ end
 ------------------------------------------------------------------------------
 -- Hooked functions for ChatFrame
 ------------------------------------------------------------------------------
+---이거 수정해보기
 function Badapples.GetColoredName(event, arg1, arg2, ...)
   if (_chatEventList[event]) then
     -- All these events have the player name in arg2
-    if (BadapplesState.List[arg2]) then
-      return BAD_ON..arg2..BAD_OFF;
+    local item = BadapplesState.List[arg2]
+    if (item) then
+      --return BAD_ON..arg2..BAD_OFF;
+      local text = BAD_ON..arg2..BAD_OFF
+      if(item.Reason) then text = text..'['.. item.Reason .. ']' end 
+      return text
     end
   end
   return _original_GetColoredName(event, arg1, arg2, ...);
@@ -721,11 +726,12 @@ end
 ------------------------------------------------------------------------------
 -- Hook function for SetItemRef
 ------------------------------------------------------------------------------
+--이거도 수정해서 해봄
 function Badapples.SetItemRef(link, text, button)
   -- Warn player if they try whispering a badapple, or if the shift key is
   -- down and Badapple's player add box is open, then add them to it
   if (string.sub(link, 1, 6) == "player" ) then
-    local name, lineid = strsplit(":", string.sub(link, 8));
+    local name, lineid = strsplit(":", string.sub(link, 8)); --strsplit은 wow에서 제공하는거인듯
     if (name and (name ~= "")) then
       name = Badapples.FormatName(name);
       if (BadapplesState.List[name]) then
