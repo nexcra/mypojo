@@ -713,8 +713,8 @@ function Badapples.GetColoredName(event, arg1, arg2, ...)
     local item = BadapplesState.List[arg2]
     if (item) then
       --return BAD_ON..arg2..BAD_OFF;
-      local text = BAD_ON..arg2..BAD_OFF
-      if(item.Reason) then text = text..'['.. item.Reason .. ']' end 
+      local text = _original_GetColoredName(event, arg1, arg2, ...);
+      if(item.Reason) then text = text..BAD_ON..' ('.. item.Reason .. ')'..BAD_OFF end 
       return text
     end
   end
@@ -730,6 +730,9 @@ end
 function Badapples.SetItemRef(link, text, button)
   -- Warn player if they try whispering a badapple, or if the shift key is
   -- down and Badapple's player add box is open, then add them to it
+  --print(link) 
+  -- player:name:493:CHANNEL:1
+  -- player:name:507:YELL  --숫자는 라인수인듯
   if (string.sub(link, 1, 6) == "player" ) then
     local name, lineid = strsplit(":", string.sub(link, 8)); --strsplit은 wow에서 제공하는거인듯
     if (name and (name ~= "")) then
