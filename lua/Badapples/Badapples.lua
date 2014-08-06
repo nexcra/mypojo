@@ -36,7 +36,7 @@ BADAPPLES_DISPLAY_COUNT = 17;
 -- Text strings
 ------------------------------------------------------------------------------
 local EM_ON = "|cffffff00"
-local EM_ONh = "|cFFFF8C8C"
+local EM_ONh = "|cFFFF8C8C" --??
 local EM_OFF = "|r"
 local RED_ON = "|cffff4000"
 local RED_OFF = "|r"
@@ -90,7 +90,6 @@ local BADAPPLES_DEFAULT_HIGHLIGHT_G = 0.6;
 local BADAPPLES_DEFAULT_HIGHLIGHT_B = 0.3;
 local BADAPPLES_TAB_ID = 17;
 local BADAPPLES_REWARN_DELAY = 10;			-- Minimum warning interval for the same badapple
-
 
 ------------------------------------------------------------------------------
 -- Local variables
