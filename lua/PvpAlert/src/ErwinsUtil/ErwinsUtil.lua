@@ -1,7 +1,28 @@
-print ('=== ErwinsUtil loaded ===')
+----------------------------------------------------------------
+-- 간단 로거 (전역변수임)
+-- DEBUG:1 , INFO:2 
+----------------------------------------------------------------
+log = {level=2}
+--내부 함수. 오버라이드 가능
+log.print = function(header,text,...)
+  local logText = ''
+  if(type(text) == 'string') then logText = string.format(text,...) 
+  else logText = ErwinsUtil.toString(text)
+  end 
+  print(header..logText)
+end
+log.info = function(self,text,...)
+  if(self.level > 2) then return end 
+  log.print('INFO  : ',text,...)
+end
+log.debug = function(self,text,...)
+  if(self.level > 1) then return end 
+  log.print('DEBUG : ',text,...)
+end
 
--- =========== static 상수 ================
---local ErwinsUtil = {}
+----------------------------------------------------------------
+-- 간단 유틸 모음집
+----------------------------------------------------------------
 ErwinsUtil = {}
 
 ErwinsUtil.info = function(t,limitDepth)
@@ -21,7 +42,7 @@ ErwinsUtil.toString = function(t,limitDepth)
     local logs = {}
     for key in ErwinsUtil.sortedPairs(t) do
       local value = t[key]
-      local strValue = ErwinsUtil.toString(value,limitDepth-1)
+      local strValue = ErwinsUtil.toString(value,depth-1)
       logs[#logs+1] = string.format("%s=%s",key,strValue)
     end
     return '{'..table.concat(logs,',')..'}'
@@ -64,8 +85,6 @@ ErwinsUtil.sortedPairs = function(t,comparator)
   end
 end
 
-
-
 --메타를 이용한 읽기전용 proxy 리턴
 ErwinsUtil.readOnly = function(t)
   local proxy = {}
@@ -76,5 +95,28 @@ ErwinsUtil.readOnly = function(t)
   setmetatable(proxy,mt)
   return proxy
 end
+
+--기본 메타데이터
+local defaultMetatable = {}
+defaultMetatable.__tostring = function(self)
+  return ErwinsUtil.toString(self)
+end
+
+--------------------------------------------------
+-- value가 1인 set처럼 쓸수있는 map을 만든다.
+-- ex) local set = Util.toSet {'b','a','c'}
+----------------------------------------------------
+ErwinsUtil.toSet = function(table)
+  assert(table ~= nil)
+  assert(type(table) == 'table')
+  local map = {}
+  setmetatable(map,defaultMetatable)
+  for i,v in ipairs(table) do  
+    map[v] = 1
+  end
+  return map
+end
+
+log:info('=== ErwinsUtil loaded ===')
 
 return ErwinsUtil

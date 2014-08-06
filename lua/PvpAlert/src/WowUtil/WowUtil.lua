@@ -1,4 +1,4 @@
-print ('=== WowUtil loaded ===')
+--log:info('=== WowUtil loaded ===') 애매하다..
 
 local TextColorFactory = function(colorCode)  
   -- append는 .. 로 이으기 싫어서 썼다
