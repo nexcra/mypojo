@@ -3,6 +3,10 @@ package erwins.util.xmpp;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.PacketListener;
@@ -21,6 +25,8 @@ import org.jivesoftware.smack.packet.XMPPError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import erwins.util.nio.ThreadUtil;
+
 /**
  * 경고 메세지 전송용으로 WAS에서 기동시, 쌍방향 친구추가를 해주자. 
  * 친추가 안되어있을경우 XMPPBotTokenClient$XMPPBotTokenMessageListener : error chat msg : null  로그를 보게될지도~
@@ -36,6 +42,9 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
     private final String id;
     private final String pass;
     protected Logger log = LoggerFactory.getLogger(this.getClass());
+    private ReadWriteLock  lock = new ReentrantReadWriteLock();
+    private Lock readLock = lock.readLock();
+    private Lock writeLock = lock.readLock();
 	
     /** Google Talk으로 연결한다. */
     public XMPPBotClient(String id,String pass){
@@ -116,7 +125,6 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
         }
     }
     
-    
     public void shutdown(){
     	connection.disconnect(new Presence(Presence.Type.unavailable));
     	connection.removePacketListener(packetListener);
@@ -182,12 +190,51 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
     	connection.sendPacket(pp);
     }
     
-    /** 간단 메시지를 전송한다. 거의 쓸일 없을듯. */
+    /** 간단 메시지를 전송한다. */
     public void  sendMessage(String mailAdress, String text){
-        Message response = new Message(mailAdress, Message.Type.chat);
-        response.setBody(text);
-        connection.sendPacket(response);
+    	readLock.lock();try{
+    		Message response = new Message(mailAdress, Message.Type.chat);
+            response.setBody(text);
+            connection.sendPacket(response);	
+    	}finally{
+    		readLock.unlock();
+    	}
     }
+    
+    /** 
+     * 가끔 WAS와 구글서버간의 연결이 끊어질때가 있다. 그때 다시 연결해준다.  
+     * 재연결 backoffSec는 2배씩 늘어난다. 최초 5초
+     *  */
+    public void  sendMessageOrRetry(String mailAdress, String text){
+    	sendMessageOrRetry(mailAdress,text,5);
+    }
+    
+    /** 
+     * 예외를 좀더 자세하게 분석할 필요가 있다.
+     * 일단 발견된건 아래 1개뿐
+     * java.lang.IllegalStateException: Not connected to server.
+     *  */
+    private void sendMessageOrRetry(String mailAdress, String text,int backoffSec){
+    	try {
+			sendMessage(mailAdress,text);
+		} catch (RuntimeException e) {
+			log.error("전송중 예외가 발생했습니다. "+backoffSec+"초 후 재연결을 시도합니다. 이하는 예외로그",e);
+			ThreadUtil.sleepIgnoreInterrupt(TimeUnit.SECONDS,backoffSec);
+			
+			//셧다운과 스타트업이 될때 다른 메세지가 호출되면 안된다. 이중 셧다운/스타트업이 될 수 있다.
+			writeLock.lock();
+			try{
+	    		shutdown();
+				startup();
+				log.warn("재연결 성공");
+	    	}finally{
+	    		writeLock.unlock();
+	    	}
+			sendMessageOrRetry(mailAdress,text,backoffSec*2);			
+		}
+    }
+    
+     
     
     /** 여기서 ID는 도메인이 붙지 않는 순수 ID를 말한다. */
     public void createAccount(String id,String pass){

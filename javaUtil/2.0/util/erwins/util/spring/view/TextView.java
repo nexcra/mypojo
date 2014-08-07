@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.servlet.View;
 
 import erwins.util.web.WebUtil;
@@ -14,7 +15,7 @@ import erwins.util.web.WebUtil;
 /** Ext에서 file upload하면 json리턴이 안된다.. 이때 사용 */
 public class TextView implements View {
 
-	private static final String CONTENT_TYPE =  "text/html";
+	private static final String CONTENT_TYPE =  MediaType.TEXT_PLAIN.toString();
 	
 	private String encoding = "UTF-8";
 	private String text;

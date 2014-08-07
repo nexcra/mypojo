@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -23,6 +24,15 @@ public abstract class ThreadUtil {
 			// 무시한다.
 		}
 	}
+	
+	public static void sleepIgnoreInterrupt(TimeUnit unit,long duration) {
+		try {
+			Thread.sleep(unit.toMillis(duration));
+		} catch (InterruptedException e) {
+			// 무시한다.
+		}
+	}
+	
 
 	/** 간이 테스트 등에서 사용된다. */
 	public static <T> List<Future<T>> call(int thred,Callable<T> callable) {
