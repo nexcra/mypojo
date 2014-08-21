@@ -400,13 +400,12 @@ public abstract class ReflectionUtil extends ReflectionUtils {
         }
         return result;
     }
-    
 
 	/** 
 	 * 모든 객체를 key 중심으로 조인한다.  VO에는 두개의 테이블A,B의 컬럼 모두가 포함되어야 한다. 
      * 결과는 걍 첫번째 객체 기준으로  value들을 더해서 리턴한다.(입력인자중 어느게 될지 모름)
 	 * 위 hashJoin과 동일하지만 특정 인터페이스를 구현하지 않아도 됨 */
-    public static <ID,T extends EntityId<String>> List<T>  hashJoin(Converter<T,ID> idConverter,List<T> ... listArray){
+    public static <ID,T> List<T>  hashJoin(Converter<T,ID> idConverter,List<T> ... listArray){
         Multimap<ID,T> map = ArrayListMultimap.create();
         for(List<T> list : listArray) {
         	for(T each : list) {

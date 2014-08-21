@@ -189,6 +189,12 @@ public class GroovyMetaUtil{
 			delegate.each { map.put it[key],it  }
 			return map
 		}
+		/** 비슷한거 멀티맵도 추가. 이게 꿀임. */
+		ArrayList.metaClass."toMultiMap" = { key ->
+			Multimap map = ArrayListMultimap.create()
+			delegate.each { map.put it[key],it  }
+			return map
+		}
 		ArrayList.metaClass."toUnderscore" = { key ->
 			delegate.collect { it.toUnderscore() }
 		}
