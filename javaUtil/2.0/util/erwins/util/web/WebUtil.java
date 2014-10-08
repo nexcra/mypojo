@@ -18,6 +18,8 @@ import org.apache.commons.io.IOUtils;
 
 import com.google.common.collect.Maps;
 
+import erwins.util.root.exception.IORuntimeException;
+import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.text.CharEncodeUtil;
 import erwins.util.text.StringUtil;
 
@@ -70,7 +72,7 @@ public abstract class WebUtil {
 		if (!file.exists())
 			file = new File(CharEncodeUtil.getEucKr(file.getAbsolutePath()));
 		if (!file.exists())
-			throw new RuntimeException(file.getAbsolutePath() + " : file not found!");
+			throw new IllegalStateException(file.getAbsolutePath() + " : file not found!");
 	
 		OutputStream out = null;
 		FileInputStream fis = null;
@@ -95,13 +97,13 @@ public abstract class WebUtil {
 		} catch (IOException e) {
 			// if(!e.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException"))
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		} finally {
 			if (fis != null)
 				try {
 					fis.close();
 				} catch (IOException e) {
-					throw new RuntimeException(e);
+					throw new IORuntimeException(e);
 				}
 		}
 	}
@@ -111,7 +113,7 @@ public abstract class WebUtil {
 		if (!file.exists())
 			file = new File(CharEncodeUtil.getEucKr(file.getAbsolutePath()));
 		if (!file.exists())
-			throw new RuntimeException(file.getAbsolutePath() + " : file not found!");
+			throw new IllegalArgumentException(file.getAbsolutePath() + " : file not found!");
 	
 		OutputStream out = null;
 		FileInputStream fis = null;
@@ -130,15 +132,15 @@ public abstract class WebUtil {
 			out.flush();
 		} catch (IOException e) {
 			// if(!e.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException"))
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		} finally {
 			if (fis != null)
 				try {
 					fis.close();
 				} catch (IOException e) {
-					throw new RuntimeException(e);
+					throw new IORuntimeException(e);
 				}
 		}
 	}
@@ -151,31 +153,6 @@ public abstract class WebUtil {
 	    return StringUtil.getUrlAndExtention(requestedUrl);
 	}
 	
-	/**
-     * 자바스크립트를 캐싱한다. \n 하는것 잊지말것
-     */
-	/*
-    public static void writeScript(HttpServletResponse resp, File js, int second) {
-        cacheForSeconds(resp, second, false);
-        resp.setContentType("application/javascript; charset=" + CharEncodeUtil.UTF_8);
-        final PrintWriter out;
-        try {
-            out = resp.getWriter();
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        for (File each : js.listFiles()) {
-            String ext = StringUtil.getExtention(each.getName());
-            if (!ext.equals("js")) continue;
-            new TextFileReader().read(each, new StringCallback() {
-                public void process(String line) {
-                    out.write(line + "\n");
-                }
-            });
-        }
-    }*/
-    
     private static final String HEADER_CACHE_CONTROL = "Cache-Control";
     private static final String HEADER_EXPIRES = "Expires";
     
@@ -237,7 +214,7 @@ public abstract class WebUtil {
     	try {
 			return resp.getWriter();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
     }
     
@@ -257,7 +234,7 @@ public abstract class WebUtil {
         try {
 			resp.setHeader("Content-Disposition", "attachment; fileName=\""+ new String(fileName.getBytes("EUC_KR"), "8859_1") + "\";");
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
     	//resp.setHeader("Content-Disposition", "attachment; fileName=\""+ fileName + "\";");
         resp.setHeader("Content-Transfer-Encoding", "binary");

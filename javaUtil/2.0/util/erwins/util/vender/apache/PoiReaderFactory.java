@@ -11,6 +11,8 @@ import java.util.Map;
 
 import org.apache.commons.collections.map.ListOrderedMap;
 
+import erwins.util.root.exception.IORuntimeException;
+
 
 /**
  * Groovy용 팩토리.
@@ -28,7 +30,7 @@ public abstract class PoiReaderFactory{
 			f = new File(path+".xlsx");
 			if(!f.exists()){
 				f = new File(path+".xls");
-				if(!f.exists()) throw new RuntimeException(path + " : FileNotFound");
+				if(!f.exists()) throw new IllegalArgumentException(path + " : FileNotFound");
 			}
 		}
 		//if(!f.exists()) f = new File(f.getAbsolutePath()+".");
@@ -42,7 +44,7 @@ public abstract class PoiReaderFactory{
 		try {
 			return simpleMap(file.getName(),new FileInputStream(file));
 		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 	

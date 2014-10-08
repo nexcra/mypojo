@@ -14,6 +14,9 @@ import com.google.common.collect.Lists;
 
 import erwins.util.jdbc.JdbcResultSetCallback;
 import erwins.util.jdbc.JdbcResultSetCallback.JdbcMapCallback;
+import erwins.util.root.exception.IORuntimeException;
+import erwins.util.root.exception.PropagatedRuntimeException;
+import erwins.util.root.exception.SQLRuntimeException;
 
 /** 간이 HIVE실행기. 
  * 자체 커넥션을 가짐으로 어플에서 쓸때는 ThreadLocal에 놓고 써라.
@@ -28,7 +31,7 @@ public class HiveExecutor {
 		try {
 			Class.forName("org.apache.hadoop.hive.jdbc.HiveDriver");
 		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}
 		con = DriverManager.getConnection(url);
 	}
@@ -79,20 +82,20 @@ public class HiveExecutor {
 			he = new HiveExecutor(url);
 			he.executeQuery(hql, callback);
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw new SQLRuntimeException(e);
 		} finally {
 			if(he!=null) {
 				try {
 					he.close();
 				} catch (SQLException e) {
-					throw new RuntimeException(e);
+					throw new SQLRuntimeException(e);
 				}
 				if(callback instanceof Closeable){
 					Closeable closeable = (Closeable) callback;
 					try {
 						closeable.close();
 					} catch (IOException e) {
-						throw new RuntimeException(e);
+						throw new IORuntimeException(e);
 					}
 				}
 			}

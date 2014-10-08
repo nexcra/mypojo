@@ -52,6 +52,9 @@ public class CsvLogWriter<T> {
 		writeLog(item);
 	}
 	
+	/** 
+	 * null을 입력하면 자동 롤링을 분리하려는 의도이다. (이벤트가 일어나야만 파일교체가 된다.)
+	 *  */
 	public void writeLog(T item){
 		boolean currentFlush = false;
 		if(flush==null){
@@ -103,7 +106,7 @@ public class CsvLogWriter<T> {
 	private void offerLog(final CsvLog log) {
 		try {
 			boolean success = queue.offer(log, timeoutSec, TimeUnit.SECONDS);
-			if(!success) throw new RuntimeException("queue.offer fail. check queue size");
+			if(!success) throw new IllegalStateException("queue.offer fail. check queue size");
 		} catch (InterruptedException e) {
 			Throwables.propagate(e);
 		}

@@ -48,6 +48,7 @@ import com.google.common.collect.Lists;
 
 import erwins.util.lib.ReflectionUtil;
 import erwins.util.root.NameValue;
+import erwins.util.root.exception.IORuntimeException;
 import erwins.util.text.StringUtil;
 
 /** 스프링용 유틸 모음 */
@@ -105,7 +106,7 @@ public abstract class SpringUtil {
             try {
                 locationSqlFiles.add(each.getFile());
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new IORuntimeException(e);
             }
         }
         return locationSqlFiles;
@@ -325,11 +326,11 @@ public abstract class SpringUtil {
     public static String fieldErrorToString(List<ObjectError> errorList,String separator){
     	List<String> msg = Lists.newArrayList();
     	for(ObjectError e :  errorList){
-    		if(!(e instanceof FieldError)) throw new RuntimeException("FieldError가 아닌 예외가 발견되었습니다. " + e);
+    		if(!(e instanceof FieldError)) throw new IllegalStateException("FieldError가 아닌 예외가 발견되었습니다. "+ e);
 			FieldError error = (FieldError) e ;
 			msg.add(SpringUtil.elFormat("#{field} --> #{defaultMessage} 입력값 = [#{rejectedValue}],  ", error));
     	}
-    	return Joiner.on(separator).join(msg);
+    	return Joiner.on(separator).join(msg); 
     }
     
     

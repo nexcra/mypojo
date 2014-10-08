@@ -44,7 +44,7 @@ public class RandomKeyPicker<OBJ,T extends RandomObject<OBJ>> implements RandomP
     public OBJ getRandom(){
         int search = random.nextInt(sum);
         Entry<Integer, OBJ> e = map.floorEntry(search);
-        if(e==null) throw new RuntimeException("e is not null. but null input!");
+        if(e==null) throw new IllegalStateException("e is not null. but null input!");
         return e.getValue();
     }
     

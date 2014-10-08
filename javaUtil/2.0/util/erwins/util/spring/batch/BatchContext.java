@@ -291,7 +291,7 @@ public class BatchContext{
 		}else if(mapObject instanceof List){
 			List<StringMap> list = (List<StringMap>) mapObject;
 			for(StringMap each : list) addStringMap(result, each); 
-		}else throw new RuntimeException("알려지지 않은 타입입니다. " + mapObject);
+		}else throw new IllegalStateException("알려지지 않은 타입입니다. " + mapObject);
 		return result;
     }
     

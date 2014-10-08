@@ -26,6 +26,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import erwins.util.root.exception.IORuntimeException;
 import erwins.util.spring.SpringUtil;
 import erwins.util.text.FormatUtil;
 import erwins.util.text.StringUtil;
@@ -67,14 +68,14 @@ public class Poi extends PoiRoot{
             POIFSFileSystem filesystem = new POIFSFileSystem(stream);
             wb = new HSSFWorkbook(filesystem);
         }
-        catch (Exception e) {
-            throw new RuntimeException(e);
+        catch (IOException e) {
+            throw new IORuntimeException(e);
         }finally{
         	if(stream!=null) try {
                 stream.close();
             }
             catch (IOException e) {
-                throw new RuntimeException(e);
+            	throw new IORuntimeException(e);
             }
         }
 	}

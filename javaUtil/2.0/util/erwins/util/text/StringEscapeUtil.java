@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import erwins.util.root.exception.IORuntimeException;
+
 
 /**
  * StringEscapeUtils를 확장한 추가 인코더
@@ -85,7 +87,7 @@ public abstract class StringEscapeUtil extends StringEscapeUtils {
             return URLEncoder.encode(str, encode);
         }
         catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            throw new IORuntimeException(e);
         }
     }
     
@@ -97,7 +99,7 @@ public abstract class StringEscapeUtil extends StringEscapeUtils {
     		return URLDecoder.decode(str, encode);
     	}
     	catch (UnsupportedEncodingException e) {
-    		throw new RuntimeException(e);
+    		throw new IORuntimeException(e);
     	}
     }
 

@@ -10,6 +10,8 @@ import java.util.List;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
+import erwins.util.root.exception.IORuntimeException;
+import erwins.util.root.exception.PropagatedRuntimeException;
 
 /**
  * 포이가 무거워서 만들었다. 이것도 좀 후잡하긴 함.
@@ -30,9 +32,9 @@ public class PoiReaderJXls implements Iterable<PoiSheetReaderJXls>{
 		try {
 			workbook = Workbook.getWorkbook(file);
 		} catch (BiffException e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 	

@@ -8,11 +8,13 @@ import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.SimpleHttpConnectionManager;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
@@ -24,8 +26,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.params.CookiePolicy;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 
 import erwins.util.lib.FileUtil;
+import erwins.util.root.exception.IORuntimeException;
+import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.text.StringEscapeUtil;
 
 /**
@@ -84,6 +89,21 @@ public class HttpClient3{
     	return client;
     }
     
+    /** 그냥. 로깅용. */
+    public HttpMethod getMethod(){
+    	return method;
+    }
+    
+    /** 로깅용.  */
+    public String getURI(){
+    	try {
+			return method.getURI().getURI();
+		} catch (URIException e) {
+			Throwables.propagate(e);
+			return null; //작동하지 않는다.
+		}
+    }
+    
     public HttpClient3 get(String url){
     	method = new  GetMethod(url);
         return this;
@@ -101,8 +121,10 @@ public class HttpClient3{
             return this;
         } catch (SocketTimeoutException e) {
             throw e;
+        } catch (IOException e) {
+            throw new IORuntimeException(e);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+        	throw new PropagatedRuntimeException(e);
         }
     }
     
@@ -112,12 +134,8 @@ public class HttpClient3{
      * Part[] parts = { filePart  };
      */
     public void upload(Part ... parts){
-    	try {
-    		PostMethod post = (PostMethod)method;
-			post.setRequestEntity(new MultipartRequestEntity(parts, post.getParams()));
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+    	PostMethod post = (PostMethod)method;
+		post.setRequestEntity(new MultipartRequestEntity(parts, post.getParams()));
     }
     
     public String asString(){
@@ -128,7 +146,7 @@ public class HttpClient3{
             result = IOUtils.toString(in,encode);
         }
         catch (IOException e) {
-        	throw new RuntimeException(e);
+        	throw new IORuntimeException(e);
         }finally{
             IOUtils.closeQuietly(in);
             method.releaseConnection();
@@ -142,7 +160,7 @@ public class HttpClient3{
             in = method.getResponseBodyAsStream();
             FileUtil.write(in, result);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+        	throw new IORuntimeException(e);
         }finally{
             IOUtils.closeQuietly(in);
             method.releaseConnection();
@@ -155,7 +173,7 @@ public class HttpClient3{
         try {
             in =  method.getResponseBodyAsStream();
         }catch (IOException e) {
-        	throw new RuntimeException(e);
+        	throw new IORuntimeException(e);
         }
         return in;
     }
@@ -200,5 +218,34 @@ public class HttpClient3{
         }
         return querys;
     }
+    
+	/** 리다이렉트 되는 경로 */ 
+	private static final String LOCATION = "Location";
+	/** 리다이렉트 코드 */ 
+	private static final int STATUS_CODE_REDIRECT = 302;
+	
+	/** executeMethod 이후에 호출해야 한다. */
+	public boolean isRedirect() {
+		return method.getStatusCode() == STATUS_CODE_REDIRECT;
+	}
+	
+	public String getRedirectLocationAndRelease() {
+		Header header = method.getResponseHeader(LOCATION);
+		method.releaseConnection(); //풀어줘야한다.
+		return header==null ? null : header.getValue();
+	}
+	
+	/** 
+	 * 리다이렉트 경로를 추적해준다. 
+	 * */ 
+	public String getRedirectLocation(String url) {
+		try {
+			post(url).executeMethod();
+		} catch (SocketTimeoutException e) {
+			Throwables.propagate(e);
+		}
+		if(isRedirect()) return getRedirectLocationAndRelease();
+		return asString();
+	}
 
 }

@@ -326,6 +326,14 @@ public enum RegEx {
         String result = body.substring(0, index);
         return result + added;
     }
+    
+	/**
+	 * 내부 문구를 찾을때 사용된다. 
+	 * ex) extractBetween("<span>(",")</span>");
+	 *  */ 
+	public static Pattern extractBetween(String pref,String suff){
+		return Pattern.compile("(?<="+StringEscapeUtil.escapeRegEx(pref)+").*(?="+StringEscapeUtil.escapeRegEx(suff)+")"); 
+	}
 
 
 }

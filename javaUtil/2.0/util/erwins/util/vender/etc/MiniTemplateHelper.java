@@ -11,7 +11,7 @@ import org.springframework.util.ReflectionUtils.FieldCallback;
 
 import biz.source_code.miniTemplator.MiniTemplator;
 import biz.source_code.miniTemplator.MiniTemplator.TemplateSpecification;
-import biz.source_code.miniTemplator.MiniTemplator.TemplateSyntaxException;
+import erwins.util.root.exception.IORuntimeException;
 
 /**
  * 간이 템플릿 작성기.
@@ -32,10 +32,8 @@ public class MiniTemplateHelper {
         MiniTemplator mt;
         try {
             mt = new MiniTemplator(sp);
-        } catch (TemplateSyntaxException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+        	throw new IORuntimeException(e);
         }
         applyParam(mt,values);
         return  mt.generateOutput();

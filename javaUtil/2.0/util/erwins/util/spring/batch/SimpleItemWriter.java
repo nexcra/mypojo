@@ -16,7 +16,7 @@ public abstract class SimpleItemWriter<T> implements ItemWriter<T>{
     
     @BeforeStep
     public void beforeStepByAnnotation(StepExecution stepExecution) {
-        if(ec!=null) throw new RuntimeException("ec is aleady exist. check bean's scope : @Scope('step')");
+        if(ec!=null) throw new IllegalStateException("ec is aleady exist. check bean's scope : @Scope('step')");
         ec  = JobUtil.getJobEx(stepExecution);
         beforeStep(stepExecution);
     }

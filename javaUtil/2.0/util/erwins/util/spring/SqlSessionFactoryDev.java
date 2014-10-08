@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
+import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.spring.SpringUtil.AntResourceType;
 
 /** 
@@ -69,7 +70,7 @@ public class SqlSessionFactoryDev extends SqlSessionFactoryBean {
         try {
             super.afterPropertiesSet();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new PropagatedRuntimeException(e);
         } finally {
             writeLock.unlock();
         }

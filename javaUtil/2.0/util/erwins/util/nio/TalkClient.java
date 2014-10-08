@@ -3,12 +3,12 @@ package erwins.util.nio;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 
+import erwins.util.root.exception.IORuntimeException;
 import erwins.util.text.CharEncodeUtil;
 
 public class TalkClient {
@@ -23,10 +23,8 @@ public class TalkClient {
 			channel = SocketChannel.open(new InetSocketAddress(adress, port));
 			channel.configureBlocking(false);
 			channel.register(selector, SelectionKey.OP_READ);
-		} catch (ClosedChannelException e1) {
-			throw new RuntimeException(e1);
-		} catch (IOException e1) {
-			throw new RuntimeException(e1);
+		} catch (IOException e) {
+			throw new IORuntimeException(e);
 		}
 	}
 	
@@ -61,7 +59,7 @@ public class TalkClient {
 			channel.write(inputBuffer);
 		} catch (IOException e) {
 			//channel.close(); ///?????
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 	

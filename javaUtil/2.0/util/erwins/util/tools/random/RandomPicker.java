@@ -36,7 +36,7 @@ public class RandomPicker<T> implements RandomPick<T>{
     public T getRandom(){
         int search = random.nextInt(sum);
         Entry<Integer, T> e = map.floorEntry(search);
-        if(e==null) throw new RuntimeException("e is not null. but null input!");
+        if(e==null) throw new IllegalStateException("e is not null. but null input!");
         return e.getValue();
     }
     

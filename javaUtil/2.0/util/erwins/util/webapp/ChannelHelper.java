@@ -13,6 +13,7 @@ import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.google.appengine.repackaged.com.google.common.util.Base64;
 
+import erwins.util.root.exception.IORuntimeException;
 import erwins.util.text.StringUtil;
 
 public abstract class ChannelHelper{
@@ -26,7 +27,7 @@ public abstract class ChannelHelper{
 		try {
 			sendMessage(id,Base64.encode(json.toString().getBytes("UTF-8")));
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 	

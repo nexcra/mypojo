@@ -228,7 +228,7 @@ public abstract class HanUtil {
 			}
 			break;
 		default:
-			throw new RuntimeException("잘못된 타입 입니다 " + type);
+			throw new IllegalStateException("잘못된 타입 입니다 " + type);
 		}
 		//System.out.println("초중종검색된 것없음");
 		return -1;

@@ -70,7 +70,7 @@ public abstract class AbstractBusinessCalendar {
                 tempDate = DateUtils.addDays(tempDate, -1);
                 if (!isHoliday(tempDate))  amount++;
             }
-        }else throw new RuntimeException("잘못된 인수 : " + amount);
+        }else throw new IllegalArgumentException("잘못된 인수 : " + amount);
         return tempDate;
     }
     

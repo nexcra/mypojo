@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import erwins.util.lib.FileUtil;
 import erwins.util.lib.security.Cryptor.Mode;
+import erwins.util.root.exception.IORuntimeException;
 import erwins.util.validation.Precondition;
 
 public class SecurityTest{
@@ -75,7 +76,7 @@ public class SecurityTest{
     	try {
 			Precondition.isTrue(FileUtil.readFileToString(org).equals(FileUtil.readFileToString(unsealed)));
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
     	Precondition.isTrue(org.delete());
 		Precondition.isTrue(sealed.delete());

@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import org.apache.commons.lang.SystemUtils;
 
 import erwins.util.number.MathUtil;
+import erwins.util.root.exception.IORuntimeException;
 
 
 /**
@@ -25,7 +26,7 @@ public abstract class SystemUtil extends SystemUtils{
             IP = InetAddress.getLocalHost().getHostAddress();
         }
         catch (UnknownHostException e) {
-            throw new RuntimeException(e);
+        	throw new IORuntimeException(e);
         }
     }
     

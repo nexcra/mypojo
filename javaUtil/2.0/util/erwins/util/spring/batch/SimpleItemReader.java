@@ -33,7 +33,7 @@ public abstract class SimpleItemReader<T> implements ItemReader<T>{
     
     /** 전체 데이터의 크기를 알 수 있을때 사용한다. */
     public void initReader(StepExecution stepExecution,Collection<T> items){
-        if(ec!=null) throw new RuntimeException("ec is aleady exist. check bean's scope : @Scope('step')");
+        if(ec!=null) throw new IllegalStateException("ec is aleady exist. check bean's scope : @Scope('step')");
         ec  = JobUtil.getJobEx(stepExecution);
         uniqueNameRunListener.setCurrentStepInfo(stepExecution, items.size());
         it = items.iterator();
@@ -41,7 +41,7 @@ public abstract class SimpleItemReader<T> implements ItemReader<T>{
     
     /** 전체 데이터의 크기를 알 수 없을때 사용한다. 예상치가 있아면 입력한다. */
     public void initReader(StepExecution stepExecution,Iterator<T> it,Integer expect){
-        if(ec!=null) throw new RuntimeException("ec is aleady exist. check bean's scope : @Scope('step')");
+        if(ec!=null) throw new IllegalStateException("ec is aleady exist. check bean's scope : @Scope('step')");
         ec  = JobUtil.getJobEx(stepExecution);
         if(expect!=null) uniqueNameRunListener.setCurrentStepInfo(stepExecution, expect);
         this.it = it;

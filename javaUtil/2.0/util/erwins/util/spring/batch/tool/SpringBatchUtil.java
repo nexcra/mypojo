@@ -135,7 +135,7 @@ public abstract class SpringBatchUtil{
 			}
 			if(!able) throw e;
 			currentTry++;
-			if(currentTry > limitTry) throw new RuntimeException("최대 try횟수를 넘었습니다. limitTry : " + limitTry,e);
+			if(currentTry > limitTry) throw new IllegalStateException("최대 try횟수를 넘었습니다. limitTry : " + limitTry,e);
 			retry(run,currentTry,limitTry,sleepSec,clazz);
 		}
 		return currentTry;

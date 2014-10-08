@@ -8,6 +8,8 @@ import org.apache.commons.mail.EmailAttachment;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 
+import erwins.util.root.exception.PropagatedRuntimeException;
+
 /**
  * commons mail을 확장한다.
  * 상세 구문은 템플릿은 Groovy를 이용할것!
@@ -37,7 +39,7 @@ public class MailHelper {
             email.setFrom(fromMail, fromName);
         }
         catch (EmailException e) {
-            throw new RuntimeException(e);
+        	throw new PropagatedRuntimeException(e);
         }
     }
     
@@ -54,7 +56,7 @@ public class MailHelper {
             email.addTo(toMail, toName);
         }
         catch (EmailException e) {
-            throw new RuntimeException(e);
+        	throw new PropagatedRuntimeException(e);
         }
     }
     /**
@@ -81,7 +83,7 @@ public class MailHelper {
             email.attach(attachment);
         }
         catch (EmailException e) {
-            throw new RuntimeException(e);
+        	throw new PropagatedRuntimeException(e);
         }
     }
     

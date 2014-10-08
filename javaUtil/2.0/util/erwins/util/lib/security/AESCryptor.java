@@ -22,6 +22,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 
+import erwins.util.root.exception.IORuntimeException;
+
 /**
  * Cryptor 대신에 사용. AES만 쓰니까 새로 만들었다.
  * Base64자체가 스레드 비안전 함으로 Base64를 별도로 사용한다면 추가작업이 필요 
@@ -49,7 +51,7 @@ public class AESCryptor {
         try {
 			return new String(Base64.encodeBase64(raw),encode);
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 	
@@ -57,7 +59,7 @@ public class AESCryptor {
 		try {
 			return encrypt(plainText.getBytes(encode));
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 	

@@ -34,6 +34,7 @@ import com.google.common.io.Files;
 
 import erwins.util.jdbc.ToStringArrayRowMapper;
 import erwins.util.nio.ThreadUtil;
+import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.spring.SpringUtil;
 import erwins.util.spring.batch.CsvItemReader;
 import erwins.util.spring.batch.CsvItemReader.PassThroughCsvMapper;
@@ -126,7 +127,7 @@ public class SpringBatchMock<T>{
 					SpringBatchUtil.updateIfAble(itemWriter,executionContext);
 					countSum += list.size();
 				} catch (Exception e) {
-					throw new RuntimeException(e);
+					throw new PropagatedRuntimeException(e);
 				}
 				return countSum;
 			}
@@ -140,7 +141,7 @@ public class SpringBatchMock<T>{
 			Long sum = ThreadUtil.sum(fs);
 			executionContext.putLong("totalThreadCountSum", sum);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}finally{
 			SpringBatchUtil.closeIfAble(itemReader);
 			SpringBatchUtil.closeIfAble(itemWriter);
@@ -193,7 +194,7 @@ public class SpringBatchMock<T>{
 				if(result!=null) sum += result;
 			}	
 		}catch(Exception e){
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}finally{
 			itemReader.close();	
 		}

@@ -19,6 +19,9 @@ import com.google.appengine.api.blobstore.BlobstoreInputStream;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 
+import erwins.util.root.exception.IORuntimeException;
+import erwins.util.root.exception.PropagatedRuntimeException;
+
 
 public abstract class AppJExcell{
 	
@@ -38,9 +41,9 @@ public abstract class AppJExcell{
 				result.add(json);
 			}
 		} catch (BiffException e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 		return result;
 	}

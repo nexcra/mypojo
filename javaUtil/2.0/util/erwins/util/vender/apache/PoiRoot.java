@@ -4,7 +4,6 @@ package erwins.util.vender.apache;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +32,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import com.google.common.base.Strings;
+
+import erwins.util.root.exception.IORuntimeException;
 
 /**
  * POI가 너무 길어서 나눔
@@ -232,10 +233,8 @@ public abstract class PoiRoot{
 				    bos.write( c );
 				}
 				pictureIndex = wb.addPicture( bos.toByteArray(), HSSFWorkbook.PICTURE_TYPE_JPEG  );
-			} catch (FileNotFoundException e) {
-				throw new RuntimeException(e);
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new IORuntimeException(e);
 			}
         } finally {
         	IOUtils.closeQuietly(bos);
@@ -580,8 +579,8 @@ public abstract class PoiRoot{
             workbook.write(fileOut);
             fileOut.close();
         }
-        catch (Exception e) {
-            throw new RuntimeException(e);
+        catch (IOException e) {
+            throw new IORuntimeException(e);
         }
     }
     

@@ -9,14 +9,19 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import oracle.sql.CLOB;
+
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.io.IOUtils;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 import erwins.util.lib.CollectionUtil;
+import erwins.util.root.exception.SQLRuntimeException;
 import erwins.util.text.StringUtil;
 import erwins.util.tools.StringAppender;
 
@@ -57,7 +62,7 @@ public class JdbcUtil {
 				conn.commit();
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw new SQLRuntimeException(e);
 		}finally{
 			DbUtils.closeQuietly(conn);
 		}
@@ -78,7 +83,7 @@ public class JdbcUtil {
 				conn.commit();
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw new SQLRuntimeException(e);
 		}finally{
 			DbUtils.closeQuietly(conn);
 		}
@@ -97,7 +102,7 @@ public class JdbcUtil {
 			conn.commit();
 			
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw new SQLRuntimeException(e);
 		}finally{
 			DbUtils.closeQuietly(conn);
 		}
@@ -121,5 +126,30 @@ public class JdbcUtil {
 			return result;
 		}
 	};
+	
+
+    /** 
+     * CLOB을 그냥 select해서 넣으면 안들어간다. 이거 한번 돌리고 쓰자.
+     *  */
+    public static List<? extends Object[]> convertClob(List<? extends Object[]> items){
+    	List<Object[]> newItems = Lists.newArrayList();
+    	for(Object[] item : items){
+    		Object[] newItem = new Object[item.length];
+    		for(int i=0;i<item.length;i++){
+    			Object columnValue  = item[i];
+    			if(columnValue instanceof CLOB){
+    				CLOB clob = (CLOB) columnValue;
+    				try {
+    					columnValue = IOUtils.toString(clob.getCharacterStream());
+					} catch (Exception e) {
+						Throwables.propagate(e);
+					}		
+    			}
+    			newItem[i] = columnValue;
+    		}
+    		newItems.add(newItem);
+		}
+    	return newItems;
+    }
 
 }

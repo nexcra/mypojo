@@ -11,6 +11,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import com.google.common.base.Preconditions;
 
 import erwins.util.lib.FileUtil;
+import erwins.util.root.exception.PropagatedRuntimeException;
 
 
 /** 
@@ -47,7 +48,7 @@ public abstract class CommonsMultipartHelper {
 				FileUtil.renameTo(uploaded, store);
 			}
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}
 		
 	}

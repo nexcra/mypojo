@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import erwins.util.nio.ThreadUtil;
+import erwins.util.root.exception.PropagatedRuntimeException;
 
 /**
  * 경고 메세지 전송용으로 WAS에서 기동시, 쌍방향 친구추가를 해주자. 
@@ -34,6 +35,8 @@ import erwins.util.nio.ThreadUtil;
  * 연결 시도하면  데몬 스래드들이 다수 기동된다.
  * Presence type :  available / unavailable
  *          status : 문자열 지정값
+ *          
+ *          XMPPException 래핑하던가 하자. 
  *  */
 public class XMPPBotClient implements Iterable<RosterGroup>{
 	
@@ -121,7 +124,7 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
             connection.sendPacket(new Presence(Presence.Type.available));
         }
         catch (XMPPException e) {
-        	throw new RuntimeException(e);
+        	throw new PropagatedRuntimeException(e);
         }
     }
     
@@ -155,8 +158,8 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
 		if(group==null) group = r.createGroup(groupName);
     	try {
     		if(!group.contains(entry)) group.addEntry(entry);
-		} catch (XMPPException e1) {
-			throw new RuntimeException(e1);
+		} catch (XMPPException e) {
+			throw new PropagatedRuntimeException(e);
 		}
 	}
 	
@@ -166,7 +169,7 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
 		try {
 			group.removeEntry(entry);
 		} catch (XMPPException e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}
 	}
 	
@@ -177,7 +180,7 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
 				try {
 					eachGroup.removeEntry(each);
 				} catch (XMPPException e) {
-					throw new RuntimeException(e);
+					throw new PropagatedRuntimeException(e);
 				}
 			}
 		}
@@ -241,7 +244,7 @@ public class XMPPBotClient implements Iterable<RosterGroup>{
     	try {
 			connection.getAccountManager().createAccount(id,pass);
 		} catch (XMPPException e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}
     }
     /*

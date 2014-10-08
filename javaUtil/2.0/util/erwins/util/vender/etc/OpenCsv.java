@@ -2,7 +2,6 @@ package erwins.util.vender.etc;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,6 +19,7 @@ import org.apache.commons.io.output.FileWriterWithEncoding;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
+import erwins.util.root.exception.IORuntimeException;
 
 /**
  * 간단 래핑한다. 
@@ -79,7 +79,7 @@ public class OpenCsv{
             writer.writeAll(entries);
             writer.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+        	throw new IORuntimeException(e);
         }finally{
 			try {
 				if (writer != null) writer.close();
@@ -94,13 +94,13 @@ public class OpenCsv{
     	try {
     		reader = new CSVReader(new InputStreamReader(new FileInputStream(file),encoding),separator);
 			return reader.readAll();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new IORuntimeException(e);
 		}finally{
 			try {
 				if (reader != null) reader.close();
 			} catch (IOException e2) {
-				throw new RuntimeException(e2);
+				throw new IORuntimeException(e2);
 			}
 		}
     }
@@ -130,8 +130,8 @@ public class OpenCsv{
     	if(writer!=null){ 
 			try {
 				writer.close();
-			} catch (IOException e1) {
-				throw new RuntimeException(e1);
+			} catch (IOException e) {
+				throw new IORuntimeException(e);
 			}
 		}
     }
@@ -140,8 +140,8 @@ public class OpenCsv{
     	if(reader!=null){ 
 			try {
 				reader.close();
-			} catch (IOException e1) {
-				throw new RuntimeException(e1);
+			} catch (IOException e) {
+				throw new IORuntimeException(e);
 			}
 		}
     }
@@ -155,34 +155,11 @@ public class OpenCsv{
 			writer = new CSVWriter(outWriter);
 			for(String[] line : lines) writer.writeNext(line);
 			writer.flush();
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}finally{
 			closeQuietly(writer);
 		}
     }
 	
-    
-    /**
-     * 	private CSVWriter writer;
-	
-	public OpenCsv(String fileName){
-		try {
-			this.writer = new CSVWriter(new FileWriter(fileName));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	public OpenCsv(File file){
-		try {
-			this.writer = new CSVWriter(new FileWriter(file));
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-     */
-    
-    
 }

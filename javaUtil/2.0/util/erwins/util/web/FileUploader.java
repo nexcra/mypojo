@@ -24,6 +24,8 @@ import org.apache.commons.fileupload.util.Streams;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 import erwins.util.lib.FileUtil;
+import erwins.util.root.exception.IORuntimeException;
+import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.text.CharEncodeUtil;
 import erwins.util.vender.etc.OpenCsv;
 
@@ -111,7 +113,7 @@ public class FileUploader{
 				}
 				writer.flush();
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new IORuntimeException(e);
 			}finally{
 				OpenCsv.closeQuietly(reader);
 				OpenCsv.closeQuietly(writer);
@@ -157,9 +159,9 @@ public class FileUploader{
                     result.source.put(fieldName, new UploadResultFile(renamed,fileName,fieldName));
                 }
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+		} catch (Exception e) {
+			throw new PropagatedRuntimeException(e);
+		}
         return result;
     }
     
@@ -182,7 +184,7 @@ public class FileUploader{
                 }
             }
         } catch (Exception e) {
-        	throw new RuntimeException(e);
+        	throw new PropagatedRuntimeException(e);
         }
     }
 

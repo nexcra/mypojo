@@ -13,6 +13,8 @@ import java.util.List;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
+import erwins.util.root.exception.IORuntimeException;
+
 /**
  * POI 패키지의 HSSF를 편리하게.. 헤더칸은 1칸 이라고 일단 고정 사각 박스를 예쁘게 채울려면 반드시 null에 ""를 채워 주자~
  */
@@ -24,7 +26,7 @@ public class PoiReader2002 implements Iterable<PoiSheetReader2002>{
     	try {
 			load(new FileInputStream(new File(fileName)));
 		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
     }
     
@@ -32,7 +34,7 @@ public class PoiReader2002 implements Iterable<PoiSheetReader2002>{
     	try {
 			load(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
     }
     
@@ -45,8 +47,8 @@ public class PoiReader2002 implements Iterable<PoiSheetReader2002>{
             POIFSFileSystem filesystem = new POIFSFileSystem(in);        
             wb = new HSSFWorkbook(filesystem);
         }
-        catch (Exception e) {
-            throw new RuntimeException(e);
+        catch (IOException e) {
+        	throw new IORuntimeException(e);
         }finally{
         	try {
 				if(in!=null) in.close();

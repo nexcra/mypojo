@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVWriter;
+import erwins.util.root.exception.IORuntimeException;
 import erwins.util.tools.csvLog.CsvLogMamager.CsvLog;
 import erwins.util.tools.csvLog.CsvLogMamager.CsvLogInfo;
 
@@ -54,13 +55,14 @@ public class CsvLogThread extends Thread{
 				}
 				CSVWriter writer = info.getWriter();
 				String[] data = csvLog.getData();
+				//null이 입력되는 경우는 롤링파일을 교체하기위한 이벤트이다.
 				if(data!=null) writer.writeNext(data);
 				if(csvLog.isFlush()) writer.flush();
 			}
 		} catch (InterruptedException e) {
 			log.info("CsvLogThread 스래드 InterruptedException. 즉시 스래드를 종료합니다.");
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}finally{
 			if(renameOnInterrupted){
 				//아마 WAS가 강제종료된다면  InterruptedException을 받지 못함으로 이 로직은 작동하지 못할것이다. 혹시나 정상종료로 인터럽트 된다면 플러시 후  해당 로그의 직전 파일로 리네임한다. 

@@ -1,6 +1,7 @@
 package erwins.util.spring.batch.component;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -9,8 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import erwins.util.lib.ReflectionUtil;
+import erwins.util.root.exception.TextParseException;
 import erwins.util.spring.batch.CsvItemReader.CsvMapper;
 import erwins.util.spring.batch.CsvItemWriter.CsvAggregator;
+import erwins.util.text.StringUtil;
 
 /**
  * 1. 스프링 컨버터로 수정할것!
@@ -42,7 +45,7 @@ public class ReflextionCsvConverter<T> implements CsvMapper<T>,CsvAggregator<T>{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public T mapLine(String[] line, int arg1) throws Exception {
+	public T mapLine(String[] line, int lineNumber) throws Exception {
 		T vo = ReflectionUtil.newInstance(persistentClass);
 		for(int i=0;i < fieldList.size();i++){
 			Field field = fieldList.get(i);
@@ -50,32 +53,37 @@ public class ReflextionCsvConverter<T> implements CsvMapper<T>,CsvAggregator<T>{
 			Class<?> type = field.getType();
 			boolean empty = stringValue.equals("");
 			
-			if(empty){
-				//nulll로 오버라이드 한다. 주의!
-				ReflectionUtil.setField(field, vo, null); 
-			}else{
-				Object value = null;
-				
-				if(String.class.isAssignableFrom(type)){
-					value = stringValue;
-				}else if(ReflectionUtil.isAssignableFrom(type, Long.class,long.class)){
-					value = Long.valueOf(stringValue);
-				}else if(ReflectionUtil.isAssignableFrom(type, Integer.class,int.class)){
-					value = Integer.valueOf(stringValue);
-				}else if(ReflectionUtil.isAssignableFrom(type, Boolean.class,boolean.class)){
-					value = Boolean.parseBoolean(stringValue);					
-				//}else if(Date.class.isAssignableFrom(type)){
-					//value = dateTimeFormatter.parseDateTime(stringValue).toDate();
-				}else if(BigDecimal.class.isAssignableFrom(type)){
-					value = new BigDecimal(stringValue);
-				}else if(Enum.class.isAssignableFrom(type)){
-					value = ReflectionUtil.getEnumInstance((Class<Enum<?>>)type, stringValue);
+			try{
+				if(empty){
+					//nulll로 오버라이드 한다. 주의!
+					ReflectionUtil.setField(field, vo, null); 
 				}else{
-					log.warn("컬럼명 {}는 클래스 {}에 없는 필드입니다.",field.getName(),persistentClass.getSimpleName());
+					Object value = null;
+					
+					if(String.class.isAssignableFrom(type)){
+						value = stringValue;
+					}else if(ReflectionUtil.isAssignableFrom(type, Long.class,long.class)){
+						value = Long.valueOf(stringValue);
+					}else if(ReflectionUtil.isAssignableFrom(type, Integer.class,int.class)){
+						value = Integer.valueOf(stringValue);
+					}else if(ReflectionUtil.isAssignableFrom(type, Boolean.class,boolean.class)){
+						value = Boolean.parseBoolean(stringValue);					
+					//}else if(Date.class.isAssignableFrom(type)){
+						//value = dateTimeFormatter.parseDateTime(stringValue).toDate();
+					}else if(BigDecimal.class.isAssignableFrom(type)){
+						value = new BigDecimal(stringValue);
+					}else if(Enum.class.isAssignableFrom(type)){
+						value = ReflectionUtil.getEnumInstance((Class<Enum<?>>)type, stringValue);
+					}else{
+						log.warn("컬럼명 {}는 클래스 {}에 없는 필드입니다.",field.getName(),persistentClass.getSimpleName());
+					}
+					ReflectionUtil.setField(field, vo, value); 
 				}
-				ReflectionUtil.setField(field, vo, value); 
+			}catch(Throwable e){
+				String msg = MessageFormat.format("line -> vo 변환중 예외. field:[{0}] value:[{1}] /  lineNumber:[{2}] / 전체자료:[{3}]"
+						, field.getName(),stringValue,lineNumber,StringUtil.join(line, ","));
+				throw new TextParseException(msg,e);
 			}
-			
 		}
 		return vo;
 	}

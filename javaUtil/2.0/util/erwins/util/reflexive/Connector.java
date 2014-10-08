@@ -31,7 +31,7 @@ public class Connector<ID extends Serializable,T extends Connectable<ID,T>> {
     /** check일 경우 값이 없으면 예외를 던진다. */
     public T $(ID id,boolean check){
         T obj = map.get(id);
-        if(check && obj==null) throw new RuntimeException(id + " is not found from heap");
+        if(check && obj==null) throw new IllegalArgumentException(id + " is not found from heap");
         return obj;    
     }
     

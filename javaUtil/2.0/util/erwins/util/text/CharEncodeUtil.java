@@ -6,6 +6,8 @@ import java.nio.charset.Charset;
 
 import org.apache.commons.lang.CharEncoding;
 
+import erwins.util.root.exception.IORuntimeException;
+
 /**
  * 캐릭터 변환에 관한 모음이다.
  * static메소드 쓰지 말것! 나중에 필요하면 enum으로 만들자. TimeUtil 참고.
@@ -35,7 +37,7 @@ public abstract class CharEncodeUtil extends CharEncoding{
             return new String(str.getBytes(ISO_8859_1), UTF_8);
         }
         catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+        	throw new IORuntimeException(e);
         }
     }
     
@@ -47,7 +49,7 @@ public abstract class CharEncodeUtil extends CharEncoding{
             return new String(str.getBytes(EUC_KR), UTF_8);
         }
         catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+        	throw new IORuntimeException(e);
         }
     }
 
@@ -59,7 +61,7 @@ public abstract class CharEncodeUtil extends CharEncoding{
             return new String(str.getBytes("8859_1"), "EUC-KR");
         }
         catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+        	throw new IORuntimeException(e);
         }
     }
 

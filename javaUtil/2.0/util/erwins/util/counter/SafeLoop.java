@@ -25,7 +25,7 @@ public class SafeLoop extends MutableLong{
     public void increment() {
     	super.increment();
     	if(longValue() > threshold){
-        	throw new RuntimeException("too many loop : " + longValue());
+        	throw new IllegalStateException("too many loop : " + longValue());
         }
     }
 

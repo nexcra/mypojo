@@ -23,6 +23,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import erwins.util.lib.ReflectionUtil;
+import erwins.util.root.exception.IORuntimeException;
+import erwins.util.spring.FlatDataBinder;
 import erwins.util.spring.InputStringViolationException;
 import erwins.util.spring.batch.CsvItemReader.CsvMapper;
 import erwins.util.spring.batch.CsvItemWriter.CsvAggregator;
@@ -97,7 +99,7 @@ public class StringArrayValidator<T> implements CsvMapper<T>,CsvAggregator<T>{
             if(skipFirst) realRowCount --;
             return realRowCount;
         } catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		} finally {
 			OpenCsv.closeQuietly(reader);
         }
@@ -118,7 +120,7 @@ public class StringArrayValidator<T> implements CsvMapper<T>,CsvAggregator<T>{
             	list.add(vo);
             }
         } catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		} finally {
 			OpenCsv.closeQuietly(reader);
         }
@@ -146,7 +148,7 @@ public class StringArrayValidator<T> implements CsvMapper<T>,CsvAggregator<T>{
 				throw e;
 			} catch (Exception e) {
 				String msg = "validateLine중 예외. fieldName : {0} ";
-				throw new RuntimeException(MessageFormat.format(msg, meta.fieldName),e);
+				throw new ValidationException(MessageFormat.format(msg, meta.fieldName),e);
 			}
     	}
     	return vo;

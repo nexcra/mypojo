@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import erwins.util.lib.FileUtil;
+import erwins.util.root.exception.IORuntimeException;
 import erwins.util.spring.batch.CsvItemWriter.CsvAggregator;
 
 
@@ -86,7 +87,7 @@ public class CsvLogMamager {
 		try {
 			reloadWriter(info);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 		
 		info.csvLogWriter = new CsvLogWriter<T>(info,queue);

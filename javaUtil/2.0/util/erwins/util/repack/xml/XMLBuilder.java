@@ -653,7 +653,7 @@ public class XMLBuilder {
      */
     public XMLBuilder attribute(String name, String value) {
         if (! (this.xmlNode instanceof Element)) {
-            throw new RuntimeException(
+            throw new IllegalStateException(
                 "Cannot add an attribute to non-Element underlying node: "
                 + this.xmlNode);
         }
@@ -1006,7 +1006,7 @@ public class XMLBuilder {
      */
     public XMLBuilder namespace(String prefix, String namespaceURI) {
         if (! (this.xmlNode instanceof Element)) {
-            throw new RuntimeException(
+            throw new IllegalStateException(
                 "Cannot add an attribute to non-Element underlying node: "
                 + this.xmlNode);
         }

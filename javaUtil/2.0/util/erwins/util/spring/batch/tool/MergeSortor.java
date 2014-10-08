@@ -24,6 +24,8 @@ import com.google.common.collect.Lists;
 
 import erwins.util.lib.FileUtil;
 import erwins.util.nio.ThreadUtil;
+import erwins.util.root.exception.IORuntimeException;
+import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.text.StringUtil;
 
 /**  
@@ -87,7 +89,7 @@ public class MergeSortor<T> {
 						try {
 							FileUtil.copy(each[0], getNextFile());
 						} catch (IOException e) {
-							throw new RuntimeException(e);
+							throw new IORuntimeException(e);
 						}
 					}else{
 						Future<Integer> future = pool.submit(new Read2FileAndMerge(each,getNextFile())); 
@@ -98,7 +100,7 @@ public class MergeSortor<T> {
 					Long sum = ThreadUtil.sum(futures);
 					log.debug("스탭 {} 처리가 완료되었습니다. 총 커밋수 : {}",currentStepCount,sum);
 				} catch (Exception e) {
-					throw new RuntimeException(e);
+					throw new PropagatedRuntimeException(e);
 				}
 			}	
 		}
@@ -186,7 +188,7 @@ public class MergeSortor<T> {
 				itemWriter.write(list);
 				commitCount++;
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				throw new PropagatedRuntimeException(e);
 			}finally{
 				if(itemReader1!=null) itemReader1.close();
 				if(itemReader2!=null) itemReader2.close();
@@ -226,7 +228,7 @@ public class MergeSortor<T> {
 			}
 			itemWriter.write(list);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}finally{
 			if(itemReader!=null) itemReader.close();
 			if(itemWriter!=null) itemWriter.close();

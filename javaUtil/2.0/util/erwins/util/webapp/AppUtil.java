@@ -2,6 +2,7 @@
 package erwins.util.webapp;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -14,6 +15,8 @@ import org.apache.commons.io.IOUtils;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
+
+import erwins.util.root.exception.IORuntimeException;
 
 
 public abstract class AppUtil{
@@ -30,8 +33,8 @@ public abstract class AppUtil{
 			URL url = new URL(urlString);
 			reader = new BufferedReader(new InputStreamReader(url.openStream(),encode));
 			return IOUtils.toString(reader);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new IORuntimeException(e);
 		}finally{
 			IOUtils.closeQuietly(reader);
 		}

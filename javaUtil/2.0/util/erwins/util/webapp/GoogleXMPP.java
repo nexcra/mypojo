@@ -12,6 +12,7 @@ import com.google.appengine.api.xmpp.SendResponse;
 import com.google.appengine.api.xmpp.XMPPService;
 import com.google.appengine.api.xmpp.XMPPServiceFactory;
 
+import erwins.util.root.exception.IORuntimeException;
 import erwins.util.text.StringUtil;
 
 public abstract class GoogleXMPP {
@@ -37,7 +38,7 @@ public abstract class GoogleXMPP {
 		try {
 			return xmpp.parseMessage(req);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 

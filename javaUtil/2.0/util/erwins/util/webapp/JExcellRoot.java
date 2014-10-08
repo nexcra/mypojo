@@ -19,10 +19,15 @@ import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-import jxl.write.biff.RowsExceededException;
+import erwins.util.root.exception.IORuntimeException;
+import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.web.WebUtil;
 
-/** POI를 사용할 수 없는 환경에서 유용하다. ( ex) Google App Engine ) */
+/** 
+ * POI를 사용할 수 없는 환경에서 유용하다. ( ex) Google App Engine )
+ * 코드가 다들 이상하네.. 다시만들자
+ *  */
+@Deprecated
 public abstract class JExcellRoot {
 
 	protected final WritableWorkbook workbook;
@@ -50,7 +55,7 @@ public abstract class JExcellRoot {
 			BODY_NUMBER.setBorder(Border.ALL, BorderLineStyle.THIN);
 			BODY_NUMBER.setShrinkToFit(true);
 		} catch (WriteException e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}
 	}
 
@@ -85,7 +90,7 @@ public abstract class JExcellRoot {
 		try {
 			workbook.write();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		} finally {
 			close();
 		}
@@ -136,12 +141,9 @@ public abstract class JExcellRoot {
 	private void addCellWithoutThrow(WritableCell num) {
 		try {
 			nowSheet.addCell(num);
-		} catch (RowsExceededException e) {
+		} catch (Exception e) {
 			close();
-			throw new RuntimeException(e);
-		} catch (WriteException e) {
-			close();
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}
 	}
 
@@ -156,7 +158,7 @@ public abstract class JExcellRoot {
 		try {
 			workbook = Workbook.createWorkbook(file);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 
@@ -166,7 +168,7 @@ public abstract class JExcellRoot {
 		try {
 			workbook = Workbook.createWorkbook(resp.getOutputStream());
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 

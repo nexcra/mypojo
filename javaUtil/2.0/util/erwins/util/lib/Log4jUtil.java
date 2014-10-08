@@ -24,8 +24,8 @@ public abstract class Log4jUtil {
     public static void renameRootLogFile(String appendername,String newPath){
         Logger logger = Logger.getRootLogger();
         Appender appender = logger.getAppender(appendername);
-        if(appender==null) throw new RuntimeException("해당 이름의 어펜더가 없습니다 : " + appendername);
-        if(! FileAppender.class.isInstance(appender) ) throw new RuntimeException("어펜더는 FileAppender만 가능합니다 : " + appendername);
+        if(appender==null) throw new IllegalStateException("해당 이름의 어펜더가 없습니다 : " + appendername);
+        if(! FileAppender.class.isInstance(appender) ) throw new IllegalArgumentException("어펜더는 FileAppender만 가능합니다 : " + appendername);
         FileAppender ap =  (FileAppender)logger.getAppender(appendername);
         ap.setFile(newPath);
     }
@@ -34,7 +34,7 @@ public abstract class Log4jUtil {
     @Deprecated
     public static File findLogFile(String loggerName){
         Logger logger = loggerName==null ? Logger.getRootLogger() :  Logger.getLogger(loggerName);
-        if(logger==null) throw new RuntimeException("해당 이름의 로거가 없습니다 : " + loggerName);
+        if(logger==null) throw new IllegalStateException("해당 이름의 로거가 없습니다 : " + loggerName);
         @SuppressWarnings("unchecked")
         Enumeration<Appender> e = logger.getAllAppenders();
         FileAppender fileAppender = null;
@@ -42,9 +42,9 @@ public abstract class Log4jUtil {
             Appender appender = e.nextElement();
             if(FileAppender.class.isInstance(appender) ) fileAppender = (FileAppender) appender;
         }
-        if(fileAppender==null) throw new RuntimeException("해당 로거에 파일어펜더가 존재하지 않습니다." + loggerName);
+        if(fileAppender==null) throw new IllegalStateException("해당 로거에 파일어펜더가 존재하지 않습니다." + loggerName);
         String filePath = fileAppender.getFile();
-        if(filePath==null) throw new RuntimeException("해당 어펜더에 파일로거가 지정되지 않았습니다" + loggerName);
+        if(filePath==null) throw new IllegalStateException("해당 어펜더에 파일로거가 지정되지 않았습니다" + loggerName);
         return new File(filePath);
     }
     

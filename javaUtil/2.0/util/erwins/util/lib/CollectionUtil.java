@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.ListOrderedMap;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -138,6 +140,13 @@ public abstract class CollectionUtil extends CollectionUtils {
 			it.next();
 			it.remove();
 		}
+	}
+	
+	/** subList와 비슷하지만, 복사본을 리턴하지 않고, 해당 객체를 직접 수정한다. treemap 버전 */
+	public static <T> void removeAsOrder(TreeMap<?,?> adEntry,int max){
+		if(adEntry.size() <= max) return;
+		while(adEntry.size() > max) adEntry.remove(adEntry.lastKey());
+		Preconditions.checkState(adEntry.size() <= max);
 	}
 	
     /** before 자료에 있던 자료와 동일한 순번으로 after를 리오더링 시켜준다.

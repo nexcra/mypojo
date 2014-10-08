@@ -1,8 +1,11 @@
 package erwins.util.guava;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import javax.annotation.Nullable;
+
+import org.springframework.core.convert.converter.Converter;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
@@ -11,6 +14,26 @@ import erwins.util.lib.ReflectionUtil;
 
 /** Function 모음집. */
 public abstract class FunctionSet {
+	
+	/** 둘다 메이져 인터페이스다. 필요할때 스왑 */
+	public static <A,B> Converter<A,B> toConverter(final Function<A,B> function){
+		return new Converter<A,B>(){
+			@Override
+			public B convert(A a) {
+				return function.apply(a);
+			}
+		};
+	}
+	
+	/** 둘다 메이져 인터페이스다. 필요할때 스왑 */
+	public static <A,B> Function<A,B> toFunction(final Converter<A,B> function){
+		return new Function<A,B>(){
+			@Override
+			public B apply(A a) {
+				return function.convert(a);
+			}
+		};
+	}
 	
 	/** Groovy에서 CSV로 떨구기 위해 장만함 */
     public static final Function<Object,String> SQL_TO_STRING =  new Function<Object,String>() {
@@ -77,6 +100,18 @@ public abstract class FunctionSet {
 	 * toList() or 수정 가능한 List로 변경하려면 Lists.newArrayList() 을 사용하자 */
 	public static <T,K> FluentIterable<K> fieldFunction(Iterable<T> it, final String name,final K defaultValue){
 		return FluentIterable.from(it).transform(fieldFunction(name,defaultValue));
+	}
+	
+	/** 맵에서 추출 */
+	public static <K> Function<Map<K,Object>,String> mapToStringFunction(final K key){
+		return new Function<Map<K,Object>, String>() {
+			@Override
+			public String apply(Map<K, Object> map) {
+				Object v = map.get(key);
+				return v==null ? null : v.toString();
+			}
+			
+		};
 	}
 
 }

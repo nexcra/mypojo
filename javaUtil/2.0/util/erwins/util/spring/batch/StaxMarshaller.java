@@ -11,7 +11,7 @@ import javax.xml.transform.stax.StAXResult;
 
 import org.springframework.batch.item.xml.StaxWriterCallback;
 import org.springframework.oxm.Marshaller;
-import org.springframework.oxm.XmlMappingException;
+import org.springframework.oxm.MarshallingFailureException;
 
 import com.sun.xml.internal.fastinfoset.stax.events.AttributeBase;
 import com.sun.xml.internal.stream.events.EndElementEvent;
@@ -33,7 +33,7 @@ public abstract class StaxMarshaller<T> implements Marshaller {
     }
 
 	@Override
-	public void marshal(Object obj, Result arg1) throws IOException,XmlMappingException {
+	public void marshal(Object obj, Result arg1)  {
 		@SuppressWarnings("unchecked")
 		T item = (T) obj;
 		StAXResult result = (StAXResult)arg1;
@@ -43,7 +43,7 @@ public abstract class StaxMarshaller<T> implements Marshaller {
 			writeAttribute(writer,item);
 			writer.add(new EndElementEvent());
 		} catch (XMLStreamException e) {
-			throw new RuntimeException(e);
+			throw new MarshallingFailureException("usexpected exception",e); //????
 		}
 	}
 	
@@ -78,7 +78,7 @@ public abstract class StaxMarshaller<T> implements Marshaller {
 				writeAttribute(writer);
 				writer.add(new EndElementEvent());
 			} catch (XMLStreamException e) {
-				throw new RuntimeException(e);
+				throw new MarshallingFailureException("usexpected exception",e); //????
 			}			
 		}
 		protected abstract void writeAttribute(XMLEventWriter writer) throws XMLStreamException;
@@ -96,7 +96,7 @@ public abstract class StaxMarshaller<T> implements Marshaller {
 					}
 					writer.add(new EndElementEvent());
 				} catch (XMLStreamException e) {
-					throw new RuntimeException(e);
+					throw new MarshallingFailureException("usexpected exception",e); //????
 				}
 			}
 		};

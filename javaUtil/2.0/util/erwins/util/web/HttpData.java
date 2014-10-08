@@ -22,6 +22,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import erwins.util.lib.FileUtil;
+import erwins.util.root.exception.IORuntimeException;
 import erwins.util.text.StringEscapeUtil;
 
 /**
@@ -78,18 +79,18 @@ public class HttpData{
         try {
             method.setURI(new HttpURL(url));
         } catch (URIException e) {
-            throw new RuntimeException(e);
+        	throw new IORuntimeException(e);
         }
         return this;
     }
     
     public String send(){
-        try {
-            client.executeMethod(method);
-            return asString(encode);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    	try {
+			client.executeMethod(method);
+		} catch (IOException e) {
+			throw new IORuntimeException(e);
+		}
+        return asString(encode);
     }
     
     /**

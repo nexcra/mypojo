@@ -16,6 +16,7 @@ import erwins.util.dateTime.JodaUtil;
 import erwins.util.lib.FileUtil;
 import erwins.util.lib.ReflectionUtil;
 import erwins.util.lib.security.MD5s;
+import erwins.util.root.exception.IORuntimeException;
 
 /**
  * @author sin
@@ -135,7 +136,7 @@ public abstract class HbaseUtil{
 			hBaseAdmin.createTable(table);
 			return true;
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}finally{
 			FileUtil.closeQuietly(hBaseAdmin);
 		}
@@ -150,7 +151,7 @@ public abstract class HbaseUtil{
 			hBaseAdmin.deleteTable(tableName);
 			return true;
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}finally{
 			FileUtil.closeQuietly(hBaseAdmin);
 		}

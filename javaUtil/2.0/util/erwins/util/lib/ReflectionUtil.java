@@ -30,6 +30,7 @@ import com.google.common.collect.Multimap;
 
 import erwins.util.root.EntityId;
 import erwins.util.root.Pair;
+import erwins.util.root.exception.ReflectiveOperationRuntimeException;
 import erwins.util.text.StringUtil;
 import erwins.util.validation.InputValidationException;
 
@@ -66,7 +67,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 			return  (Class<T>) genericSuperclass.getActualTypeArguments()[index];	
 		}
 		Class<?> superClass = clazz.getSuperclass(); 
-		if(superClass==null) throw new RuntimeException("ParameterizedType이 존재하지 않습니다.");
+		if(superClass==null) throw new IllegalArgumentException("ParameterizedType이 존재하지 않습니다.");
 		return genericClass(superClass,index);
 	}
 	
@@ -90,7 +91,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 	/** name에 해당하는 Enum의 인스턴스를 리턴한다. 커스텀 타입은 사용불가. */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T extends Enum> T getEnumInstance(Class<T> clazz, String name) {
-		if (!clazz.isEnum()) throw new RuntimeException(clazz + " is not Enum");
+		if (!clazz.isEnum()) throw new IllegalArgumentException(clazz + " is not Enum");
 		return (T) Enum.valueOf((Class<Enum>) clazz, name);
 	}
 
@@ -119,7 +120,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 		try {
 			en = (Class<T>) Class.forName(fullName);
 		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
+			throw new ReflectiveOperationRuntimeException(e);
 		}
 		return en;
 	}
@@ -128,10 +129,8 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 	public static <T> T newInstance(Class<T> clazz) {
 		try {
 			return clazz.newInstance();
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
+		} catch (ReflectiveOperationException e) {
+			throw new ReflectiveOperationRuntimeException(e);
 		}
 	}
 	
@@ -195,10 +194,8 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 		field.setAccessible(true);
 		try {
 			return (T) field.get(instance);
-		} catch (IllegalArgumentException e) {
-			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
+			throw new ReflectiveOperationRuntimeException(e);
 		}
 	}
 	
@@ -206,15 +203,11 @@ public abstract class ReflectionUtil extends ReflectionUtils {
      * 간단메소드. 특이한 케이스에만 사용하자 
      * 해당하는 이름의 필드명이 있다면 값을 입력한다. 아니면 무시한다. */
     public static boolean setField(Object instance,String fieldName,Object value){
-    	try {
-			Field field = ReflectionUtils.findField(instance.getClass(), fieldName);
-			if(field==null) return false;
-			field.setAccessible(true);
-			setField(field, instance, value);
-			return true;
-		} catch (SecurityException e) {
-			throw new RuntimeException(e);
-		}
+    	Field field = ReflectionUtils.findField(instance.getClass(), fieldName);
+		if(field==null) return false;
+		field.setAccessible(true);
+		setField(field, instance, value);
+		return true;
     }
 	
 
@@ -247,15 +240,15 @@ public abstract class ReflectionUtil extends ReflectionUtils {
     		try {
 				method = clazz.getDeclaredMethod(methdName, parameterTypes);
 				method.setAccessible(true);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+			} catch (NoSuchMethodException e) {
+				throw new ReflectiveOperationRuntimeException(e);
 			}
     	}
 		public Object invoke(Object arg0, Object... arg1){
 			try {
 				return method.invoke(arg0, arg1);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+			} catch (ReflectiveOperationException e) {
+				throw new ReflectiveOperationRuntimeException(e);
 			}
 		}
     }
@@ -266,17 +259,17 @@ public abstract class ReflectionUtil extends ReflectionUtils {
     	/** 정확한 대상 clazz를 명시해야 한다. */
     	public Fields(Class<?> clazz,String methdName){
     		try {
-    			field = clazz.getDeclaredField(methdName);
-    			field.setAccessible(true);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+				field = clazz.getDeclaredField(methdName);
+			} catch (NoSuchFieldException e) {
+				throw new ReflectiveOperationRuntimeException(e);
 			}
+			field.setAccessible(true);
     	}
 		public Object get(Object arg0){
 			try {
 				return field.get(arg0);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+			} catch (IllegalAccessException e) {
+				throw new ReflectiveOperationRuntimeException(e);
 			}
 		}
     }
@@ -340,8 +333,8 @@ public abstract class ReflectionUtil extends ReflectionUtils {
                 Object valueOfA = field.get(a);
                 if(valueOfA!=null) continue;
                 field.set(a, valueOfB);
-            } catch (Exception e) {
-                throw new RuntimeException(e);            
+            } catch (IllegalAccessException e) {
+            	throw new ReflectiveOperationRuntimeException(e);            
             }
         }
     }
@@ -360,8 +353,8 @@ public abstract class ReflectionUtil extends ReflectionUtils {
             try {
                 Object valueOfB = field.get(b);
                 field.set(a, valueOfB);
-            } catch (Exception e) {
-                throw new RuntimeException(e);            
+            } catch (IllegalAccessException e) {
+            	throw new ReflectiveOperationRuntimeException(e);            
             }
         }
     }
@@ -443,8 +436,8 @@ public abstract class ReflectionUtil extends ReflectionUtils {
                 if(type.isAssignableFrom(Long.class)) field.set(a, 0L);
                 else if(type.isAssignableFrom(Integer.class)) field.set(a, 0);
                 else if(type.isAssignableFrom(BigDecimal.class)) field.set(a, BigDecimal.ZERO);
-            } catch (Exception e) {
-                throw new RuntimeException(e);            
+            } catch (IllegalAccessException e) {
+                throw new ReflectiveOperationRuntimeException(e);
             }
         }
     }

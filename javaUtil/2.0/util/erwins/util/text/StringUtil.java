@@ -28,6 +28,7 @@ import erwins.util.guava.FunctionSet;
 import erwins.util.lib.CollectionUtil;
 import erwins.util.lib.CompareUtil;
 import erwins.util.number.StringCalculator;
+import erwins.util.root.exception.IORuntimeException;
 
 /**
  * apache의 StringUtils에 없는것을 정의한다.
@@ -67,12 +68,8 @@ public class StringUtil extends StringUtils {
 		for(int i=0;i<eachLength.length;i++){
 			int length = eachLength[i];
 			int subLength = nowLength + length;
-			try {
-				if(org.length() < subLength) result[i] = org.substring(nowLength, eachLength.length);
-				else result[i] = org.substring(nowLength, subLength);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+			if(org.length() < subLength) result[i] = org.substring(nowLength, eachLength.length);
+			else result[i] = org.substring(nowLength, subLength);
 			nowLength += length + offset;
 		}
 		return result;
@@ -91,8 +88,6 @@ public class StringUtil extends StringUtils {
 			else result[i] = org.substring(nowLength, subLength);
 			nowLength += length + offset;
 		}
-		//if(org.length() != (nowLength-1)) throw new RuntimeException(
-				//"["+org.length()+"] / ["+(nowLength-1)+"] : Length is not match");
 		return result;
 	}
 	
@@ -259,7 +254,7 @@ public class StringUtil extends StringUtils {
     public static String[] getUrlAndExtention(String url) {
         String[] str = new String[2];
         int index = url.lastIndexOf(".");
-        if (index < 0) throw new RuntimeException(MessageFormat.format("[{0}] 확장자가 존재하지 않는 경로를 입력하셨습니다.", url));
+        if (index < 0) throw new IllegalArgumentException(MessageFormat.format("[{0}] 확장자가 존재하지 않는 경로를 입력하셨습니다.", url));
         str[0] = url.substring(1, index);
         str[1] = url.substring(index + 1);
         return str;
@@ -348,7 +343,7 @@ public class StringUtil extends StringUtils {
     public static boolean isSid(String input) {
         input = getNumericStr(input);
 
-        if (input.length() != 13) throw new RuntimeException("주민등록번호 자리수 13자리를 확인하기 바랍니다.");
+        if (input.length() != 13) throw new IllegalArgumentException("주민등록번호 자리수 13자리를 확인하기 바랍니다.");
 
         // 입력받은 주민번호 앞자리 유효성 검증============================
         String leftSid = input.substring(0, 6);
@@ -764,7 +759,7 @@ public class StringUtil extends StringUtils {
                     String msg = MessageFormat.format("{0} -> {1} : {2}", each,toEncoding,value);
                     System.out.println(msg);
                 } catch (UnsupportedEncodingException e) {
-                    throw new RuntimeException(e);
+                    throw new IORuntimeException(e);
                 }
                 
             }

@@ -12,6 +12,8 @@ import java.util.List;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import erwins.util.root.exception.IORuntimeException;
+
 /**
  * XSSF를 읽을때 별도의 jar가 마니 필요하다~
  * Groovy가 주가되니깐 인터페이스화 안해도 될듯.
@@ -26,7 +28,7 @@ public class PoiReader implements Iterable<PoiSheetReader>{
     	try {
 			load(new FileInputStream(fileName));
 		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
     }
     
@@ -34,7 +36,7 @@ public class PoiReader implements Iterable<PoiSheetReader>{
     	try {
 			load(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
     }
     
@@ -47,8 +49,8 @@ public class PoiReader implements Iterable<PoiSheetReader>{
             wb = new XSSFWorkbook(in);
     		//wb = new XSSFWorkbook(OPCPackage.open(stream));
         }
-        catch (Exception e) {
-            throw new RuntimeException(e);
+        catch (IOException e) {
+        	throw new IORuntimeException(e);
         }finally{
         	try {
 				if(in!=null) in.close();

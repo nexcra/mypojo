@@ -38,6 +38,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import erwins.util.root.StringCallback;
+import erwins.util.root.exception.IORuntimeException;
+import erwins.util.root.exception.ReflectiveOperationRuntimeException;
 import erwins.util.text.CharEncodeUtil;
 import erwins.util.text.FormatUtil;
 import erwins.util.text.RegEx;
@@ -142,7 +144,7 @@ public abstract class FileUtil extends FileUtils {
 			}
 			out.flush();
 		} catch (IOException ex) {
-			throw new RuntimeException(ex);
+			throw new IORuntimeException(ex);
 		} finally {
 			try {
 				in.close();
@@ -210,7 +212,8 @@ public abstract class FileUtil extends FileUtils {
 		File parent;
 		while(true){
 			parent = file.getParentFile();
-			if(parent==null) throw new RuntimeException(file.getAbsolutePath()+" file's parent must be root");
+			
+			if(parent==null) throw new IllegalArgumentException(file.getAbsolutePath()+" file's parent must be root");
 			if(parent.equals(root)) return file;
 			file = parent;
 		}
@@ -268,15 +271,13 @@ public abstract class FileUtil extends FileUtils {
 	/** RMI등에 사용. 용량 제한이 있다. */
 	public static byte[] toByteArray(File input,Integer limitMb) {
 		if(limitMb!=null && input.length() > (limitMb * 1024 * 1024)) 
-			throw new RuntimeException(input.getName()+" is too large. (limit is " + limitMb + ")");
+			throw new IllegalArgumentException(input.getName()+" is too large. (limit is " + limitMb + ")");
 		InputStream in = null;
 		try {
 			in = new FileInputStream(input);
 			return IOUtils.toByteArray(new BufferedInputStream(in));
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}finally{
 			IOUtils.closeQuietly(in);
 		}
@@ -317,7 +318,7 @@ public abstract class FileUtil extends FileUtils {
 	
 	/** 디렉토리를 통째로 압축. 한글안되~~~~~~~~~~ ㅅㅂ ㅅㅂ ㅅㅂ ㅅㅂ  */
 	public static void zip(File dir) {
-		if(!dir.isDirectory()) throw new RuntimeException("input is not directory");
+		if(!dir.isDirectory()) throw new IllegalArgumentException("input is not directory");
 		File newZip = new File(dir.getParentFile(),dir.getName()+".zip");
 		zip(newZip,dir.listFiles());
 	}
@@ -343,7 +344,7 @@ public abstract class FileUtil extends FileUtils {
 			}
 			zipStream.close();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 
@@ -373,7 +374,7 @@ public abstract class FileUtil extends FileUtils {
 		if (!dir.exists())
 			dir.mkdirs();
 		if (!dir.isDirectory())
-			throw new RuntimeException(dir + "is not directory");
+			throw new IllegalArgumentException(dir + "is not directory");
 		byte[] buffer = new byte[BUFFER_SIZE];
 		InputStream fileIn = null;
 		try {
@@ -402,14 +403,14 @@ public abstract class FileUtil extends FileUtils {
 				fileOut.close();
 			}
 			zipStream.close();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new IORuntimeException(e);
 		} finally {
 			try {
 				if (fileIn != null)
 					fileIn.close();
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new IORuntimeException(e);
 			}
 		}
 	}
@@ -425,7 +426,7 @@ public abstract class FileUtil extends FileUtils {
 			oos = new ObjectOutputStream(fos);
 			oos.writeObject(obj);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		} finally {
 			try {
 				if (fos != null)
@@ -452,8 +453,10 @@ public abstract class FileUtil extends FileUtils {
 			fis = new FileInputStream(file);
 			ois = new ObjectInputStream(fis);
 			obj = (T) ois.readObject();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new IORuntimeException(e);
+		} catch (ClassNotFoundException e) {
+			throw new ReflectiveOperationRuntimeException(e);
 		} finally {
 			try {
 				if (fis != null)
@@ -489,13 +492,13 @@ public abstract class FileUtil extends FileUtils {
 			osw = new OutputStreamWriter(new FileOutputStream(writeFile), writeCharset);
 			osw.write(str.toString());
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		} finally {
 			try {
 				if (osw != null)
 					osw.close();
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new IORuntimeException(e);
 			}
 		}
 	}
@@ -510,16 +513,14 @@ public abstract class FileUtil extends FileUtils {
 			while ((c = in.read(bytes)) != -1) {
 				os.write(bytes, 0, c);
 			}
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		} finally {
 			try {
 				if (os != null)
 					os.close();
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new IORuntimeException(e);
 			}
 		}
 	}	
@@ -534,7 +535,7 @@ public abstract class FileUtil extends FileUtils {
 	public static void mkdirOrThrowException(File file) {
 		if(file.isDirectory()) return;
 		boolean success = file.mkdirs();
-		if(!success) throw new RuntimeException("can not make dir : " + file.getAbsolutePath());
+		if(!success) throw new IllegalStateException("can not make dir : " + file.getAbsolutePath());
 	}
 	
 	public static boolean canReadAndWrite(File file) {
@@ -577,7 +578,7 @@ public abstract class FileUtil extends FileUtils {
 	private static void changeFile(File file, File temp) {
 		if (file.isFile()) delete(file);
 		if (!temp.renameTo(file))
-			throw new RuntimeException(MessageFormat.format("do not change file {0}", file.getAbsolutePath()));
+			throw new IllegalStateException(MessageFormat.format("do not change file {0}", file.getAbsolutePath()));
 	}
 
 	/**
@@ -598,19 +599,19 @@ public abstract class FileUtil extends FileUtils {
 			}
 			br.close();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		} finally {
 			try {
 				if (isr != null)
 					isr.close();
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new IORuntimeException(e);
 			}
 			try {
 				if (osw != null)
 					osw.close();
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new IORuntimeException(e);
 			}
 		}
 	}
@@ -621,7 +622,7 @@ public abstract class FileUtil extends FileUtils {
 		try {
 			return FileUtils.readLines(file, encoding);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 	public static List<String> readLines(File file){
@@ -634,7 +635,7 @@ public abstract class FileUtil extends FileUtils {
         try {
 			return readLines(new FileInputStream(file), encoding,calback);
 		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 	
@@ -652,7 +653,7 @@ public abstract class FileUtil extends FileUtils {
 				skipIndex++;
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+        	throw new IORuntimeException(e);
         } catch (ReadSkipException e) {
             //즉시 종료한다
         } finally {
@@ -698,7 +699,7 @@ public abstract class FileUtil extends FileUtils {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+        	throw new IORuntimeException(e);
         }finally{
             IOUtils.closeQuietly(out);
         }
@@ -741,7 +742,7 @@ public abstract class FileUtil extends FileUtils {
     		try {
 				closeable.close();
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new IORuntimeException(e);
 			}
     	}
     }
@@ -758,8 +759,8 @@ public abstract class FileUtil extends FileUtils {
 				bw.newLine();	
 			}
 			bw.flush();
-		} catch (IOException ioe) {
-			throw new RuntimeException(ioe);
+		} catch (IOException e) {
+			throw new IORuntimeException(e);
 		} finally {
 			IOUtils.closeQuietly(bw);
 		}
@@ -790,15 +791,13 @@ public abstract class FileUtil extends FileUtils {
 			}
 			if(reads.size() > 0) reads.remove(0); //첫 read는 버린다.
 			return Joiner.on('\n').join(reads);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}finally{
 			try {
 				if(fo!=null) fo.close();
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new IORuntimeException(e);
 			}
 		}
 	}

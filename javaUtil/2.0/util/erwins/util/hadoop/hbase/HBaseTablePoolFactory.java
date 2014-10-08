@@ -14,6 +14,8 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.google.common.base.Preconditions;
 
+import erwins.util.root.exception.PropagatedRuntimeException;
+
 /**
  * 테이블을 닫지 않고, 풀에 저장한다. (스프링이 열닫 호출은 해주지만 풀링을 해주지는 않는다.)
  * 스캐너는 별도로 반드시 close 해주어야 한다.
@@ -32,7 +34,7 @@ public class HBaseTablePoolFactory implements InitializingBean,HTableInterfaceFa
 		try {
 			pool.returnObject(tableName,htable);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}
 	}
 	
@@ -44,7 +46,7 @@ public class HBaseTablePoolFactory implements InitializingBean,HTableInterfaceFa
 			HTable table = (HTable)pool.borrowObject(tableName);
 			return table;
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}
 	}
 	

@@ -13,6 +13,7 @@ import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.jsr107cache.GCacheFactory;
 
 import erwins.util.root.EntityId;
+import erwins.util.root.exception.PropagatedRuntimeException;
 
 public abstract class GenericAppEngineCacheDao<T extends EntityId<String>>  extends GenericAppEngineDao<T>{
 	
@@ -27,7 +28,7 @@ public abstract class GenericAppEngineCacheDao<T extends EntityId<String>>  exte
 			CacheFactory cacheFactory = CacheManager.getInstance().getCacheFactory();
 			cache = cacheFactory.createCache(config);
 		} catch (CacheException e) {
-			throw new RuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}
 	}
 	

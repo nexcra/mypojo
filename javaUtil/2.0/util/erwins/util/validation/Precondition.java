@@ -2,7 +2,6 @@ package erwins.util.validation;
 
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -51,13 +50,6 @@ public abstract class Precondition extends ExceptionUtils{
 	}
 	public static void isEquals(Object a, Object b) {
 		isEquals(a,b,"is not same object!");
-	}
-	
-	/** checked 예외를 런타임 예외로 바꿔준다. */ 
-	public static void castToRuntimeException(Throwable e){
-	    if(e instanceof ExecutionException) throw new RuntimeException(e.getCause());
-	    else if(e instanceof RuntimeException) throw (RuntimeException)e;
-	    throw new RuntimeException(e);
 	}
 	
 	/** 리플렉션으로 해당 필드들의 널 여부를 체크한다. */

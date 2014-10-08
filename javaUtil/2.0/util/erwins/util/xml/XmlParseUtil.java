@@ -16,6 +16,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import erwins.util.root.exception.IORuntimeException;
+import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.text.StringUtil;
 
 /**
@@ -79,34 +81,13 @@ public class XmlParseUtil {
             Element root = doc.getDocumentElement();
             return getChildElement(root);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IORuntimeException(e);
         } catch (ParserConfigurationException e) {
-            throw new XmlParseException("XML파싱오류 : " + e.getMessage(),e);
+            throw new PropagatedRuntimeException("XML파싱오류 : " + e.getMessage(),e);
         } catch (SAXException e) {
-            throw new XmlParseException("XML파싱오류 : " + e.getMessage(),e);
+            throw new PropagatedRuntimeException("XML파싱오류 : " + e.getMessage(),e);
         }finally{
             IOUtils.closeQuietly(is);
-        }
-    }
-    
-    /** 파싱예외를 런타임으로 변환 */
-    @SuppressWarnings("serial")
-    public static class XmlParseException extends RuntimeException{
-
-        public XmlParseException() {
-            super();
-        }
-
-        public XmlParseException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public XmlParseException(String message) {
-            super(message);
-        }
-
-        public XmlParseException(Throwable cause) {
-            super(cause);
         }
     }
     
@@ -126,7 +107,7 @@ public class XmlParseUtil {
             nodes = new ArrayList<Node>();
             for (int i = 0; i < list.getLength(); i++)  nodes.add(list.item(i));
         } catch (Exception e) {
-            throw new XmlParseException(xml,e);
+            throw new PropagatedRuntimeException(xml,e);
         }finally{
             IOUtils.closeQuietly(is);
         }

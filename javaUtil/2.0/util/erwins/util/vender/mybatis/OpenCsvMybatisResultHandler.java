@@ -19,6 +19,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.springframework.web.servlet.View;
 
 import au.com.bytecode.opencsv.CSVWriter;
+import erwins.util.root.exception.IORuntimeException;
 import erwins.util.text.CharEncodeUtil;
 import erwins.util.web.WebUtil;
 
@@ -51,12 +52,12 @@ public abstract class OpenCsvMybatisResultHandler implements ResultHandler,Close
     /** 버퍼에 쌓인 데이터가 플러시 되지 않을 수 있으니 반드시 close해야한다. 
      * finally()로 플러시 할 필요는 없는듯 하다. */
     public void close(){
-        if(writer==null) throw new RuntimeException("open is required"); 
+        if(writer==null) throw new IllegalStateException("open is required"); 
         try {
         	writer.flush(); //없어도 플러시 된다. 혹시나..
             writer.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IORuntimeException(e);
         }
     }
     public Charset getEncoding() {

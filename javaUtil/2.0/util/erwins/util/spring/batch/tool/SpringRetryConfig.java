@@ -9,12 +9,13 @@ import org.springframework.batch.retry.RetryCallback;
 import org.springframework.batch.retry.RetryContext;
 import org.springframework.batch.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.batch.retry.listener.RetryListenerSupport;
-import org.springframework.batch.retry.policy.SimpleRetryPolicy;
 import org.springframework.batch.retry.support.RetryTemplate;
 import org.springframework.dao.DeadlockLoserDataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 
 import com.google.common.collect.Maps;
+
+import erwins.util.root.exception.PropagatedRuntimeException;
 
 /** 
  * 간단 리트라이 테스트기.  이름이 겹치면 다른걸로 바꾸자.
@@ -60,7 +61,7 @@ public class SpringRetryConfig {
 	public <T> RetryResult<T> doWithRetry(RetryCallback<T> retryCallback){
 		RetryTemplate template = new RetryTemplate();
 		
-		SimpleRetryPolicy policy = new SimpleRetryPolicy();
+		CauseRetryPolicy policy = new CauseRetryPolicy();
 		if(!retryableExceptions.isEmpty()) policy.setRetryableExceptions(retryableExceptions);
 		if(maxAttempts!=null) policy.setMaxAttempts(maxAttempts);
 		template.setRetryPolicy(policy);
@@ -98,8 +99,8 @@ public class SpringRetryConfig {
 			retryResult.setResult(result);
 			return retryResult;
 		} catch (Exception e) {
-			if(e instanceof RuntimeException) throw (RuntimeException)e;
-			throw new RuntimeException("exception while trying.. ",e);
+			//if(e instanceof RuntimeException) throw (RuntimeException)e;
+			throw new PropagatedRuntimeException("exception while trying.. " + retryResult.getContext(),e);
 		}
 	}
 	

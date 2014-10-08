@@ -77,7 +77,7 @@ public class JobFlowFinder {
 				}else if(innerState instanceof DecisionState){
 					//무시
 				}else{
-					throw new RuntimeException("알려지지 않은 state" + innerState.getClass());
+					throw new IllegalStateException("알려지지 않은 state" + innerState.getClass());
 				}
 			}
 			

@@ -13,12 +13,14 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
+import erwins.util.root.exception.IORuntimeException;
 import erwins.util.text.CharEncodeUtil;
 import erwins.util.validation.InputValidationException;
 
 
 /** 나중에 소스참고를 위해 범용적인 부분을 나눈다. 
  * 일단 성능은 생각하지 않고 String으로 구현한다. */
+@Deprecated
 public abstract class TalkServerTemplate{
 	
 	private Selector selector;
@@ -33,7 +35,7 @@ public abstract class TalkServerTemplate{
 			socker.bind(new InetSocketAddress(InetAddress.getLocalHost(),port));
 			server.register(selector, SelectionKey.OP_ACCEPT); //
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 	
