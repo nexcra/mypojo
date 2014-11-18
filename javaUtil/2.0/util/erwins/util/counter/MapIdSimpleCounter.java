@@ -10,8 +10,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.mutable.MutableLong;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.internal.Lists;
 
 import erwins.util.collections.AbstractMapSupport;
 
