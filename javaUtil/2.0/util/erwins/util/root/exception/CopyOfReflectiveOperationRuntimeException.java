@@ -3,16 +3,17 @@ package erwins.util.root.exception;
 
 
 /**
+ * ㅅㅂ 1.7부터 되잔아.. 망할
  * ReflectiveOperationException을 래핑하는 런타임 예외
  */
 @SuppressWarnings("serial")
-public class ReflectiveOperationRuntimeException extends RuntimeException{
+public class CopyOfReflectiveOperationRuntimeException extends RuntimeException{
 
-	public ReflectiveOperationRuntimeException(String message, ReflectiveOperationException cause) {
+	public CopyOfReflectiveOperationRuntimeException(String message, ReflectiveOperationException cause) {
 		super(message, cause);
 	}
 	
-	public ReflectiveOperationRuntimeException(ReflectiveOperationException cause) {
+	public CopyOfReflectiveOperationRuntimeException(ReflectiveOperationException cause) {
 		super(cause);
 	}
 	

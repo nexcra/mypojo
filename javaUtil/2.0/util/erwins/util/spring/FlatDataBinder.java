@@ -15,6 +15,7 @@ import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -55,6 +56,10 @@ public class FlatDataBinder<T> implements InitializingBean{
 	private Class<?> clazz;
 	private Integer maxArraySize;
 	private List<LineMetadata> lineMetadatas;
+	/** notnull 등은 업무에 따라 틀려지기때문에 개별 설정해준다. validation의 group을 사용하기 힘들어서 이걸로 대체 */
+	private String[] requiredFields;
+	/** 편의상 맵으로도 하나 만들어둔다. */
+	private Map<String,LineMetadata> lineMetadataMap = Maps.newHashMap();
 	@Resource
 	private Validator validator;
 	@Resource
@@ -73,6 +78,14 @@ public class FlatDataBinder<T> implements InitializingBean{
 		}
 		if(conversionService==null) conversionService = new DefaultConversionService();
 		if(clazz==null) clazz = ReflectionUtil.genericClass(this.getClass(), 0);
+		for(LineMetadata each :lineMetadatas){
+			lineMetadataMap.put(each.getFieldName(), each);
+		}
+	}
+	
+	/** 예외 발생시 확인용 */
+	public LineMetadata getLineMetadata(String fieldName){
+		return lineMetadataMap.get(fieldName);
 	}
 	
 	public String[] headers(){
@@ -111,21 +124,46 @@ public class FlatDataBinder<T> implements InitializingBean{
 		};
 	}
 	
-	/** 여기서 입력된 array가 작더라도 예외가 아닌 ""값이 입력되어야 한다.   */
-	public DataBinder bindWithoutClose(String[] array,int lineNumber) throws BindException{
-		Preconditions.checkState(array.length >= maxArraySize, "too small array : " + maxArraySize);
-		MutablePropertyValues kv = new MutablePropertyValues();
-		for(LineMetadata each :lineMetadatas){
-			String value = ""; //인덱스에 없는 값은 무시.   이를 ""로 할지 null로 할지는 사용해보고 판단.
-			if(each.getIndex() < array.length) value = array[each.getIndex()];
-			kv.add(each.getFieldName(), value);
-		}
+	/** 어디서 쓰는지 불명   */
+	public DataBinder bindWithoutClose(String[] array,int lineNumber){
+		MutablePropertyValues kv = toProperty(array);
 		DataBinder  binder = new DataBinder(ReflectionUtil.newInstance(clazz),clazz.getSimpleName() + " - " + lineNumber);
 		binder.setConversionService(conversionService);
 		binder.setValidator(validator);
+		if(requiredFields!=null) binder.setRequiredFields(requiredFields);
 		binder.bind(kv);
 		binder.validate();
 		return binder;
+	}
+	
+	/** 커스터마이징된 결과를 리턴한다. CSV같은거 업로드 처리용  */
+	public FlatBindingResult bindWithResult(String[] array,int lineNumber){
+		MutablePropertyValues kv = toProperty(array);
+		DataBinder  binder = new DataBinder(ReflectionUtil.newInstance(clazz),clazz.getSimpleName() + " - " + lineNumber);
+		binder.setConversionService(conversionService);
+		binder.setValidator(validator);
+		if(requiredFields!=null) binder.setRequiredFields(requiredFields);
+		binder.bind(kv);
+		binder.validate();
+		
+		BindingResult bindingResult = binder.getBindingResult();
+		FlatBindingResult newResult = new FlatBindingResult(bindingResult,this);
+		return newResult;
+	}
+
+	/**  
+	 * array 가 더 크다면 큰 부분은 무시되어야한다.
+	 * array 가 더 작다면 null처리 되어야한다.
+	 *   */
+	private MutablePropertyValues toProperty(String[] array) {
+		//Preconditions.checkState(array.length >= maxArraySize, "too small array : " + maxArraySize);
+		MutablePropertyValues kv = new MutablePropertyValues();
+		for(LineMetadata each :lineMetadatas){
+			String value = null; //인덱스에 없는 값은 무시.   이를 ""로 할지 null로 할지는 사용해보고 판단.
+			if(each.getIndex() < array.length) value = array[each.getIndex()];
+			kv.add(each.getFieldName(), value);
+		}
+		return kv;
 	}
 	
 	/** 프로퍼티 에디터 적용은 나중에 만들자 */

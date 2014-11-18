@@ -30,7 +30,7 @@ import com.google.common.collect.Multimap;
 
 import erwins.util.root.EntityId;
 import erwins.util.root.Pair;
-import erwins.util.root.exception.ReflectiveOperationRuntimeException;
+import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.text.StringUtil;
 import erwins.util.validation.InputValidationException;
 
@@ -120,7 +120,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 		try {
 			en = (Class<T>) Class.forName(fullName);
 		} catch (ClassNotFoundException e) {
-			throw new ReflectiveOperationRuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}
 		return en;
 	}
@@ -129,8 +129,8 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 	public static <T> T newInstance(Class<T> clazz) {
 		try {
 			return clazz.newInstance();
-		} catch (ReflectiveOperationException e) {
-			throw new ReflectiveOperationRuntimeException(e);
+		} catch (Exception e) {
+			throw new PropagatedRuntimeException(e);
 		}
 	}
 	
@@ -195,7 +195,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 		try {
 			return (T) field.get(instance);
 		} catch (IllegalAccessException e) {
-			throw new ReflectiveOperationRuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		}
 	}
 	
@@ -241,14 +241,14 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 				method = clazz.getDeclaredMethod(methdName, parameterTypes);
 				method.setAccessible(true);
 			} catch (NoSuchMethodException e) {
-				throw new ReflectiveOperationRuntimeException(e);
+				throw new PropagatedRuntimeException(e);
 			}
     	}
 		public Object invoke(Object arg0, Object... arg1){
 			try {
 				return method.invoke(arg0, arg1);
-			} catch (ReflectiveOperationException e) {
-				throw new ReflectiveOperationRuntimeException(e);
+			} catch (Exception e) {
+				throw new PropagatedRuntimeException(e);
 			}
 		}
     }
@@ -261,7 +261,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
     		try {
 				field = clazz.getDeclaredField(methdName);
 			} catch (NoSuchFieldException e) {
-				throw new ReflectiveOperationRuntimeException(e);
+				throw new PropagatedRuntimeException(e);
 			}
 			field.setAccessible(true);
     	}
@@ -269,7 +269,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 			try {
 				return field.get(arg0);
 			} catch (IllegalAccessException e) {
-				throw new ReflectiveOperationRuntimeException(e);
+				throw new PropagatedRuntimeException(e);
 			}
 		}
     }
@@ -334,7 +334,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
                 if(valueOfA!=null) continue;
                 field.set(a, valueOfB);
             } catch (IllegalAccessException e) {
-            	throw new ReflectiveOperationRuntimeException(e);            
+            	throw new PropagatedRuntimeException(e);            
             }
         }
     }
@@ -354,7 +354,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
                 Object valueOfB = field.get(b);
                 field.set(a, valueOfB);
             } catch (IllegalAccessException e) {
-            	throw new ReflectiveOperationRuntimeException(e);            
+            	throw new PropagatedRuntimeException(e);            
             }
         }
     }
@@ -437,7 +437,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
                 else if(type.isAssignableFrom(Integer.class)) field.set(a, 0);
                 else if(type.isAssignableFrom(BigDecimal.class)) field.set(a, BigDecimal.ZERO);
             } catch (IllegalAccessException e) {
-                throw new ReflectiveOperationRuntimeException(e);
+                throw new PropagatedRuntimeException(e);
             }
         }
     }

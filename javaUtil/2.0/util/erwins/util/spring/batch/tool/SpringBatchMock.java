@@ -70,12 +70,21 @@ public class SpringBatchMock<T>{
 	public ExecutionContext run(){
 		SpringBatchUtil.openIfAble(itemReader,executionContext);
 		SpringBatchUtil.openIfAble(itemWriter,executionContext);
+		int processSkipCount = 0;
 		try{
 			List<T> list = Lists.newArrayList();
 			while(true){
 				T item =  itemReader.read();
 				if(item==null) break;
-				if(itemProcessor!=null ) item = itemProcessor.process(item);
+				if(itemProcessor!=null ) {
+					//신규추가!.  프로세서 결과가 null이면 스킵한다.
+					T newItem = itemProcessor.process(item);
+					if(newItem==null){
+						processSkipCount++;
+						continue;
+					}
+					item = newItem;
+				}
 				list.add(item);
 				if(list.size() >= commitInterval){
 					itemWriter.write(list);
@@ -93,6 +102,7 @@ public class SpringBatchMock<T>{
 			SpringBatchUtil.closeIfAble(itemReader);
 			SpringBatchUtil.closeIfAble(itemWriter);
 		}
+		executionContext.putInt("processSkipCount", processSkipCount);
 		return executionContext;
 	}
 	

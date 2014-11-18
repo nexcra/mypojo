@@ -17,9 +17,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import erwins.util.collections.FileList;
-import erwins.util.collections.FileList.AntPathMatchFilePathFilter;
+import erwins.util.collections.FileList.AntFileNameFilter;
 import erwins.util.lib.FileUtil;
-import erwins.util.lib.SystemUtil;
 import erwins.util.spring.batch.tool.SpringBatchMock;
 
 
@@ -32,6 +31,9 @@ import erwins.util.spring.batch.tool.SpringBatchMock;
  * 데이터를 처리하고 파일을 처리(삭제,리네임 등등)하기 전에 WAS가 강제종료된다면 트랜잭션이 없음으로 문제가 발행한다. 이렇게 안되길 기대하자 
  * (라이터의 커밋주기가 늘어나야 안정성이 올라갈것이다.)
  * 
+ * 실 적용해 보니 데이터의 적체에 따라 처리안된 파일이 좀 쌓일 수 있더라.
+ * CsvLogMonitorInfo는 별개의 클래스로 관리하는게 좋아보인다.
+ * 
  * 나중에 추가 요구사항이 온다면 스케쥴 스래드풀로 수정
  * */
 public class FileMonitor extends Thread{
@@ -43,10 +45,19 @@ public class FileMonitor extends Thread{
 	
 	/** 모니터링할 패턴을 입력한다.
 	 * ex) new CsvLogMonitorInfo(new File("C:/DATA/download/로그파일"))
-			.setRenameDir(new File("C:/DATA/download/로그파일2")).setAntPath("**\/*.log").setSpringBatch(itemReader1, itemWriter, 2) */
+			.setRenameDir(new File("C:/DATA/download/로그파일2")).setAntPath("*.log").setSpringBatch(itemReader1, itemWriter, 2) */
 	public synchronized void addMonitor(CsvLogMonitorInfo csvLogMonitorInfo){
 		if(!csvLogMonitorInfo.directory.isDirectory()) csvLogMonitorInfo.directory.mkdirs();
-		Preconditions.checkState(csvLogMonitorInfo.directory.isDirectory());
+		Preconditions.checkState(csvLogMonitorInfo.directory.isDirectory(),"디렉토리가 올바르지 않습니다." + csvLogMonitorInfo.directory.getAbsolutePath());
+		
+		//직접 구현했다면 this를 구현체로 등록 
+		if(csvLogMonitorInfo.csvLogFileCallback==null && csvLogMonitorInfo instanceof CsvLogFileCallback){
+			csvLogMonitorInfo.csvLogFileCallback = (CsvLogFileCallback)csvLogMonitorInfo;
+		}
+		if(csvLogMonitorInfo.csvLogFileFinishCallback==null && csvLogMonitorInfo instanceof CsvLogFileFinishCallback){
+			csvLogMonitorInfo.csvLogFileFinishCallback = (CsvLogFileFinishCallback)csvLogMonitorInfo;
+		}
+		
 		checkList.add(csvLogMonitorInfo);
 	}
 	
@@ -55,9 +66,9 @@ public class FileMonitor extends Thread{
 	}
 	
 	@Override
-	public synchronized void run() {
+	public void run() {
 		log.info("CsvLogMonitor 스래드를 기동합니다");
-		Thread current = Thread.currentThread();
+		Thread current = Thread.currentThread(); // = this
 		while(!current.isInterrupted()){
 			for(CsvLogMonitorInfo check : checkList){
 				FileList list = new FileList(check.getDirectory(),check.getFileFilter());
@@ -81,6 +92,7 @@ public class FileMonitor extends Thread{
 		log.info("CsvLogMonitor 스래드를 종료합니다");
 	}
 	
+	/** 읽을 파일의 위치화 어떻게 처리할지의 설정파일 */
 	@Data
 	public static class CsvLogMonitorInfo{
 		private final File directory;
@@ -88,14 +100,11 @@ public class FileMonitor extends Thread{
 		private CsvLogFileCallback csvLogFileCallback;
 		private CsvLogFileFinishCallback csvLogFileFinishCallback;
 		
-		/** fileFilter를 Ant표현식으로 대체한다. 윈도우와 리눅스의 파일패스 표현이 틀림으로 주의!
-		 * ex) 윈도우 : ** / *.csv    <-- C:/~~ 이렇게 시작
-		 * ex) 유닉스 : / ** / *.csv  <-- /~~ 이렇게 시작
-		 * 자동으로 변환하게 만들었으니, 유닉스 스타일로만 쓰자.
+		/** 
+		 * 파일 이름으로만 체크한다. 풀패스 아님
 		 * */
 		public CsvLogMonitorInfo setAntPath(String antPath){
-			if(SystemUtil.IS_OS_WINDOWS && antPath.startsWith("/") && antPath.length() > 1) antPath = antPath.substring(1);
-			fileFilter = new AntPathMatchFilePathFilter(antPath).setDirectory(false);
+			fileFilter = new AntFileNameFilter(antPath).setDirectory(false);
 			return this;
 		}
 		

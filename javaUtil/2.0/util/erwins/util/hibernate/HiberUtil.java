@@ -9,7 +9,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.CollectionOfElements;
 
 import erwins.util.lib.ReflectionUtil;
-import erwins.util.root.exception.ReflectiveOperationRuntimeException;
+import erwins.util.root.exception.PropagatedRuntimeException;
 
 /**
  * 하이버네이트 jar에 종속적인 유틸 모음.
@@ -34,8 +34,8 @@ public abstract class HiberUtil{
                 try {
                     proxy = method.invoke(obj);
                 }
-                catch (ReflectiveOperationException e) {
-                    throw new ReflectiveOperationRuntimeException(e);
+                catch (Exception e) {
+                    throw new PropagatedRuntimeException(e);
                 }
                 Hibernate.initialize(proxy);
             }

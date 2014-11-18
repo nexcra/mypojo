@@ -25,14 +25,14 @@ public class FileList implements List<File>{
 		}
 	};
 	
-	/** 디렉토리는 모두 true이다 주의! */
+	/** 디렉토리는 모두 true이다 주의! *//*
 	public static class AntPathMatchFilePathFilter implements FileFilter{
 		private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 		private final String antPath;
-		/** 디렉토리 포함여부 */
+		*//** 디렉토리 포함여부 *//*
 		private boolean directory  = true;
 		
-		/** 여기서의 antPath는 루트부터이다. */
+		*//** 여기서의 antPath는 루트부터이다. *//*
 		public AntPathMatchFilePathFilter(String antPath) {
 			this.antPath = antPath;
 			Preconditions.checkArgument(antPathMatcher.isPattern(antPath),"invalid antPath");
@@ -47,8 +47,7 @@ public class FileList implements List<File>{
 			this.directory = directory;
 			return this;
 		}
-		
-	}
+	}*/
 	
 	/** 
 	 * 디렉토리는 모두 true이다 주의!

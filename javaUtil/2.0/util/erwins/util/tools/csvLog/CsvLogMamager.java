@@ -7,6 +7,7 @@ import java.io.OutputStreamWriter;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Data;
 
@@ -20,7 +21,6 @@ import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 
 import erwins.util.lib.FileUtil;
 import erwins.util.root.exception.IORuntimeException;
@@ -36,13 +36,19 @@ import erwins.util.spring.batch.CsvItemWriter.CsvAggregator;
 		manager.add(new CsvLogInfo<Ad>("ad1",adDir ,agg).setType(DateTimeFieldType.minuteOfDay(), 1, CsvLogMamager.DEFAULT_TIME_PATTERN));
 		manager.add(new CsvLogInfo<Ad>("ad2",adDir ,agg).setType(DateTimeFieldType.secondOfDay(), 16, DateTimeFormat.forPattern("yyyy_MMdd_HHmmss")));
 		manager.startup();
+		
+	네이밍 샘플
+	CsvLogRegister.java
+	FileMonitorRegister.java
+	ItemCrawlingMonitor.java
+		
  *  */
 public class CsvLogMamager {
 
 	public static final DateTimeFormatter DEFAULT_DATE_PATTERN = DateTimeFormat.forPattern("yyyy_MMdd");
 	public static final DateTimeFormatter DEFAULT_TIME_PATTERN = DateTimeFormat.forPattern("yyyy_MMdd_HHmm");
 	
-	final Map<String,CsvLogInfo<?>> csvLogInfoMap = Maps.newHashMap();
+	final Map<String,CsvLogInfo<?>> csvLogInfoMap = new ConcurrentHashMap<String, CsvLogMamager.CsvLogInfo<?>>();
 	protected BlockingQueue<CsvLog> queue;
 	private CsvLogThread thread;
 	
@@ -74,7 +80,7 @@ public class CsvLogMamager {
 		thread.join(1000*10); //스프링에서 컨테이너 빌드세 예외가 발생하면 destry하는데, 여기서 행이 걸리수도 있다. 때문에  10초간 기다린다. 
 	}
 	
-	public synchronized <T> void add(CsvLogInfo<T> info){
+	public synchronized <T> CsvLogWriter<T> add(CsvLogInfo<T> info){
 		if(queue==null){
 			queue = new ArrayBlockingQueue<CsvLogMamager.CsvLog>(queueCapacity);
 		}
@@ -93,6 +99,7 @@ public class CsvLogMamager {
 		info.csvLogWriter = new CsvLogWriter<T>(info,queue);
 		
 		csvLogInfoMap.put(info.name,info);
+		return info.csvLogWriter;
 	}
 
 	/** 현재시각 기준으로 라이터를 교체한다.

@@ -5,9 +5,13 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import erwins.util.lib.ReflectionUtil;
 import erwins.util.root.exception.TextParseException;
@@ -26,22 +30,37 @@ public class ReflextionCsvConverter<T> implements CsvMapper<T>,CsvAggregator<T>{
 	//private DateTimeFormatter dateTimeFormatter;
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	
-	public static <T> ReflextionCsvConverter<T> create(Class<T> persistentClass){
-		ReflextionCsvConverter<T> mapper = new ReflextionCsvConverter<T>(persistentClass);
+	public static <T> ReflextionCsvConverter<T> create(Class<T> persistentClass,String ... fildNames){
+		ReflextionCsvConverter<T> mapper = new ReflextionCsvConverter<T>(persistentClass,fildNames);
 		return mapper;
 	}
     
-	/** 필드 이름으로 정렬해준다. 이름순 = CSV 기록순 */
-	private ReflextionCsvConverter(Class<T> persistentClass) {
+	/** 
+	 * 필드 이름으로 정렬해준다. 이름순 = CSV 기록순
+	 * 필드가 추가되면 기존 순서가 틀려질 수 있으니 주의해서 사용해야 한다. 운영되는 업무에는 사용하면 안됨 
+	 *  */
+	private ReflextionCsvConverter(Class<T> persistentClass,String ... fildNames) {
         this.persistentClass = persistentClass;
-        fieldList = ReflectionUtil.getAllDeclaredFields(persistentClass);
-        Collections.sort(fieldList, new Comparator<Field>() {
-			@Override
-			public int compare(Field arg0, Field arg1) {
-				return arg0.getName().compareTo(arg1.getName());
-			}
-		});
+        
+        if(fildNames.length==0){
+        	fieldList = ReflectionUtil.getAllDeclaredFields(persistentClass);
+        	Collections.sort(fieldList, new Comparator<Field>() {
+    			@Override
+    			public int compare(Field arg0, Field arg1) {
+    				return arg0.getName().compareTo(arg1.getName());
+    			}
+    		});
+        }else{
+        	fieldList = Lists.newArrayList();
+        	Map<String,Field> fieldMap = ReflectionUtil.getAllDeclaredFieldMap(persistentClass);
+        	for(String fildName : fildNames){
+        		Field field = fieldMap.get(fildName);
+        		Preconditions.checkArgument(field != null , "field가 존재하지 않습니다. " + fildName);
+        		fieldList.add(field);
+        	}
+        }
     }
+    
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -98,6 +117,16 @@ public class ReflextionCsvConverter<T> implements CsvMapper<T>,CsvAggregator<T>{
 			line[i] = value==null ? "" : value.toString();
 		}
 		return line;
+	}
+	
+	/** 순서 확인용 */ 
+	public List<String> header() {
+		List<String> fieldNameList = Lists.newArrayList();
+		for(int i=0;i < fieldList.size();i++){
+			Field field = fieldList.get(i);
+			fieldNameList.add(field.getName());
+		}
+		return fieldNameList;
 	}
 	
 	

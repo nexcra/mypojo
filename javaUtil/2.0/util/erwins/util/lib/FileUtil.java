@@ -39,7 +39,7 @@ import com.google.common.collect.Lists;
 
 import erwins.util.root.StringCallback;
 import erwins.util.root.exception.IORuntimeException;
-import erwins.util.root.exception.ReflectiveOperationRuntimeException;
+import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.text.CharEncodeUtil;
 import erwins.util.text.FormatUtil;
 import erwins.util.text.RegEx;
@@ -456,7 +456,7 @@ public abstract class FileUtil extends FileUtils {
 		} catch (IOException e) {
 			throw new IORuntimeException(e);
 		} catch (ClassNotFoundException e) {
-			throw new ReflectiveOperationRuntimeException(e);
+			throw new PropagatedRuntimeException(e);
 		} finally {
 			try {
 				if (fis != null)

@@ -27,6 +27,28 @@ public abstract class GsonUtil {
     		return new JsonPrimitive(arg0.totalCount());
     	}
     };
+
+    /** 
+     * 기본 시리얼라이저로 운용하자.
+     * 이거 설정뒤에 값을 오버라이드 하면 해당 오버라이드 ENUM만 따로 적용된다
+     * ex) gsonBuilder.registerTypeHierarchyAdapter(Enum.class,GsonUtil.DEFAULT_ENUM_SERIALIZER );
+     *   */
+    public static final JsonSerializer<Enum<?>> DEFAULT_ENUM_SERIALIZER = new  JsonSerializer<Enum<?>>() {
+        @Override
+        public JsonElement serialize(Enum<?> jobDiv, Type arg1, JsonSerializationContext arg2) {
+        	JsonObject obj = new JsonObject();
+        	//기본값 2개 먼저 입력.
+        	obj.addProperty("name", jobDiv.name());
+        	obj.addProperty("ordinal", jobDiv.ordinal());
+        	List<Field> fildes = ReflectionUtil.getAllDeclaredFields(jobDiv.getClass());
+        	for(Field field : fildes){
+        		Object value = ReflectionUtil.getField(field, jobDiv);
+        		//toString 하는게 기본이다. 여길 커스터마이징 할려면 또다른 컨버터가 필요
+        		obj.addProperty(field.getName(), value==null ? "" : value.toString() );
+        	}
+            return obj;
+        }
+    };
 	
 	/** Map을 key,value로 플랫화 해준다. 즉 객체 내용을 List로 볼 수 있다. 주로 화면단에서 사용 */
 	public static JsonArray toPrimitiveArray(JsonObject json){

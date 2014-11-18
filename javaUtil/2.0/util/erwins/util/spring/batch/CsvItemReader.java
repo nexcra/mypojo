@@ -114,5 +114,9 @@ public class CsvItemReader<T> implements ResourceAwareItemReaderItemStream<T>,It
 	public void setSeparator(char separator) {
 		this.separator = separator;
 	}
+
+	public int getLineCount() {
+		return lineCount;
+	}
 	
 }
