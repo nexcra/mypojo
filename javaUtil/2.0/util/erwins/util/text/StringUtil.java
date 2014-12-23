@@ -956,8 +956,18 @@ public class StringUtil extends StringUtils {
 		return text;
 	}
 	
-	
-    
+	/** 
+	 * 문자열을 캐릭터의 집합으로 변형시킨다.
+	 * 해당 단어와 동일한 문자열 구성원을 찾을때 사용했다.
+	 *  */
+	public static Set<Character> toCharSet(String keyword){
+		Set<Character> set = Sets.newHashSet();
+		for(int i=0;i<keyword.length();i++){
+			char w = keyword.charAt(i);
+			set.add(w);
+		}
+		return set;
+	}
     
 
 }

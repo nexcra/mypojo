@@ -6,7 +6,10 @@ import groovy.sql.Sql
 import java.text.Format
 
 /** 벤더별로 만들어 사용하자.
- *  sql.execute 로 테이블생성 등이 가능 */
+ *  sql.execute 로 테이블생성 등이 가능
+ *  --> 이건 샘플 소스코드로 님기고 원본객체를 활용하자. 
+ *  */
+@Deprecated
 public abstract class AbstractSql{
 	
 	/** 그루비 입력시 반드시 옵션 확인!!!

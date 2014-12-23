@@ -1,13 +1,13 @@
 package erwins.util.groovy
 
-
-
 import static org.junit.Assert.*
 import erwins.util.text.StringUtil
 import groovy.util.slurpersupport.NodeChild
 
 import org.cyberneko.html.parsers.SAXParser
 
+/** 이것도 샘플로 내리자. */
+@Deprecated
 class GroovyXml {
 	
 	def url

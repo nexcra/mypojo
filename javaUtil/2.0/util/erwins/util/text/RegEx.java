@@ -329,10 +329,11 @@ public enum RegEx {
     
 	/**
 	 * 내부 문구를 찾을때 사용된다. 
+	 * 비탐욕적 서치 추가
 	 * ex) extractBetween("<span>(",")</span>");
 	 *  */ 
 	public static Pattern extractBetween(String pref,String suff){
-		return Pattern.compile("(?<="+StringEscapeUtil.escapeRegEx(pref)+").*(?="+StringEscapeUtil.escapeRegEx(suff)+")"); 
+		return Pattern.compile("(?<="+StringEscapeUtil.escapeRegEx(pref)+").*?(?="+StringEscapeUtil.escapeRegEx(suff)+")"); 
 	}
 
 

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +23,11 @@ public abstract class SecurityUtil{
 			}
 		}
 		return false;
+	}
+	
+	/** 간단 변환 */
+	public static ConfigAttribute authToConfig(GrantedAuthority auth){
+		return new SecurityConfig(auth.getAuthority());
 	}
 	
 	/** ,로 연결된 권한을 집합으려 변경한다. 

@@ -13,14 +13,16 @@ import org.joda.time.DateTime;
 public class TimeString {
 
 	/** 밀리초 */
-    long millis;
-    long totalSecond;
-    int h;
-    int MM;
-    int ss;
+    private long millis = 0;
+    private long totalSecond;
+    private int h;
+    private int MM;
+    private int ss;
+    
+    private long start;
 
     public TimeString() {
-    	millis = System.currentTimeMillis();
+    	start = System.currentTimeMillis();
     }
     public TimeString(long millis) {
     	this.millis = millis;
@@ -53,7 +55,6 @@ public class TimeString {
     
     /** 시간차이를 구할때 사용한다. */
     public TimeString stop() {
-    	long start = millis;
     	long stop = System.currentTimeMillis(); 
     	millis = stop - start;
     	initTime();
@@ -73,9 +74,7 @@ public class TimeString {
     /** 시분초를 나누어 문자열을 제작한다. 24시간이 넘을 경우 적절히 조절한다. */
     @Override
     public String toString(){
-    	if(h==0 && MM==0 && ss==0){
-    		stop();
-    	}
+    	if(millis == 0) stop();
     	if(h > 24){
     		int hour = h%24;
     		int day = h/24;

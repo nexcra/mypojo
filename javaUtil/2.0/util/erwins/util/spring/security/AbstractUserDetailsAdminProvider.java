@@ -4,6 +4,8 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -14,6 +16,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public abstract class AbstractUserDetailsAdminProvider implements AuthenticationProvider{
 
 	private UserDetailsService userDetailsService;
+	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+	
+	public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
+		this.authoritiesMapper = authoritiesMapper;
+	}
 	
 	/** null을 리턴하면 다음 프로바이더로 작업을 넘긴다. */
 	@Override
@@ -31,7 +38,7 @@ public abstract class AbstractUserDetailsAdminProvider implements Authentication
 		
 		//여전히 UsernamePasswordAuthenticationToken를 그대로 쓴다. 대신 setDetails을 달리 해줘서 두 로그인을 구분한다.
 		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(user,
-                authentication.getCredentials(), user.getAuthorities());
+                authentication.getCredentials(), authoritiesMapper.mapAuthorities(user.getAuthorities()));
         result.setDetails(details);
 		return result;
 	}
@@ -42,6 +49,11 @@ public abstract class AbstractUserDetailsAdminProvider implements Authentication
 	/** 인증 성공하면 Details를 리턴한다. 이 detail을 가지고 다른 토큰(WebAuthenticationDetails)과 구분하자.  
 	 * 인증 실패시 null 리턴 */
 	protected abstract Object authenticationChecks(UserDetails userDetails,UsernamePasswordAuthenticationToken authentication);
+	
+	/** 확장해서 도 규현할것 */
+	public static class AdminAuthenticationDetails{
+		
+	}
 	
 
 	@Override

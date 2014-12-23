@@ -136,7 +136,6 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 	
 	/** 모든 상속구조의 필드를 다 조사하며, static인것은 제외한다.
 	 * 확실하지 않지만, 천만건 이상 돌리면, 매번 호출하는거보나 약간 빠르다. 천전 이하에서는 매번 호출이 더 빠름.  */
-	
 	@SuppressWarnings("unchecked")
 	public static List<Field> getAllDeclaredFields(Class<?> clazz){
 		List<Field> fields = new ArrayList<Field>();

@@ -3,6 +3,8 @@ package erwins.util.collections;
 import java.util.List;
 import java.util.Set;
 
+import lombok.experimental.Delegate;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -14,16 +16,12 @@ import erwins.util.spring.SpringUtil;
  *   
  *   */
 @NotThreadSafe
-public class LikeStringMatchSet extends AbstractSetSupport<String>{
+public class LikeStringMatchSet implements Set<String>{
 	
+	@Delegate
 	private Set<String> set = Sets.newHashSet();
 	private int minLength = 2;
 
-	@Override
-	public boolean add(String e) {
-		return set.add(e);
-	}
-	
 	/** 
 	 * 10자 텍스트의 경우 minLength=1 이라면 set에서 55번의 검색을 하게된다.
 	 *  즉 10+9+8+7+6+5+4+3+2+1 = 55

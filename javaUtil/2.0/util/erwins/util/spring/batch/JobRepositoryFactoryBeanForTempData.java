@@ -191,7 +191,9 @@ public class JobRepositoryFactoryBeanForTempData extends AbstractJobRepositoryFa
     }
 
     private int determineClobTypeToUse(String databaseType) {
-        if (SYBASE == DatabaseType.valueOf(databaseType.toUpperCase())) {
+    	//이부분 지원 안하는 DB에서는 오류나니까 살짝 바꿔준다.
+        //if (SYBASE == DatabaseType.valueOf(databaseType.toUpperCase())) {
+    	if (SYBASE.equals(databaseType.toUpperCase())) {
             return Types.LONGVARCHAR;
         }
         else {

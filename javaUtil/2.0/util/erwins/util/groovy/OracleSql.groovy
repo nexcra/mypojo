@@ -4,11 +4,13 @@ package erwins.util.groovy
 import erwins.util.groovy.Tb.Col
 import groovy.sql.Sql
 
+
 /** 표준형인 date는 년월일만 지원한다. 오라클타입을 TimeStamp로 해야한다.
  * 강제로 date를 TimeStamp로 변경하려면 -Doracle.jdbc.V8Compatible=true 를 JVM옵션으로 주면된다. (v1.9~)
  * or originalDataSource.addConnectionProperty( "oracle.jdbc.V8Compatible", "true" ); 
  * table의 스키마를 담기위해 별도의 class로 변경했다.
  * 그루비 리절트로우의 경우 전체 리스트맵을 모두 바꾸면 정상변경되나 일부만 바뀌면 해당 프로퍼티를 찾을 수 없다는 메세지가 나온다. 주의! */
+@Deprecated
 public class OracleSql extends AbstractSql implements Iterable<Tb>{
 
 	public static OracleSql instance(ip,sid,id,pass){

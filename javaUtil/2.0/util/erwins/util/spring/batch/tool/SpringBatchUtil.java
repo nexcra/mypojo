@@ -1,5 +1,7 @@
 package erwins.util.spring.batch.tool;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.sql.Driver;
 import java.util.Collection;
 import java.util.List;
@@ -9,6 +11,8 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.AfterStep;
+import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStream;
 
@@ -17,6 +21,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.internal.StringMap;
+
+import erwins.util.lib.ReflectionUtil;
+import erwins.util.root.exception.PropagatedRuntimeException;
 
 
 /**
@@ -150,5 +157,33 @@ public abstract class SpringBatchUtil{
 	public static String appendOraclePagingSql(String sql,String option){
 		return "";
 	}
+	
+	/** 비포가 있다면 실행해둔다... 별걸 다 만들게 되넹 ㅠㅠ */
+	public static void beforeStepIfAble(Object batchObject,StepExecution executionContext){
+		stepIfAble(batchObject, executionContext,BeforeStep.class);
+	}
+	public static void afterStepIfAble(Object batchObject,StepExecution executionContext){
+		stepIfAble(batchObject, executionContext,AfterStep.class);
+	}
+
+	private static void stepIfAble(Object batchObject,StepExecution executionContext,Class<? extends Annotation> clazz) {
+		if(batchObject==null) return;
+		
+		List<Method> beforeSteps = ReflectionUtil.findMethod(batchObject.getClass(),clazz);
+		if(beforeSteps.size()==0) return;
+		if(beforeSteps.size() > 1) throw new IllegalArgumentException(clazz.getSimpleName()+ " 는 1개만 허용됩니다");
+		
+		Method beforeStep = beforeSteps.get(0);
+		Class<?>[] parameterTypes = beforeStep.getParameterTypes();
+		if(parameterTypes==null || parameterTypes.length != 1) throw new IllegalArgumentException(clazz.getSimpleName()+ " 적합한 파라메터가 아닙니다");
+		if(parameterTypes[0] != executionContext.getClass()) throw new IllegalArgumentException(clazz.getSimpleName()+ " 적합한 파라메터가 아닙니다");
+		
+		try {
+			beforeStep.invoke(batchObject, executionContext);
+		} catch (Exception e) {
+			throw new PropagatedRuntimeException(e);
+		}
+	}
+	
     
 }

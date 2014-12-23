@@ -15,7 +15,9 @@ import erwins.util.text.StringUtil;
 
 
 /** 
- * enum을 json으로 컨트롤해주기 위한 간이 서포터
+ * 
+ * enum을 json(DB결과값이 아닌 메뉴등에 사용되는 STATIC값)으로 컨트롤해주기 위한 간이 서포터
+ * 
  * */ 
 public class EnumJsonSupport extends AbstractMapSupport<String,JsonObject>{
 	

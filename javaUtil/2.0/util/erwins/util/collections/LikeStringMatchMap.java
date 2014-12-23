@@ -3,6 +3,8 @@ package erwins.util.collections;
 import java.util.List;
 import java.util.Map;
 
+import lombok.experimental.Delegate;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -13,25 +15,12 @@ import erwins.util.spring.SpringUtil;
  * 키워드들(짧은 단어)를 메모리에 미리 넣어놓고, 단어들(긴 단어)을 매칭할때 사용된다.
  *   */
 @NotThreadSafe
-public class LikeStringMatchMap<T> extends AbstractMapSupport<String,T>{
+public class LikeStringMatchMap<T> implements Map<String,T>{
 	
+	@Delegate
 	private Map<String,T> map = Maps.newHashMap();
 	private int minLength = 2;
 	
-	@Override
-	public T put(String key,T value){
-		return map.put(key,value);
-	}
-	
-	@Override
-	public T get(Object key) {
-		return map.get(key);
-	}
-	
-	@Override
-	public void clear() {
-		map.clear();
-	}
 	
 	/** HashEntry의 key는 매핑된 텍스트.   */
 	public List<HashEntry<T>> matchAny(String query){

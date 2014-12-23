@@ -2,6 +2,7 @@ package erwins.util.spring.batch.tool;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -10,6 +11,11 @@ import javax.sql.DataSource;
 
 import lombok.Data;
 
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobInstance;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -52,6 +58,9 @@ public class SpringBatchMock<T>{
 	private ItemProcessor<T,T> itemProcessor;
 	private int commitInterval = 1000;
 	private ExecutionContext executionContext = new ExecutionContext();
+	private JobParameters jobParameter = new JobParametersBuilder().addDate("date", new Date()).toJobParameters();
+	private JobInstance jobInstance = new JobInstance(0L,jobParameter,"tempJob");
+	private JobExecution jobExecution = new JobExecution(jobInstance);
 	
 	public void add(String key,long value){
 		synchronized (executionContext) {
@@ -111,6 +120,12 @@ public class SpringBatchMock<T>{
 		SpringBatchUtil.openIfAble(itemReader,executionContext);
 		SpringBatchUtil.openIfAble(itemWriter,executionContext);
 		
+		StepExecution sec = new StepExecution("sec",jobExecution);
+		
+		SpringBatchUtil.beforeStepIfAble(itemReader,sec);
+		SpringBatchUtil.beforeStepIfAble(itemProcessor,sec);
+		SpringBatchUtil.beforeStepIfAble(itemWriter,sec);
+		
         ThreadPoolTaskExecutor ex = ThreadUtil.defaultPool(corePoolSize);
         
         Callable<Long> callable = new Callable<Long>() {
@@ -150,6 +165,11 @@ public class SpringBatchMock<T>{
 			}
 			Long sum = ThreadUtil.sum(fs);
 			executionContext.putLong("totalThreadCountSum", sum);
+			
+			SpringBatchUtil.afterStepIfAble(itemReader,sec);
+			SpringBatchUtil.afterStepIfAble(itemProcessor,sec);
+			SpringBatchUtil.afterStepIfAble(itemWriter,sec);
+			
 		} catch (Exception e) {
 			throw new PropagatedRuntimeException(e);
 		}finally{
@@ -233,7 +253,7 @@ public class SpringBatchMock<T>{
     	itemWriter.setResource(new FileSystemResource(out));
     	itemWriter.setCsvHeaderCallback(mapper);
     	itemWriter.setCsvRead(true); //주의
-		
+    	
 		SpringBatchMock<String[]> mock = new SpringBatchMock<String[]>();
 		mock.setCommitInterval(10000);
 		mock.setItemReader(itemReader);

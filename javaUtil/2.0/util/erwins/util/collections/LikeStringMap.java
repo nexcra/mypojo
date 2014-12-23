@@ -13,6 +13,7 @@ import erwins.util.spring.SpringUtil;
 
 /** 
  * 단어들(긴 단어)을 메모리에 미리 넣어놓고, 키워드들(짧은 단어)를 매칭할때 사용된다.
+ * delegate로 새로 만들자.
  *   */
 @NotThreadSafe
 public class LikeStringMap<T> extends AbstractMapSupport<String,T>{

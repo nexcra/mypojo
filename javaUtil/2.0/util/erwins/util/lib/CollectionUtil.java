@@ -1,5 +1,6 @@
 package erwins.util.lib;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -195,6 +196,28 @@ public abstract class CollectionUtil extends CollectionUtils {
 		if(collection instanceof List){
 		}
 		return Lists.newArrayList(collection);
+	}
+	
+	/** key가 map에 없으면 값을 key로 대체 */
+	public static String[] mapToStringArray(Map<String,Object> map,String ... keys){
+		String[] array = new String[keys.length];
+		for(int i=0;i<keys.length;i++){
+			String key = keys[i];
+			Object value = map.get(key);
+			String strValue = null;
+			if(!map.containsKey(key)){
+				strValue = key;
+			}else if(value == null){
+				strValue = "";
+			}else if(value instanceof BigDecimal){
+				BigDecimal conv = (BigDecimal)value;
+				strValue = conv.toPlainString();
+			}else{
+				strValue = value.toString();
+			}
+			array[i] = strValue;
+		}
+		return array;
 	}
 
 }

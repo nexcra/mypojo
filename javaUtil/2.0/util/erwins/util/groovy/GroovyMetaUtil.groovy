@@ -16,6 +16,7 @@ import erwins.util.lib.CompareUtil
 import erwins.util.lib.security.MD5
 import erwins.util.text.StringUtil
 import groovy.sql.GroovyRowResult
+import groovy.sql.Sql
 
 /** SQLUtil은 싱글톤만 사용하니까 따로 뺐다.  */
 public class GroovyMetaUtil{
@@ -27,6 +28,13 @@ public class GroovyMetaUtil{
 		stringArray()
 		list()
 		groovyRowResult 'N/A'
+		sql()
+	}
+	
+	/** 자주 사용되는거나
+	 * 신규 추가만 하자. */
+	public static void sql(){
+		Sql.metaClass.rows = { GString str -> return delegate.rows(str.toString()) } //그냥하면 오류난다.  ps로 치환할 수 있는건 그걸쓰자.
 	}
 	
 	/** 자주 사용되는거나 

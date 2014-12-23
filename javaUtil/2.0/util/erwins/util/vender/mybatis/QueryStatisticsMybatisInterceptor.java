@@ -119,7 +119,7 @@ public class QueryStatisticsMybatisInterceptor implements Interceptor{
             
             //정상적으로 처리된 SQL만 저장한다.
             synchronized (this) {
-            	String sql = boundSql.getSql(); //ID 기준이 아닌 바인딩된 SQL 기준이다.
+            	String sql = boundSql.getSql(); //ID 기준이 아닌 바인딩된 SQL 기준이다.  다이나믹 쿼리때문에 ID가 아닌 SQL기준으로 함
                 QueryState state = MAP.get(sql);
                 if(state==null){
                     state = new QueryState(sqlId,sql);
@@ -164,7 +164,6 @@ public class QueryStatisticsMybatisInterceptor implements Interceptor{
 		}
 		int remains = Ints.max(0,rows.size() - MAX_RESULT_LOG_COUNT);
 		if(remains!=0) b.appendLine(MessageFormat.format(".... 외 {0}건",remains));
-		
 		b.appendLine(MessageFormat.format("RESULT ROW : {0} , 걸린시간 : {1}", rows.size(),new TimeString(endTime - startTime)));
 		b.append(LINE);
 		return b.toString();
@@ -247,8 +246,10 @@ public class QueryStatisticsMybatisInterceptor implements Interceptor{
     /** 이는 로직에 사용됨으로 로그 무시 */
     private boolean isLockSql(InvocationTargetException e) {
         Throwable cause = e.getCause();
+        if(cause==null) return false; //이런경우야 없겠지만 혹시나.
         if(cause instanceof SQLException){
             SQLException ex = (SQLException)cause;
+            if(ex.getSQLState()==null) return false; //큐브리드의 경유 상태값이 없다... ㄷㄷ
             if(ex.getSQLState().equals("61000")) return true;
         }
         return false;

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+/** 가능하다면 lombok의 Delegate를 사용하자. */
 public abstract class AbstractMapSupport<K,V> implements Map<K,V>{
 
 	@Override
