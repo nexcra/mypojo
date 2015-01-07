@@ -1,4 +1,4 @@
-package erwins.util.web;
+package erwins.util.text;
 
 import java.nio.charset.Charset;
 

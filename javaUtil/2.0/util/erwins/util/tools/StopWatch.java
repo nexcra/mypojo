@@ -258,30 +258,6 @@ public class StopWatch {
         stopWatch.stop();
         return stopWatch;
     }
-/*
-    *//** table을 리턴한다. *//*
-    public String buildTable() {
-        
-        List<Tr> list = new ArrayList<Tr>();
-        for (int i = 0; i < this.getTaskInfo().size(); i++) {
-        	TaskInfo info = this.getTaskInfo().get(i);
-            Tr tr = new Tr();
-            
-            Td td = new Td(String.valueOf(i + 1));
-            td.addAttribute("align","center");
-            tr.addElement(td);
-
-            Td td2 = new Td(info.getTaskName());
-            td2.addAttribute("align","center");
-            tr.addElement(td2);
-
-            Td td3 = new Td(info.getMicroTimeStr() + "<br> (" + this.getPercent(i) + ")");
-            td3.addAttribute("align","center");
-            tr.addElement(td3);
-            
-            list.add(tr);
-        }
-        return StringUtil.joinTemp(list,"");
-    }*/
+    
 
 }

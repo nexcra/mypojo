@@ -889,8 +889,8 @@ public class StringUtil extends StringUtils {
      * 해당 key값으로 파일을 넓게 써서 인메모리에서 처리하기 위해서 사용했다.
      * 스래드 숫자만큼 나누는게 적절해 보인다.  */
     public static String getHashIntString(String key, int max) {
-    	int hashCode = key.hashCode();
-		if(hashCode < 0) hashCode *= -1;
+    	int hashCode = Math.abs(key.hashCode());
+		//if(hashCode < 0) hashCode *= -1;
 		int num = hashCode % max;
 		return StringUtil.leftPad(num, String.valueOf(max-1).length());
     }

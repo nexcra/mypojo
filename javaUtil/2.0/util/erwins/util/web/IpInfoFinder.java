@@ -8,8 +8,11 @@ import com.google.common.base.Splitter;
 
 import erwins.util.text.StringUtil;
 
-/** IP를 이용한 간이 국가 확인도구 */
-public class IpCountry{
+/** 
+ * IP를 이용한 간이 국가 확인도구
+ * 소스 테스트용임!!
+ *  */
+public class IpInfoFinder{
 
 	private HttpClient3 client = new HttpClient3().get("http://www.ipipipip.net/data/index.php");
 

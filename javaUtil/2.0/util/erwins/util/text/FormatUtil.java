@@ -7,6 +7,7 @@ import java.text.MessageFormat;
 import java.text.NumberFormat;
 
 import erwins.util.lib.ReflectionUtil;
+import erwins.util.root.Incompleted;
 
 
 
@@ -15,6 +16,7 @@ import erwins.util.lib.ReflectionUtil;
  *  각 객체의 널 제거는 reflection이나 ORM에서 제공해주는것을 사용하기 바란다. 
  *  <br> To : 프레젠테이션 용의 String문자열로의 변환 Get : 스크립팅 또는 데이터 포맷 변환용
  */
+@Incompleted
 public enum FormatUtil {
     
     /**

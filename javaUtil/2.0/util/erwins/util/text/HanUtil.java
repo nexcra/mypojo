@@ -6,7 +6,11 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
-/** 주워온 소스를 수정 */
+/** 
+ * 주워온 소스를 수정
+ * unused 등등 고칠게 많아보인다.
+ *  */
+@SuppressWarnings("unused")
 public abstract class HanUtil {
 
 	/* **********************************************

@@ -34,6 +34,9 @@ public abstract class WebUtil {
 	public static final String CONTENT_TYPE_DOWNLOAD = "application/octet-stream";
 	public static final String CONTENT_TYPE_MULTIPART = "multipart/form-data";
 	private static final String POST = "POST";
+	
+	public static final String USER_AGENT = "user-agent";
+	public static final String ACCEPT = "accept";
 
 	/**
 	 * 멀티파트 리퀘스트인지 검사
@@ -41,15 +44,6 @@ public abstract class WebUtil {
 	public static boolean isMultipartFormRequest(HttpServletRequest req) {
 		return (StringUtil.nvl(req.getContentType()).toLowerCase().startsWith(CONTENT_TYPE_MULTIPART)) ? true : false;
 	}
-
-	/** response에 file을 담아서 출력한다. 기본적으로 application/octet-stream로 되어있다. */
-	@Deprecated
-	public static void download(HttpServletResponse response, File file) {
-		download(response,file,CONTENT_TYPE_DOWNLOAD,null);
-	}
-	
-	public static final String USER_AGENT = "user-agent";
-	public static final String ACCEPT = "accept";
 	
 	/** 모바일 기기(안드로이드/아이폰 등)에서 온 요청인지? */
 	public static boolean isMobile(HttpServletRequest req) {
@@ -64,50 +58,6 @@ public abstract class WebUtil {
 		return req.getHeader(ACCEPT);
 	}
 
-	/** 구형 IE에서 다운로드를 취소할때 나는 오류를 무시한다.
-	 * 다운될 파일이름이 실제파일과 달라야 하는 경우가 있어서 fileName을 추가 */
-	@Deprecated
-	public static void download(HttpServletResponse response, File file,String contentType,String fileName) {
-		if(fileName==null) fileName = file.getName();
-		if (!file.exists())
-			file = new File(CharEncodeUtil.getEucKr(file.getAbsolutePath()));
-		if (!file.exists())
-			throw new IllegalStateException(file.getAbsolutePath() + " : file not found!");
-	
-		OutputStream out = null;
-		FileInputStream fis = null;
-	
-		response.setContentType(contentType);
-		response.setContentLength((int) file.length());
-	
-		try {
-			// MS익스플러어가 기본적으로 8859_1를 인식하기때문에 변환을 해주어야 한다.
-			response.setHeader("Content-Disposition", "attachment; fileName=\""
-					+ new String(fileName.getBytes("EUC_KR"), "8859_1") + "\";");
-			response.setHeader("Content-Transfer-Encoding", "binary");
-			/*
-			response.setHeader("Expires", "0");
-		    response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
-		    response.setHeader("Pragma", "public");*/
-	
-			out = response.getOutputStream();
-			fis = new FileInputStream(file);
-			IOUtils.copy(fis, out);
-			out.flush();
-		} catch (IOException e) {
-			// if(!e.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException"))
-		} catch (Exception e) {
-			throw new PropagatedRuntimeException(e);
-		} finally {
-			if (fis != null)
-				try {
-					fis.close();
-				} catch (IOException e) {
-					throw new IORuntimeException(e);
-				}
-		}
-	}
-	
 	/** 파일이름설정과 다운로드를 별도 분리 */
 	public static void downloadFile(HttpServletResponse response, File file) {
 		if (!file.exists())
