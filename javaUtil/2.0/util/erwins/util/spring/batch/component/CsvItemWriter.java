@@ -1,4 +1,4 @@
-package erwins.util.spring.batch;
+package erwins.util.spring.batch.component;
 
 
 import java.io.BufferedWriter;
@@ -137,12 +137,6 @@ public class CsvItemWriter<T> implements ResourceAwareItemWriterItemStream<T>,It
 		lineCount++;
 		writer.writeNext(lines);
 	}
-	
-	/** CsvItemHashWriter 에서 사용한다. */
-	/*
-	public static interface CsvItemWriterFactory{
-		public <T> CsvItemWriter<T> instance();
-	}*/
 	
 	@Override
 	public void setResource(Resource resource) {
