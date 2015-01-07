@@ -12,7 +12,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import erwins.jsample.domain.talk.Protocol;
 import erwins.util.nio.TalkServerTemplate;
 import erwins.util.nio.ThreadPool;
-import erwins.util.validation.InputValidationException;
 
 /** 기본 스래드와 별개 스래드간의 교차지점이다. */
 public class TalkServer extends TalkServerTemplate{
@@ -39,7 +38,7 @@ public class TalkServer extends TalkServerTemplate{
 		String[] messages = Protocol.splitMessage(input);
 		for(String eachMessage : messages){
 			String[] text = Protocol.splitHeader(eachMessage);
-			if(text.length!=2) throw new InputValidationException("[{0}] : 헤더 오류",eachMessage);
+			if(text.length!=2) throw new IllegalStateException("[{0}] : 헤더 오류 " + eachMessage);
 			if(Protocol.LOGOUT.equals(text[0])) logout(key);
 			messageQueue.add(new TalkServerJob(text[0],text[1],key));
 		}

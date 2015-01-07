@@ -9,7 +9,7 @@ import org.apache.commons.httpclient.NameValuePair
 import org.cyberneko.html.parsers.SAXParser
 import org.junit.Test
 
-import erwins.util.web.HttpData
+import erwins.util.text.StringUtil
 
 class BnS {
 	
@@ -119,7 +119,7 @@ class BnS {
 	}
 	
 	private getItemAvg(아이템명,페이지=2) {
-		HttpData d = HttpData.getSimpleClient()
+		//HttpData d = HttpData.getSimpleClient()
 		def url = 'http://bns.plaync.com/bs/market/search'
 		def query = [new  NameValuePair('ct','0'),new  NameValuePair('level','0-0')
 			,new  NameValuePair('stepper','forward-' + 페이지),new  NameValuePair('exact','1')
