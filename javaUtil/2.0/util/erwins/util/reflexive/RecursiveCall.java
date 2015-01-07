@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import erwins.util.tools.StringAppender;
+import erwins.util.text.StringAppender;
 
 
 /** 패턴을 유사하게 만들기 위해 합쳤다. */

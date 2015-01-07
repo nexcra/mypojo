@@ -44,7 +44,6 @@ import erwins.util.text.CharEncodeUtil;
 import erwins.util.text.FormatUtil;
 import erwins.util.text.RegEx;
 import erwins.util.text.StringUtil;
-import erwins.util.validation.InputValidationException;
 
 /**
  * 이 클래스는 파일 관련 기능을 제공
@@ -158,12 +157,15 @@ public abstract class FileUtil extends FileUtils {
 		return byteCount;
 	}
 
-	/** 출처 : Spring */
-	public static int copy(File in, File out) throws IOException {
+	/** 출처 : Spring. IOException을 던지지 않게만 수정 */
+	public static int copy(File in, File out){
 		Preconditions.checkNotNull(in, "in file is null!");
 		Preconditions.checkNotNull(out, "out file is null!");
-		return copy(new BufferedInputStream(new FileInputStream(in)), new BufferedOutputStream(
-				new FileOutputStream(out)));
+		try {
+			return copy(new BufferedInputStream(new FileInputStream(in)), new BufferedOutputStream( new FileOutputStream(out)));
+		} catch (IOException e) {
+			throw new IORuntimeException(e);
+		}
 	}
 
 	/** 출처 : Spring */
@@ -238,7 +240,7 @@ public abstract class FileUtil extends FileUtils {
 	public static void renameToUniqueName(File file, File renamed) {
 		renamed = FileUtil.uniqueFileName(renamed);
 		boolean success = file.renameTo(renamed);
-		if(!success) throw new InputValidationException(file.getAbsolutePath() + " : file move fail");
+		if(!success) throw new IllegalStateException(file.getAbsolutePath() + " : file move fail");
 	}
 	
 	/** renameTo와 동일하나, 벨리데이션 체크랄 해준다. */
@@ -259,8 +261,8 @@ public abstract class FileUtil extends FileUtils {
 	
 	/** 파일이 정상적으로 지워지지 않으면 예외를 던진다. */
 	public static void delete(File file) {
-		if (!file.exists()) throw new InputValidationException(file.getAbsolutePath() + " : file is not exist");
-		if (!file.delete()) throw new InputValidationException(file.getAbsolutePath() + " : file deleted fail");
+		if (!file.exists()) throw new IllegalStateException(file.getAbsolutePath() + " : file is not exist");
+		if (!file.delete()) throw new IllegalStateException(file.getAbsolutePath() + " : file deleted fail");
 	}
 
 	/** RMI등에 사용. 용량이 큰거 전송시 주의!! heap size 여유있게 해야한다. */

@@ -3,8 +3,12 @@ package erwins.util.hadoop.hbase;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
-import org.apache.commons.pool.impl.GenericKeyedObjectPool;
+import lombok.experimental.Delegate;
+
+import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
+import org.apache.commons.pool2.PooledObject;
+import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
+import org.apache.commons.pool2.impl.GenericKeyedObjectPoolConfig;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.HTableInterface;
@@ -20,10 +24,14 @@ import erwins.util.root.exception.PropagatedRuntimeException;
  * 테이블을 닫지 않고, 풀에 저장한다. (스프링이 열닫 호출은 해주지만 풀링을 해주지는 않는다.)
  * 스캐너는 별도로 반드시 close 해주어야 한다.
  * byte[] 는 키값으로 사용하지 못한다. 주의할것!
+ * 
+ * ==>  대충 고쳤는데 모르겠다. 써봐야함 먼저 구글링할것!!
  */
 public class HBaseTablePoolFactory implements InitializingBean,HTableInterfaceFactory{
 	
-	private final GenericKeyedObjectPool pool = new GenericKeyedObjectPool();
+	@Delegate
+	private final GenericKeyedObjectPoolConfig config = new GenericKeyedObjectPoolConfig();
+	private GenericKeyedObjectPool<String,HTableInterface> pool;
 	private Configuration configuration;
 	private final AtomicLong create = new AtomicLong();
 	private final AtomicLong use = new AtomicLong();
@@ -49,89 +57,31 @@ public class HBaseTablePoolFactory implements InitializingBean,HTableInterfaceFa
 			throw new PropagatedRuntimeException(e);
 		}
 	}
-	
-	public GenericKeyedObjectPool getPool() {
-		return pool;
-	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		Preconditions.checkNotNull(configuration, "configuration를 입력해주세요");
-		pool.setFactory(new BaseKeyedPoolableObjectFactory() {
-			/** 실제 커넥션이 생성될때 호출되며, 현재 장비에서 9초 정도 걸리는거 같다. */
+		//기존 BaseKeyedPoolableObjectFactory
+		BaseKeyedPooledObjectFactory<String,HTableInterface> factory = new BaseKeyedPooledObjectFactory<String, HTableInterface>() {
 			@Override
-			public Object makeObject(Object tableName) throws Exception {
+			public HTableInterface create(String tableName) throws Exception {
 				create.incrementAndGet();
 				return new HTable(configuration,(String) tableName);
 			}
-		});
+			@Override
+			public PooledObject<HTableInterface> wrap(HTableInterface arg0) {
+				System.out.println("모르겠다");
+				return null;
+			}
+		};
+		pool = new GenericKeyedObjectPool<String,HTableInterface>(factory,config);
 	}
 	
 	public void setConfiguration(Configuration configuration) {
 		this.configuration = configuration;
 	}
-
-	// ============= 위임 메소드 ====================
-
-
-	public void setMaxActive(int maxActive) {
-		pool.setMaxActive(maxActive);
-	}
-
-
-	public void setMaxIdle(int maxIdle) {
-		pool.setMaxIdle(maxIdle);
-	}
-
-
-	public void setMaxTotal(int maxTotal) {
-		pool.setMaxTotal(maxTotal);
-	}
-
-	/** 풀 획득에 락이 걸리며, 이 시간(ms)이 초과되면 예외를 던진다 */
-	public void setMaxWait(long maxWait) {
-		pool.setMaxWait(maxWait);
-	}
-
-
-	public void setMinEvictableIdleTimeMillis(long minEvictableIdleTimeMillis) {
-		pool.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
-	}
-
-
-	public void setMinIdle(int poolSize) {
-		pool.setMinIdle(poolSize);
-	}
-
-
-	public void setNumTestsPerEvictionRun(int numTestsPerEvictionRun) {
-		pool.setNumTestsPerEvictionRun(numTestsPerEvictionRun);
-	}
-
-
-	public void setTestOnBorrow(boolean testOnBorrow) {
-		pool.setTestOnBorrow(testOnBorrow);
-	}
-
-
-	public void setTestOnReturn(boolean testOnReturn) {
-		pool.setTestOnReturn(testOnReturn);
-	}
-
-
-	public void setTestWhileIdle(boolean testWhileIdle) {
-		pool.setTestWhileIdle(testWhileIdle);
-	}
-
-
-	public void setTimeBetweenEvictionRunsMillis(
-			long timeBetweenEvictionRunsMillis) {
-		pool.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
-	}
-
-
-	public void setWhenExhaustedAction(byte whenExhaustedAction) {
-		pool.setWhenExhaustedAction(whenExhaustedAction);
+	public GenericKeyedObjectPool<String,HTableInterface> getPool() {
+		return pool;
 	}
 
 	public AtomicLong getCreate() {

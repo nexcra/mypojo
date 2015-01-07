@@ -22,8 +22,8 @@ import com.google.common.collect.Lists;
 
 import erwins.util.lib.CollectionUtil;
 import erwins.util.root.exception.SQLRuntimeException;
+import erwins.util.text.StringAppender;
 import erwins.util.text.StringUtil;
-import erwins.util.tools.StringAppender;
 
 /** 
  * 자주 쓰는거만 일단 만듬. 

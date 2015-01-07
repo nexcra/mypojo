@@ -8,11 +8,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.google.common.collect.Maps;
 
 import erwins.util.collections.AbstractMapSupport;
 import erwins.util.root.NotThreadSafe;
-import erwins.util.root.ThreadSafe;
 
 /**
  * 맵으로 숫자세기.  MultiSet이 int 단위밖에 안되서 대체 사용한다 (로그 카운트용)

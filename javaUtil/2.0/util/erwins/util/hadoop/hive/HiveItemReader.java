@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.apache.hadoop.hive.jdbc.HiveStatement;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemReader;
@@ -18,8 +20,6 @@ import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.google.common.base.Preconditions;
-
-import erwins.util.root.ThreadSafe;
 
 /** 애매하다. 스프링 배치에 있어야 하나, 여기 있어야 하나.. */
 @ThreadSafe

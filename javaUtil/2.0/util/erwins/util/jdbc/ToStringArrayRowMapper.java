@@ -14,8 +14,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import erwins.util.root.NotThreadSafe;
-import erwins.util.spring.batch.CsvItemWriter;
-import erwins.util.spring.batch.CsvItemWriter.CsvHeaderCallback;
+import erwins.util.spring.batch.component.CsvItemWriter;
+import erwins.util.spring.batch.component.CsvItemWriter.CsvHeaderCallback;
 
 /** 
  * DB로우데이터를 CSV로 내릴때 사용된다.

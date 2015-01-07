@@ -21,6 +21,7 @@ import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.lang.ClassUtils;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.util.MethodInvoker;
 import org.springframework.util.ReflectionUtils;
 
 import com.google.common.base.Preconditions;
@@ -32,7 +33,6 @@ import erwins.util.root.EntityId;
 import erwins.util.root.Pair;
 import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.text.StringUtil;
-import erwins.util.validation.InputValidationException;
 
 /**
  * ClassUtils / AopUtils / ReflectionUtil  이런데 찾아보고 없을때 추가할것!
@@ -96,13 +96,14 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 	}
 
 	/** Enum인데 Pair인놈의 객체를 가져온다. Pair의 value로 검색 가능하다. 제한적으로 사용하자. */
+	@Deprecated
 	public static Pair getEnumPairInstance(Class<Enum<?>> clazz, String value) {
 		Enum<?>[] enums = ReflectionUtil.getEnums(clazz);
 		for (Enum<?> each : enums) {
 			Pair pair = (Pair) each;
 			if (pair.getValue().equals(value)) return pair;
 		}
-		throw new InputValidationException("[{0}] is not found from {1}", value, clazz.getSimpleName());
+		throw new IllegalStateException("[{0}] is not found from {1}"+ value +  clazz.getSimpleName()); //임시수정
 	}
 	/*
 	public static Enum<?>[] getEnums(Class<Enum<?>> clazz) {
@@ -231,7 +232,10 @@ public abstract class ReflectionUtil extends ReflectionUtils {
     }
     
     /** Method를 래피한다.
-     * 인라인으로 숨겨진 메소드를 실행하데 사용 */
+     * 인라인으로 숨겨진 메소드를 실행하데 사용
+     * @see MethodInvoker 
+     * */
+    @Deprecated
     public static class Methods{
     	public final Method method;
     	/** 정확한 대상 clazz를 명시해야 한다. */

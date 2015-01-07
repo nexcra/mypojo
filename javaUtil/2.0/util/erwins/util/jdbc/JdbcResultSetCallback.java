@@ -13,8 +13,8 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.FileSystemResource;
 
-import erwins.util.spring.batch.CsvItemWriter;
-import erwins.util.spring.batch.CsvItemWriter.PassThroughCsvAggregator;
+import erwins.util.spring.batch.component.CsvItemWriter;
+import erwins.util.spring.batch.component.CsvItemWriter.PassThroughCsvAggregator;
 
 /** 
  * 일단 HIVE실행기 사용 목적으로 만듬

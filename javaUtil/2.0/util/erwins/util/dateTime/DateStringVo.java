@@ -20,6 +20,7 @@ public class DateStringVo{
         DateStringVo instance = new DateStringVo();
         instance.startDate = format.print(endDate.minusDays(interval-1));
         instance.endDate = format.print(JodaUtil.endTimeOfDay(endDate ));
+        
         return instance;
     }
     

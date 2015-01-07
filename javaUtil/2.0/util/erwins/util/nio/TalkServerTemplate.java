@@ -15,7 +15,6 @@ import java.util.Iterator;
 
 import erwins.util.root.exception.IORuntimeException;
 import erwins.util.text.CharEncodeUtil;
-import erwins.util.validation.InputValidationException;
 
 
 /** 나중에 소스참고를 위해 범용적인 부분을 나눈다. 
@@ -68,14 +67,14 @@ public abstract class TalkServerTemplate{
 						throw new RuntimeException(e);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
-					} catch (InputValidationException e) {
+/*					} catch (InputValidationException e) {
 						String message = null;
 						try {
 							message = CharEncodeUtil.C_UTF_8.decode(readBuffer).toString();
 						} catch (Exception e1) { //무시한다.
 						}
 						//log.error("[{0}] : Malformed message from client", message);
-					}
+*/					}
 				}
 			}
 		});

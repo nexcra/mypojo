@@ -2,7 +2,7 @@ package erwins.util.si.idGererator;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import erwins.util.root.ThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * 간이 테스트용
