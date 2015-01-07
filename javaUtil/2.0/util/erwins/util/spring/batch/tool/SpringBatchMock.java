@@ -40,13 +40,14 @@ import com.google.common.io.Files;
 
 import erwins.util.jdbc.ToStringArrayRowMapper;
 import erwins.util.nio.ThreadUtil;
+import erwins.util.root.Incompleted;
 import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.spring.SpringUtil;
-import erwins.util.spring.batch.CsvItemReader;
-import erwins.util.spring.batch.CsvItemReader.PassThroughCsvMapper;
-import erwins.util.spring.batch.CsvItemWriter;
-import erwins.util.spring.batch.CsvItemWriter.PassThroughCsvAggregator;
 import erwins.util.spring.batch.component.CsvItemMultiMapWriter;
+import erwins.util.spring.batch.component.CsvItemReader;
+import erwins.util.spring.batch.component.CsvItemWriter;
+import erwins.util.spring.batch.component.CsvItemReader.PassThroughCsvMapper;
+import erwins.util.spring.batch.component.CsvItemWriter.PassThroughCsvAggregator;
 import erwins.util.text.StringUtil;
 
 /** 스프링 배치를 간단히 로컬에서 돌려볼 수 있는 테스트기 */
@@ -59,21 +60,8 @@ public class SpringBatchMock<T>{
 	private int commitInterval = 1000;
 	private ExecutionContext executionContext = new ExecutionContext();
 	private JobParameters jobParameter = new JobParametersBuilder().addDate("date", new Date()).toJobParameters();
-	private JobInstance jobInstance = new JobInstance(0L,jobParameter,"tempJob");
-	private JobExecution jobExecution = new JobExecution(jobInstance);
-	
-	public void add(String key,long value){
-		synchronized (executionContext) {
-			long exist = executionContext.getLong(key, 0);
-			executionContext.putLong(key, exist + value);
-		}
-	}
-	public void add(String key,int value){
-		synchronized (executionContext) {
-			int exist = executionContext.getInt(key, 0);
-			executionContext.putInt(key, exist + value);
-		}
-	}
+	private JobInstance jobInstance = new JobInstance(0L,"tempJob");
+	private JobExecution jobExecution = new JobExecution(jobInstance,jobParameter);
 	
 	/** 리더/라이터를 조합해서 실행한다. */
 	public ExecutionContext run(){
@@ -116,6 +104,7 @@ public class SpringBatchMock<T>{
 	}
 	
 	/** DB작업을 할 경우 반드시 ThreadLocal당 커넥션을 유지해야 한다. */
+	@Incompleted
 	public ExecutionContext run(int corePoolSize){
 		SpringBatchUtil.openIfAble(itemReader,executionContext);
 		SpringBatchUtil.openIfAble(itemWriter,executionContext);

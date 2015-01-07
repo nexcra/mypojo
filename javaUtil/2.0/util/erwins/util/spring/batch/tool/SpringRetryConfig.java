@@ -1,20 +1,21 @@
 package erwins.util.spring.batch.tool;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import lombok.Data;
 
-import org.springframework.batch.retry.RetryCallback;
-import org.springframework.batch.retry.RetryContext;
-import org.springframework.batch.retry.backoff.ExponentialBackOffPolicy;
-import org.springframework.batch.retry.listener.RetryListenerSupport;
-import org.springframework.batch.retry.support.RetryTemplate;
 import org.springframework.dao.DeadlockLoserDataAccessException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.retry.RetryCallback;
+import org.springframework.retry.RetryContext;
+import org.springframework.retry.backoff.ExponentialBackOffPolicy;
+import org.springframework.retry.listener.RetryListenerSupport;
+import org.springframework.retry.policy.SimpleRetryPolicy;
+import org.springframework.retry.support.RetryTemplate;
 
-import com.google.common.collect.Maps;
-
+import erwins.util.root.Incompleted;
 import erwins.util.root.exception.PropagatedRuntimeException;
 
 /** 
@@ -24,17 +25,19 @@ import erwins.util.root.exception.PropagatedRuntimeException;
  * of()로 간단 생성
  * 신규 버전에서는 패키지 이동이 있다. 주의할것 
  * */
+@Incompleted
 public class SpringRetryConfig {
 	
-	/** PK중복의 경우 DuplicateKeyException 이런거 쓰면 됨요 */
-	private Map<Class<? extends Throwable>,Boolean> retryableExceptions = Maps.newHashMap();
+	/** PK중복의 경우 DuplicateKeyException 이런거 쓰면 됨요. 일단은 스프링 기본 */
+	private Map<Class<? extends Throwable>,Boolean> retryableExceptions = Collections.<Class<? extends Throwable>, Boolean>singletonMap(Exception.class, true);
 	/** default 3 */
-	private Integer maxAttempts;
+	private Integer maxAttempts = 3;
 	/** default 1 */
 	private Integer backoffSec;
 	/** backoff가 설정된 경우 최대 대기시간 */
 	private Integer maxIntervalMin = 10;
-	
+	private boolean traverseCauses = false;
+	 
 	/** 간단 메소드 */
 	public static SpringRetryConfig of(){
 		return new SpringRetryConfig()
@@ -58,12 +61,10 @@ public class SpringRetryConfig {
 		return this;
 	}
 	/** 나중에 리커버리 가능하게 하나 더 만들자 */
-	public <T> RetryResult<T> doWithRetry(RetryCallback<T> retryCallback){
+	public <T,E extends Throwable> RetryResult<T> doWithRetry(RetryCallback<T,E> retryCallback){
 		RetryTemplate template = new RetryTemplate();
 		
-		CauseRetryPolicy policy = new CauseRetryPolicy();
-		if(!retryableExceptions.isEmpty()) policy.setRetryableExceptions(retryableExceptions);
-		if(maxAttempts!=null) policy.setMaxAttempts(maxAttempts);
+		SimpleRetryPolicy policy = new SimpleRetryPolicy(maxAttempts,retryableExceptions,traverseCauses);
 		template.setRetryPolicy(policy);
 		
 		if(backoffSec!=null){
@@ -76,13 +77,13 @@ public class SpringRetryConfig {
 		
 		//단순히 RetryContext를 얻기 위한 장치이다.
 		template.registerListener(new RetryListenerSupport() {
-			@Override @SuppressWarnings("hiding")
-			public <T> boolean open(RetryContext context, RetryCallback<T> callback) {
+			@SuppressWarnings("hiding")
+			public <T,E extends Throwable> boolean open(RetryContext context, RetryCallback<T,E> callback) {
 				retryResult.setContext(context);
 				return true;
 			}
-			@Override @SuppressWarnings("hiding")
-			public <T> void onError(RetryContext context,RetryCallback<T> callback, Throwable throwable) {
+			@SuppressWarnings("hiding")
+			public <T,E extends Throwable> void onError(RetryContext context,RetryCallback<T,E> callback, Throwable throwable) {
 				String key = throwable.getClass().getSimpleName();
 				synchronized (context) {
 					Integer errorCount =  (Integer) context.getAttribute(key);
@@ -98,9 +99,9 @@ public class SpringRetryConfig {
 			T result = template.execute(retryCallback); 
 			retryResult.setResult(result);
 			return retryResult;
-		} catch (Exception e) {
+		} catch (Throwable ex) {
 			//if(e instanceof RuntimeException) throw (RuntimeException)e;
-			throw new PropagatedRuntimeException("exception while trying.. " + retryResult.getContext(),e);
+			throw new PropagatedRuntimeException("exception while trying.. " + retryResult.getContext(),ex);
 		}
 	}
 	

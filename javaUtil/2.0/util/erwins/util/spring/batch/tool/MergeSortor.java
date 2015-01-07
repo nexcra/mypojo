@@ -1,7 +1,6 @@
 package erwins.util.spring.batch.tool;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -24,7 +23,6 @@ import com.google.common.collect.Lists;
 
 import erwins.util.lib.FileUtil;
 import erwins.util.nio.ThreadUtil;
-import erwins.util.root.exception.IORuntimeException;
 import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.text.StringUtil;
 
@@ -86,11 +84,7 @@ public class MergeSortor<T> {
 					if(each[1]==null){
 						//사실 카피할 필요는 없다. 일단 테스트로 봐야하니까 넣자.
 						//each[0].renameTo(getNextFile());
-						try {
-							FileUtil.copy(each[0], getNextFile());
-						} catch (IOException e) {
-							throw new IORuntimeException(e);
-						}
+						FileUtil.copy(each[0], getNextFile());
 					}else{
 						Future<Integer> future = pool.submit(new Read2FileAndMerge(each,getNextFile())); 
 						futures.add(future);
