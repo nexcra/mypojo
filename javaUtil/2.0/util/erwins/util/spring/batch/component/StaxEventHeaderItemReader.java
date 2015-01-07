@@ -1,7 +1,8 @@
-package erwins.util.spring.batch;
+package erwins.util.spring.batch.component;
 
 import java.io.InputStream;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -14,7 +15,10 @@ import javax.xml.transform.Source;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.NonTransientResourceException;
+import org.springframework.batch.item.ParseException;
+import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.batch.item.xml.StaxEventItemReader;
 import org.springframework.batch.item.xml.StaxUtils;
 import org.springframework.batch.item.xml.stax.DefaultFragmentEventReader;
@@ -25,15 +29,21 @@ import org.springframework.oxm.Unmarshaller;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import erwins.util.spring.batch.AbstractItemCountingItemStreamItemReaderNotFinal;
-import erwins.util.spring.batch.StaxDefaultUnmarshaller;
-import erwins.util.spring.batch.StaxDefaultUnmarshaller.XmlStreamEvent;
+import erwins.util.spring.batch.component.StaxDefaultUnmarshaller.XmlStreamEvent;
 import erwins.util.text.StringUtil;
 
 /** 
  * fragmentRootElementName만을 읽을 수 있던 버전을 수정해서  fragmentHeaderElementNames도 읽을 수 있게 변경했다.
- * 스래드 세이프 하다. */
-public class StaxEventHeaderItemReader<T> extends AbstractItemCountingItemStreamItemReaderNotFinal<T> implements ResourceAwareItemReaderItemStream<T>, InitializingBean{
+ * 확장 포인트를 알기 힘들어서 걍 싹다 복붙했다.. ㅠㅠ 
+ */
+@ThreadSafe
+public class StaxEventHeaderItemReader<T> extends AbstractItemCountingItemStreamItemReader<T> implements ResourceAwareItemReaderItemStream<T>, InitializingBean{
+
+	/** for ThreadSafe.. */
+	@Override
+	public synchronized T read() throws Exception, UnexpectedInputException, ParseException {
+		return super.read();
+	}
 	
 	private static final Log logger = LogFactory.getLog(StaxEventItemReader.class);
 
@@ -133,8 +143,7 @@ public class StaxEventHeaderItemReader<T> extends AbstractItemCountingItemStream
 				QName startElementName = ((StartElement) reader.peek()).getName();
 				String startElementLocalPartName = startElementName.getLocalPart();
 				if (startElementLocalPartName.equals(fragmentRootElementName)) {
-					if (fragmentRootElementNameSpace == null
-							|| startElementName.getNamespaceURI().equals(fragmentRootElementNameSpace)) {
+					if (fragmentRootElementNameSpace == null || startElementName.getNamespaceURI().equals(fragmentRootElementNameSpace)) {
 						return 1;
 					}
 				}else if(fragmentHeaderElementNames!=null && StringUtil.isEquals(startElementLocalPartName, fragmentHeaderElementNames)) return 2;

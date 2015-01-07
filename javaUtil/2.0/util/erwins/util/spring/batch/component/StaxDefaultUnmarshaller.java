@@ -1,4 +1,4 @@
-package erwins.util.spring.batch;
+package erwins.util.spring.batch.component;
 
 import java.io.IOException;
 import java.util.List;
