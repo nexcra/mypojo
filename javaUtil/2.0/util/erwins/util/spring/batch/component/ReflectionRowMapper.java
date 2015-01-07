@@ -1,4 +1,4 @@
-package erwins.util.spring.batch;
+package erwins.util.spring.batch.component;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -77,10 +77,6 @@ public class ReflectionRowMapper<T> implements RowMapper<T> {
 		}
 		return vo;
 	}
-
-    
-    
-    
     
 
 }
