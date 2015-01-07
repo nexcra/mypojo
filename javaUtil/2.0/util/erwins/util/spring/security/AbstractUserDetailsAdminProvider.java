@@ -12,7 +12,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 /**
  * 원래 프로바이더 앞에 와야 한다. 
  * 비번 정합 여부와 상관없이 강제 로그인을 하기 위한 로직이다.
- * 반드시 강력한 수단을 통해서 인증해야 한다. */
+ * 야매성 로직임으로 IP등, 반드시 강력한 수단을 통해서 인증해야 한다. 
+ * */
 public abstract class AbstractUserDetailsAdminProvider implements AuthenticationProvider{
 
 	private UserDetailsService userDetailsService;

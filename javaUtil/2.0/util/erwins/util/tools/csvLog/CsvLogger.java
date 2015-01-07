@@ -7,13 +7,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import lombok.Data;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 import erwins.util.spring.TransactionSynchCommit;
 import erwins.util.spring.TransactionSynchCommit.AfterCompletionAble;
-import erwins.util.tools.csvLog.CsvLogMamager.CsvLog;
-import erwins.util.tools.csvLog.CsvLogMamager.CsvLogInfo;
 
 
 /**
@@ -23,10 +22,9 @@ import erwins.util.tools.csvLog.CsvLogMamager.CsvLogInfo;
  * 주의! 이 로그를 단순 로그가 아니라 자료로 사용하려면 반드시 트랜잭션 동기화 기능을 사용해야 한다.
  *  */
 @Data
-public class CsvLogWriter<T> {
+public class CsvLogger<T> {
 
 	private final CsvLogInfo<T> csvLogInfo;
-	private final BlockingQueue<CsvLog> queue;
 	
 	/** 정확하지 않아도 된다.. */
 	private AtomicLong counter = new AtomicLong();
@@ -38,18 +36,13 @@ public class CsvLogWriter<T> {
 	/** 트랜잭션이 성공할때만 작동한다. */
 	private boolean withTransaction = false;
 	
-	public CsvLogWriter<T> setFlush(Boolean flush){
+	public CsvLogger<T> setFlush(Boolean flush){
 		this.flush = flush;
 		return this;
 	}
-	public CsvLogWriter<T> setWithTransaction(boolean withTransaction){
+	public CsvLogger<T> setWithTransaction(boolean withTransaction){
 		this.withTransaction = withTransaction;
 		return this;
-	}
-	
-	public void writeItem(Object vo){
-		T item = csvLogInfo.getCsvLogConverter().convert(vo);
-		writeLog(item);
 	}
 	
 	/** 
@@ -104,6 +97,8 @@ public class CsvLogWriter<T> {
 	}
 	
 	private void offerLog(final CsvLog log) {
+		BlockingQueue<CsvLog> queue = csvLogInfo.getQueue();
+		Preconditions.checkNotNull(queue,"정상적으로 CSV LOGGER가 초기화되지 못했습니다.");
 		try {
 			boolean success = queue.offer(log, timeoutSec, TimeUnit.SECONDS);
 			if(!success) throw new IllegalStateException("queue.offer fail. check queue size");

@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.openid.OpenIDAuthenticationFilter;
 
-
+/** 뭐하는거얐는지 기억도 안남.. */
 public class OpenIDAuthenticationTypeFilter extends OpenIDAuthenticationFilter{
     
     private static final String GOOGLE_DISCOVER = "https://www.google.com/accounts/o8/id";

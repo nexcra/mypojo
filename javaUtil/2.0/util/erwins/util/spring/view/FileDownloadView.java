@@ -18,7 +18,7 @@ import erwins.util.text.StringUtil;
 import erwins.util.vender.apache.Poi;
 import erwins.util.web.WebUtil;
 
-/** 로컬파일 or 인메모리 파일 다운로드일때 사용.
+/** static한 로컬파일 or 인메모리 파일 다운로드일때 사용.
  * DB등의 스트리밍 다운로드에 사용되지는 않는다 */
 public class FileDownloadView implements View{
 	
