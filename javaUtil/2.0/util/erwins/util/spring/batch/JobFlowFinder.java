@@ -17,6 +17,7 @@ import org.springframework.batch.core.job.flow.support.state.StepState;
 import com.google.common.collect.Maps;
 
 import erwins.util.lib.ReflectionUtil;
+import erwins.util.root.Incompleted;
 import erwins.util.text.StringUtil;
 
 /**
@@ -25,6 +26,7 @@ import erwins.util.text.StringUtil;
  * 
  * 일단 뭔지 잘 모르겠다. 나중에 볼것
  */
+@Incompleted
 public class JobFlowFinder {
     
 	@Resource private Map<String,Job> jobs;

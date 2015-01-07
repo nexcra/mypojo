@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
+import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.StepExecution;
 
 import erwins.util.root.Incompleted;
@@ -34,7 +35,8 @@ public abstract class UniqueNameRunListener implements JobExecutionListener,Iter
     }
     
     public void setCurrentStepInfo(StepExecution stepExecution,int size){
-        String jobName = JobUtil.getJobInstance(stepExecution).getJobName();
+    	JobInstance ji = stepExecution.getJobExecution().getJobInstance();
+        String jobName = ji.getJobName();
         currentRunnungJob.put(jobName, stepExecution.getId());
     }
 
@@ -67,7 +69,6 @@ public abstract class UniqueNameRunListener implements JobExecutionListener,Iter
             removeJob(jobName);
         }
     }
-
 
     private void removeJob(String jobName) {
         synchronized (this) {
