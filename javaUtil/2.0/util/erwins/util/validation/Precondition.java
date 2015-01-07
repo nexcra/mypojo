@@ -8,6 +8,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import com.google.common.base.Preconditions;
 
 import erwins.util.lib.ReflectionUtil;
+import erwins.util.root.Incompleted;
 
 /**
  * Preconditions의 추가버전
@@ -17,6 +18,7 @@ import erwins.util.lib.ReflectionUtil;
  * 
  * 나중에 기능 추가할것
  */
+@Incompleted
 public abstract class Precondition extends ExceptionUtils{
 	
 	/**
@@ -24,7 +26,7 @@ public abstract class Precondition extends ExceptionUtils{
 	 */
 	public static void isPositive(Number count, String message) {
 		if (count != null && count.doubleValue() > 0) return;
-		throw new InputValidationException(message);
+		throw new IllegalStateException(message);
 	}
 /*
 	*//**
@@ -39,7 +41,7 @@ public abstract class Precondition extends ExceptionUtils{
 	}
 	*/
 	public static void isTrue(boolean tf,String msg) {
-		if(!tf) throw new InputValidationException(msg);
+		if(!tf) throw new IllegalStateException(msg);
 	}
 	public static void isTrue(boolean tf) {
 		isTrue(tf,"is not true");

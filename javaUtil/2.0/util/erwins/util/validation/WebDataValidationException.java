@@ -13,7 +13,7 @@ import com.google.common.collect.Lists;
 
 import erwins.util.spring.SpringUtil;
 
-
+/** 템플릿이 필요함.. 어케 쓰나. */
 @SuppressWarnings("serial")
 public class WebDataValidationException extends ValidationException{
 	private final List<FieldError> fieldError;
