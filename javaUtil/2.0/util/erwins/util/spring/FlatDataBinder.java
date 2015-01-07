@@ -26,8 +26,8 @@ import com.google.common.collect.Maps;
 
 import erwins.util.lib.CompareUtil;
 import erwins.util.lib.ReflectionUtil;
-import erwins.util.spring.batch.CsvItemReader.CsvMapper;
-import erwins.util.spring.batch.CsvItemWriter.CsvAggregator;
+import erwins.util.spring.batch.component.CsvItemReader.CsvMapper;
+import erwins.util.spring.batch.component.CsvItemWriter.CsvAggregator;
 
 /** 스프링 DataBinder 를 사용하는 컬렉션 바인더. 로우별 변환 / 역변환을 제공
  *  1. CSV / XLS 등의 Flat 데이터를 VO로 변환 & 예외처리

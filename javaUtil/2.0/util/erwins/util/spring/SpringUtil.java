@@ -30,7 +30,7 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
+import org.springframework.remoting.httpinvoker.HttpComponentsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -88,7 +88,8 @@ public abstract class SpringUtil {
         httpProxy.setServiceUrl(url);
         httpProxy.setServiceInterface(clazz);
         if(timeoutSec!=null){
-        	CommonsHttpInvokerRequestExecutor httpInvokerRequestExecutor = new CommonsHttpInvokerRequestExecutor();
+        	//CommonsHttpInvokerRequestExecutor => HttpComponentsHttpInvokerRequestExecutor
+        	HttpComponentsHttpInvokerRequestExecutor httpInvokerRequestExecutor = new HttpComponentsHttpInvokerRequestExecutor();
             httpInvokerRequestExecutor.setReadTimeout((int)TimeUnit.SECONDS.toMillis(timeoutSec));
             httpInvokerRequestExecutor.setConnectTimeout((int)TimeUnit.SECONDS.toMillis(timeoutSec));	
             httpProxy.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);

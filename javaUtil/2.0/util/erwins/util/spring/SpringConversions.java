@@ -13,5 +13,14 @@ public abstract class SpringConversions {
 			return arg0.toString();
 		}
 	};
+	
+	/** 먹은거 바로 싸는 컨버터 */
+	public static class PassThroughConverter<T> implements Converter<T,T>{
+		@Override
+		public T convert(T source) {
+			return source;
+		}
+	}
+	
     
 }
