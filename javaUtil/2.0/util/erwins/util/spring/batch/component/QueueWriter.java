@@ -21,6 +21,9 @@ import com.google.common.collect.Lists;
  *  많은 요청을 단일 스래드로 배치 처리할때 주로 사용된다. (불특정 다수 로그의 DB입력 등)
  *  
  *  물론 WAS가 강제종료 되는경우 메모리에있던 값이 전부 소실됨으로 주의!
+ *  
+ *  만들긴 했는데 로깅용으론 부적합. 파일 롤링이 없음.. ㅠ
+ *  일단 만들었지만 쓰는데는 없당~
  *  */
 @Data
 public class QueueWriter<T> implements Runnable{
@@ -34,11 +37,11 @@ public class QueueWriter<T> implements Runnable{
 	
 	@Override
 	public void run() {
-		Thread current = Thread.currentThread();
+		Thread currentThread = Thread.currentThread();
 		List<T> items = Lists.newArrayList();
-		log.info(current.getName() + " thread start");
+		log.info(currentThread.getName() + " thread start");
 		try {
-			while(!current.isInterrupted()){
+			while(!currentThread.isInterrupted()){
 				T item = queue.poll(timeout, unit);
 				if(item==null){
 					//타임아웃이 된 경우
@@ -54,9 +57,9 @@ public class QueueWriter<T> implements Runnable{
 			//마지막 남은 큐를 처리하고 죽는다.
 			log.warn(this.getClass().getSimpleName() + " Interrupted! remain queue size : " + queue.size());
 			doItemWrite(items);
-			current.interrupt(); //혹시나. while밖에 있어서 안해도 끝나긴 한다.
+			currentThread.interrupt(); //혹시나. while밖에 있어서 안해도 끝나긴 한다.
 		}
-		log.info(current.getName() + " thread end");
+		log.info(currentThread.getName() + " thread end");
 	}
 
 	protected void doItemWrite(List<T> items){

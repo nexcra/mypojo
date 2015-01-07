@@ -3,8 +3,9 @@ package erwins.util.spring.batch.component;
 
 import java.io.IOException;
 
-import lombok.Getter;
-import lombok.Setter;
+import javax.annotation.concurrent.ThreadSafe;
+
+import lombok.Data;
 
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTableInterfaceFactory;
@@ -22,26 +23,21 @@ import com.google.common.base.Preconditions;
 
 import erwins.util.hadoop.hbase.HbaseSerializer;
 import erwins.util.hadoop.hbase.RowKeyAble;
-import erwins.util.root.ThreadSafe;
 
 /** 
  * HBase용 리더. 
  * Hadoop으로 처리하기 귀찮은 애들 처리용
  * */
 @ThreadSafe
+@Data
 public class HbaseItemReader<T extends RowKeyAble> implements ItemReader<T>, ItemStream,InitializingBean{
 	
 	public static final String READ_COUNT = "read.count";
 	
-	@Getter @Setter
 	private HTableInterfaceFactory factory;
-	@Getter @Setter
 	private String tableName;
-	@Getter @Setter
 	private Scan scan;
-	@Getter @Setter
 	private HbaseSerializer<T> hbaseSerializer;
-	@Getter @Setter
 	private Integer maxItemCount;
 	
 	@Override

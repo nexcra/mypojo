@@ -14,15 +14,17 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import erwins.util.lib.ReflectionUtil;
+import erwins.util.root.Incompleted;
 import erwins.util.root.exception.TextParseException;
-import erwins.util.spring.batch.CsvItemReader.CsvMapper;
-import erwins.util.spring.batch.CsvItemWriter.CsvAggregator;
+import erwins.util.spring.batch.component.CsvItemReader.CsvMapper;
+import erwins.util.spring.batch.component.CsvItemWriter.CsvAggregator;
 import erwins.util.text.StringUtil;
 
 /**
  * 1. 스프링 컨버터로 수정할것!
  * 2. 익스 / 인클루드 만들것! (이것도 스프링 컨버터에..)
  *  */
+@Incompleted
 public class ReflextionCsvConverter<T> implements CsvMapper<T>,CsvAggregator<T>{
 	
 	private final Class<T> persistentClass;

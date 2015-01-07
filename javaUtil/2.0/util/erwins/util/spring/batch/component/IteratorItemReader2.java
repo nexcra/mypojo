@@ -2,12 +2,12 @@ package erwins.util.spring.batch.component;
 
 import java.util.Iterator;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
-
-import erwins.util.root.ThreadSafe;
 
 
 /** IteratorItemReader가 생성자만 지원해서 새로 만들었다.

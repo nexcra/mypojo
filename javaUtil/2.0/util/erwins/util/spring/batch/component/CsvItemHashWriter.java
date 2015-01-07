@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.core.convert.converter.Converter;
@@ -20,8 +22,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 import erwins.util.guava.MultiMapUtil;
-import erwins.util.root.ThreadSafe;
-import erwins.util.spring.batch.CsvItemWriter;
 import erwins.util.text.StringUtil;
 import erwins.util.vender.etc.OpenCsv;
 
@@ -35,6 +35,8 @@ import erwins.util.vender.etc.OpenCsv;
  * BufferSize 역시 조절해야 한다. 기본 설정으로 1000개 열면 1000G 쓴다..
  * 
  * 노트북 기준. 병렬처리 한게 5배 정도 빠르다.
+ * 
+ * 나중에 해시값 말고 사용자 정의 파일이름을 받아서 처리하도록 변경하자
  */
 @ThreadSafe
 public class CsvItemHashWriter<T> extends CsvItemWriter<T>{
@@ -109,6 +111,7 @@ public class CsvItemHashWriter<T> extends CsvItemWriter<T>{
 					String[] line = csvAggregator.aggregate(item);
 					writer.writeNext(line);		
 				}
+				writer.flush();
 			}
 		}
 	}

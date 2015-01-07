@@ -20,8 +20,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
+import erwins.util.root.Incompleted;
 import erwins.util.root.NotThreadSafe;
-import erwins.util.spring.batch.CsvItemWriter;
 import erwins.util.text.StringUtil;
 
 /** 
@@ -33,9 +33,13 @@ import erwins.util.text.StringUtil;
  * 파일을 나눈다는 작업은 동일하지만 병렬처리 가능하냐의 차이가 있다.
  * 
  * 50G, 0.7억 로우의 파일 분리 / 검증해봤음.
+ * 
+ * 
+ * .... 그냥 존나 쓸모없다. CsvItemHashWriter 대신 사용자 정의의 조건문으로 변경 가능하게 바꾸자.
  */
 @NotThreadSafe
 @Data
+@Incompleted
 public class CsvItemMultiMapWriter<ID,T> implements ItemWriter<T>{
 	
 	private CsvItemWriter<T> delegate;
