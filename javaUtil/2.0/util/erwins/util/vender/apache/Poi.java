@@ -26,6 +26,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import erwins.util.root.Incompleted;
 import erwins.util.root.exception.IORuntimeException;
 import erwins.util.spring.SpringUtil;
 import erwins.util.text.FormatUtil;
@@ -35,6 +36,7 @@ import groovy.lang.Closure;
 /**
  * POI 패키지의 HSSF를 편리하게.. 헤더칸은 1칸 이라고 일단 고정 사각 박스를 예쁘게 채울려면 반드시 null에 ""를 채워 주자~
  */
+@Incompleted
 public class Poi extends PoiRoot{
 	
 	public static final int LIMIT_ROW = 32767; 

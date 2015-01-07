@@ -19,6 +19,7 @@ import net.spy.memcached.internal.OperationFuture;
 /**
  * MemcachedClient를 감싼다.
  * 레퍼런스 확인용
+ * 샘플소스 확인용임
  * @author sin
  */
 public class MemCache<T>{

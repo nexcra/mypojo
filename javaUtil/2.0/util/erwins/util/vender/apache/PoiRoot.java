@@ -37,6 +37,7 @@ import erwins.util.root.exception.IORuntimeException;
 
 /**
  * POI가 너무 길어서 나눔
+ * this를 리턴하는데가 있어서 public이여야 한다.
  */
 public abstract class PoiRoot{
 	

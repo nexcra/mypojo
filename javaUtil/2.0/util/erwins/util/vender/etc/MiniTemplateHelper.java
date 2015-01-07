@@ -19,6 +19,7 @@ import erwins.util.root.exception.IORuntimeException;
  * 향후 사용할때 수정
  * @author sin
  */
+@Deprecated
 public class MiniTemplateHelper {
 
     private String charset = "UTF-8";
