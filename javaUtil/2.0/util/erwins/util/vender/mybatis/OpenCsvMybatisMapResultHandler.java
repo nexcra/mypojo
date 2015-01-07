@@ -9,8 +9,10 @@ import org.apache.ibatis.session.ResultContext;
 
 import erwins.util.web.WebUtil;
 
-/** 간단한 리포트 등을 다운로드할때 사용한다.
- * 파라메터에 resultType="org.apache.commons.collections.map.ListOrderedMap" fetchSize="1000" 을 사용할것을 권장 */
+/** 
+ * 간단한 리포트 등을 다운로드할때 사용한다.  VO가 아닌 Map으로 받아서 바로 내려준다. 
+ * 파라메터에 resultType="org.apache.commons.collections.map.ListOrderedMap" fetchSize="1000" 을 사용할것을 권장
+ *  */
 public class OpenCsvMybatisMapResultHandler extends OpenCsvMybatisResultHandler{
 	
 	private String[] header;

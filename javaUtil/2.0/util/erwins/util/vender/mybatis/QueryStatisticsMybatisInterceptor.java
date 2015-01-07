@@ -42,7 +42,7 @@ import erwins.util.dateTime.TimeString;
 import erwins.util.lib.ReflectionUtil;
 import erwins.util.lib.ReflectionUtil.Fields;
 import erwins.util.spring.SpringUtil;
-import erwins.util.tools.StringAppender;
+import erwins.util.text.StringAppender;
 
 
 /**
@@ -63,7 +63,7 @@ import erwins.util.tools.StringAppender;
 })
 public class QueryStatisticsMybatisInterceptor implements Interceptor{
     
-	/** 어쩔 수 없이 static으로 만듬 */
+	/** 어쩔 수 없이 static으로 만듬.  ==> 나중에 멀티맵으로 수정하자 */
     public static final Map<String,QueryState> MAP = new ConcurrentHashMap<String,QueryState>();
     private Logger log = LoggerFactory.getLogger(this.getClass());
     

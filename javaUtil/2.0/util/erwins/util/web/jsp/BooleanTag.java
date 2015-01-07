@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * boolean 표현식을 문자로 바꿔준다.
+ * 누가 만든 태그가 있을거 같은데~~
  * @author sin 
  */
 @SuppressWarnings("serial")
