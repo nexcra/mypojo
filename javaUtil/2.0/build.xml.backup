@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="영감님Build" default="TestDaemon">
+	
+	<import file="buildTemplit.xml"/>
+	
+	<!-- 내PC 설정 -->
+	<property name="pc.dir.root" location="C:/DATA" />
+	<property name="path" value="/PROJECT/erwins/erwinsUtil/bin" />
+	
+	<!-- 나중에 활용하자 ex) <mvc:resources location="classpath:/META-INF/~~/" mapping="/js/asd/**"  /> -->
+	<target name="all" description="전체 NVISTA 프로젝트에 복사"  >
+		<antcall target="ocmobile" />
+		<antcall target="ocjobrunner2" />
+		<antcall target="TestDaemon" />
+		<antcall target="ocebayitem" />
+		<antcall target="ocdisplay" />
+		<antcall target="ocapi" />
+		<antcall target="occenter" />
+		<antcall target="ocadmin" />
+	</target>
+	
+	<target name="seed" description="전체 NVISTA 프로젝트에 복사"  >
+		<antcall target="seed_center" />
+		<antcall target="seed_batch" />
+		<antcall target="seed_common" />
+		<antcall target="epe_util" />
+	</target>
+	
+	<target name="seed_center" >
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\11h11m_seed/workspace\seed_center/WebContent\WEB-INF\lib" />
+	</target>
+	<target name="seed_batch" >
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\11h11m_seed/workspace\seed_batch/WebContent\WEB-INF\lib" />
+	</target>	
+	<target name="seed_common" >
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\11h11m_seed/workspace\seed_common/WebContent\WEB-INF\lib" />
+	</target>
+	<target name="epe_util" >
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\11h11m_seed/workspace\epe_util/WebContent\WEB-INF\lib" />
+	</target>	
+	
+	
+	<target name="ocmobile" description="배포할 jar 및 js를  모바일 프로젝트">
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\ocmobile/WebContent\WEB-INF\lib" />
+	</target>
+	
+	<target name="ocjobrunner2" description="배포할 jar 및 js를  확장프로젝트에 복사한다.">
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\ocjobrunner2/WebContent\WEB-INF\lib" />
+	</target>
+	
+	<target name="TestDaemon" description="배포할 jar 및 js를  확장프로젝트에 복사한다.">
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\TestDaemon/WebContent\WEB-INF\lib" />
+	</target>
+	
+	<target name="ocebayitem" description="배포할 jar 및 js를 Ebayitem프로젝트에 복사한다.">
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\ocebayitem/WebContent\WEB-INF\lib" />
+	</target>
+	
+	<target name="ocdisplay" description="배포할 jar 및 js를 Display프로젝트에 복사한다.">
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\ocdisplay/WebContent\WEB-INF\lib" />
+	</target>
+	
+	<target name="ocapi" description="배포할 jar 및 js를 API프로젝트에 복사한다.">
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\ocapi/WebContent\WEB-INF\lib" />
+	</target>	
+	
+	<target name="occenter" description="배포할 jar 및 js를 센터 프로젝트에 복사한다.">
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\occenter/WebRoot\WEB-INF\lib" />
+	</target>	
+	
+	<target name="ocadmin" description="배포할 jar 및 js를 admin 프로젝트에 복사한다.">
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\ocadmin/WebContent\WEB-INF\lib" />
+	</target>		
+	
+	<target name="egad_main" description="배포할 jar 및 js를 11-main 프로젝트에 복사한다.">
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\egad_main/WebContent\WEB-INF\lib" />
+	</target>
+	
+	<target name="egad_batch" description="배포할 jar 및 js를 11-batch 프로젝트에 복사한다.">
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\egad_batch/WebContent\WEB-INF\lib" />
+	</target>
+	
+	<target name="jgnr_display" description="배포할 jar 및 js를 admin 프로젝트에 복사한다.">
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\jgnr_display/WebContent\WEB-INF\lib" />
+	</target>
+	
+	<target name="jgnr_main" description="배포할 jar 및 js를 admin 프로젝트에 복사한다.">
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}${path}" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\jgnr_main/WebContent\WEB-INF\lib" />
+	</target>
+	
+	<!-- 
+	<target name="kcp" description="KCP를 패키징">
+		<changeJar name="kcpClient.jar" classpath="C:\DATA\맥퍼트\PG연계2_KCP\ax_hub_windows_jsp\class"
+			pakage="*" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\occenter/WebRoot\WEB-INF\lib" />
+		<changeJar name="kcpClient.jar" classpath="C:\DATA\맥퍼트\PG연계2_KCP\ax_hub_windows_jsp\class"
+			pakage="*" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\ocjobrunner2/WebContent\WEB-INF\lib" />		
+	</target>
+	
+	<target name="카피테스트" description="카피테스트">
+		<changeJar name="kcpClient.jar" classpath="C:\DATA\맥퍼트\PG연계2_KCP\ax_hub_windows_jsp\class"
+			pakage="*" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\occenter/WebRoot\WEB-INF\lib" />
+		<changeJar name="kcpClient.jar" classpath="C:\DATA\맥퍼트\PG연계2_KCP\ax_hub_windows_jsp\class"
+			pakage="*" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\ocjobrunner2/WebContent\WEB-INF\lib" />
+		
+		<copy  todir="C:\DATA\download" overwrite="yes" >
+			<fileset dir="C:\DATA\PROJECT\workspaceMacpert2\ocjobrunner2\WebContent\WEB-INF\lib" includes="*.jar" />
+		</copy>
+	</target>	
+	 -->
+	
+
+	<!-- 	
+	<target name="copyTo Project" description="배포할 jar 및 js를  확장프로젝트에 복사한다.">
+		<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}/PROJECT\erwins\erwinsUtil/bin" pakage="erwins/util" todir="${pc.dir.root}/PROJECT\erwins\wowraidkorea/war\WEB-INF\lib" />
+	</target>
+	 -->	
+	
+	<!--
+	<target name="copyToProject2" description="배포할 jar 및 js를  확장프로젝트에 복사한다.">
+			<changeJar name="erwins2.0.jar" classpath="${pc.dir.root}/PROJECT\workspace2\erwinsUtil/bin"
+					pakage="erwins/util" todir="${pc.dir.root}/PROJECT\workspaceMacpert2\TestDemon\WebContent\WEB-INF\lib" />
+	</target>
+	-->
+</project>
