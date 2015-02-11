@@ -2,9 +2,10 @@ package erwins.util.groovy
 
 import groovy.sql.Sql
 
+/** 소스 참고용 */
 public abstract class CubridMetadata {
 	
-public static getMedadata(Sql sql){
+	public static getMedadata(Sql sql){
 		
 		def 테이블코멘트 = [:]
 		def 컬럼코멘트 = [:]

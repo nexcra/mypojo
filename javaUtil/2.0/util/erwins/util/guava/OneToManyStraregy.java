@@ -8,7 +8,8 @@ import javax.persistence.OneToMany;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 
-/** oneToMany의 기본구현.  */
+/** oneToMany의 기본구현.
+ * @OneToMany 어노테이션이 있으면 컨버팅하지 않는다.  */
 public class OneToManyStraregy  implements ExclusionStrategy{
 	
 	@Override

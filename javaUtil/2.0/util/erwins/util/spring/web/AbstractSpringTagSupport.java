@@ -1,4 +1,4 @@
-package erwins.util.spring;
+package erwins.util.spring.web;
 
 import java.io.IOException;
 

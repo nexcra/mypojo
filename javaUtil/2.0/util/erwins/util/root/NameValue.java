@@ -1,6 +1,9 @@
 package erwins.util.root;
 
-/** Pair 하고 비슷하다. 단순 enum 등의 마킹용 */
+/** 
+ * Spring tag에서 HTML을 구성할때 사용된다.
+ * map 에 tag.put(nv.getValue(), nv.getName()) 형식으로 입력됨
+ *  */
 public interface NameValue{
     
 	public String getName() ;

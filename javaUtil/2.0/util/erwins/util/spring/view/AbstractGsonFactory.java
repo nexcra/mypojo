@@ -10,8 +10,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 
-/** JsonView의 설정파일을 관리한다. */
-public abstract class AbstractJsonFactory implements JsonFactory{
+/** GsonView의 설정파일을 관리한다. */
+public abstract class AbstractGsonFactory implements GsonFactory{
 	
 	private static final String ENCODING = "UTF-8";
 	/**  IE에서 application/json로 보내면 다운로드가 되는 현상이 있다. 아래로 변경해준다 */
@@ -25,10 +25,19 @@ public abstract class AbstractJsonFactory implements JsonFactory{
 	protected String messageKey = MESSAGE_KEY;
     protected Gson gson;
     
-    public JsonView get(){
+    public GsonView get(){
     	Preconditions.checkNotNull(gson, "AbstractJsonFactory의 초기화를 진행해 주세요");
-    	return new JsonView(gson,encoding,contentType,successKey,messageKey);
+    	return new GsonView(gson,encoding,contentType,successKey,messageKey);
     }
+    
+    public GsonView get(Object msg){
+    	return get().of(msg);
+    }
+    
+    public Gson gson(){
+    	return gson;
+    }
+    
     
     protected abstract void config(GsonBuilder gsonBuilder);
     

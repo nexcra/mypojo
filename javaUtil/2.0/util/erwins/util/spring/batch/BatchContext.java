@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
@@ -25,7 +26,6 @@ import org.springframework.batch.item.ExecutionContext;
  */
 public class BatchContext{
     
-	public static final ExitStatus COMPLETED = new ExitStatus("COMPLETED");
 	public static final FlowExecutionStatus CONTINUE = new FlowExecutionStatus("CONTINUE");
     
     /** 정상 완료된 상태인가?
@@ -33,8 +33,18 @@ public class BatchContext{
     public boolean isCompletedStep (){
         return isCompleted(se.getExitStatus());
     }
+    
+    public boolean isCompletedJob (){
+        return isCompleted(je.getExitStatus());
+    }
+    
+    /** 리스너 등에서 중지했을 경우. */
+    public boolean isStopped (){
+        return je.getStatus() == BatchStatus.STOPPED;
+    }
+    
     public static boolean isCompleted(ExitStatus es){
-        return COMPLETED.equals(es);
+        return ExitStatus.COMPLETED.equals(es);
     }
 
     public final JobInstance ji;

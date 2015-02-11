@@ -5,7 +5,7 @@ package erwins.util.si.idGererator;
  * 테스트의 용이함을 위해 인터페이스로 만들었다.
  * @author sin
  */
-public interface IncrementIdDao{
+public interface IncrementIdRepository{
     
 	/** oracle seq 등을 가져온다 */
     public long nextval();

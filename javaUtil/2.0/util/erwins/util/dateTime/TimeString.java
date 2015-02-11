@@ -89,9 +89,12 @@ public class TimeString {
         else if(MM!=0) return MessageFormat.format("{0}분 {1}초", MM,ss);
         else{
         	if(ss>10) return MessageFormat.format("{0}초", ss);
-        	else {
+        	else if(millis >= 100){
+        		//0.10초 까지 표현
         		BigDecimal c = new BigDecimal((double)millis / 1000).setScale(2,RoundingMode.HALF_UP);
         		return c.toString() + "초";
+        	} else {
+        		return millis + "밀리초";
         	}
         }
     }

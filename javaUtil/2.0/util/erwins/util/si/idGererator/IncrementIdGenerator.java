@@ -14,7 +14,7 @@ public class IncrementIdGenerator {
 	/** 오라클 시퀀스 1개당 10000개의 키를 사용한다. */
     private static final Integer DEFAULT_LIMIT = 10000;
 	
-    @Resource private IncrementIdDao seqDao;
+    @Resource private IncrementIdRepository incrementIdRepository;
 
     /** 변경시 조심해야 한다. */
     private int limit = DEFAULT_LIMIT;
@@ -26,7 +26,7 @@ public class IncrementIdGenerator {
      * 109를 로드한 경우 1090001~2000000 까지의 키를 리턴한다. */
     public synchronized Long nextval(){
         if(currentValue > maxValue){
-            Long oracleSeq = seqDao.nextval();
+            Long oracleSeq = incrementIdRepository.nextval();
             currentValue = oracleSeq * limit + 1;
             maxValue = (oracleSeq+1) * limit;
         }
@@ -45,8 +45,8 @@ public class IncrementIdGenerator {
 		this.limit = limit;
 	}
 
-	public void setSeqDao(IncrementIdDao seqDao) {
-		this.seqDao = seqDao;
+	public void setSeqDao(IncrementIdRepository seqDao) {
+		this.incrementIdRepository = seqDao;
 	}
     
     

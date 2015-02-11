@@ -8,7 +8,10 @@ import javax.persistence.ManyToOne;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 
-/** ManyToOne의 기본구현.  */
+/** 
+ * ManyToOne의 기본구현.
+ * @ManyToOne 어노테이션이 있으면 컨버팅하지 않는다.
+ *   */
 public class ManyToOneStraregy  implements ExclusionStrategy{
 	
 	@Override

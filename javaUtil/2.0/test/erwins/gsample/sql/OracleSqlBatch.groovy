@@ -1,9 +1,10 @@
-package erwins.util.groovy
+package erwins.gsample.sql
 
 
 import erwins.util.vender.apache.Poi
 
 /** 이상한거, 대용량 다 지움.. */
+/** 소스 참고용 */
 public class OracleSqlBatch{
 
 	final OracleSql db;

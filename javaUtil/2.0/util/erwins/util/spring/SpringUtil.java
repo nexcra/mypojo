@@ -21,6 +21,7 @@ import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.io.IOUtils;
 import org.aspectj.lang.JoinPoint;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -36,10 +37,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequestDataBinder;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.google.common.base.Joiner;
@@ -128,7 +133,15 @@ public abstract class SpringUtil {
         PreparedStatementSetter ps = new PreparedStatementSetter(){
             @Override
             public void setValues(PreparedStatement arg0) throws SQLException {
-                for(int i=0;i<params.length;i++) arg0.setObject(i+1,params[i]); //1부터 시작한다.
+                for(int i=0;i<params.length;i++) {
+                	Object value = params[i];
+                	//SpringBatchMock.select 등의 간단 메서드에서 enum을 직접 사용하기 위함
+                	if(value instanceof Enum){
+                		Enum<?> en = (Enum<?>) value;
+                		value = en.name();
+                	}
+                	arg0.setObject(i+1,value); //1부터 시작한다.
+                }
             }
         };
         return ps;
@@ -386,6 +399,20 @@ public abstract class SpringUtil {
 			words.add(subkey);
 		}
 		return words;
+	}
+	
+	/** 
+	 * HandlerMethodArgumentResolver 에서 사용한다.
+	 * 이렇게 하나 그냥 컨트로러에서 받으나 둘다 컨버터 적용됨 validator 는 확인못함..
+	 *  */
+	public static BindingResult resolveArgument(MethodParameter parameter, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+		Object vo = ReflectionUtil.newInstance(parameter.getParameterType());
+		ExtendedServletRequestDataBinder binder = (ExtendedServletRequestDataBinder) binderFactory.createBinder(webRequest, vo, parameter.getParameterType().getSimpleName());
+		ServletWebRequest req = (ServletWebRequest) webRequest;
+		binder.bind(req.getRequest());
+		binder.validate();
+		BindingResult bindingResult = binder.getBindingResult();
+		return bindingResult;
 	}
     
 }

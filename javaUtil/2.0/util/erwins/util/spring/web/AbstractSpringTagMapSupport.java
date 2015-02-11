@@ -1,4 +1,4 @@
-package erwins.util.spring;
+package erwins.util.spring.web;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

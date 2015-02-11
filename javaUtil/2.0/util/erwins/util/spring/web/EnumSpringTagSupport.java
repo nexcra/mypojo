@@ -1,4 +1,4 @@
-package erwins.util.spring;
+package erwins.util.spring.web;
 
 import java.util.Map;
 
@@ -6,6 +6,7 @@ import org.apache.commons.collections.map.ListOrderedMap;
 
 import com.google.common.base.Preconditions;
 
+import erwins.util.spring.SpringUtil;
 import erwins.util.text.StringUtil;
 
 

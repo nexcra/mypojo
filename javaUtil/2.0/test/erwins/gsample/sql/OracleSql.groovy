@@ -1,7 +1,7 @@
-package erwins.util.groovy
+package erwins.gsample.sql
 
 
-import erwins.util.groovy.Tb.Col
+import erwins.gsample.sql.Tb.Col
 import groovy.sql.Sql
 
 

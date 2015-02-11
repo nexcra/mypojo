@@ -1,4 +1,4 @@
-package erwins.util.groovy
+package erwins.gsample.sql
 
 
 import org.apache.commons.collections.map.ListOrderedMap
@@ -10,6 +10,7 @@ import com.google.common.collect.Sets
 import erwins.util.text.StringUtil
 
 
+/** 소스 참고용 */
 public class OracleSqlBean{
 
 	final OracleSql db;

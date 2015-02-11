@@ -1,14 +1,17 @@
 package erwins.util.groovy
 
+import com.google.common.collect.Sets
+
 import erwins.util.text.StringUtil
+import groovy.sql.GroovyRowResult
 
 /** 
  * SQL의 메타데이터를 넣어주면 간단한 스크립트를 생성해준다.
  *  */
 public class ScriptGenerator {
 	
-	public static def ORACLE_TO_JDBC_TYPE = ['NUMBER':'NUMERIC','DATE':'TIMESTAMP ','VARCHAR2':'VARCHAR','CHAR':'CHAR']
-	public static def ORACLE_TO_JAVA_TYPE = ['NUMBER':'Long','DATE':'Date','VARCHAR2':'String','CHAR':'String']
+	public static def ORACLE_TO_JDBC_TYPE = ['NUMBER':'NUMERIC','DATE':'TIMESTAMP','TIMESTAMP':'TIMESTAMP','VARCHAR2':'VARCHAR','CHAR':'CHAR','CLOB':'CLOB']
+	public static def ORACLE_TO_JAVA_TYPE = ['NUMBER':'Long','DATE':'Date','TIMESTAMP':'Date','VARCHAR2':'String','CHAR':'String','CLOB':'String']
 	
 	public static def CUBRID_TO_JDBC_TYPE = ['NUMERIC':'NUMERIC','TIMESTAMP':'TIMESTAMP','DATETIME':'DATETIME','VARCHAR':'VARCHAR','CHAR':'CHAR','CLOB':'CLOB']
 	public static def CUBRID_TO_JAVA_TYPE = ['NUMERIC':'Long','TIMESTAMP':'Date ','DATETIME':'Date','VARCHAR':'String','CLOB':'String']
@@ -110,6 +113,96 @@ public class ScriptGenerator {
 			
 			테이블['JAVA_BEAN'] = 자바빈.join("\n")
 		}
+		
+	}
+	
+	/**
+	 * 테스트용 견본이며, 실제 사이트마다 복사/붙여넣기 후 수정해서 사용
+	 * 조인절의 경우 뒷 테이블의 FK가 앞테이블의 PK에 반드시 존재해야 한다.
+	 * domainTable에는 약어를 붙이지 않는다.
+	 * ex)
+	 * 	   def 메타데이터 = OracleMetadata.getMedadata(sql, "BATCH_JOB","BATCH_STEP")
+	 *     메타데이터.find{ it['테이블명'] == 'BATCH_JOB' }['도메인테이블'] = true
+	 *     String joinSql = printMybatisJoin(sql,메타데이터)
+	 * */
+	public String printMybatisJoin(List 메타데이터){
+		
+		def 약어중복체크 =  Sets.newHashSet()
+		메타데이터.each {
+			while(!약어중복체크.add(it['약어'])){
+				it['약어'] = StringUtil.plusAsLastNumber(it['약어'],1)
+			}
+		}
+		
+		def 테이블찾기 = { 테이블명 ->  return 메타데이터.find{ it['테이블명'] == 테이블명 } }
+		
+		def 조인절SQL = [];
+		
+		def 선행테이블 = null
+
+		메타데이터.each{ 테이블정보 ->
+			def 테이블명 = 테이블정보['테이블명']
+			def 약어 = 테이블정보['약어']
+			if(조인절SQL.isEmpty()){
+				조인절SQL << "$테이블명 $약어"
+				선행테이블 = 테이블정보  //첫번째 / 두번때 조인 테이블은 위치가 변경되어도 상관없어야 한다. 대충 하드코딩
+			}else{
+				Collection FK_SET = 테이블정보['FK_SET'] //[COLUMN_NAME:JOB_NAME, R테이블:BATCH_JOB, R컬럼:JOB_NAME] 이런식
+				if(FK_SET.isEmpty() && 조인절SQL.size()==1)  FK_SET = 선행테이블['FK_SET']
+				if(FK_SET.isEmpty()) {
+					조인절SQL << "$테이블명 $약어 ON --"
+					return
+				}
+				def 조인SQL = "JOIN $테이블명 $약어 ON "
+				
+				FK_SET.each {  FK ->
+					def FK테이블 = 테이블찾기(FK['R테이블'])
+					if( FK테이블 == 테이블정보 ) FK테이블 = 선행테이블  //둘이 같다면 조인순서때문에 바뀐거..
+					if(FK테이블==null) println '이러기없기~'
+					def FK테이블약어 = FK테이블['약어']
+					조인SQL += "$FK테이블약어.$FK.R컬럼 = $약어.$FK.COLUMN_NAME"
+				}
+				조인절SQL << 조인SQL
+			}
+		}
+		
+		def SQL = "SELECT ";
+		SQL += 메타데이터.collect{ 테이블정보 ->
+			테이블정보['컬럼들'].collect {
+				def 컬럼명 = it['컬럼명']
+				테이블정보['도메인테이블'] ? "${테이블정보.약어}.$컬럼명" :  "${테이블정보.약어}.$컬럼명 AS \"${테이블정보.약어}_$컬럼명\""
+			}.join(" , ") }.join(", \n")
+		SQL += "\nFROM " +  조인절SQL.join("\n")
+
+		return SQL.toString()
+	}
+	
+	/** 통계 등 간이 SQL을 bean으로 매핑 */
+	public void printSqlMappingScript(List<GroovyRowResult> list){
+		
+		if(list.size()==0) throw new IllegalStateException('1개 이상의 결과가 있어야 합니다.')
+
+		def oneRow = list[0]
+		def map = [:]
+		def cn = oneRow.keySet()
+
+		def writer = new StringWriter()
+		def builder = new groovy.xml.MarkupBuilder(writer)
+		def className = 'Sample';
+		def invoices = builder.resultMap(id:className.capitalize()+'Map',type:className.capitalize()){
+			cn.each { result(property:it.camelize(),column:it) }
+		}
+		
+		println writer.toString()
+
+		def javaResult = []
+		cn.each{
+			def value = oneRow[it]
+			def type =  value==null ? 'Object' : value.class.simpleName
+			javaResult << "private $type ${it.camelize()};"
+		}
+		
+		println javaResult.join('\n')
 		
 	}
 	

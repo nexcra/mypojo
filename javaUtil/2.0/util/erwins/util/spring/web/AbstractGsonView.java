@@ -1,5 +1,4 @@
-package erwins.util.spring.view;
-
+package erwins.util.spring.web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -18,63 +17,66 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import erwins.util.spring.view.GsonView;
 import erwins.util.web.WebUtil;
 
-/** 
- * AbstractJsonFactory 를 위해서 새로 만듬.
- * 
- * 추가하고싶은것들을 확장해서 사용
+/** 추가하고싶은것들을 확장해서 사용
  * Gson은 json으로 변환시에는 중첩 컬렉션 객체를 지원하지만 그 역변환은 허용되지 않는다.
+ * TypeToken을 잘 활용해야 한다.
+ * 
+ *   이제 사용 금지~
+ *   @Deprecated 는 아직 안붙임
+ *   @see GsonView
+ *   
  *   */
-public class JsonView implements View {
-	
-	private final Gson gson;
-	private final String encoding;
-	private final String contentType;
-	private final String successKey;
-	private final String messageKey;
-	
-	public JsonView(Gson gson,String encoding, String contentType, String successKey, String messageKey) {
-		super();
-		this.gson = gson;
-		this.encoding = encoding;
-		this.contentType = contentType;
-		this.successKey = successKey;
-		this.messageKey = messageKey;
-	}
+public abstract class AbstractGsonView implements View {
 
-	private JsonObject body = new JsonObject();
-	private JsonElement message;
+	private static final String UTF_8 = "UTF-8";
+	//private static final String CONTENT_TYPE =  "application/json";
+	/**  IE에서 application/json로 보내면 다운로드가 되는 현상이 있다. 아래로 변경해준다 */
+	private static final String CONTENT_TYPE =  "text/html";
+	private static final String IS_SUCCESS_KEY = "success";
+	private static final String MESSAGE_KEY = "message";
+	
+	protected abstract Gson getGson();
+	
+    protected JsonObject body = new JsonObject();
+    protected JsonElement message;
     private boolean success = true;
     /** true일 경우 한번 적용된다. */
     private boolean flat = false;
     
-    /** 직접 body에 입력할때 한해서 사용한다. 특수용도 */
-    public JsonView setObjectToBody(String key, Object obj) {
+    public AbstractGsonView(){}
+    
+    public AbstractGsonView(Object obj){
+    	message = toJson(obj);
+    }
+    
+    /** 직접 body에 입력할때 한해서 사용한다. */
+    public AbstractGsonView setObject(String key, Object obj) {
     	body.add(key, toJson(obj));
 		return this;
 	}
     
     /** 기존 메세지가 있어도 오버라이트 */
-    public JsonView msg(String msg,Object ... obj) {
+    public AbstractGsonView setMessageStr(String msg,Object ... obj) {
     	if(obj.length != 0 ) msg =  MessageFormat.format(msg, obj);
     	message = new JsonPrimitive(msg);
         return this;
     }
     
-    public JsonView of(Object obj) {
+    public AbstractGsonView setMessage(Object obj) {
     	message = toJson(obj);
         return this;
     }
     
-    /** flat 지정후 바로 toJson()이 호출되어야 한다. */
-    public JsonView flat(boolean flat) {
+    public AbstractGsonView setFlat(boolean flat) {
 		this.flat = flat;
 		return this;
 	}
 
 	/** 동적으로 추가할때 적용된다. 한번이라도 호출한다면 setMessage는 무시된다. */
-    public JsonView add(String key, Object obj) {
+    public AbstractGsonView addMessage(String key, Object obj) {
     	if(message==null) message = new JsonObject();
     	if(!JsonObject.class.isAssignableFrom(message.getClass())) message = new JsonObject();
     	JsonObject msgJson = (JsonObject)message;
@@ -95,7 +97,7 @@ public class JsonView implements View {
     		return json;
     	}
     	else{
-    		JsonElement json = gson.toJsonTree(obj);
+    		JsonElement json = getGson().toJsonTree(obj);
     		if(flat) {
     			flat = false;
     			return toFlatData(json);
@@ -104,11 +106,26 @@ public class JsonView implements View {
     	}
     }
     
-    public JsonView isFail() {
+    public AbstractGsonView isFail() {
 		this.success = false;
 		return this;
 	}
 
+	@Override
+	public String getContentType() {
+		return CONTENT_TYPE;
+	}
+	/** 필요하다면 오버라이딩 */
+	public String getSuccesskey() {
+		return IS_SUCCESS_KEY;
+	}
+	/** 필요하다면 오버라이딩 */
+	public String getMessagekey() {
+		return MESSAGE_KEY;
+	}
+	public String getEncoding() {
+		return UTF_8;
+	}
 	/** resp를 닫아주지 않는다. 누가 해주겠지. */
 	@Override
 	public void render(Map<String, ?> arg0, HttpServletRequest arg1, HttpServletResponse resp) throws Exception {
@@ -119,7 +136,7 @@ public class JsonView implements View {
 	public void render(HttpServletResponse resp) throws IOException {
 		//resp.setHeader("Pragma", "private");
 		//resp.setHeader("Cache-Control", "private, must-revalidate");
-		resp.setContentType(getContentType()+"; charset=" + encoding);
+		resp.setContentType(getContentType()+"; charset=" + getEncoding());
 		WebUtil.cacheForSeconds(resp, -1, true);
 		PrintWriter writer =  resp.getWriter();
 		JsonObject jsonBody = getBody();
@@ -127,8 +144,8 @@ public class JsonView implements View {
 	}
 	
 	public JsonObject getBody(){
-		body.addProperty(successKey, success);
-		if(message!=null)  body.add(messageKey, getMessage());
+		body.addProperty(getSuccesskey(), success);
+		if(message!=null)  body.add(getMessagekey(), getMessage());
 		return body;
 	}
 	
@@ -144,10 +161,6 @@ public class JsonView implements View {
 		return getMessage().getAsJsonObject();
 	}
 	
-	/** 
-	 * 객체 안에 객체가 들어있는 tree 구조의 자료를 일자 구조로 만들어준다.
-	 * 여기서 key는 . 으로 연결된다.  
-	 * ext 등의 flat만 지원하는 그리드에서 사용한다. */
 	private JsonElement toFlatData(JsonElement message) {
 		if(message.isJsonObject()) return toFlatData(message.getAsJsonObject());
 		else if(message.isJsonArray()) return toFlatData(message.getAsJsonArray());
@@ -175,11 +188,6 @@ public class JsonView implements View {
 			}
 		}
 		return newJson;
-	}
-
-	@Override
-	public String getContentType() {
-		return contentType;
 	}
 	
 }

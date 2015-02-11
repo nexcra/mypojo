@@ -21,7 +21,7 @@ import erwins.util.root.Incompleted;
  * 개선의 여지가 있다.
  *  */
 @Incompleted
-public abstract class UniqueNameRunListener implements JobExecutionListener,Iterable<Entry<String,Long>>{
+public abstract class UniqueExecutionListener implements JobExecutionListener,Iterable<Entry<String,Long>>{
     
     /** 배치 이름과 현재 진행중인 스텝ID를 기록한다.
      * 이 이외의 정보는 DB를 조회해서 얻을 수 있다 */

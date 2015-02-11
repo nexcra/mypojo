@@ -1,7 +1,10 @@
 package erwins.util.spring.batch;
 
+import javax.persistence.ManyToOne;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * 스프링배치의 기본VO
@@ -10,6 +13,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper=true)
+@ToString(exclude={"batchJob"})
 public class BatchStep extends BatchExecution{
 
     //================== BATCH_STEP_EXECUTION ====================
@@ -23,5 +27,11 @@ public class BatchStep extends BatchExecution{
     private Long writeSkipCount;
     private Long processSkipCount;
     private Long rollbackCount;
+    
+    //================== XML ====================
+    private String stepDescription;
+    private Long sortOrder;
+    @ManyToOne
+    private BatchJob batchJob;
 
 }

@@ -15,7 +15,9 @@ import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.handlers.MapHandler;
 import org.apache.commons.io.IOUtils;
+import org.springframework.core.convert.converter.Converter;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -29,6 +31,18 @@ import erwins.util.text.StringUtil;
  * 자주 쓰는거만 일단 만듬. 
  * 향후 추가하자. */
 public class JdbcUtil {
+	
+	/** 일단 간이. enum을 자동변환 해주자. */
+	public static Converter<Object,Object> CONVERTER = new Converter<Object, Object>() {
+		@Override
+		public Object convert(Object source) {
+			if(source instanceof Enum){
+        		Enum<?> en = (Enum<?>) source;
+        		return en.name();
+        	}
+			return source;
+		}
+	};
 
 	/** 부분 커밋하면서 입력한다.
 	 * ex) batchInsert(dataSource,"QQ", params, 1000); */
@@ -38,7 +52,7 @@ public class JdbcUtil {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			QueryRunner runner = new QueryRunner(dataSource);
+			QueryRunner runner = new QueryRunner();
 			
 			StringAppender appender = new StringAppender();
 			appender.appendLine("SELECT a.TABLE_NAME,a.COLUMN_NAME,COMMENTS,DATA_TYPE,DATA_LENGTH,DATA_PRECISION,DATA_SCALE");
@@ -57,8 +71,19 @@ public class JdbcUtil {
 			String sql = "INSERT INTO "+tableName+" ("+StringUtil.join(columnNames,",")+") values ("+StringUtil.iterateStr("?", ",", columnNames.size())+")";
 			
 			List<List<Object[]>> splited = CollectionUtil.splitBySize(params, commitInterval); 
-			for(List<Object[]> each : splited){
-				runner.batch(conn, sql, each.toArray(new Object[each.size()][]));
+			for(List<Object[]> inputList : splited){
+				
+				Object[][] convertedList = new Object[inputList.size()][];
+				
+				for(int i=0;i<convertedList.length;i++){
+					Object[] input = inputList.get(i);
+					Object[] converted = new Object[input.length];
+					for(int j=0;j<input.length;j++){
+						converted[j] = CONVERTER.convert(input[j]);
+					}
+					convertedList[i] = converted;
+				}
+				runner.batch(conn, sql, convertedList);
 				conn.commit();
 			}
 		} catch (SQLException e) {
@@ -76,7 +101,7 @@ public class JdbcUtil {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			QueryRunner runner = new QueryRunner(dataSource);
+			QueryRunner runner = new QueryRunner();
 			List<List<Object[]>> splited = CollectionUtil.splitBySize(params, commitInterval); 
 			for(List<Object[]> each : splited){
 				runner.batch(conn, sql, each.toArray(new Object[each.size()][]));
@@ -97,7 +122,7 @@ public class JdbcUtil {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			QueryRunner runner = new QueryRunner(dataSource);
+			QueryRunner runner = new QueryRunner();
 			runner.update(conn, sql, params);
 			conn.commit();
 			
@@ -151,5 +176,40 @@ public class JdbcUtil {
 		}
     	return newItems;
     }
+    
+
+	/**   
+	 * 별도의 커넥션 관련 코딩이 필요하다.
+	 * ex)Connection conn = null;  conn = dataSource.getConnection(); 
+	 * @throws SQLException 
+	 *  */
+	public static <T> T query(Connection conn,String sql,ResultSetHandler<T> rsh,Object ... params) throws SQLException{
+		QueryRunner runner = new QueryRunner();
+		T result =  runner.query(conn,sql, rsh, params);
+		return result;
+	}
+	
+	public static Map<String,Object> query(Connection conn,String sql,Object ... params) throws SQLException{
+		return query(conn,sql,new MapHandler(),params);
+	}
+	
+	/** 한번에 처리 후 커넥션을 닫는다. */
+	public static List<Map<String,Object>> query(DataSource dataSource,String sql,List<Object[]> paramList){
+		Connection conn = null;
+		try {
+			conn = dataSource.getConnection();
+			conn.setAutoCommit(false);
+			List<Map<String,Object>> results = Lists.newArrayList();
+			for(Object[] param : paramList){
+				Map<String,Object> result =  query(conn,sql, param);	
+				results.add(result);
+			}
+			return results;
+		} catch (SQLException e) {
+			throw new SQLRuntimeException(e);
+		}finally{
+			DbUtils.closeQuietly(conn);
+		}
+	}
 
 }

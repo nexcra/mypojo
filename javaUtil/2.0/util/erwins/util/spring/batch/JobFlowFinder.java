@@ -21,10 +21,10 @@ import erwins.util.root.Incompleted;
 import erwins.util.text.StringUtil;
 
 /**
- * 배치와, 스템간의 연결관계를 만들어준다.
+ * 스프링 컨테이너가 로드한 자료를 기준으로 배치와, 스템간의 연결관계를 만들어준다.
  * 여기에 적절한 한글 이름을 달아주면 된다.
  * 
- * 일단 뭔지 잘 모르겠다. 나중에 볼것
+ * 일단 뭔지 잘 모르겠다. 어디에 쓰는 놈인고?? 나중에 볼것
  */
 @Incompleted
 public class JobFlowFinder {
@@ -56,6 +56,7 @@ public class JobFlowFinder {
     	return jobMap;
     }
 
+	@SuppressWarnings("deprecation")
 	private ListOrderedSet flowSet(Flow flow) {
 		ListOrderedSet set  = new ListOrderedSet();
 		List<StateTransition> stateTranslations = ReflectionUtil.findFieldValue(flow, "stateTransitions");
@@ -82,7 +83,6 @@ public class JobFlowFinder {
 					throw new IllegalStateException("알려지지 않은 state" + innerState.getClass());
 				}
 			}
-			
 		}
 		return set;
 	}

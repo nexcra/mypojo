@@ -9,15 +9,15 @@ import javax.annotation.concurrent.ThreadSafe;
  * @author sin
  */
 @ThreadSafe
-public class IncrementIdSimpleDao implements IncrementIdDao{
+public class IncrementIdSimpleRepository implements IncrementIdRepository{
     
 	private final AtomicLong counter;
 	
-	public IncrementIdSimpleDao(){
+	public IncrementIdSimpleRepository(){
 		counter = new AtomicLong();
 	}
 	
-	public IncrementIdSimpleDao(Long init){
+	public IncrementIdSimpleRepository(Long init){
 		counter = new AtomicLong(init);
 	}
 	

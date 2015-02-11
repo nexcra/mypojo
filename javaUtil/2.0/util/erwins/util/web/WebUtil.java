@@ -4,9 +4,11 @@ package erwins.util.web;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -18,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.google.common.collect.Maps;
 
+import erwins.util.guava.GUtil;
 import erwins.util.root.exception.IORuntimeException;
 import erwins.util.root.exception.PropagatedRuntimeException;
 import erwins.util.text.CharEncodeUtil;
@@ -224,6 +227,19 @@ public abstract class WebUtil {
 		String remoteIp = req.getHeader("x-forwarded-for");
     	return remoteIp;
     }
+	
+	/** 간단 URL 사용  */
+	public static String getRemoteResourceAsString(String host,Map<String,?> param,String encode) throws IOException{
+		URL url = new URL(host+ "?" + GUtil.WEB_JOINER.join(param));
+		InputStream in = url.openStream(); 
+		try {
+			return IOUtils.toString(in,encode);
+		} finally{
+			in.close();
+		}
+    }
+	
+	
     
     
     

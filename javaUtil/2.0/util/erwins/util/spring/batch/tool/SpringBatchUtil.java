@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.sql.Driver;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.batch.core.ExitStatus;
@@ -15,6 +16,8 @@ import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStream;
 import org.springframework.beans.factory.InitializingBean;
+
+import com.google.common.collect.Maps;
 
 import erwins.util.lib.ReflectionUtil;
 import erwins.util.root.exception.PropagatedRuntimeException;
@@ -89,6 +92,21 @@ public abstract class SpringBatchUtil{
 			throw new PropagatedRuntimeException(e);
 		}
 	}
+	
+	/** 
+	 * DB매핑이 이상하다.. 왜 이따구로 만들었을까.
+	 * 여러줄 컬럼을 하나의 맵으로 만들어준다.
+	 *  */
+	public static Map<String,Object> deserializeJobParameter(List<Map<String,Object>> serialized){
+		Map<String,Object> jobParameterMap = Maps.newHashMap();
+		for(Map<String,Object> each : serialized){
+			String valueKey = each.get("TYPE_CD") + "_VAL";
+			jobParameterMap.put(each.get("KEY_NAME").toString(), each.get(valueKey));
+		}
+		return jobParameterMap;
+	}
+	
+
 	
     
 }

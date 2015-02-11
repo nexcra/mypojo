@@ -5,7 +5,7 @@ import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 
-import erwins.util.dateTime.ShowTime;
+import erwins.util.dateTime.TimeString;
 import erwins.util.number.MathUtil;
 import erwins.util.text.FormatUtil;
 
@@ -239,8 +239,8 @@ public class StopWatch {
     	if(isRunning()) stop();
         StringBuilder str = new StringBuilder("============== StopWatch =============== \n");
         for (int i = 0, j = getTaskInfo().size(); i < j; i++) {
-            ShowTime time = new ShowTime(getTaskInfo().get(i).getNanoTimeLong());
-            str.append(MessageFormat.format("{0}.{1} : {2}({3})", i, getTaskInfo().get(i).getTaskName(),time.toString(10), getPercent(i)));
+        	TimeString time = new TimeString(getTaskInfo().get(i).getNanoTimeLong() / 1000 / 1000);
+            str.append(MessageFormat.format("{0}.{1} : {2}({3})", i, getTaskInfo().get(i).getTaskName(),time.toString(), getPercent(i)));
             str.append("\n");
         }
         return str.toString();

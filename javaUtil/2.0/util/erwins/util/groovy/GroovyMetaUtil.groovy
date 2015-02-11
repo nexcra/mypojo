@@ -15,11 +15,12 @@ import erwins.util.collections.MapType
 import erwins.util.lib.CompareUtil
 import erwins.util.lib.security.MD5
 import erwins.util.text.StringUtil
+import erwins.util.vender.apache.PoiReaderFactory
+import erwins.util.vender.etc.OpenCsv
 import groovy.sql.GroovyRowResult
-import groovy.sql.Sql
 
 /** SQLUtil은 싱글톤만 사용하니까 따로 뺐다.  */
-public class GroovyMetaUtil{
+public abstract class GroovyMetaUtil{
 
 	public static void addMeta(){
 		string()
@@ -28,13 +29,6 @@ public class GroovyMetaUtil{
 		stringArray()
 		list()
 		groovyRowResult 'N/A'
-		sql()
-	}
-	
-	/** 자주 사용되는거나
-	 * 신규 추가만 하자. */
-	public static void sql(){
-		Sql.metaClass.rows = { GString str -> return delegate.rows(str.toString()) } //그냥하면 오류난다.  ps로 치환할 수 있는건 그걸쓰자.
 	}
 	
 	/** 자주 사용되는거나 
@@ -184,6 +178,31 @@ public class GroovyMetaUtil{
 			delegate.listAll(endsWith).each { map.put MD5.getHashHexString(it.name), it  }
 			return map.asMap()
 		}
+		/** 대충 문서들을 읽어온다. 
+		 *  리턴타입이 다른것도 있으니 주의!  */
+		File.metaClass.read = { encode = 'MS949', skipFirst = false ->
+			def name = delegate.name
+			if(name.endsWith('.csv')) {
+				def list = new OpenCsv().setEncoding(encode).readAll(delegate)
+				if(skipFirst) list.remove(0)
+				return list
+			}else if(name.endsWith('.txt') || name.endsWith('.log')) {
+				def list = delegate.readLines(encode)
+				if(skipFirst) list.remove(0)
+				return list
+			}else if(name.endsWith('.xlsx') || name.endsWith('.xls')) {
+				//skipFirst 일 경우에는 첫시트만, 아니면 그대로 리턴
+				def poi = PoiReaderFactory.instance(delegate);
+				if(skipFirst) {
+					def list = poi[0].collect { it }
+					list.remove(0)
+					return list
+				}
+				return poi;
+			}
+			return null
+		}
+		
 	}
 
 	/** 이외 유용한것들
@@ -283,6 +302,7 @@ public class GroovyMetaUtil{
 			delegate.remove 0
 			return delegate
 		}
+		
 	}
 
 	/**

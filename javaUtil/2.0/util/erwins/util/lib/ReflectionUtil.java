@@ -362,6 +362,20 @@ public abstract class ReflectionUtil extends ReflectionUtils {
         }
     }
     
+    /**
+     * 지정된 B의 필드값만 A에 복사해준다. 
+     * 입력값을 서버값에 대입해줄때 주로 사용한다.
+     *  */
+    public static <T> void  shallowCopyInput(T exist,T param,String ... inputFields){
+    	if(inputFields.length==0) return;
+    	Map<String,Field> fields = getAllDeclaredFieldMap(param.getClass());
+        for(String inputField : inputFields){
+        	Field field = fields.get(inputField);
+        	Object valueOfB = getField(field, param); //null일 경우도 대입해준다.
+        	setField(field, exist, valueOfB);
+        }
+    }
+    
     /** masters 기준으로 slaves 값을 masters로 복사한다. masters가 많고 slaves가 적어야 한다.
      * 주의!  slave에는 있지만 master에는 없는 값은 무시된다.
      * 두개의 관계형 DB에서 데이터를 각가 가져올때 사용한다.
