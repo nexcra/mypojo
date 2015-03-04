@@ -48,6 +48,12 @@ public abstract class OracleMetadata {
 				def 컬럼명 = it['COLUMN_NAME']
 				def PK = PK셑.contains(컬럼명)
 				def 타입 = it['DATA_TYPE']
+				if(타입 == 'VARCHAR2') 타입+= '(' + it['DATA_LENGTH'] + ')'
+				else if(타입 == 'NUMBER') {
+					def joins = [it['DATA_PRECISION']]
+					if(it['DATA_SCALE']!=0) joins << it['DATA_SCALE']
+					타입+= '(' + joins.join(",") + ')'
+				} 
 				def NOT_NULL = NOT_NULL셑.contains(컬럼명)
 				def FK = FK셑.find { it['COLUMN_NAME'] == 컬럼명 }
 				def COMMENTS = it['COMMENTS']

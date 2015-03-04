@@ -25,7 +25,9 @@ public abstract class IpUtil{
     }
 	
     /** IP표현식으로 IP를 입력해준다. 다음 표현식을 인식한다
-     *  111.111.111.*  / 222.222.222.100 ~ 160 */
+     *  111.111.111.*  / 222.222.222.100 ~ 160
+     *  키가 IP / value가 표현식이다.
+     *   */
     public static void addIpExpression(Map<String,String> map,String ipExpression){
         if(StringUtil.isMatch(ipExpression,"*")){
             String prefix = StringUtil.getFirst(ipExpression, "*");
@@ -41,10 +43,10 @@ public abstract class IpUtil{
         }else map.put(ipExpression, ipExpression);
     }
     
-    private static void push(Map<String,String> map,String each, String prefix,int start,int end) {
+    private static void push(Map<String,String> map,String ipExpression, String prefix,int start,int end) {
         end = end + 1;
         for(int i=start;i<end;i++){
-            map.put(prefix+i, each); 
+            map.put(prefix+i, ipExpression); 
         }
     }
     

@@ -52,7 +52,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
 import erwins.util.lib.ReflectionUtil;
-import erwins.util.root.NameValue;
+import erwins.util.root.EnumDescription;
 import erwins.util.root.exception.IORuntimeException;
 import erwins.util.text.StringUtil;
 
@@ -354,10 +354,11 @@ public abstract class SpringUtil {
 		Enum<?>[] ins = clazz.getEnumConstants();
 		Map<String,String> tag = new ListOrderedMap();
 		for(Enum<?> each : ins){
-			if(each instanceof NameValue){
-				NameValue nv = (NameValue) each;
-				tag.put(nv.getValue(), nv.getName()); // ID / NAME 순이다.
-			}else tag.put(each.name(), each.name()); 
+			String name = each.name();
+			if(each instanceof EnumDescription){
+				EnumDescription nv = (EnumDescription) each;
+				tag.put(name, nv.getDescription()); // ID / NAME 순이다.
+			}else tag.put(name, name); 
 			
 		}
 		return tag;

@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-import lombok.Data;
-
 import org.apache.ibatis.executor.statement.BaseStatementHandler;
 import org.apache.ibatis.executor.statement.PreparedStatementHandler;
 import org.apache.ibatis.executor.statement.RoutingStatementHandler;
@@ -66,26 +64,6 @@ public class QueryStatisticsMybatisInterceptor implements Interceptor{
 	/** 어쩔 수 없이 static으로 만듬.  ==> 나중에 멀티맵으로 수정하자 */
     public static final Map<String,QueryState> MAP = new ConcurrentHashMap<String,QueryState>();
     private Logger log = LoggerFactory.getLogger(this.getClass());
-    
-    @Data
-    public static class QueryState implements Comparable<QueryState>{
-        private long queryCount = 0;
-        private Long totalTime = 0L;
-        private final String sqlId;
-        private final String sql;
-        public QueryState(String sqlId,String sql){
-            this.sqlId = sqlId;
-            this.sql = sql;
-        }
-        public void addQuery(long time){
-            queryCount++;
-            totalTime += time;
-        }
-        @Override
-        public int compareTo(QueryState o) {
-            return this.totalTime.compareTo(o.totalTime);
-        }
-    }
     
     /** 이 둘은 논란의 여지가 있다. 버전이 바뀌면 수정해주자. 현재. mybatis 3.2.3  */
     private static final Fields F1 = new Fields(RoutingStatementHandler.class,"delegate");
@@ -160,7 +138,8 @@ public class QueryStatisticsMybatisInterceptor implements Interceptor{
 		for(int i=0;i<rows.size();i++){
 			if(i >= MAX_RESULT_LOG_COUNT) break;
 			Object row = rows.get(i);
-			b.appendLine("ROW " + (i+1) + " : " + ReflectionUtil.toStringByLombok(row));
+			String rowValue = row==null ? "NULL" : ReflectionUtil.toStringByLombok(row); //NULL이 올때도 있다.. 왜인지는 몰라.
+			b.appendLine("ROW " + (i+1) + " : " + rowValue);
 		}
 		int remains = Ints.max(0,rows.size() - MAX_RESULT_LOG_COUNT);
 		if(remains!=0) b.appendLine(MessageFormat.format(".... 외 {0}건",remains));

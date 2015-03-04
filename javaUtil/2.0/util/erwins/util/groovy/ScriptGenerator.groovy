@@ -19,6 +19,7 @@ public class ScriptGenerator {
 	private final def 메타데이터;
 	public def 업데이트무시컬럼 = []
 	public def 프리픽스컬럼 = [:]
+	public def 버저닝컬럼
 	
 	public def DB2JDBC타입 = ORACLE_TO_JDBC_TYPE //mybatis 변환용
 	public def DB2JAVA타입 = ORACLE_TO_JAVA_TYPE
@@ -70,7 +71,11 @@ public class ScriptGenerator {
 			테이블['INSERT'] = "INSERT INTO $테이블명 (" + 컬럼명셑.join(', ') + ') \nVALUES ('+ 컬럼들.collect { 마이바티스변환(it) }.join(',')  +')'
 			테이블['INSERT'] = 테이블['INSERT'].toString()
 			테이블['UPDATE'] = "UPDATE $테이블명 SET " + 일반컬럼들.findAll{ !업데이트무시컬럼.contains(it['컬럼명']) }.collect { it['컬럼명'] + ' = '+마이바티스변환(it) }.join(', ') + ' \nWHERE ' + PK컬럼들.collect { it['컬럼명'] + ' = '+마이바티스변환(it) }.join(' AND ')
-			테이블['UPDATE'] = 테이블['UPDATE'].toString()
+			
+			def 낙관적잠금 = ''
+			if(버저닝컬럼!=null && 컬럼명셑.contains(버저닝컬럼)) 낙관적잠금 = ' AND ' + 버저닝컬럼 + ' = #{'+버저닝컬럼.camelize()+'}' 
+			
+			테이블['UPDATE'] = 테이블['UPDATE'].toString() + 낙관적잠금
 				
 			def mergeSql  = "MERGE INTO $테이블명 USING dual ON ( " + PK컬럼들.collect { it['컬럼명'] + ' = '+마이바티스변환(it) }.join(' AND ')  + " )\n"
 			mergeSql += "WHEN matched THEN UPDATE SET " + 일반컬럼들.collect { it['컬럼명'] + ' = '+마이바티스변환(it) }.join(', ') + '\n'

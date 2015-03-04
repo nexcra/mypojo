@@ -8,12 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import lombok.Data;
-
 import org.apache.commons.collections.map.ListOrderedMap;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 
 
@@ -292,38 +289,6 @@ public abstract class CompareUtil{
     	if(aEmpty && bEmpty) return true;
     	else if(!aEmpty && !bEmpty) return a.equals(b);
     	else  return false;
-    }
-    
-    
-    /** 두개를 비교해서 틀린점을 리턴한다. */
-    public <T> List<DirtyInfo> dirtyField(T before,T after){
-    	List<DirtyInfo> dirtyFields = Lists.newArrayList();
-    	List<Field> fields = ReflectionUtil.getAllDeclaredFields(before.getClass()); 
-    	
-    	for(Field field : fields){
-    		Object aValue = ReflectionUtil.getField(field, before);
-    		Object bValue = ReflectionUtil.getField(field, after);
-    		boolean isEqual = CompareUtil.isEqualIgnoreNull(aValue, bValue);
-    		if(!isEqual) {
-    			DirtyInfo di = new DirtyInfo();
-    			di.setFieldName(field.getName());
-    			di.setBeforeValue(aValue);
-    			di.setAfterValue(bValue);
-    			dirtyFields.add(di);
-    		}
-    	}
-    	return dirtyFields;
-    }
-    
-    @Data
-    public static class DirtyInfo{
-    	private String fieldName;
-    	private Object beforeValue;
-    	private Object afterValue;
-    	@Override
-    	public String toString(){
-    		return fieldName + " : " + beforeValue + "=>" + afterValue;
-    	}
     }
     
     /** 커먼즈에 있는거 제너릭이 안되서 걍 하나 만듬. */

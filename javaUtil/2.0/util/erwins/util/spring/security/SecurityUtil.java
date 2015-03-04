@@ -15,7 +15,7 @@ import com.google.common.collect.Sets;
 public abstract class SecurityUtil{
     
 	/** 가지고있는 권한중 하나라도 설정된 권한과 일치한다면, 통과한다. */
-	public static boolean isAble(Collection<GrantedAuthority> auths,Collection<ConfigAttribute> configs){
+	public static boolean isAble(Collection<? extends GrantedAuthority> auths,Collection<? extends ConfigAttribute> configs){
 		for(GrantedAuthority auth : auths){
 			String authString = auth.getAuthority();
 			for(ConfigAttribute config : configs){

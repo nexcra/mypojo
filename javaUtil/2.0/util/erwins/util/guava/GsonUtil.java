@@ -65,7 +65,10 @@ public abstract class GsonUtil {
 	}
 	
 	/** 보통 js용으로 사용된다.\
-	 * GsonBuilder의 registerTypeHierarchyAdapter로 등록해서 사용 */
+	 * GsonBuilder의 registerTypeHierarchyAdapter로 등록해서 사용
+	 * ... 왜만들었을까?
+	 *  */
+	@Deprecated
 	public static JsonSerializer<Enum<?>> generateEnumJsonSerializer(Converter<Object,Object> converter){
 		@SuppressWarnings("unchecked")
 		final Converter<Object,Object> innerConverter = (Converter<Object, Object>) (converter==null ? SpringConversions.TO_STRING_DEFAULT : converter);

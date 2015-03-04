@@ -656,11 +656,11 @@ public class StringUtil extends StringUtils {
     /*
      * public static String join(List<?> list){ return join(list,","); }
      */
-
-    /**
+/*
+    *//**
      * 배열을 seperators로 연결해서 반환한다. Weblogic 10.0/10.3에서 join사용(2.3이후버전)시 오류발생으로
      * 이것으로 대체
-     */
+     *//*
     public static String joinTemp(List<?> list, String seperator) {
         StringBuffer stringBuffer = new StringBuffer();
         boolean first = true;
@@ -672,10 +672,10 @@ public class StringUtil extends StringUtils {
         return stringBuffer.toString();
     }
 
-    /**
+    *//**
      * 배열을 seperators로 연결해서 반환한다. Weblogic 10.0/10.3에서 join사용(2.3이후버전)시 오류발생으로
      * 이것으로 대체
-     */
+     *//*
     public static <T> String joinTemp(T[] list, String seperator) {
         StringBuffer stringBuffer = new StringBuffer();
         boolean first = true;
@@ -685,7 +685,7 @@ public class StringUtil extends StringUtils {
             stringBuffer.append(string);
         }
         return stringBuffer.toString();
-    }
+    }*/
     
     /** '--'같은 문자열은 인코딩 변경시 바이트 코드가 변경?된다. 이를 확인하는 디버깅용 메소드 이다. */
     public static String getByteString(String line) {
