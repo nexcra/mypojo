@@ -11,8 +11,14 @@ import org.joda.time.DateMidnight;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import erwins.util.vender.apache.Log4JConfig;
 
-/** 기본 slf4j를 사용할것~ */
+
+/** 
+ * 기본 slf4j를 사용할것~
+ * @see Log4JConfig 
+ * */
+@Deprecated
 public abstract class Log4jUtil {
     
     /** 로그파일 위치를 수정해준다.

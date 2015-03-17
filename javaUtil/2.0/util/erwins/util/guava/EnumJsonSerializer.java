@@ -3,6 +3,7 @@ package erwins.util.guava;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.Data;
 
@@ -20,7 +21,7 @@ import erwins.util.lib.ReflectionUtil;
 @Data(staticConstructor="of")
 public class EnumJsonSerializer implements JsonSerializer<Enum<?>>{
 	
-	private final Gson gson;
+	private final AtomicReference<Gson> gsonRef;
 	//private String idKey = "id";
 
 	@Override
@@ -29,7 +30,7 @@ public class EnumJsonSerializer implements JsonSerializer<Enum<?>>{
 		List<Field> fields = ReflectionUtil.getAllDeclaredFields(enumUnstance.getClass());
 		for(Field field : fields){
 			Object value = ReflectionUtil.getField(field, enumUnstance);
-			JsonElement jsonValue = gson.toJsonTree(value);
+			JsonElement jsonValue = gsonRef.get().toJsonTree(value);
 			json.add(field.getName(), jsonValue);
 		}
 		//json.add(idKey, new JsonPrimitive(enumUnstance.name()));  //name으로 자동 입력된다.
