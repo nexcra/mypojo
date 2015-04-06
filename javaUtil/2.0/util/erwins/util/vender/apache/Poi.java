@@ -127,7 +127,7 @@ public class Poi extends PoiRoot{
         return nowSheet.createRow(i);
     }
     
-	private HSSFRow currentRow() {
+	public HSSFRow currentRow() {
     	int i = nowSheet.getPhysicalNumberOfRows(); //시트가 순수 createRow로 생성한 로우 수를 반환한다. 즉 중간에 공백이 있으면 안된다.
     	return nowSheet.getRow(i-1);
     }
@@ -165,6 +165,19 @@ public class Poi extends PoiRoot{
     	cell.setHyperlink(link);
     	pairs.add(new PoiCellPair(cell, LINKED));
 	}
+	
+	public void addPoiCellPair(PoiCellPair pair){
+		pairs.add(pair);
+	}
+	
+	/** 현재 로우에 URL링크 달기 */
+    public void addUrllink(int cellnum,String url){
+    	HSSFCell cell = currentRow().getCell(cellnum);
+    	HSSFHyperlink link = new HSSFHyperlink(HSSFHyperlink.LINK_URL);
+    	link.setAddress(url);
+    	cell.setHyperlink(link);
+    	pairs.add(new PoiCellPair(cell, LINKED));
+    }
 	
 	/** 현재 로우에 링크달기 */
     public void addHyperlink(int cellnum,String sheetName,String column,int rownum){

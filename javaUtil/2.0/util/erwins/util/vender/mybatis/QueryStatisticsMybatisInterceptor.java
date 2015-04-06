@@ -32,8 +32,8 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Ints;
 
 import erwins.util.dateTime.JodaUtil;
 import erwins.util.dateTime.TimeString;
@@ -41,6 +41,7 @@ import erwins.util.lib.ReflectionUtil;
 import erwins.util.lib.ReflectionUtil.Fields;
 import erwins.util.spring.SpringUtil;
 import erwins.util.text.StringAppender;
+import erwins.util.text.StringEscapeUtil;
 
 
 /**
@@ -131,7 +132,8 @@ public class QueryStatisticsMybatisInterceptor implements Interceptor{
 		String replacedSql = findReplacedSql(handler);
 		StringAppender b = new StringAppender();
 		b.appendLine("");
-		b.appendLine(LINE + " SQL ID : " + sqlId);
+		b.appendLine(LINE);
+		b.appendLine("SQL ID : [ " + sqlId+" ]");
 		b.appendLine(trim(replacedSql));
 		b.appendLine(SEP);
 		
@@ -141,8 +143,8 @@ public class QueryStatisticsMybatisInterceptor implements Interceptor{
 			String rowValue = row==null ? "NULL" : ReflectionUtil.toStringByLombok(row); //NULL이 올때도 있다.. 왜인지는 몰라.
 			b.appendLine("ROW " + (i+1) + " : " + rowValue);
 		}
-		int remains = Ints.max(0,rows.size() - MAX_RESULT_LOG_COUNT);
-		if(remains!=0) b.appendLine(MessageFormat.format(".... 외 {0}건",remains));
+		//int remains = Ints.max(0,rows.size() - MAX_RESULT_LOG_COUNT);
+		//if(remains!=0) b.appendLine(MessageFormat.format(".... 외 {0}건",remains));
 		b.appendLine(MessageFormat.format("RESULT ROW : {0} , 걸린시간 : {1}", rows.size(),new TimeString(endTime - startTime)));
 		b.append(LINE);
 		return b.toString();
@@ -172,6 +174,7 @@ public class QueryStatisticsMybatisInterceptor implements Interceptor{
 		if(param == null) return sql.replaceFirst("\\?", "''");
 		if(param instanceof Number) return sql.replaceFirst("\\?", param.toString());
 		if(param instanceof String) return sql.replaceFirst("\\?", "'" + param + "'");
+		if(param instanceof Enum) return sql.replaceFirst("\\?", "'" + ((Enum)param).name() + "'");
     	
     	try {
 			List<ParameterMapping> paramMapping = boundSql.getParameterMappings();	
@@ -196,6 +199,7 @@ public class QueryStatisticsMybatisInterceptor implements Interceptor{
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			//예외를 던지지 않는다.
 			log.error("QueryStatisticsMybatisInterceptor.findReplacedSql() 도중 예외발생. 디버깅해주세요. 일단 replace되지 않은 SQL이 리턴됩니다" + e.getMessage());
 		}
@@ -205,8 +209,14 @@ public class QueryStatisticsMybatisInterceptor implements Interceptor{
     /** 향후 타입에 따라 추가해주도록 하자
      * 여기서는 오라클 (TO_TIMESTAMP)  */
 	protected String replaceSql(String sql, Object value) {
-		if(value==null) return sql.replaceFirst("\\?", "''");
+		if(value==null) return sql.replaceFirst("\\?", "''");  //IS NULL로 해야하지만 일단 이렇게 진행
+		else if(value instanceof String){
+			if(Strings.isNullOrEmpty((String)value)) return sql.replaceFirst("\\?", "''"); 
+			String escaped = StringEscapeUtil.escapeRegEx((String)value); 
+			return sql.replaceFirst("\\?","'"+ escaped + "'");
+		}
 		else if(value instanceof Number) return sql.replaceFirst("\\?", value.toString());
+		else if(value instanceof Enum) return sql.replaceFirst("\\?", "'" + ((Enum<?>)value).name() + "'");
 		else if(value instanceof Date){
 			Date date = (Date) value;
 			String dateString =  JodaUtil.YMDHMSS.print(date.getTime());

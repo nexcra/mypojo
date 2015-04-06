@@ -50,7 +50,7 @@ public abstract class PoiRoot{
     public CellStyle GRAY;
     
     /** thin 테두리를 가지는 일반적인 블록 */
-    protected CellStyle BODY;
+    public CellStyle BODY;
     public CellStyle BODY_Left;
     public CellStyle BODY_Right;
     
@@ -146,6 +146,7 @@ public abstract class PoiRoot{
         LINKED = wb.createCellStyle();
         boxing(LINKED);
         LINKED.setFont(BLUE_FONT);
+        LINKED.setVerticalAlignment((short)1);
         //sheet.shiftRows(2, 4, -1); //아래위 바꿈..        
     }
     
@@ -598,10 +599,10 @@ public abstract class PoiRoot{
     protected List<PoiCellPair> pairs = new ArrayList<PoiCellPair>();
     
     /** 일괄 wrap 후 부분적으로 셀을 초기화해주기 위해 사용한다. */
-    protected static class PoiCellPair{
+    public static class PoiCellPair{
     	private final Cell cell;
     	private final CellStyle cellStyle;
-    	protected PoiCellPair(Cell cell,CellStyle cellStyle){
+    	public PoiCellPair(Cell cell,CellStyle cellStyle){
     		this.cell = cell;
     		this.cellStyle = cellStyle;
     	}
