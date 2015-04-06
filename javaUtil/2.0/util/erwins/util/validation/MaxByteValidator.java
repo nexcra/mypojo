@@ -3,7 +3,9 @@ package erwins.util.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class ByteMaxValidator implements ConstraintValidator<ByteMax,String>{
+import erwins.util.validation.constraints.MaxByte;
+
+public class MaxByteValidator implements ConstraintValidator<MaxByte,String>{
 	
 	public int  maxByteSize ;
 
@@ -15,7 +17,7 @@ public class ByteMaxValidator implements ConstraintValidator<ByteMax,String>{
 	}
 
 	@Override
-	public void initialize(ByteMax annotation) {
+	public void initialize(MaxByte annotation) {
 		maxByteSize = annotation.value();
 	}
 	
