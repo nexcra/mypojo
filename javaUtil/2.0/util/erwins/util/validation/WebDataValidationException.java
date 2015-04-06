@@ -8,11 +8,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-
-import erwins.util.spring.SpringUtil;
-
 /** 템플릿이 필요함.. 어케 쓰나. */
 @SuppressWarnings("serial")
 public class WebDataValidationException extends ValidationException{
@@ -36,13 +31,13 @@ public class WebDataValidationException extends ValidationException{
 	}
 	
 	/** 기본적인 메세지 구성 샘플이다. 프로젝트별로 수정해서 사용. */
-    public String toDefaultString(String separator){
+/*    public String toDefaultString(String separator){
     	List<String> msg = Lists.newArrayList();
     	for(FieldError error :  fieldError){
 			msg.add(SpringUtil.elFormat("#{field} --> #{defaultMessage} 입력값 = [#{rejectedValue}],  ", error));
     	}
     	return Joiner.on(separator).join(msg);
-    }
+    }*/
 	
 	
 }
