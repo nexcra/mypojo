@@ -21,6 +21,9 @@ public class ScriptGenerator {
 	public def 프리픽스컬럼 = [:]
 	public def 버저닝컬럼
 	
+	public def 매핑무시컬럼 = []
+	public def 도메인패키지 = ''
+	
 	public def DB2JDBC타입 = ORACLE_TO_JDBC_TYPE //mybatis 변환용
 	public def DB2JAVA타입 = ORACLE_TO_JAVA_TYPE
 	
@@ -88,9 +91,9 @@ public class ScriptGenerator {
 			def writer = new StringWriter()
 			def builder = new groovy.xml.MarkupBuilder(writer)
 			def 클래스명 = 테이블명.camelize();
-			def invoices = builder.resultMap(id:클래스명.capitalize()+'Map',type:클래스명.capitalize()){
+			def invoices = builder.resultMap(id:클래스명.capitalize()+'Map',type:도메인패키지+'.'+클래스명+'.'+클래스명.capitalize()+'Vo'){
 				PK컬럼들.collect{ it['컬럼명'] }.each { id(property:it.camelize(),column:it) }
-				일반컬럼들.collect{ it['컬럼명'] }.each { result(property:it.camelize(),column:it)  }
+				일반컬럼들.collect{ it['컬럼명'] }.findAll{ !매핑무시컬럼.contains(it.camelize()) }.each { result(property:it.camelize(),column:it)  }
 			}
 			테이블['RESULT_MAP'] = writer.toString()
 			
@@ -111,6 +114,7 @@ public class ScriptGenerator {
 			컬럼들.collect {
 				def type = DB2JAVA(it['타입'])
 				def name = StringUtil.getCamelize(it['컬럼명'])
+				if(매핑무시컬럼.contains(name)) return
 				if(it['COMMENTS']!=null) 자바빈 << "/** $it.COMMENTS */"
 				자바빈 << "private $type $name;"
 				//자바빈 << ""

@@ -24,6 +24,8 @@ public class FileDownloadView implements View{
 	
 	private String fileName;
 	private boolean image = false;
+	/** 한글 이름으로된 static파일이 존재할 경우 URL경로를 수동으로 지정해야 할 수 있다. */
+	private boolean staticFile = false;
 	private String contentType = WebUtil.CONTENT_TYPE_DOWNLOAD;
 	private String encoding = "UTF-8";
 	/** 임시파일이라서 다운로드 후 삭제가 필요할때 (zip파일 등) */
@@ -86,6 +88,9 @@ public class FileDownloadView implements View{
 				contentType = "image/" + ext;
 				resp.setContentType(getContentType()); //파일 이름을 지정하지 않는다.
 			}
+		}else if(staticFile){
+			//별다른 행동을 하지 않는다.
+			resp.setContentType(getContentType());
 		}else WebUtil.setFileName(resp,fileName,getContentType()); //브라우저에서 파일 형태로 다운로드 된다.
 		
 		
@@ -117,6 +122,10 @@ public class FileDownloadView implements View{
 	}
 	public FileDownloadView setImage(boolean image) {
 		this.image = image;
+		return this;
+	}
+	public FileDownloadView setStaticFile(boolean staticFile) {
+		this.staticFile = staticFile;
 		return this;
 	}
 	

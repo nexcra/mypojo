@@ -619,7 +619,6 @@ public abstract class FileUtil extends FileUtils {
 	}
 	
 	/** 걍 래핑. -> 인메모리시 이걸쓰자. */
-	@SuppressWarnings("unchecked")
 	public static List<String> readLines(File file,String encoding){
 		try {
 			return FileUtils.readLines(file, encoding);
@@ -802,6 +801,15 @@ public abstract class FileUtil extends FileUtils {
 				throw new IORuntimeException(e);
 			}
 		}
+	}
+	
+	/** 
+	 * 클래스 로더 기준 웹 루트를 찾는다.
+	 * 윈도우 기준 이클립스상의 상대위치를 찾으려고 만들었다. 리눅스나 실서버쪽은 확인하고 사용할것
+	 *  */
+	public static File findWebContent(Class<?> clazz) {
+		File root = new File(clazz.getClassLoader().getResource("").getFile()); //WebContent\WEB-INF\classes 가 된다.
+		return root.getParentFile().getParentFile();
 	}
 		
 

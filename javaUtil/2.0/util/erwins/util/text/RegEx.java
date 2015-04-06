@@ -5,7 +5,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,6 +15,8 @@ import com.google.common.collect.Lists;
 import erwins.util.lib.FileUtil;
 
 /**
+ * CharMatcher를 먼저 참조하도록 하자
+ * 
  * <p>(?:...) 으로 매칭을 강제로 하지 않게 하면 효율성이 좋아진다. (거의 차이 없음.) </p>
  * <p>match되는 결과가 너무 길면? 안되는듯 하다. </p>
  * <p>^와 $를 사용할려면 멀티라인 모드를 켜자</p>
@@ -41,8 +42,6 @@ public enum RegEx {
     /** 메소그 진입시 { 를 줄넘김 해서 쓰는 MS식 코드 컨벤션   */
     MS_CODE_TYPE(Pattern.compile("\\n\\s*(?=\\{)")),
     
-    /** 한글인지? */
-    HAN(Pattern.compile("[ㄱ-힝]*")),
             
     /**
      * 주석 날리기 신공!!! 
@@ -75,7 +74,23 @@ public enum RegEx {
     /** 멀티 라인에서 맨 처음의 공백 검색. */
     FIRST_BLANK(Pattern.compile("^\\s*",Pattern.MULTILINE)),
     /** 전화번호 매칭..  그룹 매칭으로 뭐 할라 그랬더니  아무짝에도 쓸모 없잔아.. ㅠㅠ  */
-    TEL(Pattern.compile("\\(?(0\\d{2,3})\\)?-?(\\d{3,4})-?(\\d{4})"));
+    TEL(Pattern.compile("\\(?(0\\d{2,3})\\)?-?(\\d{3,4})-?(\\d{4})")),
+    
+    //======================   위에껀 참고용. 풀매치 체크 위해서[]* 했다. CharMatcher에 없는거 여기 추가하자. =============================
+    
+    /** 키보드에서 입력(?) 가능한, 출력 가능한 특수문자. 비번에도 사용되는  %^&*()<> 같은것들  */
+    PUNCT(Pattern.compile("[\\p{Punct}]*")),
+    /** 대소문자 알파벳  */
+    ALPAH(Pattern.compile("[a-zA-Z]*")),
+    /** 대소문자 알파벳 + 숫자 (소수점. 제외)  */
+    ALPAH_NUMERIC(Pattern.compile("[a-zA-Z\\d]*")),
+    /** 숫자 (소수점. 제외)  CharMatcher.DIGIT 으로 사용해도 됨  */
+    NUMERIC(Pattern.compile("[\\d]*")),
+    /** 한글 완성문자 */
+    HAN(Pattern.compile("[가-힣]*")),
+    /** 한글 전체 뷁ㄱㅇㅣㅏ  자모음 전체 포함     ㄱ-힝 으로 하면 뭐 안되는거 있나?? 일단 이렇게 함 */
+    HAN_ALL(Pattern.compile("[가-힣ㄱ-ㅎㅏ-ㅣ]*")),
+    ;
     
     private Pattern pattern;
     
@@ -91,20 +106,6 @@ public enum RegEx {
     //                                    method
     // ===========================================================================================
     
-    /** 파일에서 패턴을 적용한다. */ 
-/*    public void file(String  fileName,StringCallback command) throws Exception {
-        File f = new File(fileName);
-        FileInputStream fis = new FileInputStream(f);
-        FileChannel fc = fis.getChannel();
-        ByteBuffer bb = fc.map(MapMode.READ_ONLY, 0, (int) fc.size()); //??
-        //Charset cs = Charset.forName("8859_1");
-        Charset cs = Charset.forName("UTF-8");
-        CharsetDecoder cd = cs.newDecoder();
-        CharBuffer cb = cd.decode(bb);
-        Matcher m = this.getPattern().matcher(cb.toString());
-        while (m.find()) command.process(m.group());
-    }*/
-    
     /** 주어진 text와 정확히 매칭되는지 검사한다. */
     public boolean isFullMatch(CharSequence text) {
         return isFullMatch(this.pattern,text);
@@ -115,38 +116,41 @@ public enum RegEx {
         return replace(this.pattern,text,replaced);
     }
     
-/*    *//** 주어진 text를 매칭될때마다 process한다. *//*
-    public void process(CharSequence  text,StringCallback command) {
-        process(this.getPattern(),text,command);
+    /**CharMatcher와 동일하다. */
+    public String retainFrom(CharSequence text) {
+        return retainFrom(this.pattern,text);
     }
-    *//** 주어진 text를 매칭될때마다 Group Array를  process한다. 항상 0번에 풀매칭 정보가 담긴다. *//*
-    public void process(CharSequence  text,StringsCallback command) {
-        process(this.getPattern(),text,command);
-    }*/
+    
+    /**CharMatcher와 동일하다. */
+    public String removeFrom(CharSequence text) {
+        return replace(this.pattern,text,"");
+    }
 
     // ===========================================================================================
     //                                    static method
     // ===========================================================================================    
-
-    /** 주어진 text를 정규식으로 replace한다. replaced에 $로 매칭자를 사용할 수 있다. */
-    public static String replace(String pattern,CharSequence text,String replaced) {
-        return replace(Pattern.compile(pattern),text,replaced);
-    }
     
     public static String replace(Pattern pattern,CharSequence text,String replaced) {
         Matcher m = pattern.matcher(text);
         return m.replaceAll(replaced);
     }
     
-    public static String find(String pattern,CharSequence  text) {
-        Pattern p = Pattern.compile(pattern);
-        return find(p,text);
-    }
-    
     public static String find(Pattern pattern,CharSequence  text) {
         Matcher m = pattern.matcher(text);
         if(m.find()) return m.group(); 
         return null;
+    }
+    
+    /**CharMatcher와 동일하다. */
+    public static String retainFrom(Pattern pattern,CharSequence text) {
+    	Matcher m = pattern.matcher(text);
+        StringBuilder sb = new StringBuilder();
+        while(m.find()) {
+        	String result = m.group();
+        	if(Strings.isNullOrEmpty(result)) continue; //?? 사실 잘 모르겠다. 
+        	sb.append(result);
+        }
+        return sb.toString();
     }
     
     /** \d*, as23dasd003 ==> [23,003]
@@ -162,42 +166,18 @@ public enum RegEx {
         return matchResult;
     }
     
- /*   public static void process(Pattern pattern,CharSequence  text,StringCallback command) {
-        Matcher m = pattern.matcher(text);
-        while (m.find()) command.process(m.group());
-    }
-    public static void process(String pattern,CharSequence  text,StringCallback command) {
-        Pattern p = Pattern.compile(pattern);
-        process(p,text,command);
-    }
-    public static void process(Pattern pattern,CharSequence  text,StringsCallback command) {
-        Matcher m = pattern.matcher(text);
-        while (m.find()){
-            int count = m.groupCount();
-            String[] temp = new String[count];
-            for(int i=0;i<count;i++) temp[i] = m.group(i);
-            command.process(temp);
-        }
-    }
-    public static void process(String pattern,CharSequence  text,StringsCallback command) {
-        Pattern p = Pattern.compile(pattern);
-        process(p,text,command);
-    }*/
-    
+    /** 하나라도 매칭되는지 */
     public static boolean isMatch(String pattern,CharSequence text) {
         Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(text);
         return m.find();
     }
+    
+    /**  []* 시리즈가 전체 다 매칭되는지  */
     public static boolean isFullMatch(Pattern pattern,CharSequence text) {
         Matcher m = pattern.matcher(text);
         return m.matches();
     }
-    
-    public static interface MapReplacer{
-        /** null을 리턴하지 않으면 리턴된 객체로 교환한다. */
-        public Object replaceTo(Map.Entry<Object,Object> entry);
-    }    
     
     // ===========================================================================================
     //                                    기타.

@@ -36,6 +36,7 @@ import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.ContextLoader;
@@ -295,6 +296,8 @@ public abstract class SpringUtil {
     	return allResources.toArray(new Resource[allResources.size()]);
     }
     
+    private static final ExpressionParser EXPRESSION_PARSER = new SpelExpressionParser();
+    
     
     /**
      * http://docs.spring.io/spring/docs/3.0.x/reference/expressions.html 
@@ -302,18 +305,16 @@ public abstract class SpringUtil {
      * 다양한 활용이 가능하다. 간단한 구문에 사용하자
      * ex) random number is #{[vo].rowSize} */
     public static String elFormat(String pattern,Object param){
-    	ExpressionParser parser = new SpelExpressionParser();
-    	return parser.parseExpression(pattern, new TemplateParserContext()).getValue(param,String.class);
+    	return EXPRESSION_PARSER.parseExpression(pattern, new TemplateParserContext()).getValue(param,String.class);
     }
     
     /** 
      * MAP을 다이렉트로 지원하지 않는거 같다..
      * ex) SpringUtil.elMapFormat("번호 #{map['accId']}  : #{map['rowNum'] - 3}", m) */
     public static String elMapFormat(String pattern,Map<String,Object> param){
-    	ExpressionParser parser = new SpelExpressionParser();
     	ElVoMap map = new ElVoMap();
     	map.setMap(param);
-    	return parser.parseExpression(pattern, new TemplateParserContext()).getValue(map,String.class);
+    	return EXPRESSION_PARSER.parseExpression(pattern, new TemplateParserContext()).getValue(map,String.class);
     }
     
     @Data
@@ -348,7 +349,11 @@ public abstract class SpringUtil {
     }
     
     
-    /** 스프링 태그에 사용되는 기본 MAP을 리턴한다. */
+    /** 
+     * 스프링 태그에 사용되는 기본 MAP을 리턴한다.
+     * 소스 참고만 하자
+     *  */
+    @Deprecated
     @SuppressWarnings("unchecked")
 	public static <T extends Enum<?>>  Map<String, String> enumToSpringTagMap(Class<T> clazz) {
 		Enum<?>[] ins = clazz.getEnumConstants();
@@ -411,7 +416,12 @@ public abstract class SpringUtil {
 		ExtendedServletRequestDataBinder binder = (ExtendedServletRequestDataBinder) binderFactory.createBinder(webRequest, vo, parameter.getParameterType().getSimpleName());
 		ServletWebRequest req = (ServletWebRequest) webRequest;
 		binder.bind(req.getRequest());
-		binder.validate();
+		
+		//그룹 적용
+		Validated validated = parameter.getParameterAnnotation(Validated.class); //상속한거도 정상작동하는지 확인
+		Object[] validationHints = validated == null ? null : validated.value();
+		binder.validate(validationHints);
+		
 		BindingResult bindingResult = binder.getBindingResult();
 		return bindingResult;
 	}

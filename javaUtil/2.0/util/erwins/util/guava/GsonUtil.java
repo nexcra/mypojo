@@ -102,5 +102,22 @@ public abstract class GsonUtil {
 	}
 	
 	
+	/** 
+	 * 단/복수 가리지 않고 문자열 리스트로 반환한다. 
+	 * 유연한 사용자 입력을 json으로 받을때 사용
+	 * */
+	public static JsonArray toArray(JsonElement element) {
+		if(element==null) return null;
+		if(element.isJsonPrimitive()) {
+			JsonArray array = new JsonArray();
+			array.add(element);
+			return array;
+		}
+		if(element.isJsonArray()) {
+			return element.getAsJsonArray();
+		}
+		return null;
+	}
+	
 
 }

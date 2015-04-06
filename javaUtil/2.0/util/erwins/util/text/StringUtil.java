@@ -19,8 +19,10 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 
 import erwins.util.counter.Latch;
@@ -960,14 +962,39 @@ public class StringUtil extends StringUtils {
 	 * 문자열을 캐릭터의 집합으로 변형시킨다.
 	 * 해당 단어와 동일한 문자열 구성원을 찾을때 사용했다.
 	 *  */
-	public static Set<Character> toCharSet(String keyword){
+	public static Set<Character> toCharSet(String text){
 		Set<Character> set = Sets.newHashSet();
-		for(int i=0;i<keyword.length();i++){
-			char w = keyword.charAt(i);
+		for(int i=0;i<text.length();i++){
+			char w = text.charAt(i);
 			set.add(w);
 		}
 		return set;
 	}
+	
+	/** 
+	 * toCharSet 와 동일
+	 *  */
+	public static Multiset<Character> toCharMultiSet(String text){
+		Multiset<Character> set = HashMultiset.<Character>create();
+		for(int i=0;i<text.length();i++){
+			char w = text.charAt(i);
+			set.add(w);
+		}
+		return set;
+	}
+	
+/*	*//** 
+	 * 클래스 파일에 들어있는 텍스트나 이미지 등을 사용할때 쓴다. 수정해서 사용하자.. 
+	 * ex) 
+	 *  *//*
+	public static String packageFileToString(Class<?> clazz,String fileName,String encoding){
+		String path = clazz.getPackage().getName().replaceAll("\\.", "\\/"); 
+		try {
+			return IOUtils.toString(clazz.getResourceAsStream(path + "/" + fileName),encoding);
+		} catch (IOException e) {
+			throw new IORuntimeException(e);
+		}
+	}*/
     
 
 }

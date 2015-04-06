@@ -12,11 +12,12 @@ import org.apache.commons.lang.time.DateUtils;
 /**
  * 영업일(공휴일/토,일요일을 제외한 일자) 계산기. 
  * 오픈소스에 버그가 있어서 걍 만듬
- * 늦은로딩을 하도록 싱들톤으로 제작할것.
- * JodaTime 버전... 나중에 만들자.  아래 소스수정 안함
+ * 늦은로딩을 하도록 싱들톤으로 제작할것. 
+ * ex) public static synchronized BusinessCalendar instance() 
+ * 추후 JodaTime으로 만들도록 하자
  * @author sin
  */
-public abstract class AbstractBusinessCalendar {
+public abstract class AbstractBusinessCalendar2 {
 
     /** 이 로직은 시분초를 무시함으로 key를 Date로 하지 않는다 */
     private Map<String, String> holidayMap = new HashMap<String, String>();

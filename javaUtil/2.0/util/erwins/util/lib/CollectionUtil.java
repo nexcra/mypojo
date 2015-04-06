@@ -92,6 +92,7 @@ public abstract class CollectionUtil extends CollectionUtils {
 	 * null safe하게 list의 개체를 반환한다. i가 최대값보다 크거나 음수일 경우 null을 리턴한다.
 	 */
 	public static <T> T nullSafeGet(List<T> list, int i,T nullObject) {
+		if(list==null) return nullObject;
 		int size = list.size();
 		if (i >= size || i < 0) return nullObject;
 		return list.get(i);
@@ -100,6 +101,7 @@ public abstract class CollectionUtil extends CollectionUtils {
     /** index가 짧거나, null이거나 String empty이면 nullObject를 반환한다.
      * Poi를 읽을때 사용한다. */
     public static <T> T nullSafeGet(T[] array,int index,T nullObject){
+    	if(array==null) return nullObject;
     	if(array.length <= index) return nullObject;
     	T result = array[index];
     	if(result==null) return nullObject;

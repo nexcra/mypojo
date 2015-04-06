@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +41,10 @@ public class JdbcUtil {
         		Enum<?> en = (Enum<?>) source;
         		return en.name();
         	}
+			if(source instanceof java.util.Date){
+				Date date = (Date) source;
+				return new java.sql.Date(date.getTime());
+			}
 			return source;
 		}
 	};

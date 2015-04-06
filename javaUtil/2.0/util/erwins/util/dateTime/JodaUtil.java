@@ -5,6 +5,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.base.AbstractInstant;
+import org.joda.time.base.AbstractPartial;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -43,6 +44,7 @@ public abstract class JodaUtil extends JodaTimeUtil {
     	TIME_KR(JodaUtil.TIME_KR),
     	YMDHMSS(JodaUtil.YMDHMSS),
     	YMDHMS(JodaUtil.YMDHMS),
+    	YMDHM(JodaUtil.YMDHM),
     	YMDH(JodaUtil.YMDH),
     	YMD(JodaUtil.YMD),
     	YM(JodaUtil.YM),
@@ -57,6 +59,9 @@ public abstract class JodaUtil extends JodaTimeUtil {
 			return new DateTime().toString(format);
 		}
 		public String get(AbstractInstant dateTime){
+			return dateTime.toString(format);
+		}
+		public String get(AbstractPartial dateTime){
 			return dateTime.toString(format);
 		}
 		/** 숫자 형식만 남겨서 파싱한다. */

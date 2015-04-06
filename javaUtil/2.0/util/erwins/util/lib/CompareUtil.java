@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections.map.ListOrderedMap;
+import org.springframework.util.PathMatcher;
 
 import com.google.common.base.Strings;
 import com.google.common.primitives.Ints;
@@ -152,6 +153,20 @@ public abstract class CompareUtil{
 		if (array == null || array.length == 0) return true;
 		return false;
 	}
+	
+	/** 
+	 * 많은 패턴을 매치해서 하나라고 매칭이 되는지?
+	 * 귀찮아서 한방에 해결하게 만듬 
+	 *  */
+	public static boolean isMatchAny(PathMatcher matcher,Collection<String> patterns,Collection<String> paths) {
+		for(String path : paths){
+			for(String pattern : patterns){
+				if(matcher.match(pattern, path)) return true;
+			}
+		}
+		return false;
+	}
+	
     
     /**
      * DB값을 더티체크할 목적으로 만들었다. 

@@ -260,9 +260,9 @@ public abstract class ReflectionUtil extends ReflectionUtils {
     public static class Fields{
     	public final Field field;
     	/** 정확한 대상 clazz를 명시해야 한다. */
-    	public Fields(Class<?> clazz,String methdName){
+    	public Fields(Class<?> clazz,String fieldName){
     		try {
-				field = clazz.getDeclaredField(methdName);
+				field = clazz.getDeclaredField(fieldName);
 			} catch (NoSuchFieldException e) {
 				throw new PropagatedRuntimeException(e);
 			}

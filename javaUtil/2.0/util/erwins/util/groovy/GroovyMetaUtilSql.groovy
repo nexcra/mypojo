@@ -26,13 +26,32 @@ public abstract class GroovyMetaUtilSql{
 			def columnNames = delegate.columns(tableName).collect { it.COLUMN_NAME }
 			Preconditions.checkState(columnNames.size() != 0,'$tableName : 컬럼수가 0입니다.')
 			def insertSql = "INSERT INTO $tableName (" + columnNames.join(',') + ') VALUES ('+ columnNames.collect { '?' }.join(',')  +')'
+			int success = delegate.insertListBatch(insertSql,list)
+			println "테이블 ${tableName}에 $success 건의 데이터가 입력되었습니다 "
+		}
+		
+		Sql.metaClass.insertListBatch = { String insertSql, List list ->
+			
+			//데이터 수정
+			List newList = []
+			list.each { item ->
+				List newItem = []
+				item.each{
+					if(it instanceof Date){
+						newItem << new java.sql.Date( ((Date)it).getTime() )
+					}else{
+						newItem << it
+					}
+				}
+				newList << newItem
+			}
+			
 			delegate.withTransaction {
 				delegate.withBatch 1000,insertSql,{ ps->
-					list.each { ps.addBatch(it) }
+					newList.each { ps.addBatch(it) }
 				}
 			}
-			int success =  list.size()
-			println "테이블 ${tableName}에 $success 건의 데이터가 입력되었습니다 "
+			return  newList.size()
 		}
 		
 		/**
@@ -55,29 +74,6 @@ public abstract class GroovyMetaUtilSql{
 		}
 		
 	}
-	
-	
-	/* ================================================================================== */
-	/*                                Util                                                */
-	/* ================================================================================== */
-   /** 해당 테이블 컬럼순서대로 파라메터를 입력 후 사용한다.  컬럼순서가 변경되면 안되니 주의! */
-   public void insertList(tableName,List list){
-	   def columnNames = columns(tableName).collect { it.COLUMN_NAME }
-	   insertList(tableName,columnNames,list)
-   }
-   
-   /** 1000개씩 배치로 묶어서 인서트한다. */
-   public void insertList(tableName,columnNames,List list){
-	   def insertSql = "INSERT INTO $tableName (" + columnNames.join(',') + ') VALUES ('+ columnNames.collect { '?' }.join(',')  +')'
-	   Sql.withTransaction {
-		   db.withBatch 1000,insertSql,{ ps->
-			   list.each { ps.addBatch(it) }
-		   }
-	   }
-	   int success =  list.size()
-	   println "테이블 ${tableName}에 $success 건의 데이터가 입력되었습니다 "
-   }
-   
 
 
 }

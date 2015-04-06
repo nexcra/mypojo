@@ -35,9 +35,12 @@ public abstract class AbstractUserDetailsAdminProvider implements Authentication
 		
 		try {
 			UserDetails user = userDetailsService.loadUserByUsername(authentication.getName());
+			//전처리. 계정에 문제가 있는지 판단.
 			preAuthenticationChecks.check(user);
+			//ID와 패스워드를 매칭
 			additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken)authentication);
-			postAuthenticationChecks.check(user); //안해도 될듯..
+			//부가정보를 로드해 준다.
+			postAuthenticationChecks.check(user);
 			
 			//원래 토큰이랑 틀리다!! 주의
 			UsernamePasswordAdminToken result = new UsernamePasswordAdminToken(user, authentication.getCredentials(), authoritiesMapper.mapAuthorities(user.getAuthorities()));
