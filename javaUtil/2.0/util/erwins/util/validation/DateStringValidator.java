@@ -6,8 +6,10 @@ import javax.validation.ConstraintValidatorContext;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import erwins.util.validation.constraints.DateString;
+
 /** 직접 파싱하는 방법을 사용함으로, 무거운 로직에는 사용하면 안된다. */
-public class DateTimeStringFormatValidator implements ConstraintValidator<DateTimeStringFormat,String>{
+public class DateStringValidator implements ConstraintValidator<DateString,String>{
 	
 	public DateTimeFormatter pattern ;
 
@@ -23,7 +25,7 @@ public class DateTimeStringFormatValidator implements ConstraintValidator<DateTi
 	}
 
 	@Override
-	public void initialize(DateTimeStringFormat annotation) {
+	public void initialize(DateString annotation) {
 		pattern = DateTimeFormat.forPattern(annotation.pattern());
 	}
 	
