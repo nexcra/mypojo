@@ -17,7 +17,7 @@ public class DateStringValidator implements ConstraintValidator<DateString,Strin
 	public boolean isValid(String text, ConstraintValidatorContext arg1) {
 		if(text==null) return true;
 		try {
-			pattern.parseDateTime(text);
+			pattern.parseDateTime(text); 
 		} catch (Exception e) {
 			return false;	
 		}
