@@ -46,6 +46,7 @@ import erwins.util.text.StringEscapeUtil;
  * HttpMethod 결과값의 302 는 리다이렉트 된것
  * @author sin
  */
+@Deprecated
 public class HttpClient3{
 	
 	/** 보안에 위험하니 주의! */
