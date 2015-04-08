@@ -26,8 +26,7 @@ public class Pattern2Validator implements ConstraintValidator<Pattern2,String>{
 		Matcher m = pattern.matcher(text);
 		if(!m.matches()){
 			String excludeText = m.replaceAll("");
-			context.disableDefaultConstraintViolation();
-			context.buildConstraintViolationWithTemplate(excludeText).addConstraintViolation();
+			ValidationUtil.replaceViolationText(context, excludeText);
 			return false;
 		}
 		

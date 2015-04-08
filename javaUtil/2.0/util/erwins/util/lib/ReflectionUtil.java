@@ -16,9 +16,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.groups.Default;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.lang.ClassUtils;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.MethodInvoker;
@@ -294,9 +298,16 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 		if (body == null || items.length == 0) return false;
 		for (Class<?> item : items)
 			if (item.isAssignableFrom(body)) return true;
-		
 		return false;
 	}
+	
+	/**  isAssignableFrom의 반대이다. body가 최 하위타입으로 온다.  **/
+/*	public static boolean isEachAssignableFrom(Class<?> body, Class<?>... items) {
+		if (body == null || items.length == 0) return false;
+		for (Class<?> item : items)
+			if (body.isAssignableFrom(item)) return true;
+		return false;
+	}*/
 	
 	/// =================================  이하 삭제대기 ================================================ //
 	/// =================================  이하 삭제대기 ================================================ //
@@ -375,6 +386,49 @@ public abstract class ReflectionUtil extends ReflectionUtils {
         	setField(field, exist, valueOfB);
         }
     }
+    
+    /**
+     * shallowCopyInput과 유사하나 NotNull Annotation을 체크해준다.
+     * inputFields 이거나 isRequired가 clazz에 해당된다면 값을 변경한다.
+     * ex) ReflectionUtil.shallowCopyInput(server, client,Default.class)
+     *  */
+    public static <T> boolean  shallowCopy(T server,T input,Class<?> clazz,String ... inputFields){
+    	boolean dirty = false; 
+    	List<Field> fields = getAllDeclaredFields(input.getClass());
+    	for(Field field : fields){
+    		boolean match = CompareUtil.isEqualsAny(field.getName(), inputFields);
+    		boolean required =  isRequired(field,clazz);
+    		if(!match && !required) continue;
+    		Object serverValue = getField(field, server); //null일 경우도 대입해준다.
+    		Object inputValue = getField(field, input); //null일 경우도 대입해준다.
+    		boolean change =  CompareUtil.isEqualIgnoreNull(serverValue, inputValue);
+    		if(change) {
+    			setField(field, server, inputValue);
+    			dirty = true;
+    		}
+    	}
+    	return dirty;
+    }
+
+    /** 
+     * 필수 컬럼인지? Annotation으로 판단한다.
+     *  */  
+    public static boolean isRequired(Field field,Class<?> clazz) {
+    	if(clazz==null) return false;
+		NotNull notNull = field.getAnnotation(NotNull.class);
+		if(notNull != null){
+			Class<?>[] groups = notNull.groups();
+			if(groups.length==0) groups = new Class<?>[]{Default.class};
+			if(isAssignableFrom(clazz, groups)) return true;
+		}
+		NotEmpty notEmpty = field.getAnnotation(NotEmpty.class);
+		if(notEmpty != null){
+			Class<?>[] groups = notEmpty.groups();
+			if(groups.length==0) groups = new Class<?>[]{Default.class};
+			if(isAssignableFrom(clazz, groups)) return true;
+		}
+		return false;
+	}
     
     /** masters 기준으로 slaves 값을 masters로 복사한다. masters가 많고 slaves가 적어야 한다.
      * 주의!  slave에는 있지만 master에는 없는 값은 무시된다.

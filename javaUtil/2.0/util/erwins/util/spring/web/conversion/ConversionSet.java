@@ -1,8 +1,10 @@
 package erwins.util.spring.web.conversion;
 
 import java.util.Date;
+import java.util.Locale;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.format.Printer;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Strings;
@@ -41,6 +43,16 @@ public abstract class ConversionSet {
 			}
 			throw new IllegalArgumentException(time +" 는 파싱할 수 없는 Date 타입입니다");
 		}
+	};
+	
+	/** 먹은거 그대로 싼다 */
+	public static Printer<String> PASS_THROUGH_PRINTER = new Printer<String>(){
+
+		@Override
+		public String print(String input, Locale arg1) {
+			return input;
+		}
+		
 	};
 	
 	

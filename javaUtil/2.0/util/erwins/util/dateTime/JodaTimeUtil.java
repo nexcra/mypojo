@@ -104,11 +104,14 @@ public abstract class JodaTimeUtil {
     	return FluentIterable.from(between).transform(JodaTimeUtil.formatFuction(JodaUtil.YMD));
     }
     
-    /** 까먹을까봐 여기 정리 */
+    /** 
+     * 까먹을까봐 여기 정리. 남는값은 버림한다.
+     * "일" 로 trim()하면 new LocalDate() 와 동일해진다.
+     * new LocalDate().toDate() == trim(dateTime,DateTimeFieldType.dayOfYear())
+     *  */
     public static DateTime trim(DateTime dateTime,DateTimeFieldType type){
     	return dateTime.property(type).roundFloorCopy();
     }
-    
     
 
 }

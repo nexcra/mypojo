@@ -38,10 +38,9 @@ public class StringFormatFactory implements AnnotationFormatterFactory<StringFor
 		};
 	}
 
-	/** 애는 뭔가.. 안쓴다. */
 	@Override
 	public Printer<?> getPrinter(StringFormat anno, Class<?> arg1) {
-		return null;
+		return ConversionSet.PASS_THROUGH_PRINTER;
 	}
 
 

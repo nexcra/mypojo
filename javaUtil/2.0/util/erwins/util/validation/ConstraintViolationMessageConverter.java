@@ -37,6 +37,7 @@ import com.google.common.collect.Maps;
 import erwins.util.spring.SpringConversions.PassThroughConverter;
 import erwins.util.spring.SpringUtil;
 import erwins.util.validation.constraints.DateString;
+import erwins.util.validation.constraints.EqAny;
 import erwins.util.validation.constraints.MaxByte;
 import erwins.util.validation.constraints.PairVo;
 import erwins.util.validation.constraints.Pattern2;
@@ -127,6 +128,7 @@ public class ConstraintViolationMessageConverter{
 		add(Length.class,"[#{fieldName}] : '#{rejectedValue}' <- 입력값의 길이는 제한조건(#{args[2]}~#{args[1]}) 사이여야 합니다");
 		add(MaxByte.class,"[#{fieldName}] : '#{rejectedValue}' <- 최대 입력 바이트수(#{args[1]}byte)를 초과하였습니다");
 		add(Size.class,"[#{fieldName}] : '#{rejectedValue}' <- 입력값의 길이는 제한조건인 #{args[2]}~#{args[1]} 사이여야 합니다"); //컬렉션도 되는애.. 별로임
+		add(EqAny.class,"[#{fieldName}] : '#{rejectedValue}' <- 입력가능한 값들(#{msg})이 아닙니다");
 		//기본-숫자
 		add(Max.class,"[#{fieldName}] : '#{rejectedValue}' <- 최대 입력값(#{args[1]}) 미만으로 입력해 주세요");
 		add(Min.class,"[#{fieldName}] : '#{rejectedValue}' <- 최소 입력값(#{args[1]}) 이상으로 입력해 주세요");
