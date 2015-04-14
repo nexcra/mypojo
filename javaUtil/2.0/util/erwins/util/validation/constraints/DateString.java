@@ -18,8 +18,6 @@ import erwins.util.validation.DateStringValidator;
  * @see @org.springframework.format.annotation.DateTimeFormat(pattern="yyyyMMdd")   */
 @Target({ElementType.FIELD,ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-//@DigitString
-
 @Constraint(validatedBy=DateStringValidator.class)
 public @interface DateString {
 	
