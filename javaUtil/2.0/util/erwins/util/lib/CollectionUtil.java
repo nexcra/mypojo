@@ -64,6 +64,11 @@ public abstract class CollectionUtil extends CollectionUtils {
 		return list.iterator().next();
 	}
 	
+	public static <T> T getFirst(T[] list) {
+		if (list == null) return null;
+		else if (list.length == 0) return null;
+		return list[0];
+	}
 
 	/**
 	 * 마지막 객체를 반환한다.

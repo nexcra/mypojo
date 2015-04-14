@@ -231,7 +231,7 @@ public class StopWatch {
      * 각 태스크의 percent를 리턴한다. 간이 메소드..
      */
     public String getPercent(int i) {
-        return MathUtil.getRate(totalNanoTime,taskList.get(i).getNanoTime(),2) + "%";
+        return MathUtil.rateByLong(totalNanoTime,taskList.get(i).getNanoTime(),2) + "%";
     }
 
     @Override

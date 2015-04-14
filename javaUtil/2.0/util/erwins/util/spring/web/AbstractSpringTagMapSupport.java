@@ -13,6 +13,7 @@ import com.google.gson.JsonSyntaxException;
 
 import erwins.util.collections.AbstractMapSupport;
 import erwins.util.lib.ReflectionUtil;
+import erwins.util.root.Incompleted;
 import erwins.util.spring.SpringConversions;
 
 
@@ -23,6 +24,7 @@ import erwins.util.spring.SpringConversions;
  * ex) <form:select path="password" items="${enum['BulkUploadDiv|{name=BulkUploadDiv,eq={aa1:true},start={전체:all}}']}" />
  * ex) items="${enums['{name=tradeDiv,eq={chargeDiv=FOC,typeDiv=CHARGE}}|{name=tradeDiv,eq={chargeDiv=FOC,typeDiv=USE}}']}"
  * */ 
+@Incompleted(message="bean 방식으로 수정할것")
 public abstract class AbstractSpringTagMapSupport<T> extends AbstractMapSupport<String,Map<String,String>>{
 	
 	private final JsonParser jsonParser = new JsonParser();

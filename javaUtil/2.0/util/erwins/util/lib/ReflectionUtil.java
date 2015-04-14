@@ -401,7 +401,7 @@ public abstract class ReflectionUtil extends ReflectionUtils {
     		if(!match && !required) continue;
     		Object serverValue = getField(field, server); //null일 경우도 대입해준다.
     		Object inputValue = getField(field, input); //null일 경우도 대입해준다.
-    		boolean change =  CompareUtil.isEqualIgnoreNull(serverValue, inputValue);
+    		boolean change =  !CompareUtil.isEqualIgnoreNull(serverValue, inputValue);
     		if(change) {
     			setField(field, server, inputValue);
     			dirty = true;
@@ -541,6 +541,14 @@ public abstract class ReflectionUtil extends ReflectionUtils {
 		Preconditions.checkArgument(vo!=null, "vo is required");
 		if(isOverridedToString(vo)) return vo.toString();
 		return StringUtil.toStringByReflection(vo);
+	}
+	
+	/** 그루비 템플릿 엔진이 map 형식만 받기 때문에 임시로 만듬. 걍 내용물을 다 map으로 때려박는다. */
+	public static Map<String, Object> toMapAsFirstDepth(Object bean){
+		Map<String, Object> map = Maps.newHashMap();
+		List<Field> fields = ReflectionUtil.getAllDeclaredFields(bean.getClass()); 
+		for(Field field : fields) map.put(field.getName(), ReflectionUtil.getField(field, bean));
+		return map;
 	}
     
     

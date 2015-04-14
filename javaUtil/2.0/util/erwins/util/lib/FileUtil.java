@@ -811,6 +811,10 @@ public abstract class FileUtil extends FileUtils {
 		File root = new File(clazz.getClassLoader().getResource("").getFile()); //WebContent\WEB-INF\classes 가 된다.
 		return root.getParentFile().getParentFile();
 	}
+	
+	public static File findClassDir(Class<?> clazz) {
+		return  new File(clazz.getResource("").getFile());
+	}
 		
 
 }

@@ -109,7 +109,7 @@ public abstract class MathUtil {
     }
 
     /**
-     * A-B를 구한다. 결과가 음수라면 0을 리턴한다.
+     * A-B를 구한다. 결과가 음수라면 0을 리턴한다... 쓸데가 있나?
      */
     public static BigDecimal getInterval(BigDecimal A, BigDecimal B) {
         BigDecimal interval = A.add(B.negate());
@@ -117,24 +117,24 @@ public abstract class MathUtil {
         return interval;
     }
     
-    /**
-     * A/sum의 %를 구한다. 
-     * p는 소수2째자리까지 구한다면 4이다.  보통 8 정도?
-     */
-    public static BigDecimal getRate(BigDecimal sum, BigDecimal value,int p,int outScale) {
+    
+    public static BigDecimal div(BigDecimal sum, BigDecimal value,int scale){
         if(isZero(sum,value)) return BigDecimal.ZERO;
-        return value.divide(sum,p,BigDecimal.ROUND_HALF_UP).multiply(HUNDRED).setScale(outScale);
+        return value.divide(sum,scale,BigDecimal.ROUND_HALF_UP);
     }
-    /** ex) 34.87%  */
-    public static BigDecimal getRate(BigDecimal sum, BigDecimal value) {
-    	return getRate(sum,value,4,2);
+    
+    /** 퍼센테이지를 구한다. *100하는거 외엔 동일 */
+    public static BigDecimal rate(BigDecimal sum, BigDecimal value,int scale){
+        if(isZero(sum,value)) return BigDecimal.ZERO;
+        return value.divide(sum,scale+2,BigDecimal.ROUND_HALF_UP).multiply(HUNDRED).setScale(scale,BigDecimal.ROUND_HALF_UP);
     }
+    
     
     /**
      * Number를 Long으로 변환해서 계산한다. 편의용 메소드. 
      */
-    public static BigDecimal getRate(Number sum, Number value,int p) {
-        return getRate(new BigDecimal(sum.longValue()),new BigDecimal(value.longValue()),p,2);//2?
+    public static BigDecimal rateByLong(Number sum, Number value,int scale) {
+        return rate(new BigDecimal(sum.longValue()),new BigDecimal(value.longValue()),scale);
     }
     
     /**

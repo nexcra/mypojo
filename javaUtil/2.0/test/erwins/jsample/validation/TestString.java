@@ -6,12 +6,13 @@ import org.springframework.validation.DataBinder;
 
 
 
-public class TestString01 extends TestRoot{
+public class TestString extends TestRoot{
 	
 	
 	@Test
 	public void test() throws InterruptedException{
-		TestStringBean01 vo = new TestStringBean01();
+		
+		TestStringBean vo = new TestStringBean();
 		DataBinder binder = new DataBinder(vo);
 		binder.setValidator(validator);
 		binder.setConversionService(conversionService);
@@ -25,11 +26,15 @@ public class TestString01 extends TestRoot{
 		pvs.add("s06",  "aab");
 		pvs.add("s07",  "abcio72349lkj^^");
 		pvs.add("s08",  "abcIBF12984G72349lkj^^");
+		pvs.add("s09",  "B");
+		pvs.add("s10",  "EN01");
+		pvs.add("s11",  "EN01");
+		pvs.add("s12",  "EN03");
 		pvs.add("email","  asd@gmail.com ");
 		pvs.add("url", "http://asdsa.com");
 		pvs.add("cno", "2534846");
-		pvs.add("startDate", "2015");
-		pvs.add("endDate", "2016");
+		pvs.add("startDate", "20150527");
+		pvs.add("endDate", "201403");
 		pvs.add("num", "54");
 		
 		

@@ -3,6 +3,7 @@ package erwins.util.spring.web.conversion;
 import java.util.Date;
 import java.util.Locale;
 
+import org.joda.time.DateTime;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.Printer;
 
@@ -24,24 +25,32 @@ public abstract class ConversionSet {
 	public static final Converter<String,Date> TO_DATE =  new Converter<String,Date>() {
 		@Override
 		public Date convert(String timeStr) {
+			DateTime time = TO_DATETIME.convert(timeStr);
+			return time==null ? null : time.toDate();
+		}
+	};
+	
+	public static final Converter<String,DateTime> TO_DATETIME =  new Converter<String,DateTime>() {
+		@Override
+		public DateTime convert(String timeStr) {
 			if(timeStr==null) return null;
 			String time = CharMatcher.DIGIT.retainFrom(timeStr);
 			if(Strings.isNullOrEmpty(time)) return null;
 			int timeLength = time.length();
 			if(timeLength==6){
-				return Joda.YM.get(time).toDate();
+				return Joda.YM.get(time);
 			}else if(timeLength==8){
-				return Joda.YMD.get(time).toDate();
+				return Joda.YMD.get(time);
 			}else if(timeLength==10){
-				return Joda.YMDH.get(time).toDate();
+				return Joda.YMDH.get(time);
 			}else if(timeLength==12){
-				return Joda.YMDHM.get(time).toDate();
+				return Joda.YMDHM.get(time);
 			}else if(timeLength==14){
-				return Joda.YMDHMS.get(time).toDate();
+				return Joda.YMDHMS.get(time);
 			}else if(timeLength==17){
-				return Joda.YMDHMSS.get(time).toDate();
+				return Joda.YMDHMSS.get(time);
 			}
-			throw new IllegalArgumentException(time +" 는 파싱할 수 없는 Date 타입입니다");
+			throw new IllegalArgumentException(time +" 는 파싱할 수 없는 DateTime 타입입니다");
 		}
 	};
 	

@@ -12,6 +12,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import erwins.util.nio.ThreadUtil;
+import erwins.util.spring.web.conversion.ConversionSet;
 import erwins.util.spring.web.conversion.PatternFormatFactory;
 import erwins.util.spring.web.conversion.StringFormatFactory;
 import erwins.util.validation.ConstraintViolationMessageConverter;
@@ -37,9 +38,10 @@ public abstract class TestRoot{
 		validator.afterPropertiesSet();
 		
 		conversionService = new FormattingConversionService();
+		conversionService.addConverter(ConversionSet.TO_DATE);
+		conversionService.addConverter(ConversionSet.TO_DATETIME);
 		conversionService.addFormatterForFieldAnnotation(new StringFormatFactory());
 		conversionService.addFormatterForFieldAnnotation(new PatternFormatFactory());
-		
 		
 		constraintViolationMessageConverter = new ConstraintViolationMessageConverter();
 	}

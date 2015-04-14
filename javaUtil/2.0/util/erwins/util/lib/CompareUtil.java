@@ -154,6 +154,15 @@ public abstract class CompareUtil{
 		return false;
 	}
 	
+    /** null safe한 isEmpty() */
+    public static boolean isEmptyObject(Object obj){
+    	if(obj==null) return true;
+    	if(obj instanceof String) return Strings.isNullOrEmpty((String)obj);
+    	if(obj instanceof Collection) return isEmpty((Collection<?>)obj);
+    	if(obj.getClass().isArray()) return isEmpty((Object[])obj);
+    	return false;
+    }
+	
 	/** 
 	 * 많은 패턴을 매치해서 하나라고 매칭이 되는지?
 	 * 귀찮아서 한방에 해결하게 만듬 

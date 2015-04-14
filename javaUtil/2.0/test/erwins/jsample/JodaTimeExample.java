@@ -1,7 +1,6 @@
 package erwins.jsample;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import org.joda.time.DateTime;
@@ -10,15 +9,12 @@ import org.joda.time.Days;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
 import org.joda.time.Months;
-import org.joda.time.Period;
 import org.joda.time.PeriodType;
 import org.joda.time.Weeks;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.Assert;
 import org.junit.Test;
-
-import erwins.util.dateTime.JodaTimeUtil;
 
 
 /** 
@@ -35,14 +31,6 @@ public class JodaTimeExample{
     
 	DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 	
-	
-	@Test
-    public void toList(){
-		List<DateTime> result =  JodaTimeUtil.toList(new DateTime(),Period.days(1),5);
-		for(DateTime each : result){
-			System.out.println(fmt.print(each));
-		}
-	}
 	
 	/** 기본기 */
 	//@Test
