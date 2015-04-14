@@ -1,11 +1,13 @@
 package erwins.util.validation;
 
+import java.text.MessageFormat;
 import java.util.Set;
 
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.ValidationException;
 import javax.validation.Validator;
 
 import org.springframework.core.MethodParameter;
@@ -37,6 +39,13 @@ public abstract class ValidationUtil{
 	public static void replaceViolationText(ConstraintValidatorContext context,String text){
 		context.disableDefaultConstraintViolation();
 		context.buildConstraintViolationWithTemplate(text).addConstraintViolation();
+	}
+	
+	/** 간이용도!! 상태가 이상하면 예외를 던진다. */
+	public static void check(boolean valid,String pattern,Object ... arguments){
+		if(valid) return;
+		String errorMsg = MessageFormat.format(pattern, arguments);
+		throw new ValidationException(errorMsg);
 	}
 	
 	

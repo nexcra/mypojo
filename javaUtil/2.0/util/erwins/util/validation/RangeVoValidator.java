@@ -4,7 +4,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import erwins.util.lib.ReflectionUtil;
-import erwins.util.validation.constraints.RangeVo;
+import erwins.util.validation.constraints.vo.RangeVo;
 
 public class RangeVoValidator implements ConstraintValidator<RangeVo,Object>{
 	
@@ -21,10 +21,10 @@ public class RangeVoValidator implements ConstraintValidator<RangeVo,Object>{
 		if(endValue==null) return true;
 		
 		boolean  isValid = startValue.compareTo(endValue) <= 0;
-		if(!isValid){
-			context.disableDefaultConstraintViolation();
-			context.buildConstraintViolationWithTemplate(startValue + " ~ " + endValue).addConstraintViolation();
-		}
+//		if(!isValid){
+//			context.disableDefaultConstraintViolation();
+//			context.buildConstraintViolationWithTemplate(startValue + " ~ " + endValue).addConstraintViolation();
+//		}
 		return isValid ;
 	}
 

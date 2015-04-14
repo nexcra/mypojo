@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Max;
@@ -32,16 +33,18 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import erwins.util.spring.SpringConversions.PassThroughConverter;
 import erwins.util.spring.SpringUtil;
 import erwins.util.validation.constraints.DateString;
-import erwins.util.validation.constraints.EqAny;
+import erwins.util.validation.constraints.Match;
 import erwins.util.validation.constraints.MaxByte;
-import erwins.util.validation.constraints.PairVo;
 import erwins.util.validation.constraints.Pattern2;
-import erwins.util.validation.constraints.RangeVo;
+import erwins.util.validation.constraints.vo.CompositeVo;
+import erwins.util.validation.constraints.vo.RangeVo;
 
 public class ConstraintViolationMessageConverter{
     
@@ -56,6 +59,20 @@ public class ConstraintViolationMessageConverter{
 		internalAnnotationAttributes.add("message");
 		internalAnnotationAttributes.add("groups");
 		internalAnnotationAttributes.add("payload");
+	}
+	
+	public String convert(WebDataValidationException e,String separator){
+		List<String> msg = Lists.newArrayList();
+    	for(FieldError error :  e.getFieldError()) msg.add(convert(error));
+    	return Joiner.on(separator).join(msg);
+	}
+	
+	public String convert(ConstraintViolationException e,String separator){
+		List<String> msg = Lists.newArrayList();
+		for(ConstraintViolation<?> violation : e.getConstraintViolations() ){
+			msg.add(convert(violation));
+		}
+    	return Joiner.on(separator).join(msg);
 	}
 	
 	/** 스프링의 필드 에러. 어차피 이건 ConstraintViolation에서 변형되는거다.. 왜이따위로 되있는지는 의문. 나중에 사라질듯.. */
@@ -77,7 +94,7 @@ public class ConstraintViolationMessageConverter{
 	public String convert(ConstraintViolation<?> violation){
 		ConstraintViolationBean bean = new ConstraintViolationBean();
 		Annotation annotation = violation.getConstraintDescriptor().getAnnotation();
-		bean.setCode(annotation.getClass().getSimpleName());
+		bean.setCode(annotation.annotationType().getSimpleName()); // Proxy 임으로  annotation.getClass().getSimpleName() 하면 안된다.
 		bean.setMsg(violation.getMessage()); //??
 		
 		//이하 Args 추출구간 복붙했다.
@@ -128,7 +145,7 @@ public class ConstraintViolationMessageConverter{
 		add(Length.class,"[#{fieldName}] : '#{rejectedValue}' <- 입력값의 길이는 제한조건(#{args[2]}~#{args[1]}) 사이여야 합니다");
 		add(MaxByte.class,"[#{fieldName}] : '#{rejectedValue}' <- 최대 입력 바이트수(#{args[1]}byte)를 초과하였습니다");
 		add(Size.class,"[#{fieldName}] : '#{rejectedValue}' <- 입력값의 길이는 제한조건인 #{args[2]}~#{args[1]} 사이여야 합니다"); //컬렉션도 되는애.. 별로임
-		add(EqAny.class,"[#{fieldName}] : '#{rejectedValue}' <- 입력가능한 값들(#{msg})이 아닙니다");
+		add(Match.class,"[#{fieldName}] : '#{rejectedValue}' <- 입력가능한 값들(#{msg})이 아닙니다");
 		//기본-숫자
 		add(Max.class,"[#{fieldName}] : '#{rejectedValue}' <- 최대 입력값(#{args[1]}) 미만으로 입력해 주세요");
 		add(Min.class,"[#{fieldName}] : '#{rejectedValue}' <- 최소 입력값(#{args[1]}) 이상으로 입력해 주세요");
@@ -143,7 +160,7 @@ public class ConstraintViolationMessageConverter{
 		add(ScriptAssert.class,"#{msg}"); //애는 답이없다. 참고만 하던가 알아서 쓰자.  ex) @ScriptAssert(lang = "javascript", script = "_this.startDate > _this.endDate")
 		//커스텀-클래스
 		add(RangeVo.class,"[#{msg}] <- #{args[4]}은 #{args[2]}보다 작거나 같아야 합니다");
-		add(PairVo.class,"#{args[4]} 또는  #{args[2]} 는 둘다 비어있거나 둘다 입력되어야 합니다");
+		add(CompositeVo.class,"[#{msg}] <- 모두 비어있거나 모두 입력되어야 합니다");
 	}
 	
 	
